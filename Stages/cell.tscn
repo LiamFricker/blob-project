@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://40hcl2pacvut"]
+
+[ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="1_mjuci"]
+
+[node name="Cell" type="Node2D"]
+
+[node name="Blob-Swim" parent="." instance=ExtResource("1_mjuci")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(4, 4)

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7xp3x3c1ixlw"]
+
+[ext_resource type="Script" uid="uid://q8tl0nmksvtc" path="res://blob_sky.gd" id="1_w4dvn"]
+
+[node name="blob-sky" type="CharacterBody2D"]
+script = ExtResource("1_w4dvn")
