@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://qora73oubnt4"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_oncep"]
+radius = 323.002
+
+[node name="HUD_swim" type="CanvasLayer"]
+
+[node name="Left" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_bottom = 161.0
+
+[node name="ColorRect" type="ColorRect" parent="Left"]
+offset_right = 253.0
+offset_bottom = 648.0
+color = Color(0.67, 0.67, 0.67, 0.529412)
+
+[node name="Left" type="HBoxContainer" parent="Left"]
+offset_right = 63.0
+offset_bottom = 161.0
+
+[node name="Right" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 576.0
+offset_right = 616.0
+offset_bottom = 40.0
+
+[node name="ColorRect2" type="ColorRect" parent="Right"]
+offset_left = 323.0
+offset_right = 576.0
+offset_bottom = 648.0
+color = Color(0.63, 0.63, 0.63, 0.568627)
+
+[node name="Right" type="HBoxContainer" parent="Right"]
+offset_left = 225.0
+offset_right = 288.0
+offset_bottom = 161.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2(576, 324)
+shape = SubResource("CircleShape2D_oncep")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(576, 324)
+enabled = false

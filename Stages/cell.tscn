@@ -1,10 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://40hcl2pacvut"]
+[gd_scene load_steps=4 format=3 uid="uid://40hcl2pacvut"]
 
 [ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="1_mjuci"]
+[ext_resource type="PackedScene" uid="uid://qora73oubnt4" path="res://HUD/hud_swim.tscn" id="2_8dafd"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mjuci"]
+radius = 81.0
 
 [node name="Cell" type="Node2D"]
+
+[node name="HUD_swim" parent="." instance=ExtResource("2_8dafd")]
 
 [node name="Blob-Swim" parent="." instance=ExtResource("1_mjuci")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(4, 4)
+enabled = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_mjuci")
