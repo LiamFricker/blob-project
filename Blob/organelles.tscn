@@ -1,0 +1,552 @@
+[gd_scene load_steps=3 format=3 uid="uid://dg88vj8yfbw4t"]
+
+[ext_resource type="Script" uid="uid://c8wdjj62ig23i" path="res://Blob/organelles.gd" id="1_bqyhu"]
+[ext_resource type="Texture2D" uid="uid://5aqovn4bubul" path="res://Art/Cell/TestTextureLarge.png" id="2_hh14l"]
+
+[node name="Organelles" type="Node2D"]
+script = ExtResource("1_bqyhu")
+
+[node name="Cytoplasm" type="Polygon2D" parent="."]
+visible = false
+color = Color(0.2847, 0.32923, 0.73, 0.878431)
+polygon = PackedVector2Array(-128, -128, 128, -128, 128, 128, -128, 128)
+
+[node name="TestTexture" type="Sprite2D" parent="."]
+position = Vector2(160, 160)
+texture = ExtResource("2_hh14l")
+
+[node name="Center" type="Node2D" parent="."]
+position = Vector2(32, 32)
+
+[node name="Nuclear" type="Node2D" parent="Center"]
+scale = Vector2(0.75, 0.75)
+
+[node name="NuclearPasta" type="Polygon2D" parent="Center/Nuclear"]
+position = Vector2(-6, -5)
+color = Color(0.878431, 1, 0.329412, 0.784314)
+polygon = PackedVector2Array(1, 1, -3, 5, -4, 5, 0, 1, -1, 0, -4, 2, -5, 1, -2, -1, -3, -2, -8, 1, -9, 0, -8, -2, -4, -3, -1, -5, -2, -7, 2, -7, 2, -6, 0, -6, 0, -5, -1, -3, -1, -2, 2, -3, 2, -2, 0, -1)
+
+[node name="AntiSpaghetti" type="Polygon2D" parent="Center/Nuclear"]
+position = Vector2(7, 1)
+color = Color(0.877167, 1, 0.33, 0.784314)
+polygon = PackedVector2Array(0, 0, 2, 0, 1, -4, 2, -6, 3, -1, 4, -2, 4, -4, 3, -7, 4, -7, 5, -3, 5, 0, 6, 0, 7, -1, 6, -4, 7, -3, 8, 0, 9, 2, 8, 2, 7, 4, 7, 1, 5, 2, 4, 5, 3, 4, 4, 1, 3, 1, 2, 6, 1, 6, 1, 4, 0, 5, 0, 8, -2, 7, -1, 5, 1, 3, 1, 1, 0, 1)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Nuclear"]
+color = Color(0.2849, 0.77, 0.697235, 1)
+polygon = PackedVector2Array(8, 3, 8, -3, 3, -8, -3, -8, -8, -3, -8, 3, -3, 8, 3, 8)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Nuclear/Polygon2D"]
+color = Color(1, 1, 1, 0.541176)
+polygon = PackedVector2Array(-3, -7, -6, -4, -6, -3, -3, -6)
+
+[node name="Nucliest" type="Polygon2D" parent="Center/Nuclear"]
+color = Color(0.0765, 0.45, 0.393975, 1)
+polygon = PackedVector2Array(5, 2, 5, -2, 2, -5, -2, -5, -5, -2, -5, 2, -2, 5, 2, 5)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Nuclear/Nucliest"]
+position = Vector2(3, 2)
+color = Color(1, 1, 1, 0.862745)
+polygon = PackedVector2Array(-5, -6, -7, -4, -7, -3, -5, -5)
+
+[node name="Nuke" type="Polygon2D" parent="Center/Nuclear"]
+color = Color(0.2622, 0.38, 0.36233, 1)
+polygon = PackedVector2Array(-8, -20, -3, -8, 3, -8, 8, -20)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Nuclear/Nuke"]
+position = Vector2(7, -15)
+color = Color(1, 1, 1, 0.862745)
+polygon = PackedVector2Array(-8, 2, -6, 2, -6, 0, -8, 0)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Nuclear/Nuke"]
+position = Vector2(4, -18)
+color = Color(1, 1, 1, 0.862745)
+polygon = PackedVector2Array(-8, 2, -6, 2, -6, 0)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Nuclear/Nuke"]
+position = Vector2(10, -18)
+color = Color(1, 1, 1, 0.862745)
+polygon = PackedVector2Array(-8, 2, -6, 2, -8, 0)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/Nuclear/Nuke"]
+position = Vector2(7, -12)
+color = Color(1, 1, 1, 0.862745)
+polygon = PackedVector2Array(-8, 2, -6, 2, -7, 0)
+
+[node name="GolgiBerry" type="Node2D" parent="Center"]
+position = Vector2(-11, -19)
+rotation = -0.718356
+
+[node name="Node2D3" type="Node2D" parent="Center/GolgiBerry"]
+modulate = Color(0.63, 0.1827, 0.1827, 1)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/GolgiBerry/Node2D3"]
+position = Vector2(0, -4)
+polygon = PackedVector2Array(-8, 1, -6, 0, 0, -1, 6, 0, 8, 1, 8, 0, 6, -1, 0, -2, -6, -1, -8, 0)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/GolgiBerry/Node2D3"]
+polygon = PackedVector2Array(-8, 1, -6, 0, 0, -1, 6, 0, 8, 1, 8, 0, 6, -1, 0, -2, -6, -1, -8, 0)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/GolgiBerry/Node2D3"]
+position = Vector2(0, -2)
+polygon = PackedVector2Array(-8, 1, -6, 0, 0, -1, 6, 0, 8, 1, 8, 0, 6, -1, 0, -2, -6, -1, -8, 0)
+
+[node name="Node2D" type="Node2D" parent="Center/GolgiBerry"]
+modulate = Color(0.83, 0.1826, 0.1826, 1)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/GolgiBerry/Node2D"]
+polygon = PackedVector2Array(-7, 1, -6, 0, 0, -1, 6, 0, 7, 1, 8, 1, 6, -1, 0, -2, -6, -1, -8, 1)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/GolgiBerry/Node2D"]
+position = Vector2(0, -2)
+polygon = PackedVector2Array(-7, 1, -6, 0, 0, -1, 6, 0, 7, 1, 8, 1, 6, -1, 0, -2, -6, -1, -8, 1)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/GolgiBerry/Node2D"]
+position = Vector2(0, -4)
+polygon = PackedVector2Array(-7, 1, -6, 0, 0, -1, 6, 0, 7, 1, 8, 1, 6, -1, 0, -2, -6, -1, -8, 1)
+
+[node name="Node2D2" type="Node2D" parent="Center/GolgiBerry"]
+modulate = Color(0.89, 0.385667, 0, 1)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/GolgiBerry/Node2D2"]
+position = Vector2(0, -2)
+polygon = PackedVector2Array(-7, 1, -5, 0, 0, -1, 5, 0, 7, 1, 8, 1, 5, -1, 0, -2, -5, -1, -8, 1)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/GolgiBerry/Node2D2"]
+position = Vector2(0, -4)
+polygon = PackedVector2Array(-7, 1, -5, 0, 0, -1, 5, 0, 7, 1, 8, 1, 5, -1, 0, -2, -5, -1, -8, 1)
+
+[node name="Polygon2D5" type="Polygon2D" parent="Center/GolgiBerry/Node2D2"]
+polygon = PackedVector2Array(-7, 1, -5, 0, 0, -1, 5, 0, 7, 1, 8, 1, 5, -1, 0, -2, -5, -1, -8, 1)
+
+[node name="Node2D5" type="Node2D" parent="Center/GolgiBerry"]
+modulate = Color(1, 0.219608, 0.219608, 1)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/GolgiBerry/Node2D5"]
+position = Vector2(1.16029, 0.814286)
+polygon = PackedVector2Array(-9.85187, -3.35523, -10, -2, -8.9289, -2.97035)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/GolgiBerry/Node2D5"]
+position = Vector2(1.07617, 2.61569)
+polygon = PackedVector2Array(-9.85187, -3.35523, -10, -2, -8.9289, -2.97035)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/GolgiBerry/Node2D5"]
+position = Vector2(1.22938, 4.8465)
+polygon = PackedVector2Array(-9.85187, -3.35523, -10, -2, -8.9289, -2.97035)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/GolgiBerry/Node2D5"]
+position = Vector2(-1.92439, 4.61483)
+scale = Vector2(-1, 1)
+polygon = PackedVector2Array(-9.85187, -3.35523, -10, -2, -8.9289, -2.97035)
+
+[node name="Polygon2D5" type="Polygon2D" parent="Center/GolgiBerry/Node2D5"]
+position = Vector2(-1.15464, 2.7689)
+scale = Vector2(-1, 1)
+polygon = PackedVector2Array(-9.85187, -3.35523, -10, -2, -8.9289, -2.97035)
+
+[node name="Polygon2D6" type="Polygon2D" parent="Center/GolgiBerry/Node2D5"]
+position = Vector2(-1.30785, 0.538087)
+scale = Vector2(-1, 1)
+polygon = PackedVector2Array(-9.85187, -3.35523, -10, -2, -8.9289, -2.97035)
+
+[node name="Node2D6" type="Node2D" parent="Center/GolgiBerry"]
+modulate = Color(1, 0.61, 0.22, 1)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/GolgiBerry/Node2D6"]
+polygon = PackedVector2Array(-9, -3, -10, -2, -9, -2)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/GolgiBerry/Node2D6"]
+position = Vector2(0, 2)
+polygon = PackedVector2Array(-9, -3, -10, -2, -9, -2)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/GolgiBerry/Node2D6"]
+position = Vector2(0, 4)
+polygon = PackedVector2Array(-9, -3, -10, -2, -9, -2)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/GolgiBerry/Node2D6"]
+position = Vector2(19, 4)
+polygon = PackedVector2Array(-10, -3, -10, -2, -9, -2)
+
+[node name="Polygon2D5" type="Polygon2D" parent="Center/GolgiBerry/Node2D6"]
+position = Vector2(19, 2)
+polygon = PackedVector2Array(-10, -3, -10, -2, -9, -2)
+
+[node name="Polygon2D6" type="Polygon2D" parent="Center/GolgiBerry/Node2D6"]
+position = Vector2(19, 0)
+polygon = PackedVector2Array(-10, -3, -10, -2, -9, -2)
+
+[node name="Energy" type="Node2D" parent="Center"]
+
+[node name="Powerhouse" type="Node2D" parent="Center/Energy"]
+position = Vector2(-20, 8)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Energy/Powerhouse"]
+color = Color(0.88, 0.8712, 0.352, 0.807843)
+polygon = PackedVector2Array(0, 2, -4, 1, -6, 4, -4, 9, 2, 14, 7, 14, 8, 11, 5, 9, 2, 6)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Energy/Powerhouse"]
+position = Vector2(1, 1)
+color = Color(0.87, 0.864635, 0.5481, 0.807843)
+polygon = PackedVector2Array(-2, 2, -4, 1, -6, 4, -4, 8, 1, 12, 5, 12, 5, 10, 1, 7)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Energy/Powerhouse"]
+position = Vector2(0, 1)
+color = Color(0.6, 0.5963, 0.378, 0.807843)
+polygon = PackedVector2Array(-4, 4, -2, 1, -3, 1, -5, 4, -5, 5, -4, 6, -1, 4, -2, 5, -3, 6, -3, 7, -3, 8, 1, 7, 1, 8, -2, 8, -2, 9, 1, 9, -1, 10, 1, 11, 3, 12, 4, 12, 7, 11, 6, 10, 4, 11, 3, 11, 5, 9, 4, 8, 2, 10, 1, 10, 3, 7.99049, 3, 7, 1, 6, -2, 7, 1, 5, 0, 5, -2, 6, 0, 4, -1, 3, -4, 5, -1, 2, -2, 2)
+
+[node name="Powerhouse2" type="Node2D" parent="Center/Energy"]
+position = Vector2(23, -10)
+rotation = 2.98273
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Energy/Powerhouse2"]
+color = Color(0.88, 0.8712, 0.352, 0.807843)
+polygon = PackedVector2Array(0, 2, -4, 1, -6, 4, -4, 9, 2, 14, 7, 14, 8, 11, 5, 9, 2, 6)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Energy/Powerhouse2"]
+position = Vector2(1, 1)
+color = Color(0.87, 0.864635, 0.5481, 0.807843)
+polygon = PackedVector2Array(-2, 2, -4, 1, -6, 4, -4, 8, 1, 12, 5, 12, 5, 10, 1, 7)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Energy/Powerhouse2"]
+position = Vector2(0, 1)
+color = Color(0.6, 0.5963, 0.378, 0.807843)
+polygon = PackedVector2Array(-4, 4, -2, 1, -3, 1, -5, 4, -5, 5, -4, 6, -1, 4, -2, 5, -3, 6, -3, 7, -3, 8, 1, 7, 1, 8, -2, 8, -2, 9, 1, 9, -1, 10, 1, 11, 3, 12, 4, 12, 7, 11, 6, 10, 4, 11, 3, 11, 5, 9, 4, 8, 2, 10, 1, 10, 3, 7.99049, 3, 7, 1, 6, -2, 7, 1, 5, 0, 5, -2, 6, 0, 4, -1, 3, -4, 5, -1, 2, -2, 2)
+
+[node name="Plant" type="Node2D" parent="Center"]
+
+[node name="Macarons" type="Node2D" parent="Center/Plant"]
+position = Vector2(16, 0)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-18, -1)
+color = Color(0, 0.5, 0, 1)
+polygon = PackedVector2Array(16, -3, 16, 5, 18, 7, 19, 7, 21, 5, 21, -3, 19, -5, 18, -5)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-17, 0)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-17, 1)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-17, 2)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D5" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-17, 3)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D6" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-17, 5)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D7" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-17, 6)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D8" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-17, 7)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D9" type="Polygon2D" parent="Center/Plant/Macarons"]
+position = Vector2(-17, 8)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Macarons2" type="Node2D" parent="Center/Plant"]
+position = Vector2(3, 7)
+rotation = 0.463674
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-18, -1)
+color = Color(0, 0.5, 0, 1)
+polygon = PackedVector2Array(16, -3, 16, 5, 18, 7, 19, 7, 21, 5, 21, -3, 19, -5, 18, -5)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-17, 0)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-17, 1)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-17, 2)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D5" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-17, 3)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D6" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-17, 5)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D7" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-17, 6)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D8" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-17, 7)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D9" type="Polygon2D" parent="Center/Plant/Macarons2"]
+position = Vector2(-17, 8)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Macarons3" type="Node2D" parent="Center/Plant"]
+position = Vector2(-14, -5)
+rotation = 0.463674
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-18, -1)
+color = Color(0, 0.5, 0, 1)
+polygon = PackedVector2Array(16, -3, 16, 5, 18, 7, 19, 7, 21, 5, 21, -3, 19, -5, 18, -5)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-17, 0)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-17, 1)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-17, 2)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D5" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-17, 3)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D6" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-17, 5)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D7" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-17, 6)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D8" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-17, 7)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Polygon2D9" type="Polygon2D" parent="Center/Plant/Macarons3"]
+position = Vector2(-17, 8)
+color = Color(0.2695, 0.77, 0.2695, 1)
+polygon = PackedVector2Array(16, -4, 19, -4, 18, -5, 17, -5)
+
+[node name="Balloon" type="Node2D" parent="Center"]
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Balloon"]
+color = Color(0.352, 0.88, 0.88, 1)
+polygon = PackedVector2Array(-23, -5, -20, -1, -17, -1, -14, -5, -15, -14, -17, -15, -20, -15, -22, -14)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Balloon"]
+position = Vector2(3, -16)
+color = Color(1, 1, 1, 0.862745)
+polygon = PackedVector2Array(-24, 5, -23, 5, -22, 2, -23, 2)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Balloon"]
+position = Vector2(2, -12)
+color = Color(1, 1, 1, 0.862745)
+polygon = PackedVector2Array(-24, 5, -23, 4, -22, 2, -23, 2)
+
+[node name="Attack" type="Node2D" parent="Center"]
+
+[node name="Shurikens" type="Node2D" parent="Center/Attack"]
+position = Vector2(-18, -12)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Attack/Shurikens"]
+color = Color(1, 0.4, 0.4, 0.690196)
+polygon = PackedVector2Array(0, -2, 0, -1, 2, 0, 1, 0, 0, 2, 0, 1, -2, 0, -1, 0)
+
+[node name="Shurikens2" type="Node2D" parent="Center/Attack"]
+position = Vector2(-13, 3)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Attack/Shurikens2"]
+color = Color(1, 0.4, 0.4, 0.690196)
+polygon = PackedVector2Array(0, -2, 0, -1, 2, 0, 1, 0, 0, 2, 0, 1, -2, 0, -1, 0)
+
+[node name="Shurikens3" type="Node2D" parent="Center/Attack"]
+position = Vector2(12, -8)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Attack/Shurikens3"]
+color = Color(1, 0.4, 0.4, 0.690196)
+polygon = PackedVector2Array(0, -2, 0, -1, 2, 0, 1, 0, 0, 2, 0, 1, -2, 0, -1, 0)
+
+[node name="Shurikens4" type="Node2D" parent="Center/Attack"]
+position = Vector2(3, 15)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Attack/Shurikens4"]
+color = Color(1, 0.4, 0.4, 0.690196)
+polygon = PackedVector2Array(0, -2, 0, -1, 2, 0, 1, 0, 0, 2, 0, 1, -2, 0, -1, 0)
+
+[node name="Shurikens5" type="Node2D" parent="Center/Attack"]
+position = Vector2(-5, 10)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Attack/Shurikens5"]
+color = Color(1, 0.4, 0.4, 0.690196)
+polygon = PackedVector2Array(0, -2, 0, -1, 2, 0, 1, 0, 0, 2, 0, 1, -2, 0, -1, 0)
+
+[node name="Pasta" type="Node2D" parent="Center"]
+
+[node name="Radiatori" type="Node2D" parent="Center/Pasta"]
+position = Vector2(13, 9)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Pasta/Radiatori"]
+position = Vector2(-15, -8)
+color = Color(0.773833, 0.41, 1, 0.65098)
+polygon = PackedVector2Array(11, 12, 13, 14, 18, 15, 16, 13, 19, 13, 21, 15, 22, 14, 19, 11, 18, 12, 14, 12, 15, 10, 16, 11, 18, 9, 19, 9, 21, 12, 22, 11, 21, 8, 23, 8, 21, 6, 18, 3, 14, 3, 18, 5, 20, 7, 15, 5, 14, 6, 17, 8, 15, 8, 11, 6, 9, 6, 10, 7, 8, 8, 6, 5, 5, 6, 7, 8, 9, 11, 9, 9, 12, 8, 14, 9)
+
+[node name="Rotini" type="Node2D" parent="Center/Pasta"]
+position = Vector2(-25, 2)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Pasta/Rotini"]
+position = Vector2(0, 7)
+rotation = -0.798531
+color = Color(0.772549, 0.411765, 1, 0.65098)
+polygon = PackedVector2Array(0, -2, 2, -4, 11, -4, 14, -2, 11, -2, 11, 0, 16.9968, 0, 17, 2, 7.71068, 1.33648, 6, 1, 8, 3, 9, 4, 6, 4, 7, 6, 15, 5, 14, 7, 5, 7, 4.60169, 4.43983, -1, 5, -2, 4, 5, 3, 5, 1, 3, 1, 3, -1, 9, 0, 9, -2)
+
+[node name="Macaroni" type="Node2D" parent="Center/Pasta"]
+position = Vector2(0, -24)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Pasta/Macaroni"]
+rotation = 0.40092
+color = Color(0.772549, 0.411765, 1, 0.65098)
+polygon = PackedVector2Array(1, 0, 2, 0, 4, 1, 3, 2, 2, 1, 1, 1, 0, 2, -1, 1)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Pasta/Macaroni"]
+position = Vector2(3, -3)
+rotation = -0.259651
+color = Color(0.772549, 0.411765, 1, 0.65098)
+polygon = PackedVector2Array(1, 0, 2, 0, 4, 1, 3, 2, 2, 1, 1, 1, 0, 2, -1, 1)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Pasta/Macaroni"]
+position = Vector2(-5, -3)
+rotation = 0.306035
+color = Color(0.772549, 0.411765, 1, 0.65098)
+polygon = PackedVector2Array(1, 0, 2, 0, 4, 1, 3, 2, 2, 1, 1, 1, 0, 2, -1, 1)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Center/Pasta/Macaroni"]
+position = Vector2(-3, 0)
+rotation = 0.938172
+color = Color(0.772549, 0.411765, 1, 0.65098)
+polygon = PackedVector2Array(1, 0, 2, 0, 4, 1, 3, 2, 2, 1, 1, 1, 0, 2, -1, 1)
+
+[node name="Polygon2D5" type="Polygon2D" parent="Center/Pasta/Macaroni"]
+position = Vector2(0, -4)
+rotation = -0.170837
+color = Color(0.772549, 0.411765, 1, 0.65098)
+polygon = PackedVector2Array(1, 0, 2, 0, 4, 1, 3, 2, 2, 1, 1, 1, 0, 2, -1, 1)
+
+[node name="Polygon2D6" type="Polygon2D" parent="Center/Pasta/Macaroni"]
+position = Vector2(4, 1)
+rotation = -0.765008
+color = Color(0.772549, 0.411765, 1, 0.65098)
+polygon = PackedVector2Array(1, 0, 2, 0, 4, 1, 3, 2, 2, 1, 1, 1, 0, 2, -1, 1)
+
+[node name="Penne" type="Node2D" parent="Center/Pasta"]
+position = Vector2(20, -6)
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Pasta/Penne"]
+color = Color(1, 0.55, 0.46, 1)
+polygon = PackedVector2Array(0, -1, 5, 5, 4, 6, -1, 0)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Center/Pasta/Penne"]
+position = Vector2(3, -1)
+color = Color(1, 0.55, 0.46, 1)
+polygon = PackedVector2Array(0, -1, 5, 5, 4, 6, -1, 0)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Center/Pasta/Penne"]
+position = Vector2(-1, 2)
+color = Color(1, 0.55, 0.46, 1)
+polygon = PackedVector2Array(0, -1, 5, 5, 4, 6, -1, 0)
+
+[node name="Farfalle" type="Node2D" parent="Center/Pasta"]
+position = Vector2(-10, 14)
+rotation = -0.943945
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Pasta/Farfalle"]
+position = Vector2(-4.76837e-07, 0)
+color = Color(1, 0, 0.766666, 0.819608)
+polygon = PackedVector2Array(-4, -4, -1, 0, -4, 4, -2, 3, -1, 4, 0, 3, 1, 4, 2, 3, 4, 4, 1, 0, 4, -4, 2, -3, 1, -4, 0, -3, -1, -4, -2, -3)
+
+[node name="Farfalle2" type="Node2D" parent="Center/Pasta"]
+position = Vector2(3, 17)
+rotation = 0.822085
+
+[node name="Polygon2D" type="Polygon2D" parent="Center/Pasta/Farfalle2"]
+position = Vector2(-4.76837e-07, 0)
+color = Color(1, 0, 0.766666, 0.819608)
+polygon = PackedVector2Array(-4, -4, -1, 0, -4, 4, -2, 3, -1, 4, 0, 3, 1, 4, 2, 3, 4, 4, 1, 0, 4, -4, 2, -3, 1, -4, 0, -3, -1, -4, -2, -3)
+
+[node name="Temp" type="Node2D" parent="Center"]
+
+[node name="Gumball" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(9, -13)
+color = Color(1, 0.701961, 0.803922, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)
+
+[node name="Gumball2" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(7, -8)
+color = Color(1, 0.72, 0.4, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)
+
+[node name="Gumball3" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(-14, 11)
+color = Color(1, 0.05, 0.05, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)
+
+[node name="Gumball4" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(-7, 21)
+color = Color(0.405, 1, 0.3, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)
+
+[node name="Gumball5" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(11, 18)
+color = Color(1, 1, 0.427451, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)
+
+[node name="Gumball6" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(-26, -2)
+color = Color(0.607843, 0.215686, 1, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)
+
+[node name="Gumball7" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(16, -10)
+color = Color(0.607843, 0.894118, 1, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)
+
+[node name="Gumball8" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(-12, -14)
+color = Color(0.22, 0.597, 1, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)
+
+[node name="Gumball9" type="Polygon2D" parent="Center/Temp"]
+position = Vector2(1, 19)
+color = Color(0.57, 0.47937, 0.2679, 0.729412)
+polygon = PackedVector2Array(0, 0, 1, -1, 2, 0, 1, 1)

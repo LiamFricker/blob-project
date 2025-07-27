@@ -11,11 +11,13 @@ anchors_preset = 0
 offset_bottom = 161.0
 
 [node name="ColorRect" type="ColorRect" parent="Left"]
+layout_mode = 0
 offset_right = 253.0
 offset_bottom = 648.0
 color = Color(0.67, 0.67, 0.67, 0.529412)
 
 [node name="Left" type="HBoxContainer" parent="Left"]
+layout_mode = 0
 offset_right = 63.0
 offset_bottom = 161.0
 
@@ -27,12 +29,14 @@ offset_right = 616.0
 offset_bottom = 40.0
 
 [node name="ColorRect2" type="ColorRect" parent="Right"]
+layout_mode = 0
 offset_left = 323.0
 offset_right = 576.0
 offset_bottom = 648.0
 color = Color(0.63, 0.63, 0.63, 0.568627)
 
 [node name="Right" type="HBoxContainer" parent="Right"]
+layout_mode = 0
 offset_left = 225.0
 offset_right = 288.0
 offset_bottom = 161.0

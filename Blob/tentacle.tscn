@@ -1,0 +1,66 @@
+[gd_scene load_steps=7 format=3 uid="uid://dg5dmmg4xvh2b"]
+
+[ext_resource type="Script" uid="uid://beyaisnbf3in" path="res://Blob/tentacle.gd" id="1_1hyyi"]
+[ext_resource type="Shader" uid="uid://c6arud038we6" path="res://Blob/tentacle.gdshader" id="1_lyjbf"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1hyyi"]
+resource_local_to_scene = true
+shader = ExtResource("1_lyjbf")
+shader_parameter/speed = 2.0
+shader_parameter/frequency = 2.5
+shader_parameter/amplitude = 1.0
+shader_parameter/tentLength = 8.0
+shader_parameter/direction = 0.0
+shader_parameter/whip_direction = 0.0
+shader_parameter/reverse_direction = false
+
+[sub_resource type="Gradient" id="Gradient_uxkvx"]
+offsets = PackedFloat32Array(0, 0.266667, 0.486667, 0.74, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.33, 0.33, 0.33, 1, 0, 0, 0, 1, 0.329412, 0.329412, 0.329412, 1, 0, 0, 0, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1hyyi"]
+radius = 33.0151
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_uxkvx"]
+radius = 8.0
+height = 66.0
+
+[node name="Tentacle" type="Node2D"]
+script = ExtResource("1_1hyyi")
+
+[node name="Node2D" type="Node2D" parent="."]
+
+[node name="Line2D" type="Line2D" parent="Node2D"]
+material = SubResource("ShaderMaterial_1hyyi")
+points = PackedVector2Array(0, 0, 8, 0, 16, 0, 24, 0, 32, 0, 40, 0, 48, 0, 56, 0, 64, 0)
+width = 2.0
+default_color = Color(0, 0, 0, 1)
+gradient = SubResource("Gradient_uxkvx")
+joint_mode = 2
+
+[node name="Detection" type="Area2D" parent="."]
+visible = false
+collision_layer = 0
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Detection"]
+position = Vector2(32, 0)
+shape = SubResource("CircleShape2D_1hyyi")
+
+[node name="Hitbox" type="Area2D" parent="."]
+visible = false
+collision_layer = 0
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(32, 0)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_uxkvx")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(32, 0)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_uxkvx")
+
+[connection signal="area_entered" from="Detection" to="." method="_on_detection_area_entered"]
+[connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]

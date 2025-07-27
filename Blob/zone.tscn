@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://wsjcdvgoy5e2"]
+
+[ext_resource type="Script" uid="uid://cpr1vlwelo21x" path="res://Blob/zone.gd" id="1_gpdc1"]
+
+[node name="Zone" type="Node2D"]
+script = ExtResource("1_gpdc1")

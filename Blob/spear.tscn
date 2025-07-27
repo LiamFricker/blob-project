@@ -1,0 +1,126 @@
+[gd_scene load_steps=10 format=3 uid="uid://cuo6vm1qlk6lm"]
+
+[ext_resource type="Shader" uid="uid://ci3rd5ve0xxre" path="res://Blob/spear.gdshader" id="1_ibkvx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0wkqg"]
+shader = ExtResource("1_ibkvx")
+shader_parameter/progress = 1.0
+shader_parameter/startColor = Color(1, 1, 0, 1)
+shader_parameter/endColor = Color(0, 1, 0, 1)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_ibkvx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ibkvx"]
+shader = ExtResource("1_ibkvx")
+shader_parameter/progress = 1.0
+shader_parameter/startColor = Color(1, 1, 0, 1)
+shader_parameter/endColor = Color(0, 1, 0, 1)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_0wkqg"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5n4b4"]
+shader = ExtResource("1_ibkvx")
+shader_parameter/progress = 1.0
+shader_parameter/startColor = Color(1, 1, 0, 1)
+shader_parameter/endColor = Color(0, 1, 0, 1)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_0v0ep"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1bf72"]
+shader = ExtResource("1_ibkvx")
+shader_parameter/progress = 1.0
+shader_parameter/startColor = Color(1, 1, 0, 1)
+shader_parameter/endColor = Color(0, 1, 0, 1)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_b7ddu"]
+
+[node name="Spear" type="Node2D"]
+
+[node name="Spear1" type="Node2D" parent="."]
+scale = Vector2(2, 2)
+
+[node name="Juice" type="Polygon2D" parent="Spear1"]
+material = SubResource("ShaderMaterial_0wkqg")
+texture = SubResource("CanvasTexture_ibkvx")
+texture_scale = Vector2(0.5, 0.5)
+polygon = PackedVector2Array(0, -3, -2, 0, 2, 0)
+uv = PackedVector2Array(1.01601, -0.00303912, -0.320025, 2.00102, 2.35205, 2.00102)
+
+[node name="Polygon2D" type="Polygon2D" parent="Spear1"]
+polygon = PackedVector2Array(-2, 0, 0, -3, 2, 0, 4, 0, 2, -5, 1, -11, 0, -23, -1, -11, -2, -5, -4, 0)
+
+[node name="Spear2" type="Node2D" parent="."]
+visible = false
+scale = Vector2(2, 2)
+
+[node name="Juice" type="Polygon2D" parent="Spear2"]
+material = SubResource("ShaderMaterial_ibkvx")
+texture = SubResource("CanvasTexture_0wkqg")
+texture_scale = Vector2(0.125, 0.125)
+polygon = PackedVector2Array(0, -3, -2, 0, -1, 5, 1, 5, 2, 0)
+uv = PackedVector2Array(4.03126, -0.0023873, 2.03126, 2.99761, 3.03126, 7.99761, 5.03126, 7.99761, 6.03126, 2.99761)
+
+[node name="Spear" type="Node2D" parent="Spear2"]
+
+[node name="Polygon2D" type="Polygon2D" parent="Spear2/Spear"]
+polygon = PackedVector2Array(-2, 0, 0, -3, 2, 0, 5, 0, 3, -2, 2, -5, 1, -11, 0, -23, -1, -11, -2, -5, -3, -2, -5, 0)
+
+[node name="Marker2D" type="Marker2D" parent="Spear2/Spear"]
+position = Vector2(0, -3)
+
+[node name="Polygon2D" type="Polygon2D" parent="Spear2"]
+position = Vector2(0, 4)
+polygon = PackedVector2Array(-2, 2, 0, 2, 2, 2, 4, 0, 5, -4, 2, -4, 1, 1, -1, 1, -2, -4, -5, -4, -4, 0)
+
+[node name="Spear3" type="Node2D" parent="."]
+visible = false
+scale = Vector2(2, 2)
+
+[node name="Juice" type="Polygon2D" parent="Spear3"]
+material = SubResource("ShaderMaterial_5n4b4")
+texture = SubResource("CanvasTexture_0v0ep")
+texture_scale = Vector2(0.14, 0.1)
+polygon = PackedVector2Array(-2, -2, -3, 0, -1, 5, 1, 5, 3, 0, 2, -2, 0, -5)
+uv = PackedVector2Array(1.62341, 3.02122, 0.623407, 5.02122, 2.62341, 10.0212, 4.62341, 10.0212, 6.62341, 5.02122, 5.62341, 3.02122, 3.62341, 0.0212212)
+
+[node name="Spear" type="Node2D" parent="Spear3"]
+
+[node name="Polygon2D" type="Polygon2D" parent="Spear3/Spear"]
+position = Vector2(0, -14)
+polygon = PackedVector2Array(-2, -1, 0, -4, 2, -1, 3, -2, 2, -5, 1, -11, 0, -23, -1, -11, -2, -5, -3, -2)
+
+[node name="Marker2D" type="Marker2D" parent="Spear3/Spear"]
+position = Vector2(-1, -18)
+
+[node name="Marker2D2" type="Marker2D" parent="Spear3/Spear"]
+position = Vector2(1, -18)
+
+[node name="Polygon2D" type="Polygon2D" parent="Spear3"]
+position = Vector2(0, 4)
+polygon = PackedVector2Array(-2, 2, 0, 2, 2, 2, 4, 0, 5, -4, 3, -7, 2, -6, 3, -4, 1, 1, -1, 1, -3, -4, -2, -6, -3, -7, -5, -4, -4, 0)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Spear3"]
+color = Color(1, 1, 1, 0.482353)
+polygon = PackedVector2Array(-2, -2, 0, -13, 2, -2, 3, -3, 1, -18, -1, -18, -3, -3)
+
+[node name="Spear4" type="Node2D" parent="."]
+visible = false
+scale = Vector2(2, 2)
+
+[node name="Juice" type="Polygon2D" parent="Spear4"]
+material = SubResource("ShaderMaterial_1bf72")
+texture = SubResource("CanvasTexture_b7ddu")
+texture_scale = Vector2(0.16, 0.1)
+polygon = PackedVector2Array(-2, -2, -3, 0, -1, 5, 1, 5, 3, 0, 2, -2, 1, -5, 0, -3, 0, -3, -1, -5)
+uv = PackedVector2Array(1.07706, 2.97198, 0.0770608, 4.97198, 2.07706, 9.97198, 4.07706, 9.97198, 6.07706, 4.97198, 5.07706, 2.97198, 4.07706, -0.0280182, 3.07706, 1.97198, 3.07706, 1.97198, 2.07706, -0.0280182)
+
+[node name="Spear" type="Node2D" parent="Spear4"]
+
+[node name="Polygon2D2" type="Polygon2D" parent="Spear4/Spear"]
+position = Vector2(0, 1)
+color = Color(1, 1, 1, 0.482353)
+polygon = PackedVector2Array(-1, -6, 0, -2, 1, -6, 3, -4, 0, -11, -3, -4)
+
+[node name="Polygon2D" type="Polygon2D" parent="Spear4"]
+position = Vector2(0, 4)
+polygon = PackedVector2Array(-2, 2, 0, 2, 2, 2, 4, 0, 5, -4, 1, -9, 2, -6, 1, -4, 2, -2, 1, 1, -1, 1, -2, -2, -1, -4, -2, -6, -1, -9, -5, -4, -4, 0)
