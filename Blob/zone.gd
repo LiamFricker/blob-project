@@ -14,15 +14,17 @@ var creatureList = []
 var guestList = []
 
 #Environment Type 
-enum {POND, PLANT, HAZARD}
-@export var biome = POND
+enum {NONE, POND, PLANT, HAZARD}
+@export var biome = NONE
+var weights = [0.0, 0.0, 0.0]
 
 var mapPosition : Vector2
 
 #Create a zone
-func setParams(stgLvl : int, envType : int, entitySeed : int, entityMax : int, pos : Vector2) -> void:
+func setParams(stgLvl : int, env : int, zone_weights : Array, entitySeed : int, entityMax : int, pos : Vector2) -> void:
 	stageLevel = stgLvl
-	biome = envType
+	biome = env
+	weights = zone_weights
 	creatureSeed = entitySeed
 	creatureMax = entityMax
 	mapPosition = pos

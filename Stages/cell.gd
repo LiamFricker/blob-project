@@ -15,13 +15,14 @@ var event_positions = []
 var dict_variable_key = "Another key name"
 
 #Environment Map
-var hazard_map = [[]]
-var plant_map = [[]]
-var pool_map = [[]]
+var hazard_map = [[0]]
+var plant_map = [[0]]
+var pool_map = [[0]]
+var environments = [[0]]
 #Track the center of environments
-var EnvironmentSources
+var EnvironmentSources = []
 #Track the type each center is
-var EnvironmentTypes
+var EnvironmentTypes = []
 
 
 #Events
@@ -57,7 +58,7 @@ var events_visited = []
 const ENTITY_MAX = [3,3,3,3,3,3]
 const ENTITY_MODIFIERS = [1, 1.5, 1.4, 0.75]
 
-var current_map = 0
+var current_map = 2
 enum {
 	UNLOADED, #Map isn't loaded at all. Generate zone list map. (usually when starting game)
 	NEXT_UNLOADED, #Next Map needs to be loaded
@@ -78,7 +79,41 @@ func _ready() -> void:
 	for i in range(SEED_LENGTH):
 		map_hash += alphabet_uppercase[randi_range(0, 25)] #rng.
 	map_seed = hash(map_hash)
-
+	
+	generateMap()
+	
+	#Should probably run some unit tests here
+	#print out the env arrays
+	for i in EnvironmentTypes:
+		print("Env Type: ", i)
+	for i in EnvironmentSources:
+		print("Env Source: ", i)
+	var poolString = "Pool Weight: \n["
+	var plantString = "Plant Weight: \n["
+	var hazString = "Haz Weight: \n["
+	for i in range(MAP_DIMS[current_map]):
+		poolString += "\n["
+		plantString += "\n["
+		hazString += "\n["
+		for j in range(MAP_DIMS[current_map]):
+			poolString += str(snapped(pool_map[i][j], 0.01)) + " ,"
+			plantString += str(snapped(plant_map[i][j], 0.01)) + " ,"
+			hazString += str(snapped(hazard_map[i][j], 0.01)) + " ,"	
+	print(poolString)
+	print(plantString)
+	print(hazString)
+	var zoneString = "Zone Info: \n["		
+	#print out the zone array 
+	for i in range(MAP_DIMS[current_map]):
+		zoneString += "\n["
+		for j in range(MAP_DIMS[current_map]):
+			zoneString += zone_list[i][j] + ", "	
+	print(zoneString)
+	#print out the event array
+	"""
+	for i in used_event_array:
+		print("Event: ", i)
+	"""
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
@@ -105,19 +140,32 @@ func generateMap() -> void:
 	#Set
 	#Final = 2 large zones for primary, 2 small zones for secondary, 1 small zone for unpreferred
 	#i.e. Hazard -> Puddle -> Plant, Puddle -> Plant -> Hazard, Plant -> Hazard -> Puddle
+	generateEnvironments()
 	
 	#Generate Zones
 	var tempDim = MAP_DIMS[current_map]
 	zone_list.resize(tempDim)
 	for i in range(tempDim):
+		zone_list[i] = [0]
 		zone_list[i].resize(tempDim)
 		for j in range(tempDim): 
+			"""
 			var temp = zone.instantiate()
-			temp.setParams(current_map, 0, map_seed + hash(str(current_map) + str(i) + str(j)), 0, Vector2(i, j))
+			temp.setParams(current_map, environments[i][j], [pool_map[i][j], plant_map[i][j], hazard_map[i][j]], map_seed
+			 + hash(str(current_map) + str(i) + str(j)), 
+			+ ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[environments[i][j]]), 
+			Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j))
+			"""
+			
+			var temp = ""#str(current_map) + str(environments[i][j]) + str([pool_map[i][j], plant_map[i][j], hazard_map[i][j]])
+			temp += str(map_seed + hash(str(current_map) + str(i) + str(j))) + " "
+			temp += str(ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[environments[i][j]]))
+			#temp += str(Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j)) 
+			 
 			zone_list[i][j] = temp
 	
 	#Generate Events
-	generateEvents()
+	#generateEvents()
 			
 func generateEnvironments() -> void:
 	var tempDims = MAP_DIMS[current_map]
@@ -138,6 +186,25 @@ func generateEnvironments() -> void:
 	
 	#Don't want hazard to spawn too close to spawn initially for early maps.
 	#Yet we do want hazard to be able to be placed.
+	pool_map.resize(tempDims)
+	for i in range(tempDims):
+		pool_map[i] = [0.0]
+		pool_map[i].resize(tempDims)
+		for j in range(tempDims):
+			pool_map[i][j] = 0
+	plant_map.resize(tempDims)
+	for i in range(tempDims):
+		plant_map[i] = [0.0]
+		plant_map[i].resize(tempDims)
+		for j in range(tempDims):
+			plant_map[i][j] = 0
+	hazard_map.resize(tempDims)
+	for i in range(tempDims):
+		hazard_map[i] = [0.0]
+		hazard_map[i].resize(tempDims)
+		for j in range(tempDims):
+			hazard_map[i][j] = 0
+
 	if current_map == 1:
 		for i in 2:
 			var index = 0
@@ -189,11 +256,11 @@ func generateEnvironments() -> void:
 		#Need custom code for maps 4+ when we get to it
 		var tempStrength = 1 + 0.25 * current_map 
 		var tempEnvs = []
-		tempEnvs.resize(MAP_DIMS[current_map])
 		var tempMaxEnv = ENV_MAX[current_map]
-		for i in range(MAP_DIMS[current_map]):
+		tempEnvs.resize(tempMaxEnv*3)
+		for i in range(3):
 			for j in range(tempMaxEnv):
-				tempEnvs[tempMaxEnv * i + j] = i
+				tempEnvs[tempMaxEnv * i + j] = i+1
 			#Example for Map 1 (env = 2)
 			#temp[2*i] = i #0, 2, 4
 			#temp[2*i+1] = i #1, 3, 5 
@@ -220,34 +287,82 @@ func generateEnvironments() -> void:
 			EnvironmentSources.append(EnvSource)
 			EnvironmentTypes.append(i)
 			populateEnvWeights(i, EnvSource, playerSpawn, tempStrength)
+	environments.resize(tempDims)
+	for i in range(tempDims):
+		environments[i] = [0]
+		environments[i].resize(tempDims)
+		for j in range(tempDims):
+			if pool_map[i][j] >= plant_map[i][j]:
+				if pool_map[i][j] >= hazard_map[i][j]:
+					if pool_map[i][j] >= 0.5:
+						environments[i][j] = 1
+					else:
+						environments[i][j] = 0
+				else:
+					if hazard_map[i][j] >= 0.5:
+						environments[i][j] = 3
+					else:
+						environments[i][j] = 0
+			else:
+				if plant_map[i][j] >= hazard_map[i][j]:
+					if plant_map[i][j] >= 0.5:
+						environments[i][j] = 2
+					else:
+						environments[i][j] = 0
+				else:
+					if hazard_map[i][j] >= 0.5:
+						environments[i][j] = 3
+					else:
+						environments[i][j] = 0
 		
 #0, 1, 2, 3 : default, pool, plant, hazard
 #Add a strength just incase we want to later change the strength. I think it should be fine for now.
-func populateEnvWeights(env: int, source: Vector2, playerSource: Vector2, strength = 1):
+func populateEnvWeights(env: int, source: Vector2, _playerSource: Vector2, strength = 1):
+	#Why the fuck do we need player source?
+	
 	#Since they're all basic types, I'm pretty sure I can't do a reference so I'll have to do it this way.
 	var tempDim = MAP_DIMS[current_map]
 	strength *= randf_range(0.5, 1.5)
+	var sources
+	if source.x <= tempDim/2:
+		if source.y <= tempDim/2:
+			sources = [source, source + Vector2(tempDim, tempDim), source + Vector2(0, tempDim), source + Vector2(tempDim, 0)]
+		else:
+			sources = [source, source + Vector2(tempDim, -tempDim), source + Vector2(0, -tempDim), source + Vector2(tempDim, 0)]
+	else:
+		if source.y <= tempDim/2:
+			sources = [source, source + Vector2(-tempDim, tempDim), source + Vector2(0, tempDim), source + Vector2(-tempDim, 0)]
+		else:
+			sources = [source, source + Vector2(-tempDim, -tempDim), source + Vector2(0, -tempDim), source + Vector2(-tempDim, 0)]
 	match(env):
 		1:
-			pool_map.resize(tempDim)
 			for i in range(tempDim):
-				pool_map[i].resize(tempDim)
 				for j in range(tempDim): 
-					pool_map[i][j] = 1.0 / (1 + playerSource.distance_squared_to(source) / strength)	
+					#GUH 3 FOR LOOPS
+					var mapTemp = []
+					for s in sources:
+						mapTemp.append(Vector2(i,j).distance_squared_to(s))
+					
+					pool_map[i][j] += 1.0 / (1 + mapTemp.min() / strength)	
 			
 		2:
-			plant_map.resize(tempDim)
 			for i in range(tempDim):
-				plant_map[i].resize(tempDim)
 				for j in range(tempDim): 
-					plant_map[i][j] = 1.0 / (1 + playerSource.distance_squared_to(source) / strength)
+					var mapTemp = []
+					for s in sources:
+						mapTemp.append(Vector2(i,j).distance_squared_to(s))
+						
+					plant_map[i][j] += 1.0 / (1 + mapTemp.min() / strength)
 		3:
-			hazard_map.resize(tempDim)
 			for i in range(tempDim):
-				hazard_map[i].resize(tempDim)
 				for j in range(tempDim): 
+					var mapTemp = []
+					for s in sources:
+						mapTemp.append(Vector2(i,j).distance_squared_to(s))
+						
 					#Make hazard map smaller than the rest
-					hazard_map[i][j] = 1.0 / (1 + playerSource.distance_squared_to(source) / (strength * 0.75))
+					hazard_map[i][j] += 1.0 / (1 + mapTemp.min() / (strength * 0.75))
+
 					
 func generateEvents() -> void:
 	var tempDim = MAP_DIMS[current_map]
