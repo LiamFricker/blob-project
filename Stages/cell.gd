@@ -48,7 +48,7 @@ const ZONE_WIDTH = [1,1,1,1,1,1,1] #Width of each zone
 const ZONE_HEIGHT = [1,1,1,1,1,1,1] #Width of each zone
 
 #Number of each environment generated in a map. Final map is larger fyi. Maybe penultimate will be too.
-const ENV_MAX = [1,2,3,4,2,2,2] 
+const ENV_MAX = [0,2,3,4,2,2,2] 
 #I'd prefer there to be more events but that's also more work to do. Maybe when we add more events to the game
 const EVENT_MAX = [0,3,6,9,6,6,6] 
 #It'd also be preferable not to repeat events
@@ -58,7 +58,7 @@ var events_visited = []
 const ENTITY_MAX = [3,3,3,3,3,3]
 const ENTITY_MODIFIERS = [1, 1.5, 1.4, 0.75]
 
-var current_map = 2
+var current_map = 3
 enum {
 	UNLOADED, #Map isn't loaded at all. Generate zone list map. (usually when starting game)
 	NEXT_UNLOADED, #Next Map needs to be loaded
@@ -84,24 +84,30 @@ func _ready() -> void:
 	
 	#Should probably run some unit tests here
 	#print out the env arrays
-	for i in EnvironmentTypes:
-		print("Env Type: ", i)
-	for i in EnvironmentSources:
-		print("Env Source: ", i)
-	var poolString = "Pool Weight: \n["
-	var plantString = "Plant Weight: \n["
-	var hazString = "Haz Weight: \n["
-	for i in range(MAP_DIMS[current_map]):
-		poolString += "\n["
-		plantString += "\n["
-		hazString += "\n["
-		for j in range(MAP_DIMS[current_map]):
-			poolString += str(snapped(pool_map[i][j], 0.01)) + " ,"
-			plantString += str(snapped(plant_map[i][j], 0.01)) + " ,"
-			hazString += str(snapped(hazard_map[i][j], 0.01)) + " ,"	
-	print(poolString)
-	print(plantString)
-	print(hazString)
+	if current_map != 0:
+	
+		for i in range(EnvironmentTypes.size()):
+			print("Env Type: ", EnvironmentTypes[i])
+			print("Env Source: ", EnvironmentSources[i])
+			
+		var poolString = "Pool Weight: \n["
+		var plantString = "Plant Weight: \n["
+		var hazString = "Haz Weight: \n["
+		var totalString = "Total Weight: \n["
+		for i in range(MAP_DIMS[current_map]):
+			poolString += "\n["
+			plantString += "\n["
+			hazString += "\n["
+			totalString += "\n["
+			for j in range(MAP_DIMS[current_map]):
+				poolString += str(snapped(pool_map[i][j], 0.01)) + ", "
+				plantString += str(snapped(plant_map[i][j], 0.01)) + ", "
+				hazString += str(snapped(hazard_map[i][j], 0.01)) + ", "
+				totalString += str(snapped(pool_map[i][j]+plant_map[i][j]+hazard_map[i][j], 0.01)) + ", "	
+		print(poolString)
+		print(plantString)
+		print(hazString)
+		print(totalString)
 	var zoneString = "Zone Info: \n["		
 	#print out the zone array 
 	for i in range(MAP_DIMS[current_map]):
@@ -110,6 +116,8 @@ func _ready() -> void:
 			zoneString += zone_list[i][j] + ", "	
 	print(zoneString)
 	#print out the event array
+	for i in event_positions:
+		print("Event: ", i)
 	"""
 	for i in used_event_array:
 		print("Event: ", i)
@@ -140,32 +148,55 @@ func generateMap() -> void:
 	#Set
 	#Final = 2 large zones for primary, 2 small zones for secondary, 1 small zone for unpreferred
 	#i.e. Hazard -> Puddle -> Plant, Puddle -> Plant -> Hazard, Plant -> Hazard -> Puddle
-	generateEnvironments()
+	if current_map != 0:
+		generateEnvironments()
 	
-	#Generate Zones
-	var tempDim = MAP_DIMS[current_map]
-	zone_list.resize(tempDim)
-	for i in range(tempDim):
-		zone_list[i] = [0]
-		zone_list[i].resize(tempDim)
-		for j in range(tempDim): 
-			"""
-			var temp = zone.instantiate()
-			temp.setParams(current_map, environments[i][j], [pool_map[i][j], plant_map[i][j], hazard_map[i][j]], map_seed
-			 + hash(str(current_map) + str(i) + str(j)), 
-			+ ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[environments[i][j]]), 
-			Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j))
-			"""
-			
-			var temp = ""#str(current_map) + str(environments[i][j]) + str([pool_map[i][j], plant_map[i][j], hazard_map[i][j]])
-			temp += str(map_seed + hash(str(current_map) + str(i) + str(j))) + " "
-			temp += str(ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[environments[i][j]]))
-			#temp += str(Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j)) 
-			 
-			zone_list[i][j] = temp
+		#Generate Zones
+		var tempDim = MAP_DIMS[current_map]
+		zone_list.resize(tempDim)
+		for i in range(tempDim):
+			zone_list[i] = [0]
+			zone_list[i].resize(tempDim)
+			for j in range(tempDim): 
+				"""
+				var temp = zone.instantiate()
+				temp.setParams(current_map, environments[i][j], [pool_map[i][j], plant_map[i][j], hazard_map[i][j]], map_seed
+				 + hash(str(current_map) + str(i) + str(j)), 
+				+ ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[environments[i][j]]), 
+				Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j))
+				"""
+				
+				var temp = ""#str(current_map) + str(environments[i][j]) + str([pool_map[i][j], plant_map[i][j], hazard_map[i][j]])
+				temp += str(map_seed + hash(str(current_map) + str(i) + str(j))) + " "
+				temp += str(ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[environments[i][j]]))
+				#temp += str(Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j)) 
+				 
+				zone_list[i][j] = temp
+	else:
+		#Generate Zones
+		var tempDim = MAP_DIMS[current_map]
+		zone_list.resize(tempDim)
+		for i in range(tempDim):
+			zone_list[i] = [0]
+			zone_list[i].resize(tempDim)
+			for j in range(tempDim): 
+				"""
+				var temp = zone.instantiate()
+				temp.setParams(current_map, 0, [0, 0, 0], map_seed
+				 + hash(str(current_map) + str(i) + str(j)), 
+				+ ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[0]), 
+				Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j))
+				"""
+				
+				var temp = ""#str(current_map) + str(environments[i][j]) + str([pool_map[i][j], plant_map[i][j], hazard_map[i][j]])
+				temp += str(map_seed + hash(str(current_map) + str(i) + str(j))) + " "
+				temp += str(ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[0]))
+				#temp += str(Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j)) 
+				 
+				zone_list[i][j] = temp
 	
 	#Generate Events
-	#generateEvents()
+	generateEvents()
 			
 func generateEnvironments() -> void:
 	var tempDims = MAP_DIMS[current_map]
@@ -211,7 +242,7 @@ func generateEnvironments() -> void:
 			var HazSource
 			while index < 50: #Exit if cannot find a spot in a number of iterations. 
 				HazSource = Vector2(randi_range(0, tempDims), randi_range(0, tempDims))
-				if HazSource.distance_squared_to(playerSpawn) < 8:
+				if HazSource.distance_squared_to(playerSpawn) > 8:
 					
 					#Check for overlaps in environment
 					"""
@@ -222,7 +253,7 @@ func generateEnvironments() -> void:
 							break
 					"""
 					#Gonna use one of these instead
-					if EnvironmentSources.any(func(e : Vector2): return HazSource.distance_squared_to(e) < 4):
+					if not EnvironmentSources.any(func(e : Vector2): return HazSource.distance_squared_to(e) < 4):
 						break
 				index += 1
 			EnvironmentSources.append(HazSource)
@@ -235,7 +266,8 @@ func generateEnvironments() -> void:
 			var EnvSource
 			while index < 50: #Exit if cannot find a spot in a number of iterations. 
 				EnvSource = Vector2(randi_range(0, tempDims), randi_range(0, tempDims))
-				if EnvSource.distance_squared_to(playerSpawn) < 4:
+				
+				if EnvSource.distance_squared_to(playerSpawn) > 4:
 					
 					#Check for overlaps in environment
 					"""
@@ -246,7 +278,7 @@ func generateEnvironments() -> void:
 							break
 					"""
 					#Gonna use one of these instead
-					if EnvironmentSources.all(func(e : Vector2): return EnvSource.distance_squared_to(e) >= 4):
+					if not EnvironmentSources.any(func(e : Vector2): return EnvSource.distance_squared_to(e) < 4):
 						break
 				index += 1
 			EnvironmentSources.append(EnvSource)
@@ -269,21 +301,56 @@ func generateEnvironments() -> void:
 			var index = 0
 			var EnvSource
 			while index < 50: #Exit if cannot find a spot in a number of iterations. 
-				EnvSource = Vector2(randi_range(0, 5), randi_range(0, 5))
-				if EnvSource.distance_squared_to(playerSpawn) < 4:
+				"""
+				var tempnum = randi_range(0, 3)
+				match tempnum:
+					0:
+						EnvSource = Vector2(randi_range(0, 0), randi_range(0, 0))
+					1:
+						EnvSource = Vector2(randi_range(tempDims, tempDims), randi_range(tempDims, tempDims))
+					2:
+						EnvSource = Vector2(randi_range(0, 0), randi_range(tempDims, tempDims))
+					3:
+						EnvSource = Vector2(randi_range(tempDims, tempDims), randi_range(0, 0))
+				"""
+				EnvSource = Vector2(randi_range(0, tempDims), randi_range(0, tempDims))
+				#Hey dumbass, ever realize that spawn is NEVER on the edges?
+				#var mapTemp = []
+				#for s in sources:
+					#mapTemp.append(playerSpawn.distance_squared_to(s))
+				if EnvSource.distance_squared_to(playerSpawn) > 4:
+					var sources
+					if EnvSource.x <= tempDims/2:
+						if EnvSource.y <= tempDims/2:
+							sources = [EnvSource, EnvSource + Vector2(tempDims, tempDims), EnvSource + Vector2(0, tempDims), EnvSource + Vector2(tempDims, 0)]
+						else:
+							sources = [EnvSource, EnvSource + Vector2(tempDims, -tempDims), EnvSource + Vector2(0, -tempDims), EnvSource + Vector2(tempDims, 0)]
+					else:
+						if EnvSource.y <= tempDims/2:
+							sources = [EnvSource, EnvSource + Vector2(-tempDims, tempDims), EnvSource + Vector2(0, tempDims), EnvSource + Vector2(-tempDims, 0)]
+						else:
+							sources = [EnvSource, EnvSource + Vector2(-tempDims, -tempDims), EnvSource + Vector2(0, -tempDims), EnvSource + Vector2(-tempDims, 0)]
 					
 					#Check for overlaps in environment
 					"""
 					var overlap = false
 					for e in EnvironmentSources:
-						if HazSource.distance_squared_to(e) < 4:
+						print(index, " " , EnvSource.distance_squared_to(e))
+						if EnvSource.distance_squared_to(e) < 4:
 							overlap = true 
 							break
 					"""
 					#Gonna use one of these instead
-					if EnvironmentSources.any(func(e : Vector2): return EnvSource.distance_squared_to(e) < 4):
+					#Nevermind I CANT because SOMEONE decided to make the code too stupid
+					#Actually I still can it's just ugly as fuck
+					#Actually it's not that bad, but it basically multiplies this functions time by 4 fyi for a very rare case 
+					if not EnvironmentSources.any(func(e : Vector2): 
+						return sources.any(func(s : Vector2): return s.distance_squared_to(e) < 4)):
 						break
+					
 				index += 1
+				if (index == 50):
+					print("Limit Exceeded: ", i)
 			EnvironmentSources.append(EnvSource)
 			EnvironmentTypes.append(i)
 			populateEnvWeights(i, EnvSource, playerSpawn, tempStrength)
@@ -322,7 +389,7 @@ func populateEnvWeights(env: int, source: Vector2, _playerSource: Vector2, stren
 	
 	#Since they're all basic types, I'm pretty sure I can't do a reference so I'll have to do it this way.
 	var tempDim = MAP_DIMS[current_map]
-	strength *= randf_range(0.5, 1.5)
+	strength *= sqrt(current_map) * randf_range(0.75, 1.25)
 	var sources
 	if source.x <= tempDim/2:
 		if source.y <= tempDim/2:
@@ -368,36 +435,38 @@ func generateEvents() -> void:
 	var tempDim = MAP_DIMS[current_map]
 	var playerSpawn = Vector2(tempDim / 2, tempDim / 2) 
 	var event_ids = [[0],[0],[0],[0],[0],[0]]
-	var MAP_EVENTS = []
+	var MAP_EVENTS;
 	
 	#Need prob gonna need custom code for each event generation
 	#Let's worry about that later
 	match current_map:
 		1:
 			MAP_EVENTS = [peaceful_event]
-			event_ids = [0]
+			event_ids = [0,1,2]
 		2:
 			MAP_EVENTS = [peaceful_event]
-			event_ids = [0]
+			event_ids = [0,1,2,3,4,5]
 		3:
 			MAP_EVENTS = [peaceful_event]
-			event_ids = [0]
+			event_ids = [0,1,2,3,4,5,6,7,8]
 		4:
+			
 			MAP_EVENTS = [peaceful_event]
-			event_ids = [0]
+			event_ids = [0,1,2,3,4,5]
 		5:
 			MAP_EVENTS = [peaceful_event]
-			event_ids = [0]
+			event_ids = [0,1,2,3,4,5]
 		6:
 			MAP_EVENTS = [peaceful_event]
-			event_ids = [0]
-	var tempRange = range(MAP_EVENTS.size())
+			event_ids = [0,1,2,3,4,5]
+	var tempRange = range(EVENT_MAX[current_map])#range(MAP_EVENTS.size())
 	tempRange.shuffle()
 	#I would like there to be a random amount of events as well but let's do that when we have more events
 	#randi_range(ceil(EVENT_MAX[current_map]), EVENT_MAX[current_map])
 	#Something like that function
 	var temp_index = 0
 	var temp_max = EVENT_MAX[current_map]
+	var forced_location_starts = [0, 0, 0]
 	for i in range(temp_max):
 		#Modulus is to prevent accidental overflow
 		var event_index = tempRange[(i+temp_index)%temp_max]
@@ -409,61 +478,117 @@ func generateEvents() -> void:
 			if temp_index > temp_max:
 				temp_index += 1
 				break
+		
+		"""
 		var tempEvent = MAP_EVENTS[event_index].instantiate()
+		"""
 		
 		#Event with a forced location has to be placed within 1 block away from the source.
 		#use a randi_range(-1, 1) on the source vector
 		#Either check the forced variable from here, or make anohter array for it (prob just check tbh)
-		var forced_location_starts = [0, 0, 0]
-		var forced_location = tempEvent.forced_location
+		
+		var forced_location = 1#tempEvent.forced_location
 		var tempSource
 		var eventPosition
 		if forced_location != 0:
+			#Find a new environment center with a matching envionment
 			var tempSpot = EnvironmentTypes.find(forced_location, forced_location_starts[forced_location-1])
+			#If not, start from 0
 			if tempSpot == -1:
 				tempSpot = EnvironmentTypes.find(forced_location, 0)
-			forced_location_starts[forced_location-1] = tempSpot
+			#If this is somehow still impossible, place it anywhere.
 			if tempSpot == -1:
 				tempSpot = randi_range(0, ENV_MAX[current_map]*3 - 1)
 				forced_location_starts[forced_location-1] = EnvironmentTypes.size() - 1
+			else:
+				forced_location_starts[forced_location-1] = tempSpot + 1
+				print(forced_location_starts[forced_location-1])
 			tempSource = EnvironmentSources[tempSpot]
 			var index = 0
 			while index < 10: #Exit if cannot find a spot in a number of iterations. 
-				eventPosition = Vector2((tempSource.x + randi_range(-1,1)) % MAP_DIMS[current_map], (tempSource.y + randi_range(-1,1) % MAP_DIMS[current_map]))
-				if eventPosition.distance_squared_to(playerSpawn) < 4:
+				eventPosition = Vector2(int(tempSource.x + randi_range(-1,1)) % MAP_DIMS[current_map], int(tempSource.y + randi_range(-1,1) % MAP_DIMS[current_map]))
+				if eventPosition.distance_squared_to(playerSpawn) > 4:
 					
-					if event_positions.all(func(e : Vector2): return eventPosition.distance_squared_to(e) > 1):
+					var sources
+					if eventPosition.x <= tempDim/2:
+						if eventPosition.y <= tempDim/2:
+							sources = [eventPosition, eventPosition + Vector2(tempDim, tempDim), eventPosition + Vector2(0, tempDim), eventPosition + Vector2(tempDim, 0)]
+						else:
+							sources = [eventPosition, eventPosition + Vector2(tempDim, -tempDim), eventPosition + Vector2(0, -tempDim), eventPosition + Vector2(tempDim, 0)]
+					else:
+						if eventPosition.y <= tempDim/2:
+							sources = [eventPosition, eventPosition + Vector2(-tempDim, tempDim), eventPosition + Vector2(0, tempDim), eventPosition + Vector2(-tempDim, 0)]
+						else:
+							sources = [eventPosition, eventPosition + Vector2(-tempDim, -tempDim), eventPosition + Vector2(0, -tempDim), eventPosition + Vector2(-tempDim, 0)]
+					
+					if not event_positions.any(func(e : Vector2): 
+						return sources.any(func(s : Vector2): return s.distance_squared_to(e) <= 1)):
 						break
+					#if not event_positions.any(func(e : Vector2): 
+					#	return eventPosition.distance_squared_to(e) <= 1):
+					#	break
 				index += 1
 			#Lower the requirements if not found
 			if index >= 10:
 				while index < 20: #Exit if cannot find a spot in a number of iterations. 
-					eventPosition = Vector2((tempSource.x + randi_range(-1,1)) % MAP_DIMS[current_map], (tempSource.y + randi_range(-1,1) % MAP_DIMS[current_map]))
-					if eventPosition.distance_squared_to(playerSpawn) < 2:
+					eventPosition = Vector2(int(tempSource.x + randi_range(-1,1)) % MAP_DIMS[current_map], int(tempSource.y + randi_range(-1,1) % MAP_DIMS[current_map]))
+					if eventPosition.distance_squared_to(playerSpawn) > 2:
 						
-						if event_positions.all(func(e : Vector2): return eventPosition.distance_squared_to(e) > 1):
+						var sources
+						if eventPosition.x <= tempDim/2:
+							if eventPosition.y <= tempDim/2:
+								sources = [eventPosition, eventPosition + Vector2(tempDim, tempDim), eventPosition + Vector2(0, tempDim), eventPosition + Vector2(tempDim, 0)]
+							else:
+								sources = [eventPosition, eventPosition + Vector2(tempDim, -tempDim), eventPosition + Vector2(0, -tempDim), eventPosition + Vector2(tempDim, 0)]
+						else:
+							if eventPosition.y <= tempDim/2:
+								sources = [eventPosition, eventPosition + Vector2(-tempDim, tempDim), eventPosition + Vector2(0, tempDim), eventPosition + Vector2(-tempDim, 0)]
+							else:
+								sources = [eventPosition, eventPosition + Vector2(-tempDim, -tempDim), eventPosition + Vector2(0, -tempDim), eventPosition + Vector2(-tempDim, 0)]
+						
+						if not event_positions.any(func(e : Vector2): 
+							return sources.any(func(s : Vector2): return s.distance_squared_to(e) <= 1)):
 							break
 					index += 1
+			if index == 20:
+				print("limit reached")
 			#Choose a random spot if not found
 			if index >= 20:
-				while index < 20: #Exit if cannot find a spot in a number of iterations. 
+				while index < 30: #Exit if cannot find a spot in a number of iterations. 
 					eventPosition = Vector2(randi_range(0, tempDim), randi_range(0, tempDim))
-					if eventPosition.distance_squared_to(playerSpawn) < 2:
+					if eventPosition.distance_squared_to(playerSpawn) > 2:
 						
-						if event_positions.all(func(e : Vector2): return eventPosition.distance_squared_to(e) > 1):
+						var sources
+						if eventPosition.x <= tempDim/2:
+							if eventPosition.y <= tempDim/2:
+								sources = [eventPosition, eventPosition + Vector2(tempDim, tempDim), eventPosition + Vector2(0, tempDim), eventPosition + Vector2(tempDim, 0)]
+							else:
+								sources = [eventPosition, eventPosition + Vector2(tempDim, -tempDim), eventPosition + Vector2(0, -tempDim), eventPosition + Vector2(tempDim, 0)]
+						else:
+							if eventPosition.y <= tempDim/2:
+								sources = [eventPosition, eventPosition + Vector2(-tempDim, tempDim), eventPosition + Vector2(0, tempDim), eventPosition + Vector2(-tempDim, 0)]
+							else:
+								sources = [eventPosition, eventPosition + Vector2(-tempDim, -tempDim), eventPosition + Vector2(0, -tempDim), eventPosition + Vector2(-tempDim, 0)]
+						
+						if not event_positions.any(func(e : Vector2): 
+							return sources.any(func(s : Vector2): return s.distance_squared_to(e) <= 1)):
 							break
 					index += 1
-			
+			if index == 30:
+				print("overdone")
 		else:
 			var index = 0
 			while index < 20: #Exit if cannot find a spot in a number of iterations. 
 				eventPosition = Vector2(randi_range(0, tempDim), randi_range(0, tempDim))
-				if eventPosition.distance_squared_to(playerSpawn) < 2:
+				if eventPosition.distance_squared_to(playerSpawn) > 2:
 					
-					if event_positions.all(func(e : Vector2): return eventPosition.distance_squared_to(e) > 1):
+					if not event_positions.any(func(e : Vector2): return eventPosition.distance_squared_to(e) <= 1):
 						break
 				index += 1
 		#If the zone doesn't already have an event, create the event and add it to the zone.
+		#This shouldn't not trigger, but it's there just in case.
+		event_positions.append(eventPosition)
+		"""
 		if not zone[eventPosition.x][eventPosition.y].hasEvent:
 			event_positions.append(eventPosition)
 			tempEvent.position = (eventPosition + Vector2(0.5,0.5)) * Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map])
@@ -472,9 +597,9 @@ func generateEvents() -> void:
 			#Might need to call defer on these two
 			add_child(tempEvent)
 			zone[eventPosition.x][eventPosition.y].eventReference = tempEvent.get_path()
-			
+		"""	
 		 	
-		used_event_array.append(tempEvent)
+		#used_event_array.append(tempEvent)
 
 func backgroundGenerateMap() -> void:
 	

@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://iye6rfpbns41"]
+
+[ext_resource type="Script" uid="uid://bfm7v3xk4bc5a" path="res://Blob/orb_spawner.gd" id="1_kgsk8"]
+[ext_resource type="PackedScene" uid="uid://1u4b61ore8wh" path="res://Blob/orb.tscn" id="2_rlm6r"]
+
+[node name="orb_spawner" type="Node2D"]
+modulate = Color(1, 0, 0, 1)
+script = ExtResource("1_kgsk8")
+orb = ExtResource("2_rlm6r")
+
+[node name="RespawnTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[node name="SpawnTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="RespawnTimer" to="." method="_on_respawn_timer_timeout"]
+[connection signal="timeout" from="SpawnTimer" to="." method="_on_spawn_timer_timeout"]
