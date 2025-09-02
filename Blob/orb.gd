@@ -4,6 +4,16 @@ extends Node2D
 @export var id: int = 1
 signal collect(id : int)
 
+var tween
+
+func move(endPos :  Vector2, moveTime : float) -> void:
+	if tween:
+		tween.kill()
+	tween = create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUART)
+	tween.tween_property(self, position, endPos, moveTime)
+
 func create(val : float, i_d : int, size : float, type : int, color : Color, pos : Vector2) -> void:
 	var temp_child = get_child(type)
 	temp_child.visible = true
@@ -17,7 +27,9 @@ func create(val : float, i_d : int, size : float, type : int, color : Color, pos
 	visible = true
 	$Detection.monitoring = true
 	modulate = color
-	
+
+#Meant to use this for non create, but I didn't need it it seems
+"""
 func move(v : float, i : int, size : float, type : int, color : Color) -> void:
 	var temp_child = get_child(type)
 	temp_child.visible = true
@@ -27,8 +39,12 @@ func move(v : float, i : int, size : float, type : int, color : Color) -> void:
 	value = v
 	id = i
 	modulate = color
-	
+"""		
+
 func _on_detection_area_entered(area: Area2D) -> void:
+	#Call the player's collect here too as well with the value from this orb
+	#Player.collect() w/e
+	
 	collect.emit()
 	disable()
 	

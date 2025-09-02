@@ -24,6 +24,7 @@ var EnvironmentSources = []
 #Track the type each center is
 var EnvironmentTypes = []
 
+var playerReference 
 
 #Events
 @export var peaceful_event : PackedScene
@@ -70,6 +71,7 @@ var MapState = UNLOADED
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	#var rng = RandomNumberGenerator.new()
+	playerReference = get_node("Blob-Swim")
 	
 	#The c++ programmer in me hates this but it's simpler than the alternative
 	var alphabet_uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 
@@ -126,6 +128,347 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	pass
+
+#Enter a zone position in [i][j] -> Vec2(j,i) form
+#Returns the actual zone position in Vec2(x,y) form
+func _calculateZonePosition(i : int, j : int) -> Vector2:
+	return Vector2(i * ZONE_WIDTH[current_map], j * ZONE_HEIGHT[current_map])
+
+#Load in all the zones initally
+#Pass in an argument if the player starts somewhere that isn't spawn (for example, loading in from a save)
+func _initializeZones(playerStartPos = Vector2(MAP_DIMS[current_map] / 2, MAP_DIMS[current_map] / 2) ) -> void:
+	#On 3x3 map, load initalize all
+	#On 6x6 map, enable load initalize 3x3 and only initalize and load 5x5.
+	#Since we removed further functionality, do the same for 6x6.
+	var tempDim = MAP_DIMS[current_map]
+	for i in range(playerStartPos.y - 1, playerStartPos.y + 2):
+		for j in range(playerStartPos.x - 1, playerStartPos.x + 2):
+			zone_list[i % tempDim][j % tempDim].firstSpawnEntities()
+	if current_map > 0:
+		for i in range(playerStartPos.x - 2, playerStartPos.x + 3):
+			zone_list[(playerStartPos.y - 2) % tempDim][i].firstSpawnEntities()
+			zone_list[(playerStartPos.y + 2) % tempDim][i].firstSpawnEntities()
+			zone_list[(playerStartPos.y - 2) % tempDim][i].disableEntities()
+			zone_list[(playerStartPos.y + 2) % tempDim][i].disableEntities()
+		for i in range(playerStartPos.x - 1, playerStartPos.x + 2):
+			zone_list[i][(playerStartPos.y - 2) % tempDim].firstSpawnEntities()
+			zone_list[i][(playerStartPos.y + 2) % tempDim].firstSpawnEntities()
+			zone_list[i][(playerStartPos.y - 2) % tempDim].disableEntities()
+			zone_list[i][(playerStartPos.y + 2) % tempDim].disableEntities()
+			
+
+#Replicate the formula you created before. Load only the zones that will be added and 
+#load out only the zones that won't be added. Make sure to count for going over the border
+
+#The positions given are to be reduced by zone, but remember that position(x,y) is different than zone[i][j]
+#position (x,y) = zone[y][x]. You can create a function in cell that converts player pos to zone pos.  
+func _loadZones(playerStartPos : Vector2, playerEndPos : Vector2) -> void:
+	#On 3x3 map, don't load at all. Only handle the border translation logic.
+	#On 6x6 map, do not handle the queue free all creatures logic. 
+	#On anything larger, do all logic.
+	#Make sure to only trigger on the outer edges rather than the whole outside.
+	#If this is laggy, see if you can background load it (which may be problematic if it gets queued multiple times).
+	#Only background load the 5x5+ part
+	
+	#Make sure to not trigger this function when playerStartPos == playerEndPos in the player call
+	
+	var tempdist = _handleBorderLogic(playerStartPos, playerEndPos)#playerStartPos.distance_squared_to(playerEndPos)
+	var tempDim = MAP_DIMS[current_map] 
+	
+	if tempdist <= 2:
+		var direction = playerEndPos - playerStartPos
+		if tempdist != 2:
+			if direction.x == 0:
+				#Down
+				if direction.y == 1:
+					for i in range(playerEndPos.x - 1, playerEndPos.x + 2):
+						zone_list[(playerEndPos.y + 1) % tempDim][i % tempDim].enableEntities()
+						zone_list[(playerEndPos.y - 2) % tempDim][i % tempDim].disableEntities()
+					for i in range(playerEndPos.x - 2, playerEndPos.x + 3):
+						zone_list[(playerEndPos.y - 3) % tempDim][i % tempDim].freeEntities()
+				#Up
+				else:
+					for i in range(playerEndPos.x - 1, playerEndPos.x + 2):
+						zone_list[(playerEndPos.y - 1) % tempDim][i % tempDim].enableEntities()
+						zone_list[(playerEndPos.y + 2) % tempDim][i % tempDim].disableEntities()
+					for i in range(playerEndPos.x - 2, playerEndPos.x + 3):
+						zone_list[(playerEndPos.y + 3) % tempDim][i % tempDim].freeEntities()
+			else:
+				#Right
+				if direction.x == 1:
+					for i in range(playerEndPos.y - 1, playerEndPos.y + 2):
+						zone_list[i % tempDim][(playerEndPos.x + 1) % tempDim].enableEntities()
+						zone_list[i % tempDim][(playerEndPos.x - 2) % tempDim].disableEntities()
+					for i in range(playerEndPos.y - 2, playerEndPos.x + 3):
+						zone_list[i % tempDim][(playerEndPos.x - 3) % tempDim].freeEntities()
+				#Left
+				else:
+					for i in range(playerEndPos.y - 1, playerEndPos.y + 2):
+						zone_list[i % tempDim][(playerEndPos.x - 1) % tempDim].enableEntities()
+						zone_list[i % tempDim][(playerEndPos.x + 2) % tempDim].disableEntities()
+					for i in range(playerEndPos.y - 2, playerEndPos.x + 3):
+						zone_list[i % tempDim][(playerEndPos.x + 3) % tempDim].freeEntities()
+		#Diagonal needs its seperate case
+		else:
+			if direction.y == 1:
+				#Down Right
+				if direction.x == 1:
+					#Diagonal
+					zone_list[(playerEndPos.y + 1) % tempDim][(playerEndPos.x + 1) % tempDim].enableEntities()
+					zone_list[(playerEndPos.y - 2) % tempDim][(playerEndPos.x - 2) % tempDim].disableEntities()
+					zone_list[(playerEndPos.y - 3) % tempDim][(playerEndPos.x - 3) % tempDim].freeEntities()
+					#Down
+					for i in range(playerEndPos.x - 1, playerEndPos.x + 1):
+						zone_list[(playerEndPos.y + 1) % tempDim][i % tempDim].enableEntities()
+						zone_list[(playerEndPos.y - 2) % tempDim][i % tempDim].disableEntities()
+					for i in range(playerEndPos.x - 2, playerEndPos.x + 2):
+						zone_list[(playerEndPos.y - 3) % tempDim][i % tempDim].freeEntities()
+					#Right
+					for i in range(playerEndPos.y, playerEndPos.y + 2):
+						zone_list[i % tempDim][(playerEndPos.x + 1) % tempDim].enableEntities()
+						zone_list[i % tempDim][(playerEndPos.x - 2) % tempDim].disableEntities()
+					for i in range(playerEndPos.y - 1, playerEndPos.x + 3):
+						zone_list[i % tempDim][(playerEndPos.x - 3) % tempDim].freeEntities()
+				#Down Left
+				else:
+					#Diagonal
+					zone_list[(playerEndPos.y + 1) % tempDim][(playerEndPos.x - 1) % tempDim].enableEntities()
+					zone_list[(playerEndPos.y - 2) % tempDim][(playerEndPos.x + 2) % tempDim].disableEntities()
+					zone_list[(playerEndPos.y - 3) % tempDim][(playerEndPos.x + 3) % tempDim].freeEntities()
+					#Down
+					for i in range(playerEndPos.x - 1, playerEndPos.x + 1):
+						zone_list[(playerEndPos.y + 1) % tempDim][i % tempDim].enableEntities()
+						zone_list[(playerEndPos.y - 2) % tempDim][i % tempDim].disableEntities()
+					for i in range(playerEndPos.x - 2, playerEndPos.x + 2):
+						zone_list[(playerEndPos.y - 3) % tempDim][i % tempDim].freeEntities()
+					#Left
+					for i in range(playerEndPos.y, playerEndPos.y + 2):
+						zone_list[i % tempDim][(playerEndPos.x - 1) % tempDim].enableEntities()
+						zone_list[i % tempDim][(playerEndPos.x + 2) % tempDim].disableEntities()
+					for i in range(playerEndPos.y - 1, playerEndPos.x + 3):
+						zone_list[i % tempDim][(playerEndPos.x + 3) % tempDim].freeEntities()
+			else:
+				#Up Right
+				if direction.x == 1:
+					#Diagonal
+					zone_list[(playerEndPos.y - 1) % tempDim][(playerEndPos.x + 1) % tempDim].enableEntities()
+					zone_list[(playerEndPos.y + 2) % tempDim][(playerEndPos.x - 2) % tempDim].disableEntities()
+					zone_list[(playerEndPos.y + 3) % tempDim][(playerEndPos.x - 3) % tempDim].freeEntities()
+					#Up
+					for i in range(playerEndPos.x - 1, playerEndPos.x + 1):
+						zone_list[(playerEndPos.y - 1) % tempDim][i % tempDim].enableEntities()
+						zone_list[(playerEndPos.y + 2) % tempDim][i % tempDim].disableEntities()
+					for i in range(playerEndPos.x - 2, playerEndPos.x + 2):
+						zone_list[(playerEndPos.y + 3) % tempDim][i % tempDim].freeEntities()
+					#Right
+					for i in range(playerEndPos.y, playerEndPos.y + 2):
+						zone_list[i % tempDim][(playerEndPos.x + 1) % tempDim].enableEntities()
+						zone_list[i % tempDim][(playerEndPos.x - 2) % tempDim].disableEntities()
+					for i in range(playerEndPos.y - 1, playerEndPos.x + 3):
+						zone_list[i % tempDim][(playerEndPos.x - 3) % tempDim].freeEntities()
+				#Up Left
+				else:
+					#Diagonal
+					zone_list[(playerEndPos.y - 1) % tempDim][(playerEndPos.x - 1) % tempDim].enableEntities()
+					zone_list[(playerEndPos.y + 2) % tempDim][(playerEndPos.x + 2) % tempDim].disableEntities()
+					zone_list[(playerEndPos.y + 3) % tempDim][(playerEndPos.x + 3) % tempDim].freeEntities()
+					#Up
+					for i in range(playerEndPos.x - 1, playerEndPos.x + 1):
+						zone_list[(playerEndPos.y - 1) % tempDim][i % tempDim].enableEntities()
+						zone_list[(playerEndPos.y + 2) % tempDim][i % tempDim].disableEntities()
+					for i in range(playerEndPos.x - 2, playerEndPos.x + 2):
+						zone_list[(playerEndPos.y + 3) % tempDim][i % tempDim].freeEntities()
+					#Left
+					for i in range(playerEndPos.y, playerEndPos.y + 2):
+						zone_list[i % tempDim][(playerEndPos.x - 1) % tempDim].enableEntities()
+						zone_list[i % tempDim][(playerEndPos.x + 2) % tempDim].disableEntities()
+					for i in range(playerEndPos.y - 1, playerEndPos.x + 3):
+						zone_list[i % tempDim][(playerEndPos.x + 3) % tempDim].freeEntities()
+	#If the distance is > sqrt2:
+	#Print an error message. You're not supposed to cross zones that fast. Lower the time if it does.
+	#Anyways...
+	#Do a disable/deletion policy on everything in the start position that is over the 5x5/7x7 range 
+	#but not within the new 3x3/5x5 range of the end pos. 
+	#Then go ahead and enable/load everything in 3x3/5x5 though only if they are disabled/deleted (check zone's state)
+	#You don't need to do this now, but you should get it done at some point
+	else:
+		pass
+	
+	
+
+func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int:
+	#Couple things to consider:
+	#You need to handle the border translation logic for start pos as well
+	
+	#You also need to handle the border translation logic for going over the border
+	#Earlier, you also need to factor in the equation that handles whether startpos and endpos features a jump over border
+	#Perhaps it'll be your best bet to handle this stuff first before the previous logic
+	#Ruminate on this and come back to it later.
+	
+	var tempDim = MAP_DIMS[current_map] 
+	
+	#Check if playerEndPos is in the position being moved over, if so move the player as well.
+	
+	#Down the line you'll have to consider if you move multiple zones in one 
+	#This can be problematic to most of this calculation, mainly the start pos stuff. 
+	#It's preferably if you PREVENT that rather than accounting for that here.
+	
+	#I hate what I'm about to do here, but the rot inside my brain inside me forces me to 
+	#minimal useless optimization
+	#If you want to "optimize" it more, dumbass, you could go replace those variables in the for loops 
+	#with their actual values since you know what they are at all times dumbass.
+	#Left Border
+	if playerStartPos.x == 0:
+		#Top Diagonal
+		if playerStartPos.y == 0:
+			#8 options to consider where end pos could be.
+			
+			#If endpos is not at a border 	
+			if playerEndPos.x == 1 and playerEndPos.y == 1:
+				#Return all borders back
+				for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+					zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+				for i in range(playerStartPos.x, playerStartPos.x+2):	
+					zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
+				return 2
+			#Left
+			elif playerEndPos.x == 0:
+				#If it moved along the Left Border
+				if playerEndPos.y == 1:	
+					#Return Top Borders back
+					for i in range(playerStartPos.x-1, playerStartPos.x+2):	
+						zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
+					#Add bot border #int(playerStartPos.x+2) = 2
+					zone_list[2 % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, 2 % tempDim))
+					return 1
+				#Bottom Diagonal (Same border is impossible fyi)
+				else:
+					#Remove left top border
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					#Add left bottom border
+					for i in range(tempDim - 2, tempDim+1):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, i % tempDim))
+					#Remove top and add bottom border
+					for i in range(playerStartPos.x, playerStartPos.x+2):	
+						zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
+						zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
+					#Teleport player over
+					playerReference.changePosition(_calculateZonePosition(0, tempDim - 1))
+					return 1
+			#Top
+			elif playerEndPos.y == 0:
+				#If it moved along the Top Border
+				if playerEndPos.x == 1:	
+					#Return Left Borders back
+					for i in range(playerEndPos.y - 1, playerEndPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					#Add right border #int(playerStartPos.y+2) = 2
+					zone_list[tempDim - 1][2 % tempDim].changePosition(_calculateZonePosition(2 % tempDim, -1))
+					return 1
+				#Bottom Diagonal (Same border is impossible fyi)
+				else:
+					#Remove left and add right  border
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+						zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+					#Remove top left
+					for i in range(playerStartPos.x, playerStartPos.x+2):	
+						zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
+					#Add top right
+					for i in range(tempDim - 2, tempDim+1):	
+						zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))
+					#Teleport player over
+					playerReference.changePosition(_calculateZonePosition(tempDim - 1, 0))
+					return 1
+			#Bottom Right
+			else:
+				#Remove left and add right  border
+				for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+					zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+				#Remove top and add bottom border
+				for i in range(playerStartPos.x, playerStartPos.x+2):	
+					zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
+					zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))		
+				#Teleport player over
+				playerReference.changePosition(_calculateZonePosition(tempDim - 1, tempDim - 1))
+				return 2
+		#Bottom Diagonal
+		elif playerStartPos.y == tempDim - 1:
+			pass
+		#Normal
+		else:
+			pass
+	#Right Border
+	elif playerStartPos.x == tempDim - 1:
+		#Top Diagonal
+		if playerStartPos.y == 0:
+			pass
+		#Bottom Diagonal
+		elif playerStartPos.y == tempDim - 1:
+			pass
+		#Normal
+		else:
+			pass
+	#Top Border
+	elif playerStartPos.y == 0:
+		#Diagonal cannot trigger here
+		pass
+	#Bottom Border
+	elif playerStartPos.y == tempDim - 1:
+		#Diagonal cannot trigger here
+		pass
+	
+	#Handle the border translation logic. Perhaps make its own function for it if you want.
+	#Left Border
+	if playerEndPos.x == 0:
+		#Top Diagonal
+		if playerEndPos.y == 0:
+			for i in range(playerEndPos.y - 1, playerEndPos.y+2):	
+				zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, i % tempDim))
+			for i in range(playerEndPos.x, playerEndPos.x+2):	
+				zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))
+		#Bottom Diagonal
+		elif playerEndPos.y == tempDim - 1:
+			for i in range(playerEndPos.y - 1, playerEndPos.y+2):	
+				zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, i % tempDim))
+			for i in range(playerEndPos.x, playerEndPos.x+2):	
+				zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
+		#Normal
+		else:
+			for i in range(playerEndPos.y - 1, playerEndPos.y+2):	
+				zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, i % tempDim))
+	#Right Border
+	elif playerEndPos.x == tempDim - 1:
+		#Top Diagonal
+		if playerEndPos.y == 0:
+			for i in range(playerEndPos.y - 1, playerEndPos.y+2):	
+				zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+			for i in range(playerEndPos.x, playerEndPos.x+2):	
+				zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))
+		#Bottom Diagonal
+		elif playerEndPos.y == tempDim - 1:
+			for i in range(playerEndPos.y - 1, playerEndPos.y+2):	
+				zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+			for i in range(playerEndPos.x, playerEndPos.x+2):	
+				zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
+		#Normal
+		else:
+			for i in range(playerEndPos.y - 1, playerEndPos.y+2):	
+				zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+	#Top Border
+	elif playerEndPos.y == 0:
+		#Diagonal cannot trigger here
+		for i in range(playerEndPos.x - 1, playerEndPos.x+2):	
+			zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))
+	#Bottom Border
+	elif playerEndPos.y == tempDim - 1:
+		#Diagonal cannot trigger here
+		for i in range(playerEndPos.x - 1, playerEndPos.x+2):	
+			zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
+	
+	return playerStartPos.distance_squared_to(playerEndPos)
 
 #Need to remember generate the events as well
 #To reduce complexity of Zones, have the events be generated here
@@ -185,13 +528,15 @@ func generateMap() -> void:
 				temp.setParams(current_map, 0, [0, 0, 0], map_seed
 				 + hash(str(current_map) + str(i) + str(j)), 
 				+ ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[0]), 
-				Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j))
+				_calculateZonePosition(i, j))
+				add_child(zone)
 				"""
+				
 				
 				var temp = ""#str(current_map) + str(environments[i][j]) + str([pool_map[i][j], plant_map[i][j], hazard_map[i][j]])
 				temp += str(map_seed + hash(str(current_map) + str(i) + str(j))) + " "
 				temp += str(ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[0]))
-				#temp += str(Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j)) 
+				#temp += _calculateZonePosition(i, j)#str(Vector2(ZONE_WIDTH[current_map]*i, ZONE_HEIGHT[current_map]*j)) 
 				 
 				zone_list[i][j] = temp
 	
