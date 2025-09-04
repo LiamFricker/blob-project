@@ -295,7 +295,7 @@ func _loadZones(playerStartPos : Vector2, playerEndPos : Vector2) -> void:
 		pass
 	
 	
-
+#playerEndPos HAS to be (% tempdim). If not, do it yourself. 
 func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int:
 	#Couple things to consider:
 	#You need to handle the border translation logic for start pos as well
@@ -317,12 +317,15 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int
 	#minimal useless optimization
 	#If you want to "optimize" it more, dumbass, you could go replace those variables in the for loops 
 	#with their actual values since you know what they are at all times dumbass.
+	 
+	#So I forgot to consider corner when you're already in a corner, which can cause you to cross and end up 
+	#in another border.
+	#I'll probably forget more stuff so let's just scrap this idea already, comment it out.
+	"""
 	#Left Border
 	if playerStartPos.x == 0:
 		#Top Diagonal
 		if playerStartPos.y == 0:
-			#8 options to consider where end pos could be.
-			
 			#If endpos is not at a border 	
 			if playerEndPos.x == 1 and playerEndPos.y == 1:
 				#Return all borders back
@@ -338,7 +341,7 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int
 					#Return Top Borders back
 					for i in range(playerStartPos.x-1, playerStartPos.x+2):	
 						zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
-					#Add bot border #int(playerStartPos.x+2) = 2
+					#Add bot border #int(playerStartPos.y+2) = 2
 					zone_list[2 % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, 2 % tempDim))
 					return 1
 				#Bottom Diagonal (Same border is impossible fyi)
@@ -361,9 +364,9 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int
 				#If it moved along the Top Border
 				if playerEndPos.x == 1:	
 					#Return Left Borders back
-					for i in range(playerEndPos.y - 1, playerEndPos.y+2):	
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
 						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
-					#Add right border #int(playerStartPos.y+2) = 2
+					#Add right border #int(playerStartPos.x+2) = 2
 					zone_list[tempDim - 1][2 % tempDim].changePosition(_calculateZonePosition(2 % tempDim, -1))
 					return 1
 				#Bottom Diagonal (Same border is impossible fyi)
@@ -396,10 +399,177 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int
 				return 2
 		#Bottom Diagonal
 		elif playerStartPos.y == tempDim - 1:
-			pass
-		#Normal
+			#If endpos is not at a border 	
+			if playerEndPos.x == 1 and playerEndPos.y == tempDim - 2:
+				#Return all borders back
+				
+				for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+					zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+				for i in range(playerStartPos.x, playerStartPos.x+2):	
+					zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, 0))
+				return 2
+			#Left
+			elif playerEndPos.x == 0:
+				#If it moved along the Left Border
+				if playerEndPos.y == 1:	
+					#Return Bottom Borders back
+					for i in range(playerStartPos.x-1, playerStartPos.x+2):	
+						zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, 0))
+					#Add top border #int(playerStartPos.y-2) = tempDim - 3
+					zone_list[(tempDim - 3) % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, (tempDim - 3) % tempDim))
+					return 1
+				#Top Diagonal (Same border is impossible fyi)
+				else:
+					#Remove left top border
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					#Add left bottom border
+					for i in range(-1, 2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, i % tempDim))
+					#Remove top and add bottom border
+					for i in range(playerStartPos.x, playerStartPos.x+2):	
+						zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, 0))
+						zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))
+					#Teleport player over
+					playerReference.changePosition(_calculateZonePosition(0, 0))
+					return 1
+			#Bottom
+			elif playerEndPos.y == 0:
+				#If it moved along the Bottom Border
+				if playerEndPos.x == 1:	
+					#Return Left Borders back
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					#Add right border #int(playerStartPos.x+2) = 2
+					zone_list[0][2 % tempDim].changePosition(_calculateZonePosition(2 % tempDim, tempDim))
+					return 1
+				#Bottom Right Diagonal (Same border is impossible fyi)
+				else:
+					#Remove left and add right  border
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+						zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+					#Remove bottom left
+					for i in range(playerStartPos.x, playerStartPos.x+2):	
+						zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, 0))
+					#Add bottom right
+					for i in range(tempDim-2, tempDim+1):	
+						zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
+					#Teleport player over
+					playerReference.changePosition(_calculateZonePosition(tempDim - 1, tempDim - 1))
+					return 1
+			#Bottom Right
+			else:
+				#Remove left and add right  border
+				for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+					zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+				#Remove bottom and add top border
+				for i in range(playerStartPos.x, playerStartPos.x+2):	
+					zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, 0))
+					zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))		
+				#Teleport player over
+				playerReference.changePosition(_calculateZonePosition(tempDim - 1, 0))
+				return 2
+		#Any ol' border along left. 
 		else:
-			pass
+			#Conditions:
+			#Straight Cross the border if endpos.x == tempDim -1
+			#Diagonal Up Over Border if endpos.x == tempDim -1 && endpos.y == startpos.y - 1
+			#Diagonal Down Over Border if endpos.x == tempDim -1 && endpos.y == startpos.y + 1
+			#Diagonal Up Over Border into Corner if endpos.x == tempDim -1 && endpos.y == 0
+			#Diagonal Down Over Border into Corner if endpos.x == tempDim -1 && endpos.y == tempDim - 1
+			#Up/Down along Border if endpos.x == 0
+			#Up into Corner if endpos.x == 0 && endpos.y == 0
+			#Down into Corner if endpos.x == 0 && endpos.y == tempDim - 1
+			#Diagonal Up Into Perpendicular Border if endpos.y == 0
+			#Diagonal Down Into Perpendicular Border if endpos.y == tempDim - 1
+			#Anything else
+			if playerEndPos.x == tempDim - 1:
+				if playerEndPos.y == 0:
+					#Remove left border and add right border
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					for i in range(playerEndPos.y - 1, playerEndPos.y+2):		
+						zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+					#Add Top Border
+					for i in range(playerEndPos.x, playerEndPos.x+2):	
+						zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))
+					#Teleport player over
+					playerReference.changePosition(_calculateZonePosition(0, 0))
+					return 2
+				elif playerEndPos.y == tempDim - 1:
+					#Remove left border and add right border
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					for i in range(playerEndPos.y - 1, playerEndPos.y+2):		
+						zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+					#Add Bottom Border
+					for i in range(playerEndPos.x, playerEndPos.x+2):	
+						zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
+					#Teleport player over
+					playerReference.changePosition(_calculateZonePosition(0, tempDim-1))
+					return 2
+				elif playerEndPos.y == playerStartPos.y - 1 or playerEndPos.y == playerStartPos.y + 1:
+					#Remove left border and add right border
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+					for i in range(playerEndPos.y - 1, playerEndPos.y+2):		
+						zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+					#Teleport player over
+					playerReference.changePosition(_calculateZonePosition(0, playerEndPos.y))
+					return 2
+				else:
+					#Remove left border and add right border
+					for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+						zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+						zone_list[i % tempDim][0].changePosition(_calculateZonePosition(tempDim, i % tempDim))
+					#Teleport player over
+					playerReference.changePosition(_calculateZonePosition(0, playerStartPos.y))
+					return 1
+			elif playerEndPos.x == 0:
+				if playerEndPos.y == 0:
+					zone_list[(playerStartPos.y + 1) % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, (playerStartPos.y + 1) % tempDim))
+					#Add Top Border
+					for i in range(playerEndPos.x - 1, playerEndPos.x+2):	
+						zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))
+					return 1
+				elif playerEndPos.y == tempDim - 1:
+					zone_list[(playerStartPos.y - 1) % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, (playerStartPos.y - 1) % tempDim))
+					#Add Bottom Border
+					for i in range(playerEndPos.x - 1, playerEndPos.x+2):	
+						zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
+					return 1
+				elif playerEndPos.y == playerStartPos.y - 1:
+					zone_list[(playerStartPos.y + 1) % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, (playerStartPos.y + 1) % tempDim))
+					zone_list[(playerStartPos.y - 2) % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, (playerStartPos.y - 2) % tempDim))
+					return 1
+				else:
+					zone_list[(playerStartPos.y - 1) % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, (playerStartPos.y - 1) % tempDim))
+					zone_list[(playerStartPos.y + 2) % tempDim][tempDim - 1].changePosition(_calculateZonePosition(-1, (playerStartPos.y + 2) % tempDim))
+					return 1
+			elif playerEndPos.y == 0:
+				#Remove left border
+				for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+					zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+				#Add Top Border
+				for i in range(playerEndPos.x - 1, playerEndPos.x+2):	
+					zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, -1))
+				return 2
+			elif playerEndPos.y == tempDim - 1:
+				#Remove left border
+				for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+					zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+				#Add Bottom Border
+				for i in range(playerEndPos.x - 1, playerEndPos.x+2):	
+					zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
+				return 2
+			else:
+				#Remove left border
+				for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+					zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+				return playerStartPos.distance_squared_to(playerEndPos)
+			
 	#Right Border
 	elif playerStartPos.x == tempDim - 1:
 		#Top Diagonal
@@ -419,6 +589,61 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int
 	elif playerStartPos.y == tempDim - 1:
 		#Diagonal cannot trigger here
 		pass
+	"""
+	#Remove all the start borders.
+	#Make sure to make the change position function change it deferred.
+	#Left Border
+	if playerStartPos.x == 0:
+		#Top Diagonal
+		if playerStartPos.y == 0:
+			for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+				zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+			for i in range(playerStartPos.x, playerStartPos.x+2):	
+				zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
+		#Bottom Diagonal
+		elif playerStartPos.y == tempDim - 1:
+			for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+				zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+			for i in range(playerStartPos.x, playerStartPos.x+2):	
+				zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, 0))
+		#Normal
+		else:
+			for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+				zone_list[i % tempDim][tempDim - 1].changePosition(_calculateZonePosition(tempDim - 1, i % tempDim))
+	#Right Border
+	elif playerStartPos.x == tempDim - 1:
+		#Top Diagonal
+		if playerStartPos.y == 0:
+			for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+				zone_list[i % tempDim][0].changePosition(_calculateZonePosition(0, i % tempDim))
+			for i in range(playerStartPos.x, playerStartPos.x+2):	
+				zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
+		#Bottom Diagonal
+		elif playerStartPos.y == tempDim - 1:
+			for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+				zone_list[i % tempDim][0].changePosition(_calculateZonePosition(0, i % tempDim))
+			for i in range(playerStartPos.x, playerStartPos.x+2):	
+				zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, 0))
+		#Normal
+		else:
+			for i in range(playerStartPos.y - 1, playerStartPos.y+2):	
+				zone_list[i % tempDim][0].changePosition(_calculateZonePosition(0, i % tempDim))
+	#Top Border
+	elif playerStartPos.y == 0:
+		#Diagonal cannot trigger here
+		for i in range(playerStartPos.x - 1, playerStartPos.x+2):	
+			zone_list[tempDim - 1][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim - 1))
+	#Bottom Border
+	elif playerStartPos.y == tempDim - 1:
+		#Diagonal cannot trigger here
+		for i in range(playerStartPos.x - 1, playerStartPos.x+2):	
+			zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, 0))
+	
+	#Yes this'll cause bugs if you can move multiple zones but WHO CARES.
+	#ACTUALLY IT WONT EVEN CAUSE BUGS DUMBASS
+	#might as well check if they are in that zone though somehow.
+	if playerStartPos.distance_squared_to(playerEndPos) > 2:	
+		playerReference.changePosition(_calculateZonePosition(0, tempDim - 1))
 	
 	#Handle the border translation logic. Perhaps make its own function for it if you want.
 	#Left Border
@@ -468,7 +693,23 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int
 		for i in range(playerEndPos.x - 1, playerEndPos.x+2):	
 			zone_list[0][i % tempDim].changePosition(_calculateZonePosition(i % tempDim, tempDim))
 	
-	return playerStartPos.distance_squared_to(playerEndPos)
+	var sources
+	if playerStartPos.x <= tempDim/2:
+		if playerStartPos.y <= tempDim/2:
+			sources = [playerStartPos, playerStartPos + Vector2(tempDim, tempDim), playerStartPos + Vector2(0, tempDim), playerStartPos + Vector2(tempDim, 0)]
+		else:
+			sources = [playerStartPos, playerStartPos + Vector2(tempDim, -tempDim), playerStartPos + Vector2(0, -tempDim), playerStartPos + Vector2(tempDim, 0)]
+	else:
+		if playerStartPos.y <= tempDim/2:
+			sources = [playerStartPos, playerStartPos + Vector2(-tempDim, tempDim), playerStartPos + Vector2(0, tempDim), playerStartPos + Vector2(-tempDim, 0)]
+		else:
+			sources = [playerStartPos, playerStartPos + Vector2(-tempDim, -tempDim), playerStartPos + Vector2(0, -tempDim), playerStartPos + Vector2(-tempDim, 0)]
+	var mapTemp = [10,10,10,10]
+	for i in 4:
+		mapTemp[i] = playerEndPos.distance_squared_to(sources[i])
+	
+	#WOW WASNT THAT SO MUCH EASIER THAN WRITING 1000 LINES OF NESTED IF BLOCKS?
+	return min(mapTemp)
 
 #Need to remember generate the events as well
 #To reduce complexity of Zones, have the events be generated here

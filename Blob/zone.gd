@@ -46,6 +46,7 @@ func setParams(stgLvl : int, env : int, zone_weights : Array, entitySeed : int, 
 	mapPosition = pos
 
 func changePosition(newpos : Vector2) -> void:
+	#MAKE THIS FUNCTION SET A POSITION VARIABLE AND CHANGE IT AT THE END OF THE FRAME
 	var diff = newpos - position
 	for c in creatureList:
 		if not c.roaming: 
