@@ -5,6 +5,11 @@ extends Node2D
 signal collect(id : int)
 
 var tween
+var visible_sprite
+
+func _ready() -> void:
+	pass
+	#print("orb ready")
 
 func move(endPos :  Vector2, moveTime : float) -> void:
 	if tween:
@@ -12,21 +17,35 @@ func move(endPos :  Vector2, moveTime : float) -> void:
 	tween = create_tween()
 	tween.set_ease(Tween.EASE_OUT)
 	tween.set_trans(Tween.TRANS_QUART)
-	tween.tween_property(self, position, endPos, moveTime)
+	tween.tween_property(self, "position", endPos, moveTime)
 
 func create(val : float, i_d : int, size : float, type : int, color : Color, pos : Vector2) -> void:
+	#print(size)
+	
 	var temp_child = get_child(type)
 	temp_child.visible = true
 	get_child((type + 1) % 3).visible = false
 	get_child((type + 2) % 3).visible = false
-	temp_child.scale = Vector2(size, size)
-	$Detection/CollisionShape2D.shape.radius = size
+	visible_sprite = temp_child
+	
+	if tween:
+		tween.kill()
+	tween = create_tween()
+	tween.tween_property(self, "modulate:a", 1, 0.25).from(0)
+	tween.parallel().tween_property(visible_sprite, "scale", Vector2(size, size), 0.25).from(Vector2.ZERO)
+	#Need to write some code here that updates the shape size
+	#$Detection/CollisionShape2D.shape.radius = 10#ceil(size*10)
 	value = val
 	id = i_d
 	position = pos
 	visible = true
-	$Detection.monitoring = true
-	modulate = color
+	$Detection.set_deferred("monitoring", true)
+	temp_child.modulate = color
+
+#Call this when you need to change the orb size
+func augmentCollision(size : int) -> void:
+	$Detection/CollisionShape2D.shape = CircleShape2D
+	$Detection/CollisionShape2D.shape.radius = ceil(size)
 
 #Meant to use this for non create, but I didn't need it it seems
 """
@@ -40,15 +59,29 @@ func move(v : float, i : int, size : float, type : int, color : Color) -> void:
 	id = i
 	modulate = color
 """		
-
-func _on_detection_area_entered(area: Area2D) -> void:
-	#Call the player's collect here too as well with the value from this orb
-	#Player.collect() w/e
-	
-	collect.emit()
-	disable()
 	
 func disable() -> void:
-	visible = false
-	$Detection.monitoring = false
+	if tween:
+		tween.kill()
+	tween = create_tween()
+	tween.tween_property(self, "modulate:a", 0, 0.25)
+	if visible_sprite:	
+		tween.parallel().tween_property(visible_sprite, "scale", Vector2.ZERO, 0.25)
+	tween.tween_property(self, "visible", false, 0)
+	#visible = false
+	$Detection.set_deferred("monitoring", false)
 	
+func _on_detection_area_entered(_area: Area2D) -> void:
+	#Call the player's collect here too as well with the value from this orb
+	#Player.collect() w/e
+	print("collect")
+	#Need to fix this signal
+	collect.emit(id)
+	disable()
+
+func _on_detection_body_entered(body: Node2D) -> void:
+	#Call the player's collect here too as well with the value from this orb
+	body.collect(value, position)# w/e
+	print("collect")
+	collect.emit(id)
+	disable()

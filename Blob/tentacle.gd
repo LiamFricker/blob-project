@@ -60,7 +60,7 @@ func _on_detection_area_entered(area: Area2D) -> void:
 	tween.paralle().tween_property($Hitbox, "rotation", 0, 1)
 	tween.tween_callback(self.endSearch)
 
-func _on_hitbox_area_entered(area: Area2D) -> void:
+func _on_hitbox_area_entered(_area: Area2D) -> void:
 	if searching:
 		if tween:
 			tween.tween_property($Node2D, "rotation", 0, 1)

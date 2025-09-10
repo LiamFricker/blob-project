@@ -14,6 +14,10 @@ var tween #basic all purpose tween for stretches
 var tween2 #tween for glimmer 
 var tween3 #tween for ripple amp UNUSED USE IT FOR SOMETHING ELSE
 
+const ZONE_WIDTH = [1,1,1,1,1,1,1] #Width of each zone
+const ZONE_HEIGHT = [1,1,1,1,1,1,1] #Width of each zone
+var current_map = 0
+
 #Fat:
 #Pos(-17, -35) Scale(1.063, 1.063)
 
@@ -51,12 +55,30 @@ var tempVelocity: Vector2 = Vector2.ZERO
 var charge_angle: float = 0
 @export var charge_angle_speed: float = 1
 
+#A couple things here:
+#The OrbTimer in cell needs to be changed based on how fast we can travel
+# / need to create a variable that calculates theoretical speed.
+#The distance far orbs spawn need to be changed based on our vision radius.
+
 #Ripple Vars
 var rippleOn = false
 var rippleAmp = 0
 var oscilator = 0
 var rippleTime = 0
 var rippleMax = 0
+
+#Pulse Vars
+@export var pulseDuration = 1.0
+var pulseCount  = 0
+var pulseAmp1 = 0.0
+var pulseAmp2 = 0.0
+var pulseAmp3 = 0.0
+var pulseTween1
+var pulseTween2
+var pulseTween3
+var pulseSource1 = Vector2.ZERO
+var pulseSource2 = Vector2.ZERO
+var pulseSource3 = Vector2.ZERO
 
 #Tentacle Vars
 #I'm gonna make a stupid design decision here but I think it would be best to have all the tentacles exist already
@@ -142,6 +164,17 @@ func _physics_process(delta: float) -> void:
 			rippleMax *= -0.6
 			$Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmpMax", rippleMax)
 			rippleTime += 1.2
+	
+	if pulseCount > 0:
+		#print("PulseCount: ", pulseCount)
+		$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", pulseAmp1)
+		#print("Pulse Amp 1: ", pulseAmp1)
+		if pulseCount > 1:
+			#print("Pulse Amp 2: ", pulseAmp2)
+			$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp2)
+			if pulseCount > 2:
+				#print("Pulse Amp 3: ", pulseAmp3)
+				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", pulseAmp3)
 	
 	velocity += tempVelocity	 	
 	move_and_slide()
@@ -419,3 +452,109 @@ func _timers(delta:float) -> void:
 		charge_cool -= delta
 		#if waddle_modfier < 1 and charge_cool <= charge_cooldown * 0.75:
 		#	waddle_modfier = 1
+
+func collect(_value : int, orbpos : Vector2) -> void:
+	#Need a variable that tracks ripples
+	#Need 3 variables that track ripple amps.
+	#Need a function that's called when ripple amp reaches 0
+	#Might be easier to do this with tweens than with process to be honest.
+	if pulseCount > 2:
+		return
+		#This didn't look good
+		#pulseCancel(1)
+		#pulseCount = 3
+		
+	var newpos = (orbpos - position).normalized()
+	#print(newpos)
+	pulseCount += 1
+	
+	$Sprite/Node2D/Inside.material.set_shader_parameter("pulses", pulseCount)
+	match pulseCount:
+		1:
+			if pulseTween1:
+				pulseTween1.kill()
+			pulseTween1 = create_tween()
+			pulseTween1.tween_property(self, "pulseAmp1", 1.0, pulseDuration)#.from(0)
+			pulseAmp1 = 0
+			pulseTween1.tween_callback(pulseCancel.bind(1))
+			pulseSource1 = newpos
+			$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource1", newpos)
+			#$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", 0.0)
+	
+		2:
+			if pulseTween2:
+				pulseTween2.kill()
+			pulseTween2 = create_tween()
+			pulseTween2.tween_property(self, "pulseAmp2", 1.0, pulseDuration)#.from(0)
+			pulseAmp2 = 0
+			pulseTween2.tween_callback(pulseCancel.bind(2))
+			pulseSource2 = newpos
+			$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", newpos)
+			#$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", 0.0)
+		3:
+			if pulseTween3:
+				pulseTween3.kill()
+			pulseTween3 = create_tween()
+			pulseTween3.tween_property(self, "pulseAmp3", 1.0, pulseDuration)#.from(0)
+			pulseAmp3 = 0
+			pulseTween3.tween_callback(pulseCancel.bind(3))
+			pulseSource3 = newpos
+			$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource3", newpos)
+			#$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", 0.0)
+
+func pulseCancel(pulseNum : int) -> void:
+	pulseCount -= 1
+	#$Sprite/Node2D/Inside.material.call_deferred("set_shader_parameter", "pulses", pulseCount)
+	$Sprite/Node2D/Inside.material.set_shader_parameter("pulses", pulseCount)
+	#print("Cancel: ",  pulseNum)
+	match pulseNum:
+		1:
+			if pulseTween1:
+				pulseTween1.kill()
+			if pulseCount > 0:
+				if pulseTween2:
+					pulseTween2.kill()
+				pulseTween1 = create_tween()
+				var temp1 = pulseDuration * (1.0 - pulseAmp2)
+				pulseTween1.tween_property(self, "pulseAmp1", 1.0, temp1)#.from(pulseAmp2)
+				pulseAmp1 = pulseAmp2
+				pulseTween1.tween_callback(pulseCancel.bind(1))
+				pulseSource1 = pulseSource2
+				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource1", pulseSource1)
+				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", pulseAmp2)
+				#pulseAmp2 = 0
+				if pulseCount > 1:
+					if pulseTween3:
+						pulseTween3.kill()
+					pulseTween2 = create_tween()
+					var temp2 = pulseDuration * (1.0 - pulseAmp3)
+					pulseTween2.tween_property(self, "pulseAmp2", 1.0, temp2)#.from(pulseAmp3)
+					pulseAmp2 = pulseAmp3
+					pulseTween2.tween_callback(pulseCancel.bind(2))
+					pulseSource2 = pulseSource3
+					$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", pulseSource2)
+					$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp3)
+					#pulseAmp3 = 0
+			#else:
+				#print("1 done")
+		2:
+			if pulseTween2:
+				pulseTween2.kill()
+			if pulseCount > 1:	
+				if pulseTween3:
+					pulseTween3.kill()
+				pulseTween2 = create_tween()
+				var temp2 = pulseDuration * (1.0 - pulseAmp3)
+				pulseTween2.tween_property(self, "pulseAmp2", 1.0, temp2)#.from(pulseAmp3)
+				pulseAmp2 = pulseAmp3
+				pulseTween2.tween_callback(pulseCancel.bind(2))
+				pulseSource2 = pulseSource3
+				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", pulseSource2)
+				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp3)
+				#pulseAmp3 = 0
+		3:
+			if pulseTween3:
+				pulseTween3.kill()
+func changePosition(newpos : Vector2) -> void:
+	var modPos = position.posmodv(Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
+	position = modPos + newpos  	

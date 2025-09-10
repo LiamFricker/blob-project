@@ -19,8 +19,8 @@ var roamingCreatures = []
 var guestList = []
 
 #Environment Type 
-enum {NONE, POND, PLANT, HAZARD}
-@export var biome = NONE
+#enum {NONE, POND, PLANT, HAZARD}
+@export var biome: int = 0
 var weights = [0.0, 0.0, 0.0]
 
 var mapPosition : Vector2
@@ -42,7 +42,7 @@ func setParams(stgLvl : int, env : int, zone_weights : Array, entitySeed : int, 
 	biome = env
 	weights = zone_weights
 	creatureSeed = entitySeed
-	creatureMax = entityMax
+	creatureMax = 0#entityMax
 	mapPosition = pos
 
 func changePosition(newpos : Vector2) -> void:
@@ -57,11 +57,13 @@ func changePosition(newpos : Vector2) -> void:
 
 #I really want to make this one switch statement since they're all so similar.
 func createEntities() -> void:
+	return
+	
 	#var index = 0
 	creatureList.resize(creatureMax)
 	for i in range(creatureMax):# - creatureList.size()):
 		
-		var creaturePos = 0  
+		var _creaturePos = 0  
 		
 		creatureList[i] = get_node(entitySpawnerReference).spawn_entity()
 		#index += 1

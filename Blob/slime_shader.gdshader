@@ -70,6 +70,7 @@ void vertex() {
 		}
 		float halfLength = length(rippleSource) * sqrt(2.0);
 
+		//Remove the if cases at some point
 		if (dist <= 1.0){
 			float distTemp = (halfLength-pow(dist,2)) / pow(halfLength, 2);
 			VERTEX.x += 50.0 * (rippleSourceAmp.x) * distTemp;
@@ -95,6 +96,7 @@ void vertex() {
 		float temp = abs(rippleAmp) - abs(rippleAmpMax)/5.0;
 
 		float distDot = dot(rippleSource, vec2(-centeredUV.y, centeredUV.x));
+		//Redo this to remove the if case
 		if (temp <= 0.0 && dist >= halfLength - 1.0 && dist <= halfLength + 1.0){
 			float rippleAngle = atan(rippleSource.y, rippleSource.x);
 			float distTemp = (1.0 - pow(halfLength-dist,2)) * pow(temp,2) / abs(rippleAmpMax);
@@ -127,7 +129,7 @@ void vertex() {
 		float distSquared = dot(diff, diff);
 		float pulDist = 0.5 - abs(0.5 -pulseAmp1);//(distSquared > 2.0) ? 0.0 : 1.0 / pow(1.0+distSquared*(1.0-pulseAmp1)+ (2.0-distSquared)*pulseAmp1, 2);
 
-		float pulAngle = atan(centeredUV.y - pulseSource1.y, centeredUV.x - pulseSource1.x);
+		float pulAngle = atan(pulseSource1.y - centeredUV.y, pulseSource1.x - centeredUV.x);
 		UV.x += 0.1 * pulDist * cos(pulAngle);
 		UV.y += 0.1 * pulDist * sin(pulAngle);
 		VERTEX.x += 5.0 * pulDist * cos(pulAngle);
@@ -137,7 +139,7 @@ void vertex() {
 			distSquared = dot(diff, diff);
 			pulDist = 0.5 - abs(0.5 - pulseAmp2);
 
-			pulAngle = atan(centeredUV.y - pulseSource2.y, centeredUV.x - pulseSource2.x);
+			pulAngle = atan(pulseSource2.y - centeredUV.y, pulseSource2.x - centeredUV.x);
 			UV.x += 0.1 * pulDist * cos(pulAngle);
 			UV.y += 0.1 * pulDist * sin(pulAngle);
 			VERTEX.x += 5.0 * pulDist * cos(pulAngle);
@@ -148,7 +150,7 @@ void vertex() {
 				distSquared = dot(diff, diff);
 				pulDist = (0.5 - abs(0.5 - pulseAmp3)) * (1.0 + 0.25 * float(pulses-3));
 
-				pulAngle = atan(centeredUV.y - pulseSource3.y, centeredUV.x - pulseSource3.x);
+				pulAngle = atan(pulseSource3.y - centeredUV.y, pulseSource3.x - centeredUV.x);
 				UV.x += 0.1 * pulDist * cos(pulAngle);
 				UV.y += 0.1 * pulDist * sin(pulAngle);
 				VERTEX.x += 5.0 * pulDist * cos(pulAngle);

@@ -17,12 +17,12 @@ shader_parameter/rippleSource = Vector2(-1, -1)
 shader_parameter/rippleAmp = 0.0
 shader_parameter/rippleAmpMax = 2.5
 shader_parameter/rippleOn = false
-shader_parameter/pulses = 3
+shader_parameter/pulses = 0
 shader_parameter/pulseSource1 = Vector2(0, 0)
-shader_parameter/pulseAmp1 = 1.0
-shader_parameter/pulseSource2 = Vector2(0.5, 0)
+shader_parameter/pulseAmp1 = 0.0
+shader_parameter/pulseSource2 = Vector2(0, 0)
 shader_parameter/pulseAmp2 = 0.0
-shader_parameter/pulseSource3 = Vector2(-0.5, -0.5)
+shader_parameter/pulseSource3 = Vector2(0, 0)
 shader_parameter/pulseAmp3 = 0.0
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_8tadd"]
@@ -32,7 +32,9 @@ viewport_path = NodePath("SubViewport")
 radius = 17.0
 
 [node name="Blob-Swim" type="CharacterBody2D"]
+collision_mask = 0
 script = ExtResource("1_560oe")
+waddle_speed = 10
 
 [node name="Pivot" type="Node2D" parent="."]
 scale = Vector2(1, 1.5)
@@ -140,11 +142,10 @@ position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(4, 4)
+zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 shape = SubResource("CircleShape2D_02q5b")
 
 [node name="LazyNode" type="Node2D" parent="."]

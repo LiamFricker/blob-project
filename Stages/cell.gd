@@ -24,7 +24,7 @@ var EnvironmentSources = []
 #Track the type each center is
 var EnvironmentTypes = []
 
-var playerReference 
+@onready var playerReference = $"Blob-Swim" 
 
 #Events
 @export var peaceful_event : PackedScene
@@ -59,7 +59,7 @@ var events_visited = []
 const ENTITY_MAX = [3,3,3,3,3,3]
 const ENTITY_MODIFIERS = [1, 1.5, 1.4, 0.75]
 
-var current_map = 3
+var current_map = 0
 enum {
 	UNLOADED, #Map isn't loaded at all. Generate zone list map. (usually when starting game)
 	NEXT_UNLOADED, #Next Map needs to be loaded
@@ -172,11 +172,13 @@ func _loadZones(playerStartPos : Vector2, playerEndPos : Vector2) -> void:
 	
 	#Make sure to not trigger this function when playerStartPos == playerEndPos in the player call
 	
-	var tempdist = _handleBorderLogic(playerStartPos, playerEndPos)#playerStartPos.distance_squared_to(playerEndPos)
+	var temptemp = _handleBorderLogic(playerStartPos, playerEndPos)#playerStartPos.distance_squared_to(playerEndPos)
+	var tempdist = temptemp.x
+	var direction = temptemp.yz
 	var tempDim = MAP_DIMS[current_map] 
 	
 	if tempdist <= 2:
-		var direction = playerEndPos - playerStartPos
+		
 		if tempdist != 2:
 			if direction.x == 0:
 				#Down
@@ -296,7 +298,7 @@ func _loadZones(playerStartPos : Vector2, playerEndPos : Vector2) -> void:
 	
 	
 #playerEndPos HAS to be (% tempdim). If not, do it yourself. 
-func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int:
+func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> Vector3:
 	#Couple things to consider:
 	#You need to handle the border translation logic for start pos as well
 	
@@ -704,12 +706,16 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> int
 			sources = [playerStartPos, playerStartPos + Vector2(-tempDim, tempDim), playerStartPos + Vector2(0, tempDim), playerStartPos + Vector2(-tempDim, 0)]
 		else:
 			sources = [playerStartPos, playerStartPos + Vector2(-tempDim, -tempDim), playerStartPos + Vector2(0, -tempDim), playerStartPos + Vector2(-tempDim, 0)]
-	var mapTemp = [10,10,10,10]
+	var index = 0
+	var minin = 10
 	for i in 4:
-		mapTemp[i] = playerEndPos.distance_squared_to(sources[i])
+		var newdist = playerEndPos.distance_squared_to(sources[i])
+		if newdist < minin:
+			minin = newdist
+			index = i
 	
 	#WOW WASNT THAT SO MUCH EASIER THAN WRITING 1000 LINES OF NESTED IF BLOCKS?
-	return min(mapTemp)
+	return Vector3(minin, playerEndPos.x - sources[index].x, playerEndPos.y-sources[index].y)
 
 #Need to remember generate the events as well
 #To reduce complexity of Zones, have the events be generated here
@@ -1194,3 +1200,7 @@ func backgroundGenerateMap() -> void:
 			var temp = zone.instantiate()
 			temp.setParams(current_map, 0, 0, 0, Vector2(i, j))
 			next_zone_list.append(temp) 
+
+#Need to call this a bit earlier I think but it's good now
+func _on_orb_timer_timeout() -> void:
+	$orb_spawner.distCheck($"Blob-Swim".position)
