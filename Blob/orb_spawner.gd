@@ -35,6 +35,8 @@ var far_orb_positions = PackedVector2Array()
 
 var rng = RandomNumberGenerator.new()
 
+var centOffset = Vector2.ZERO
+
 func _ready() -> void:
 	unused_orb_list = range(orb_max)
 	for i in unused_orb_list:
@@ -177,7 +179,10 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 #If they're near orbs, remove them
 #If far orbs are less than max, fill to max
 func distCheck(newCent : Vector2) -> void:
-	center = newCent
+	#print("Dist Check: ", center)
+	center = newCent - centOffset
+	#print("Center: ", center)
+	return
 	var temp_far_size = far_orb_list.size()
 	for i in range(temp_far_size):
 		if center.distance_squared_to(far_orb_positions[i]) > despawn_dist_squared:
@@ -313,3 +318,8 @@ func _remove_near_orb() -> void:
 		unused_orb_list.append(near_orb_list[0])
 		near_orb_list.remove_at(0)
 		near_orb_positions.remove_at(0)
+
+func changePosition(newpos : Vector2) -> void:
+	position += newpos  
+	centOffset += newpos	
+	

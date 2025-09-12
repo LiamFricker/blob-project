@@ -11,12 +11,14 @@ orb = ExtResource("2_rlm6r")
 [node name="RespawnTimer" type="Timer" parent="."]
 wait_time = 2.0
 one_shot = true
+autostart = true
 
 [node name="SpawnTimer" type="Timer" parent="."]
 one_shot = true
+autostart = true
 
 [node name="Sprite2D2" type="Sprite2D" parent="."]
-scale = Vector2(10, 10)
+scale = Vector2(4, 4)
 texture = ExtResource("3_bhmt4")
 
 [connection signal="timeout" from="RespawnTimer" to="." method="_on_respawn_timer_timeout"]

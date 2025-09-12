@@ -23,7 +23,7 @@ var guestList = []
 @export var biome: int = 0
 var weights = [0.0, 0.0, 0.0]
 
-var mapPosition : Vector2
+var dimensions : Vector2
 
 #Each Creature needs its own ID and home as well as whether it's a guest or not
 #Each zone needs its own state and how many roaming guests.
@@ -37,13 +37,16 @@ var mapPosition : Vector2
 #consider how many entities may be guests in another zone.
 
 #Create a zone
-func setParams(stgLvl : int, env : int, zone_weights : Array, entitySeed : int, entityMax : int, pos : Vector2) -> void:
+func setParams(stgLvl : int, env : int, zone_weights : Array, entitySeed : int, entityMax : int, pos : Vector2, dim : Vector2) -> void:
 	stageLevel = stgLvl
 	biome = env
 	weights = zone_weights
 	creatureSeed = entitySeed
 	creatureMax = 0#entityMax
-	mapPosition = pos
+	position = pos
+	dimensions = dim
+	$Polygon2D.polygon = PackedVector2Array([-dim/2, Vector2(dim.x/2, -dim.y/2), dim/2, Vector2(-dim.x/2, dim.y/2)])
+	$Polygon2D.color = Color(randf_range(0,1.0),randf_range(0,1.0),randf_range(0,1.0),0.75)
 
 func changePosition(newpos : Vector2) -> void:
 	#MAKE THIS FUNCTION SET A POSITION VARIABLE AND CHANGE IT AT THE END OF THE FRAME

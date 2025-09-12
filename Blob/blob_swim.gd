@@ -9,14 +9,14 @@ enum {
 	JAVELIN,
 	SHROOM
 }
+var camReference
 
 var tween #basic all purpose tween for stretches 
 var tween2 #tween for glimmer 
 var tween3 #tween for ripple amp UNUSED USE IT FOR SOMETHING ELSE
+var tween4 #idk
 
-const ZONE_WIDTH = [1,1,1,1,1,1,1] #Width of each zone
-const ZONE_HEIGHT = [1,1,1,1,1,1,1] #Width of each zone
-var current_map = 0
+var current_map = -1
 
 #Fat:
 #Pos(-17, -35) Scale(1.063, 1.063)
@@ -146,8 +146,11 @@ func _get_input() -> Dictionary:
 	}
 """
 
-func _physics_process(delta: float) -> void:
+func _ready() -> void:
+	camReference = get_node("Camera2D")
 
+func _physics_process(delta: float) -> void:
+	print(camReference.position)
 	_waddleLogic(delta)
 	
 	if charge and charge_cool < 0:
@@ -555,6 +558,46 @@ func pulseCancel(pulseNum : int) -> void:
 		3:
 			if pulseTween3:
 				pulseTween3.kill()
-func changePosition(newpos : Vector2) -> void:
-	var modPos = position.posmodv(Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
-	position = modPos + newpos  	
+func changePosition(newpos : Vector2, dims : Vector2) -> void:
+	var modPos = (position - dims/2).posmodv(dims)
+	
+	changeCamera()
+	
+	position = newpos + (modPos-dims/2)  	
+	
+	
+	#call_deferred("changeCamera")
+	#return position
+
+func changeCameraSpeed(toggle : bool, updateTime : float) -> void:
+	if tween4:
+		tween4.kill()
+	tween4 = create_tween()
+	
+	if toggle:
+		tween4.tween_property(camReference, "position_smoothing_speed", 50, updateTime)
+	else:
+		tween4.tween_property(camReference, "position_smoothing_speed", 5, updateTime)
+
+#It's probably best to just disable position smoothing here
+#When the player is at  a border, increase the position smoothing speed over time
+#Then make it instananeous
+#Keep it disabled for now and bring it back later	
+func changeCamera() -> void:
+	#camReference.force_update_scroll()
+	
+	var zoom = 2
+	
+	#var camera_offset = camReference.get_screen_center_position()-camReference.get_target_position()
+	
+	#print("CAMERA POS: ", camReference.get_screen_center_position(), " ", camReference.get_target_position())
+	#camReference.position = camera_offset/zoom
+	#print("CAMERA OFFSET: ", camera_offset)
+	camReference.position_smoothing_enabled = false
+	
+	if tween4:
+		tween4.kill()
+	tween4 = create_tween()
+	tween4.tween_property(camReference, "position_smoothing_enabled", true, 0.01)
+	#tween4.parallel().tween_property(camReference, "position", Vector2(0,0), 2).from(camera_offset/zoom)
+	
