@@ -11,9 +11,11 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_mjuci"]
 radius = 81.0
 
-[node name="Cell" type="Node2D"]
+[node name="Cell" type="Node2D" node_paths=PackedStringArray("playerReference", "orbReference")]
 script = ExtResource("1_udkfl")
 zone = ExtResource("2_we7fo")
+playerReference = NodePath("Blob-Swim")
+orbReference = NodePath("orb_spawner")
 
 [node name="Sprite2D2" type="Sprite2D" parent="."]
 modulate = Color(1, 1, 0.619608, 1)
@@ -26,7 +28,8 @@ texture = ExtResource("3_wq666")
 
 [node name="HUD_swim" parent="." instance=ExtResource("2_8dafd")]
 
-[node name="Blob-Swim" parent="." instance=ExtResource("1_mjuci")]
+[node name="Blob-Swim" parent="." node_paths=PackedStringArray("spawnerReference") instance=ExtResource("1_mjuci")]
+spawnerReference = NodePath("../SwimEntitySpawner")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 enabled = false

@@ -31,9 +31,10 @@ viewport_path = NodePath("SubViewport")
 [sub_resource type="CircleShape2D" id="CircleShape2D_02q5b"]
 radius = 17.0
 
-[node name="Blob-Swim" type="CharacterBody2D"]
+[node name="Blob-Swim" type="CharacterBody2D" node_paths=PackedStringArray("camReference")]
 collision_mask = 0
 script = ExtResource("1_560oe")
+camReference = NodePath("Camera2D")
 waddle_speed = 10
 
 [node name="Pivot" type="Node2D" parent="."]

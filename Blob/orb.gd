@@ -5,19 +5,20 @@ extends Node2D
 signal collect(id : int)
 
 var tween
+var tween2
 var visible_sprite
 
-func _ready() -> void:
-	pass
+#func _ready() -> void:
+#	pass
 	#print("orb ready")
 
 func move(endPos :  Vector2, moveTime : float) -> void:
-	if tween:
-		tween.kill()
-	tween = create_tween()
-	tween.set_ease(Tween.EASE_OUT)
-	tween.set_trans(Tween.TRANS_QUART)
-	tween.tween_property(self, "position", endPos, moveTime)
+	if tween2:
+		tween2.kill()
+	tween2 = create_tween()
+	tween2.set_ease(Tween.EASE_OUT)
+	tween2.set_trans(Tween.TRANS_CUBIC)
+	tween2.tween_property(self, "position", endPos, moveTime)
 
 func create(val : float, i_d : int, size : float, type : int, color : Color, pos : Vector2) -> void:
 	#print(size)
@@ -74,6 +75,7 @@ func disable() -> void:
 func _on_detection_area_entered(_area: Area2D) -> void:
 	#Call the player's collect here too as well with the value from this orb
 	#Player.collect() w/e
+	#This needs to connect to tentacle or something since it's an area rather than a body.
 	print("collect")
 	#Need to fix this signal
 	collect.emit(id)

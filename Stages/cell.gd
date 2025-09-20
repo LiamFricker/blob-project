@@ -24,8 +24,8 @@ var EnvironmentSources = []
 #Track the type each center is
 var EnvironmentTypes = []
 
-var playerReference# = $"Blob-Swim" 
-var orbReference
+@export var playerReference : CharacterBody2D 
+@export var orbReference: Node2D
 var currentZone : Vector2i
 
 var atBorder : bool = false
@@ -49,8 +49,8 @@ var zone_list = [[]]
 var next_zone_list = [[]]
 
 const MAP_DIMS = [3,6,10,20,10,10,10] #Dimensions of the map
-const ZONE_WIDTH = [200,1,1,1,1,1,1] #Width of each zone
-const ZONE_HEIGHT = [100,1,1,1,1,1,1] #Width of each zone
+const ZONE_WIDTH = [200,200,200,200,200,200,200] #Width of each zone
+const ZONE_HEIGHT = [100,100,100,100,100,100,100] #Width of each zone
 
 #Number of each environment generated in a map. Final map is larger fyi. Maybe penultimate will be too.
 const ENV_MAX = [0,2,3,4,2,2,2] 
@@ -78,8 +78,8 @@ var MapState = UNLOADED
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	#var rng = RandomNumberGenerator.new()
-	playerReference = get_node("Blob-Swim")
-	orbReference = get_node("orb_spawner")
+	#playerReference = get_node("Blob-Swim")
+	#orbReference = get_node("orb_spawner")
 	currentZone = Vector2i(MAP_DIMS[current_map] / 2, MAP_DIMS[current_map] / 2) 
 	
 	#The c++ programmer in me hates this but it's simpler than the alternative
@@ -95,7 +95,7 @@ func _ready() -> void:
 	
 	#Should probably run some unit tests here
 	#print out the env arrays
-	if current_map != 0:
+	if false:#current_map != 0:
 	
 		for i in range(EnvironmentTypes.size()):
 			print("Env Type: ", EnvironmentTypes[i])
@@ -145,6 +145,13 @@ func _process(_delta: float) -> void:
 func _calculateZonePosition(i : int, j : int) -> Vector2:
 	var tempDim = MAP_DIMS[current_map] / 2
 	return Vector2((i - tempDim)  * ZONE_WIDTH[current_map], (j - tempDim) * ZONE_HEIGHT[current_map])
+
+#Undo previous function
+func _uncalculateZonePosition(mappos : Vector2) -> Vector2i:
+	var tempDim = MAP_DIMS[current_map] / 2
+	return Vector2i(int(mappos.x + ZONE_WIDTH[current_map]/2) / ZONE_WIDTH[current_map] + tempDim,
+		 int(mappos.y + ZONE_HEIGHT[current_map]/2) / ZONE_HEIGHT[current_map] + tempDim)
+
 
 #Load in all the zones initally
 #Pass in an argument if the player starts somewhere that isn't spawn (for example, loading in from a save)
@@ -755,6 +762,29 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> Vec
 	#WOW WASNT THAT SO MUCH EASIER THAN WRITING 1000 LINES OF NESTED IF BLOCKS?
 	return Vector3(minin, playerEndPos.x - sources[index].x, playerEndPos.y-sources[index].y)
 
+func cellHandleRoamer(supplyState : int, position : Vector2, creatureRef : Node2D) -> void:
+	var temp_ij = _uncalculateZonePosition(position)
+	var i = temp_ij.x
+	var j = temp_ij.y
+	#Should really just use a switch state here
+	if supplyState == 4:
+		zone[i][j].removeRoaming(creatureRef.ID, true)
+	#There may be special cases here in the future. Just commenting it out since it's redundant.
+	#Since enable already resets the position, this should be fine.
+	#elif supplyState == 3:
+	#	zone[i][j].removeRoaming(creatureRef.ID)
+	#	creatureRef.zoneReference = zone[i][j]
+	elif supplyState == 2:
+		zone[i][j].removeRoaming(creatureRef.ID)
+		creatureRef.zoneReference = zone[i][j]
+	else:
+		zone[i][j].guestList.append(creatureRef)
+		var center = _calculateZonePosition(i, j)
+		var dim_half = Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map])/2
+		creatureRef.RoamingULBound = center - dim_half
+		creatureRef.RoamingDRBound = center + dim_half
+		creatureRef.zoneReference = zone[i][j]
+
 #Need to remember generate the events as well
 #To reduce complexity of Zones, have the events be generated here
 #Events always exist however, they are not active until the zone becomes active.
@@ -776,7 +806,7 @@ func generateMap() -> void:
 	#Set
 	#Final = 2 large zones for primary, 2 small zones for secondary, 1 small zone for unpreferred
 	#i.e. Hazard -> Puddle -> Plant, Puddle -> Plant -> Hazard, Plant -> Hazard -> Puddle
-	if current_map != 0:
+	if false:#current_map != 0:
 		generateEnvironments()
 	
 		#Generate Zones
@@ -788,11 +818,12 @@ func generateMap() -> void:
 			for j in range(tempDim): 
 				#"""
 				var temp = zone.instantiate()
-				temp.setParams(current_map, environments[i][j], [pool_map[i][j], plant_map[i][j], hazard_map[i][j]], map_seed
+				temp.setParams(environments[i][j], [pool_map[i][j], plant_map[i][j], hazard_map[i][j]], map_seed
 				 + hash(str(current_map) + str(i) + str(j)), 
 				+ ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[environments[i][j]]), 
 				_calculateZonePosition(i, j),
 				Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
+				temp.zoneHandleRoamer.connect(cellHandleRoamer)
 				add_child(temp)
 				#"""
 				
@@ -812,11 +843,12 @@ func generateMap() -> void:
 			for j in range(tempDim): 
 				#"""
 				var temp = zone.instantiate()
-				temp.setParams(current_map, 0, [0, 0, 0], 0, 
+				temp.setParams(0, [0, 0, 0], 0, 
 				+ ceil(randf_range(0.5, 1.5) * ENTITY_MAX[current_map] * ENTITY_MODIFIERS[0]), 
 				_calculateZonePosition(i, j),
 				Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
 				
+				temp.zoneHandleRoamer.connect(cellHandleRoamer)
 				add_child(temp)
 				#"""
 				
@@ -829,7 +861,7 @@ func generateMap() -> void:
 				zone_list[i][j] = temp
 	
 	#Generate Events
-	if current_map != 0:
+	if false:#current_map != 0:
 		generateEvents()
 			
 func generateEnvironments() -> void:
@@ -1235,6 +1267,9 @@ func generateEvents() -> void:
 		 	
 		#used_event_array.append(tempEvent)
 
+#Sorta list of stuff to remember to add to map transition
+#Load and assign the background images as well
+#Load the entities in the entitiy spawner
 func backgroundGenerateMap() -> void:
 	
 	for i in range(MAP_DIMS[current_map]):
@@ -1289,5 +1324,46 @@ func _on_update_zone_timer_timeout():
 		updatezoneref.wait_time = 2 * mapUpdateTime
 	else:
 		updatezoneref.wait_time = mapUpdateTime
+	
+	updateZoneBackground()
+	
 	updatezoneref.start()
+	
+#Update the zone background based on current zone
+func updateZoneBackground() -> void:
+	var currentBiome = zone_list[currentZone.x][currentZone.y].biome
+	var currentWeights = zone_list[currentZone.x][currentZone.y].weights
+	#var tempMax = currentWeights.max()
+	#Definitely not the most effective way to do that but who cares 0.9999999x slower GG
+	var temptempMax = -1
+	var maxIndex = 0
+	for i in range(3):
+		if i != currentBiome and currentWeights[i] > temptempMax:
+			temptempMax = currentWeights[i]
+			maxIndex = i 
+	
+	#To be honest, we should probably also load in different backgrounds when we change map.
+	#We could also just have like 20 images constantly in the background but let's not. 
+	match currentBiome:
+		#Make the Base background visible
+		0:
+			pass
+		#Pool
+		1:
+			pass
+		#Plant
+		2:
+			pass
+		#Hazard
+		3:
+			pass
+	#Handle the secondary biome
+	#This should either be a layer on top or the modulate of the biome we're changing
+	#We should probably just edit the node that is the parent to the background image.
+	#Background image should be either some parallax scrolling thing or something 
+	#made as a UI element essentially.
+	if currentWeights[maxIndex] < 0.3:
+		pass
+	else:
+		pass
 	

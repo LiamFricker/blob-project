@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://4gn7v0b6uvt4"]
+
+[ext_resource type="Script" uid="uid://bdl4g4ff04vbj" path="res://Blob/base_creature.gd" id="1_bf6rk"]
+
+[node name="base_creature" type="Node2D"]
+script = ExtResource("1_bf6rk")
+
+[node name="RoamTimer" type="Timer" parent="."]
+wait_time = 5.0
+
+[connection signal="timeout" from="RoamTimer" to="." method="_on_roam_timer_timeout"]

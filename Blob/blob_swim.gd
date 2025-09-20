@@ -9,7 +9,8 @@ enum {
 	JAVELIN,
 	SHROOM
 }
-var camReference
+@export var camReference : Camera2D
+@export var spawnerReference : Node2D
 
 var tween #basic all purpose tween for stretches 
 var tween2 #tween for glimmer 
@@ -147,10 +148,10 @@ func _get_input() -> Dictionary:
 """
 
 func _ready() -> void:
-	camReference = get_node("Camera2D")
+	pass
+	#camReference = get_node("Camera2D")
 
 func _physics_process(delta: float) -> void:
-	print(camReference.position)
 	_waddleLogic(delta)
 	
 	if charge and charge_cool < 0:

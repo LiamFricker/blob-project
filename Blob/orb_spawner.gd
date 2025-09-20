@@ -119,14 +119,14 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 	#I don't think it's a huge issue but keep it in mind perhaps.
 	var post_orb_count = used_orb_list.size() - orb_max + small_orbs + med_orbs + big_orbs
 	if (post_orb_count <= near_orb_list.size()):
-		for i in range(post_orb_count, 0, -1):
+		for i in range(post_orb_count - 1, -1, -1):
 			get_child(near_orb_list[i] + CHILD_OFFSET).disable()
 			used_orb_list.remove_at(used_orb_list.find(near_orb_list[i]))
 			unused_orb_list.append(near_orb_list[i])
 			near_orb_list.remove_at(i)
 			near_orb_positions.remove_at(i)
 	elif (post_orb_count <= far_orb_list.size()):
-		for i in range(post_orb_count, 0, -1):
+		for i in range(post_orb_count - 1, -1, -1):
 			get_child(far_orb_list[i] + CHILD_OFFSET).disable()
 			used_orb_list.remove_at(used_orb_list.find(far_orb_list[i]))
 			unused_orb_list.append(far_orb_list[i])
@@ -135,7 +135,7 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 	
 	
 	
-	var range_bonus = 1 + 0.1 * med_orbs + 0.2 * big_orbs
+	var range_bonus = 1 + 0.3 * med_orbs + 0.6 * big_orbs
 	
 	for i in range(big_orbs):
 		var temp_id = unused_orb_list.pop_back()
@@ -144,11 +144,11 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 		var angle = i * 2*PI/big_orbs + rng.randf_range(0, 2*PI/big_orbs)
 		var newPos = spawncenter + rng.randf_range(0, 5 * range_bonus) * Vector2(cos(angle), sin(angle))
 		near_orb_positions.append(newPos)
-		var newSize = 1.0 + rng.randi_range(0, 2) / 10.0
+		var newSize = 2.5 + rng.randi_range(0, 2) / 10.0
 		var newColor = Color.from_hsv(rng.randf_range(0, 1), rng.randf_range(0.5, 1), rng.randf_range(0.5, 1))
 		var tempChild = get_child(temp_id + CHILD_OFFSET)
 		tempChild.create(weight*spawn_orb_weight*bigOrbBonusWeight, temp_id, newSize*orb_size, 2, newColor, newPos)
-		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 15 * range_bonus) * Vector2(cos(angle), sin(angle)), 0.2 + rng.randi_range(0, 6) / 20.0)
+		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 25 * range_bonus) * Vector2(cos(angle), sin(angle)), 2 + rng.randi_range(0, 8) / 10.0)
 
 	for i in range(med_orbs):
 		var temp_id = unused_orb_list.pop_back()
@@ -157,11 +157,11 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 		var angle = i * 2*PI/med_orbs + rng.randf_range(0, 2*PI/med_orbs)
 		var newPos = spawncenter + rng.randf_range(0, 5 * range_bonus) * Vector2(cos(angle), sin(angle))
 		near_orb_positions.append(newPos)
-		var newSize = 0.8 + rng.randi_range(0, 2) / 10.0
+		var newSize = 1.2 + rng.randi_range(0, 2) / 10.0
 		var newColor = Color.from_hsv(rng.randf_range(0, 1), rng.randf_range(0.5, 1), rng.randf_range(0.5, 1))
 		var tempChild = get_child(temp_id + CHILD_OFFSET)
 		tempChild.create(weight*spawn_orb_weight*medOrbBonusWeight, temp_id, newSize*orb_size, 1, newColor, newPos)
-		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 15 * range_bonus) * Vector2(cos(angle), sin(angle)), 0.1 + rng.randi_range(0, 6) / 20.0)
+		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 25 * range_bonus) * Vector2(cos(angle), sin(angle)), 1.75 + rng.randi_range(0, 6) / 10.0)
 		
 	for i in range(small_orbs):
 		var temp_id = unused_orb_list.pop_back()
@@ -174,7 +174,7 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 		var newColor = Color.from_hsv(rng.randf_range(0, 1), rng.randf_range(0.5, 1), rng.randf_range(0.5, 1))
 		var tempChild = get_child(temp_id + CHILD_OFFSET)
 		tempChild.create(weight*spawn_orb_weight*smallOrbBonusWeight, temp_id, newSize*orb_size, 0, newColor, newPos)
-		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 15 * range_bonus) * Vector2(cos(angle), sin(angle)), 0.1 + rng.randi_range(0, 4) / 20.0)
+		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 25 * range_bonus) * Vector2(cos(angle), sin(angle)), 1.5 + rng.randi_range(0, 4) / 10.0)
 #Check if orbs are past despawn dist, and if so, move them back in if they're far orbs
 #If they're near orbs, remove them
 #If far orbs are less than max, fill to max
@@ -214,14 +214,14 @@ func distCheck(newCent : Vector2) -> void:
 		
 		var post_orb_count = used_orb_list.size() - orb_max + diff
 		if (post_orb_count <= near_orb_list.size()):
-			for i in range(post_orb_count, 0, -1):
+			for i in range(post_orb_count - 1, -1, -1):
 				get_child(near_orb_list[i] + CHILD_OFFSET).disable()
 				used_orb_list.remove_at(used_orb_list.find(near_orb_list[i]))
 				unused_orb_list.append(near_orb_list[i])
 				near_orb_list.remove_at(i)
 				near_orb_positions.remove_at(i)
 		elif (post_orb_count <= far_orb_max):
-			for i in range(post_orb_count, 0, -1):
+			for i in range(post_orb_count - 1, -1, -1):
 				get_child(far_orb_list[i] + CHILD_OFFSET).disable()
 				used_orb_list.remove_at(used_orb_list.find(far_orb_list[i]))
 				unused_orb_list.append(far_orb_list[i])
@@ -267,14 +267,14 @@ func _on_spawn_timer_timeout() -> void:
 	var near_size = near_orb_list.size()
 	var post_orb_count = used_orb_list.size() - orb_max + 2
 	if (post_orb_count <= near_orb_list.size()):
-		for i in range(post_orb_count, 0, -1):
+		for i in range(post_orb_count - 1, -1, -1):
 			get_child(near_orb_list[i] + CHILD_OFFSET).disable()
 			used_orb_list.remove_at(used_orb_list.find(near_orb_list[i]))
 			unused_orb_list.append(near_orb_list[i])
 			near_orb_list.remove_at(i)
 			near_orb_positions.remove_at(i)
 	elif (post_orb_count < far_orb_list.size()):
-		for i in range(post_orb_count, 0, -1):
+		for i in range(post_orb_count - 1, -1, -1):
 			get_child(far_orb_list[i] + CHILD_OFFSET).disable()
 			used_orb_list.remove_at(used_orb_list.find(far_orb_list[i]))
 			unused_orb_list.append(far_orb_list[i])
@@ -300,6 +300,11 @@ func _on_spawn_timer_timeout() -> void:
 func _spawn_orb() -> void:
 	if used_orb_list.size() < orb_max:
 		#spawn one
+		#Test orb spawn
+		#var aangle = rng.randf_range(0, 2*PI)
+		#var nnewPos = center + rng.randf_range(spawn_dist * 0.5, spawn_dist * 0.9) * Vector2(cos(aangle), sin(aangle))
+		#spawnOrbs(5, nnewPos)
+		#return
 		var temp_id = unused_orb_list.pop_back()
 		used_orb_list.append(temp_id)
 		near_orb_list.append(temp_id) 
