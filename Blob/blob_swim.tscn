@@ -143,6 +143,7 @@ position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
 [node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(115, 0)
 zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 

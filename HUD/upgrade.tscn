@@ -1,0 +1,89 @@
+[gd_scene load_steps=5 format=3 uid="uid://rxjijg5yfmbk"]
+
+[ext_resource type="Texture2D" uid="uid://djkdgfuieb2yn" path="res://Art/Cell/Orbs_Mini.png" id="1_f3re1"]
+[ext_resource type="Texture2D" uid="uid://b6w38vk3c7fqh" path="res://Art/Cell/Orb_Small.png" id="2_o1kr3"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_sscwy"]
+
+[sub_resource type="Theme" id="Theme_o1kr3"]
+
+[node name="Upgrade" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_right = 419.0
+offset_bottom = 81.0
+color = Color(0.73, 0.73, 0.73, 1)
+
+[node name="Background" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 419.0
+offset_bottom = 80.0
+texture = SubResource("CanvasTexture_sscwy")
+
+[node name="UpgradePic" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TextureButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 76.0
+offset_bottom = 74.0
+icon = ExtResource("1_f3re1")
+expand_icon = true
+
+[node name="UpgradeDescription" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 83.0
+offset_top = 7.0
+offset_right = 333.0
+offset_bottom = 74.0
+bbcode_enabled = true
+text = "Hello [color=red]BBCode injection[/color] (no escaping)! asddddddddddddddddddddddaddsaa"
+scroll_active = false
+
+[node name="UpgradeDescription2" type="RichTextLabel" parent="."]
+offset_left = 343.0
+offset_top = 7.0
+offset_right = 412.0
+offset_bottom = 74.0
+bbcode_enabled = true
+text = "sdasdsaasddasdasads"
+scroll_active = false
+
+[node name="Sprite2D3" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 0.619608, 1)
+position = Vector2(-37, 52)
+scale = Vector2(2.4598, 6.0596)
+texture = ExtResource("2_o1kr3")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 81.0
+offset_bottom = 81.0
+theme = SubResource("Theme_o1kr3")
+texture = ExtResource("1_f3re1")
+
+[node name="Button2" type="Button" parent="."]
+visible = false
+offset_left = 343.0
+offset_top = 7.0
+offset_right = 412.0
+offset_bottom = 74.0
+icon = ExtResource("1_f3re1")
+expand_icon = true
