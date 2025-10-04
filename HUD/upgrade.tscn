@@ -1,50 +1,83 @@
-[gd_scene load_steps=5 format=3 uid="uid://rxjijg5yfmbk"]
+[gd_scene load_steps=11 format=3 uid="uid://rxjijg5yfmbk"]
 
 [ext_resource type="Texture2D" uid="uid://djkdgfuieb2yn" path="res://Art/Cell/Orbs_Mini.png" id="1_f3re1"]
-[ext_resource type="Texture2D" uid="uid://b6w38vk3c7fqh" path="res://Art/Cell/Orb_Small.png" id="2_o1kr3"]
+[ext_resource type="Script" uid="uid://cy3pacpa6b7tk" path="res://HUD/upgrade.gd" id="1_rsijw"]
+[ext_resource type="Texture2D" uid="uid://dgs33ykb8uws6" path="res://Art/Cell/UpgradePaneling.png" id="1_sscwy"]
+[ext_resource type="Texture2D" uid="uid://cgpllftoh4rtn" path="res://Art/Cell/UpgradeBorder.png" id="2_sscwy"]
 
-[sub_resource type="CanvasTexture" id="CanvasTexture_sscwy"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rsijw"]
+bg_color = Color(0.5846, 0.69757, 0.79, 1)
+corner_radius_top_left = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 4
+shadow_color = Color(0.3416, 0.587633, 0.61, 1)
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tabre"]
+bg_color = Color(0.66, 0.5016, 0.56496, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_detail = 4
+shadow_color = Color(0.51, 0.3876, 0.47124, 1)
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nonn6"]
+bg_color = Color(0.78, 0.71747, 0.4914, 1)
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 4
+shadow_color = Color(0.63, 0.579495, 0.3969, 1)
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o1kr3"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0, 0, 0, 0.513726)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+corner_detail = 4
 
 [sub_resource type="Theme" id="Theme_o1kr3"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sscwy"]
+
 [node name="Upgrade" type="Control"]
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_right = 0.364
+anchor_bottom = 0.123
+offset_right = -0.328033
+offset_bottom = 0.295998
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_rsijw")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-offset_right = 419.0
-offset_bottom = 81.0
-color = Color(0.73, 0.73, 0.73, 1)
-
-[node name="Background" type="TextureRect" parent="."]
-visible = false
+[node name="Background2" type="TextureRect" parent="."]
 layout_mode = 0
 offset_right = 419.0
 offset_bottom = 80.0
-texture = SubResource("CanvasTexture_sscwy")
+texture = ExtResource("1_sscwy")
+stretch_mode = 1
 
-[node name="UpgradePic" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
+modulate = Color(0.678431, 0.678431, 0.678431, 0.278431)
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 419.0
+offset_bottom = 80.0
+texture = ExtResource("2_sscwy")
 
-[node name="TextureButton" type="TextureButton" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="Button" type="Button" parent="."]
-layout_mode = 0
-offset_left = 7.0
-offset_top = 7.0
-offset_right = 76.0
-offset_bottom = 74.0
-icon = ExtResource("1_f3re1")
-expand_icon = true
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+modulate = Color(0.68, 0.68, 0.68, 0.278431)
+position = Vector2(209.5, 40)
+scale = Vector2(1.99524, 2)
+texture = ExtResource("2_sscwy")
 
 [node name="UpgradeDescription" type="RichTextLabel" parent="."]
 layout_mode = 0
@@ -56,22 +89,55 @@ bbcode_enabled = true
 text = "Hello [color=red]BBCode injection[/color] (no escaping)! asddddddddddddddddddddddaddsaa"
 scroll_active = false
 
-[node name="UpgradeDescription2" type="RichTextLabel" parent="."]
-offset_left = 343.0
-offset_top = 7.0
-offset_right = 412.0
-offset_bottom = 74.0
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 332.0
+offset_top = 6.0
+offset_right = 414.0
+offset_bottom = 75.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rsijw")
+
+[node name="Panel2" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 337.0
+offset_top = 10.0
+offset_right = 416.0
+offset_bottom = 77.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_tabre")
+
+[node name="Panel3" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 335.0
+offset_top = 4.0
+offset_right = 410.0
+offset_bottom = 72.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_nonn6")
+
+[node name="UpgradeCost" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 336.0
+offset_top = 6.0
+offset_right = 411.0
+offset_bottom = 75.0
 bbcode_enabled = true
-text = "sdasdsaasddasdasads"
+text = "10.0K A"
 scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Sprite2D3" type="Sprite2D" parent="."]
-modulate = Color(1, 1, 0.619608, 1)
-position = Vector2(-37, 52)
-scale = Vector2(2.4598, 6.0596)
-texture = ExtResource("2_o1kr3")
+[node name="Icon2" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 76.0
+offset_bottom = 74.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_o1kr3")
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="Icon2"]
+layout_mode = 2
+texture = ExtResource("1_f3re1")
+
+[node name="BiggerIcon" type="TextureRect" parent="."]
 visible = false
 layout_mode = 0
 offset_right = 81.0
@@ -79,11 +145,10 @@ offset_bottom = 81.0
 theme = SubResource("Theme_o1kr3")
 texture = ExtResource("1_f3re1")
 
-[node name="Button2" type="Button" parent="."]
-visible = false
-offset_left = 343.0
-offset_top = 7.0
-offset_right = 412.0
-offset_bottom = 74.0
-icon = ExtResource("1_f3re1")
-expand_icon = true
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_right = 419.0
+offset_bottom = 80.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_sscwy")
+
+[connection signal="button_down" from="Button" to="." method="_on_button_button_down"]

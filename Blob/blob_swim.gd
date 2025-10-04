@@ -56,6 +56,10 @@ var tempVelocity: Vector2 = Vector2.ZERO
 var charge_angle: float = 0
 @export var charge_angle_speed: float = 1
 
+@export var charge_swim: bool = true
+#var chargeVelocity: Vector2 = Vector2.ZERO
+var chargeStrength: float = 0
+
 #A couple things here:
 #The OrbTimer in cell needs to be changed based on how fast we can travel
 # / need to create a variable that calculates theoretical speed.
@@ -180,11 +184,14 @@ func _physics_process(delta: float) -> void:
 				#print("Pulse Amp 3: ", pulseAmp3)
 				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", pulseAmp3)
 	
-	velocity += tempVelocity	 	
-	move_and_slide()
-	velocity -= tempVelocity	 
-	
-	velocity *= pow(friction, delta)
+	if charge_swim and chargeStrength > 2:
+		_chargeSwim(delta)
+	else:
+		velocity += tempVelocity	 	
+		move_and_slide()
+		velocity -= tempVelocity	 
+		
+		velocity *= pow(friction, delta)
 	
 	if charge_cool > 0 and abs(chargeTentacleSpin + reverseTentacleSpin) > 0:
 		chargeTentacleSpin *= pow(0.1, delta)
@@ -210,7 +217,21 @@ func _waddleLogic(delta: float) -> void:
 	else:
 		velocity.y += y_dir * accel * delta * waddle_speed * waddle_modfier
 
+func _chargeSwim(delta: float)-> void:
+	var temp = (int(Input.is_action_pressed("Right")) - int(Input.is_action_pressed("Left")))
+	charge_angle += charge_angle_speed * temp * delta * chargeStrength * 0.005
+	$Pivot.rotation = charge_angle
+	$Sprite.rotation = charge_angle
 	
+	var chargeVelocity = Vector2(chargeStrength * cos(charge_angle - PI/2), chargeStrength * sin(charge_angle - PI/2))
+	
+	velocity += tempVelocity + chargeVelocity 	
+	move_and_slide()
+	velocity -= tempVelocity + chargeVelocity	 
+	
+	var tempPow = pow(friction, delta)
+	velocity *= tempPow
+	chargeStrength *= tempPow	
 
 func _chargeLogic(delta: float) -> void:
 	if Input.is_action_pressed("Charge"):
@@ -297,16 +318,23 @@ func _chargeLogic(delta: float) -> void:
 		#tween.parallel().tween_property($Pivot/Node2D, "position", Vector2(0, 0), 0.001)
 		
 		#tween.parallel().tween_property($Sprite, "position", Vector2(9, 9), 0.4 * charge_cooldown)
-		
-		if charge_time <= charge_max * charge_floor: 
-			
-			velocity.x += cos(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
-			velocity.y += sin(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
+		if charge_swim:
+			if charge_time <= charge_max * charge_floor: 
+				chargeStrength += charge_floor_speed * 100 * charge_speed
+			else:
+				chargeStrength += charge_time * 50 * charge_speed
 		else:
-			velocity.x += cos(charge_angle - PI/2) * charge_time * 50 * charge_speed
-			velocity.y += sin(charge_angle - PI/2) * charge_time * 50 * charge_speed
+			if charge_time <= charge_max * charge_floor: 
+				velocity.x += cos(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
+				velocity.y += sin(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
+			else:
+				velocity.x += cos(charge_angle - PI/2) * charge_time * 50 * charge_speed
+				velocity.y += sin(charge_angle - PI/2) * charge_time * 50 * charge_speed
+		
 		charge_time = 0
 
+#Just so idiot ol' me doesn't forget what this does again:
+#It's meant to align the animation dumbass. 
 func setTempVelocity(temp:float) -> void:
 	tempVelocity = temp * 4.8 * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2)) * size# * (0.3 * charge_cooldown /charge_pull_speed)
 		

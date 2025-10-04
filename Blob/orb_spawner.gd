@@ -82,14 +82,17 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 	var med_orbs:int = 0
 	var big_orbs:int = 0
 	if amount > 31: 
+		@warning_ignore("integer_division")
 		big_orbs = 3 + (amount - 32) / 4 
 		med_orbs = 6 + int((amount % 4) > 1) 
 		small_orbs = 8 + (amount % 2)
 	elif amount > 19: 
+		@warning_ignore("integer_division")
 		big_orbs = (amount - 16) / 4 
 		med_orbs = 4 + int((amount % 4) > 1) 
 		small_orbs = 7 + (amount % 2)
 	elif amount > 9:
+		@warning_ignore("integer_division")
 		med_orbs = (amount - 8) / 2 
 		small_orbs = 8 + (amount % 2)
 	else:
