@@ -75,6 +75,7 @@ var MapState = UNLOADED
 #Change this if speed is high relative to zone size
 @export var mapUpdateTime: float = 2.0
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	#var rng = RandomNumberGenerator.new()
@@ -135,10 +136,12 @@ func _ready() -> void:
 	for i in used_event_array:
 		print("Event: ", i)
 	"""
+	
+	$SwimEntitySpawner.loadMapEntities(current_map, true)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta: float) -> void:
-	pass
+func _process(delta: float) -> void:
+	$Label.text = str(1.0/delta)
 
 #Enter a zone position in [i][j] -> Vec2(j,i) form
 #Returns the actual zone position in Vec2(x,y) form
@@ -674,7 +677,7 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> Vec
 	print(playerStartPos, " ", playerEndPos)
 	if playerStartPos.distance_squared_to(playerEndPos) > 2:	
 		print("this trigger")
-		playerReference.changePosition(_calculateZonePosition(playerEndPos.x, playerEndPos.y), Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
+		playerReference.changePosition(_calculateZonePosition(int(playerEndPos.x), int(playerEndPos.y)), Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
 		orbReference.changePosition(Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map])* (playerEndPos-tempPEP))
 		set_deferred("currentZone", playerEndPos)
 	
@@ -735,10 +738,10 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> Vec
 	if at_border and not atBorder:
 		atBorder = true
 		#change this to 3 if it goes up too fast
-		playerReference.changeCameraSpeed(true, 2 * mapUpdateTime)
+		#playerReference.changeCameraSpeed(true, 2 * mapUpdateTime)
 	else:
 		atBorder = false
-		playerReference.changeCameraSpeed(false, mapUpdateTime)
+		#playerReference.changeCameraSpeed(false, mapUpdateTime)
 	
 	var sources
 	if playerStartPos.x <= tempDim/2:

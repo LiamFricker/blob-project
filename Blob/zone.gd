@@ -210,7 +210,7 @@ func disableEntities() -> void:
 		eventReference.disable()
 	for c in creatureList:
 		if not c.roaming: 
-			if c.state == 2:
+			if c.state == 5:
 				deadCreaturesList.append(c.ID)
 				#c.queue_free()
 			else:
@@ -219,7 +219,7 @@ func disableEntities() -> void:
 				c.disable()
 				#remove_child(c)
 	for g in guestList:
-		if g.state == 2:
+		if g.state == 5:
 			zoneHandleRoamer.emit(4, g.homepos, g)
 			g.roaming = false
 			#g.call_deferred("queue_free")
@@ -246,3 +246,11 @@ func hideEntities() -> void:
 		eventReference.disable()
 	for c in creatureList:
 		c.disable()
+
+func addCreature(c : Node2D) -> void:
+	creatureList.append(c)
+	creatureAmount += 1
+	add_child(c)
+
+func removeRoaming(creatureID : int) -> void:
+	pass

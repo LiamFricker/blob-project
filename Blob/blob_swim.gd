@@ -16,6 +16,7 @@ var tween #basic all purpose tween for stretches
 var tween2 #tween for glimmer 
 var tween3 #tween for ripple amp UNUSED USE IT FOR SOMETHING ELSE
 var tween4 #idk
+var tween5
 
 var current_map = -1
 
@@ -34,6 +35,8 @@ var state = IDLE
 var waddle = false
 @export var waddle_speed = 1
 var waddle_modfier = 1
+
+var isHazard : bool = false
 
 @export var max_velocity: float = 100
 @export var accel: float = 50
@@ -59,6 +62,8 @@ var charge_angle: float = 0
 @export var charge_swim: bool = true
 #var chargeVelocity: Vector2 = Vector2.ZERO
 var chargeStrength: float = 0
+
+@onready var attach = $Attachments
 
 #A couple things here:
 #The OrbTimer in cell needs to be changed based on how fast we can travel
@@ -119,6 +124,10 @@ Things to do:
 	Ugggh
 
 """
+const spawnerID = -255
+var virus_level : float = 0.0
+var virus_immunity : float = 1.0
+var virus_max : float = 100
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("Special"):
@@ -153,7 +162,19 @@ func _get_input() -> Dictionary:
 
 func _ready() -> void:
 	pass
+	"""
+	print("START")
+	tween4 = create_tween()
+	tween4.tween_callback(print.bind("2DONE")).set_delay(2.0)
+	tween5 = create_tween()
+	tween5.tween_method(_testMethod, 1.0, 10.0, 1.0).set_delay(1.0)
+	tween5.tween_callback(print.bind("1DONE"))
+	"""
 	#camReference = get_node("Camera2D")
+
+func _testMethod(i : float) -> void:
+	#print("TEST, ", i)
+	pass
 
 func _physics_process(delta: float) -> void:
 	_waddleLogic(delta)
@@ -480,6 +501,9 @@ func handleTentacleReturn():
 	
 #Run all the times here that you can about the values for.
 func _timers(delta:float) -> void:
+	if virus_level >= 0:
+		virus_level -= delta * virus_immunity
+	
 	if charge_cool >= 0:
 		charge_cool -= delta
 		#if waddle_modfier < 1 and charge_cool <= charge_cooldown * 0.75:
@@ -590,15 +614,17 @@ func pulseCancel(pulseNum : int) -> void:
 func changePosition(newpos : Vector2, dims : Vector2) -> void:
 	var modPos = (position - dims/2).posmodv(dims)
 	
-	changeCamera()
+	#changeCamera()
 	
 	position = newpos + (modPos-dims/2)  	
 	
 	
-	#call_deferred("changeCamera")
+	call_deferred("changeCamera")
 	#return position
 
+#IDk why I kept this shitty function for
 func changeCameraSpeed(toggle : bool, updateTime : float) -> void:
+	print("THIS STUPID FUNCTION CALLED")
 	if tween4:
 		tween4.kill()
 	tween4 = create_tween()
@@ -615,18 +641,50 @@ func changeCameraSpeed(toggle : bool, updateTime : float) -> void:
 func changeCamera() -> void:
 	#camReference.force_update_scroll()
 	
-	var zoom = 2
+	#var zoom = 2
 	
 	#var camera_offset = camReference.get_screen_center_position()-camReference.get_target_position()
 	
 	#print("CAMERA POS: ", camReference.get_screen_center_position(), " ", camReference.get_target_position())
 	#camReference.position = camera_offset/zoom
 	#print("CAMERA OFFSET: ", camera_offset)
-	camReference.position_smoothing_enabled = false
+	print("CAMERA CHANGED")
+	return
+	$Camera2D2.enabled = true
+	#$Camera2D.enabled = false
+	camReference.enabled = false
+	
 	
 	if tween4:
 		tween4.kill()
 	tween4 = create_tween()
-	tween4.tween_property(camReference, "position_smoothing_enabled", true, 0.01)
+	tween4.tween_callback(_fixCamera.bind(0)).set_delay(0.3)
+	tween4.tween_callback(_fixCamera.bind(1)).set_delay(0.3)
+	tween4.tween_callback(_fixCamera.bind(2)).set_delay(3.3)
 	#tween4.parallel().tween_property(camReference, "position", Vector2(0,0), 2).from(camera_offset/zoom)
+
+func _fixCamera(i : int) -> void:
+	match i:
+		0:
+			camReference.position_smoothing_enabled = false
+		1:
+			camReference.position_smoothing_enabled = true
+		2:
+			$Camera2D2.enabled = false
+			camReference.enabled = true
 	
+	#$Camera2D2.enabled = false
+	
+	#camReference.enabled = true
+
+func increaseVirusLevel(type : int, intensity : float, duration = 2.0) -> void:
+	virus_level += intensity
+	if virus_level >= virus_max:
+		#Have the viri spawn out of the player as well. Just choose random ones tbh, no need to store type
+		_death()
+
+func getPosition() -> Vector2:
+	return position
+
+func _death() -> void:
+	pass

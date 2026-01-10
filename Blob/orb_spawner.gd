@@ -49,8 +49,12 @@ func _orb_collected(id : int) -> void:
 	#Fix this please
 	#Need to also add checking everywhere that doesn't remove from near orb is near orb list is at 0. 
 	#you know how much needs to be removed, so just remove the excess from far orb instead.
-	#var newId = used_orb_list.find(id)
-	used_orb_list.remove_at(used_orb_list.find(id))
+	var newId = used_orb_list.find(id)
+	if newId == -1:
+		newId = 0
+		#REMOVE THIS LATER
+		print("ID ISSUE ID ISSUE: ", id)
+	used_orb_list.remove_at(newId)
 	unused_orb_list.append(id)
 	var find_orb = near_orb_list.find(id)
 	if (find_orb != -1):
@@ -185,7 +189,6 @@ func distCheck(newCent : Vector2) -> void:
 	#print("Dist Check: ", center)
 	center = newCent - centOffset
 	#print("Center: ", center)
-	return
 	var temp_far_size = far_orb_list.size()
 	for i in range(temp_far_size):
 		if center.distance_squared_to(far_orb_positions[i]) > despawn_dist_squared:

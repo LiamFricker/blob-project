@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cnn885v4juwuw"]
+
+[ext_resource type="Shader" uid="uid://dhcvgbnnbe8xu" path="res://Blob/slime_shader.gdshader" id="1_q6cga"]
+
+[resource]
+shader = ExtResource("1_q6cga")
+shader_parameter/speed = 2.0
+shader_parameter/frequency = 2.5
+shader_parameter/amplitude = 0.5
+shader_parameter/textureRectRatio = 1.0
+shader_parameter/rippleSource = Vector2(0, -1)
+shader_parameter/rippleAmp = 0.0
+shader_parameter/rippleAmpMax = 2.5
+shader_parameter/rippleOn = false
+shader_parameter/pulses = 0
+shader_parameter/pulseSource1 = Vector2(0, 0)
+shader_parameter/pulseAmp1 = 0.0
+shader_parameter/pulseSource2 = Vector2(0, 0)
+shader_parameter/pulseAmp2 = 0.0
+shader_parameter/pulseSource3 = Vector2(0, 0)
+shader_parameter/pulseAmp3 = 0.0

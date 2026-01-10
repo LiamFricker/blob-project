@@ -1,40 +1,23 @@
-[gd_scene load_steps=10 format=3 uid="uid://blvad8r1y76gf"]
+[gd_scene load_steps=9 format=3 uid="uid://blvad8r1y76gf"]
 
 [ext_resource type="Script" uid="uid://4u6uw0h6fqhw" path="res://Blob/blob_swim.gd" id="1_560oe"]
 [ext_resource type="Texture2D" uid="uid://6r00aigasy26" path="res://Art/Cell/Glimmer.png" id="2_02q5b"]
 [ext_resource type="PackedScene" uid="uid://dg5dmmg4xvh2b" path="res://Blob/tentacle.tscn" id="3_8tadd"]
-[ext_resource type="Shader" uid="uid://dhcvgbnnbe8xu" path="res://Blob/slime_shader.gdshader" id="3_scfiy"]
 [ext_resource type="Texture2D" uid="uid://c43vreo7c407m" path="res://Art/Cell/TestTexture2.png" id="4_cws7r"]
+[ext_resource type="Material" uid="uid://cnn885v4juwuw" path="res://Blob/Materials/blob_swim.tres" id="5_8tadd"]
 [ext_resource type="PackedScene" uid="uid://dg88vj8yfbw4t" path="res://Blob/organelles.tscn" id="7_fcc0v"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_37q7p"]
-shader = ExtResource("3_scfiy")
-shader_parameter/speed = 2.0
-shader_parameter/frequency = 2.5
-shader_parameter/amplitude = 0.5
-shader_parameter/textureRectRatio = 1.0
-shader_parameter/rippleSource = Vector2(-1, -1)
-shader_parameter/rippleAmp = 0.0
-shader_parameter/rippleAmpMax = 2.5
-shader_parameter/rippleOn = false
-shader_parameter/pulses = 0
-shader_parameter/pulseSource1 = Vector2(0, 0)
-shader_parameter/pulseAmp1 = 0.0
-shader_parameter/pulseSource2 = Vector2(0, 0)
-shader_parameter/pulseAmp2 = 0.0
-shader_parameter/pulseSource3 = Vector2(0, 0)
-shader_parameter/pulseAmp3 = 0.0
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_8tadd"]
 viewport_path = NodePath("SubViewport")
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_02q5b"]
-radius = 17.0
+[sub_resource type="CircleShape2D" id="CircleShape2D_8tadd"]
+radius = 18.0
 
 [node name="Blob-Swim" type="CharacterBody2D" node_paths=PackedStringArray("camReference")]
 collision_mask = 0
 script = ExtResource("1_560oe")
 camReference = NodePath("Camera2D")
+waddle_speed = 10
 charge_speed = 10.0
 
 [node name="Pivot" type="Node2D" parent="."]
@@ -115,7 +98,7 @@ polygon = PackedVector2Array(0, 0, 36, 0, 36, 36, 0, 36)
 
 [node name="Wall" type="Polygon2D" parent="Sprite/Node2D"]
 texture_repeat = 2
-material = SubResource("ShaderMaterial_37q7p")
+material = ExtResource("5_8tadd")
 position = Vector2(-18, -18)
 scale = Vector2(1.125, 1.125)
 texture = ExtResource("4_cws7r")
@@ -125,7 +108,7 @@ uv = PackedVector2Array(11.3698, 13.7535, 12.3394, 11.253, 13.9897, 9.1057, 16.1
 
 [node name="Inside" type="Polygon2D" parent="Sprite/Node2D"]
 texture_repeat = 2
-material = SubResource("ShaderMaterial_37q7p")
+material = ExtResource("5_8tadd")
 position = Vector2(-16, -16)
 texture = SubResource("ViewportTexture_8tadd")
 polygon = PackedVector2Array(0.248546, 5.17523, 0.894822, 3.50852, 1.99477, 2.07727, 3.44531, 0.960938, 5.16406, 0.242188, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0, 16, 0, 17, 0, 18, 0, 19, 0, 20, 0, 21, 0, 22, 0, 23, 0, 24, 0, 25, 0, 26.8203, 0.242188, 28.5234, 0.945313, 29.9609, 2.03906, 31.111, 3.50489, 31.7916, 5.24791, 32, 7, 32, 8, 32, 9, 32, 10, 32, 11, 32, 12, 32, 13, 32, 14, 32, 15, 32, 16, 32, 17, 32, 18, 32, 19, 32, 20, 32, 21, 32, 22, 32, 23, 32, 24, 32, 25, 31.7327, 26.9496, 31.1178, 28.5002, 29.9545, 29.948, 28.5234, 31.064, 26.8282, 31.7625, 25, 32, 24, 32, 23, 32, 22, 32, 21, 32, 20, 32, 19, 32, 18, 32, 17, 32, 16, 32, 15, 32, 14, 32, 13, 32, 12, 32, 11, 32, 10, 32, 9, 32, 8, 32, 7, 32, 5.15548, 31.7836, 3.45475, 31.024, 2.0715, 29.9809, 0.949017, 28.5182, 0.223373, 26.8175, 0, 25, 0, 24, 0, 23, 0, 22, 0, 21, 0, 20, 0, 19, 0, 18, 0, 17, 0, 16, 0, 15, 0, 14, 0, 13, 0, 12, 0, 11, 0, 10, 0, 9, 0, 8, 0, 7)
@@ -142,13 +125,15 @@ polygon = PackedVector2Array(16, 12, 24, 12, 24, 20, 16, 20)
 position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D2" type="Camera2D" parent="."]
 offset = Vector2(115, 0)
 zoom = Vector2(2, 2)
-position_smoothing_enabled = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_02q5b")
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(115, 0)
+enabled = false
+zoom = Vector2(2, 2)
+position_smoothing_enabled = true
 
 [node name="LazyNode" type="Node2D" parent="."]
 
@@ -156,3 +141,8 @@ shape = SubResource("CircleShape2D_02q5b")
 size = Vector2i(64, 64)
 
 [node name="Organelles" parent="SubViewport" instance=ExtResource("7_fcc0v")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_8tadd")
+
+[node name="Attachments" type="Node2D" parent="."]

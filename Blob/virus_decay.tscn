@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://t6fxdk4hhpyp"]
+
+[ext_resource type="Script" uid="uid://bisw5hws2ymyv" path="res://Blob/virus_decay.gd" id="1_wavgi"]
+
+[node name="virus_decay" type="Sprite2D"]
+script = ExtResource("1_wavgi")

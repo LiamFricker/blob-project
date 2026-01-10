@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://dn8qx6pnxadoy"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_u6jdc"]
+[ext_resource type="Texture2D" uid="uid://8i87mo1m0kbg" path="res://Art/Cell/VirusTiny.png" id="2_gwa18"]
+[ext_resource type="Script" uid="uid://jmiuvrkkbrlk" path="res://Blob/area.gd" id="3_xb21g"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xb21g"]
+radius = 26.0192
+
+[node name="Nano_Bacteria" node_paths=PackedStringArray("hitboxReference") instance=ExtResource("1_u6jdc")]
+health_max = 100.0
+hitboxReference = NodePath("InnerNode/Hitbox")
+
+[node name="Sprite2D" type="Sprite2D" parent="InnerNode/Sprite" index="0"]
+modulate = Color(1, 0, 0, 1)
+texture = ExtResource("2_gwa18")
+
+[node name="Hitbox" type="Area2D" parent="InnerNode" index="1" node_paths=PackedStringArray("parentRef")]
+collision_mask = 0
+script = ExtResource("3_xb21g")
+parentRef = NodePath("../..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hitbox" index="0"]
+shape = SubResource("CircleShape2D_xb21g")

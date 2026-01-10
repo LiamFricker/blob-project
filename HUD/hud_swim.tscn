@@ -17,6 +17,7 @@ radius = 324.0
 [sub_resource type="Theme" id="Theme_08pcb"]
 
 [node name="HUD_swim" type="CanvasLayer"]
+visible = false
 script = ExtResource("1_7fxp5")
 
 [node name="Left" type="Control" parent="."]
@@ -303,10 +304,6 @@ texture = ExtResource("4_a8wkd")
 visible = false
 position = Vector2(576, 324)
 shape = SubResource("CircleShape2D_oncep")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(576, 324)
-enabled = false
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="."]
 visible = false

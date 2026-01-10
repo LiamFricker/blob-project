@@ -1,0 +1,42 @@
+[gd_scene load_steps=8 format=3 uid="uid://banvy0mu2vllo"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_1o011"]
+[ext_resource type="Script" uid="uid://c18l5d7bm2502" path="res://virus_tiny.gd" id="2_nbxrv"]
+[ext_resource type="PackedScene" uid="uid://t6fxdk4hhpyp" path="res://Blob/virus_decay.tscn" id="3_312a2"]
+[ext_resource type="Texture2D" uid="uid://8i87mo1m0kbg" path="res://Art/Cell/VirusTiny.png" id="3_k3ppo"]
+[ext_resource type="Script" uid="uid://jmiuvrkkbrlk" path="res://Blob/area.gd" id="4_nbxrv"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1o011"]
+radius = 27.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_nbxrv"]
+radius = 100.005
+
+[node name="VirusTiny" node_paths=PackedStringArray("hitboxReference") instance=ExtResource("1_1o011")]
+script = ExtResource("2_nbxrv")
+strength = 1.0
+virus_decay = ExtResource("3_312a2")
+size = 1.0
+hitboxReference = NodePath("InnerNode/Hitbox")
+spawnerID = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="InnerNode/Sprite" index="0"]
+texture = ExtResource("3_k3ppo")
+
+[node name="Hitbox" type="Area2D" parent="InnerNode" index="1" node_paths=PackedStringArray("parentRef")]
+script = ExtResource("4_nbxrv")
+parentRef = NodePath("../..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hitbox" index="0"]
+shape = SubResource("CircleShape2D_1o011")
+
+[node name="Detection" type="Area2D" parent="InnerNode" index="2"]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Detection" index="0"]
+shape = SubResource("CircleShape2D_nbxrv")
+
+[connection signal="area_entered" from="InnerNode/Hitbox" to="." method="_on_hitbox_area_entered"]
+[connection signal="body_entered" from="InnerNode/Hitbox" to="." method="_on_hitbox_body_entered"]
+[connection signal="area_entered" from="InnerNode/Detection" to="." method="_on_detection_area_entered"]
+[connection signal="body_entered" from="InnerNode/Detection" to="." method="_on_detection_body_entered"]
