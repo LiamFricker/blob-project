@@ -17,7 +17,6 @@ radius = 324.0
 [sub_resource type="Theme" id="Theme_08pcb"]
 
 [node name="HUD_swim" type="CanvasLayer"]
-visible = false
 script = ExtResource("1_7fxp5")
 
 [node name="Left" type="Control" parent="."]

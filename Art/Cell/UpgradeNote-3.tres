@@ -1,0 +1,42 @@
+[gd_resource type="SpriteFrames" load_steps=9 format=3 uid="uid://bl70ebc4quodk"]
+
+[ext_resource type="Texture2D" uid="uid://xsp5rn4280oi" path="res://Art/Cell/UpgradeNote.png" id="1_x2o0e"]
+[ext_resource type="Texture2D" uid="uid://c08pc733fegwi" path="res://Art/Cell/UpgradeNote-3-1.png" id="2_uhqc8"]
+[ext_resource type="Texture2D" uid="uid://ds5wsb0uaq45o" path="res://Art/Cell/UpgradeNote-3-2.png" id="3_0qfac"]
+[ext_resource type="Texture2D" uid="uid://c6orcddfxg1nd" path="res://Art/Cell/UpgradeNote-3-3.png" id="4_sgp8l"]
+[ext_resource type="Texture2D" uid="uid://0axroikruoqy" path="res://Art/Cell/UpgradeNote-3-4.png" id="5_ee5gf"]
+[ext_resource type="Texture2D" uid="uid://0t7gqcbj7soq" path="res://Art/Cell/UpgradeNote-3-5.png" id="6_telpa"]
+[ext_resource type="Texture2D" uid="uid://c6mubvpq2f5eu" path="res://Art/Cell/UpgradeNote-3-6.png" id="7_bqsin"]
+[ext_resource type="Texture2D" uid="uid://blvgit4pemdgm" path="res://Art/Cell/UpgradeNote-3-7.png" id="8_egmpq"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_x2o0e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_uhqc8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_0qfac")
+}, {
+"duration": 1.5,
+"texture": ExtResource("4_sgp8l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_ee5gf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_telpa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_bqsin")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_egmpq")
+}],
+"loop": false,
+"name": &"default",
+"speed": 15.0
+}]

@@ -1,0 +1,45 @@
+[gd_scene load_steps=11 format=3 uid="uid://dbo34n1yd6yo"]
+
+[ext_resource type="Script" uid="uid://lkvhnnn2b32h" path="res://HUD/upgrade_container.gd" id="1_icv03"]
+[ext_resource type="PackedScene" uid="uid://rxjijg5yfmbk" path="res://HUD/upgrade.tscn" id="1_vjmms"]
+[ext_resource type="PackedScene" uid="uid://8xd7i0edlylx" path="res://HUD/panel_particles.tscn" id="2_iqb3e"]
+[ext_resource type="Texture2D" uid="uid://cqmt6nndx0aef" path="res://Art/Cell/UpgradeNote-1-7.png" id="3_nogvs"]
+[ext_resource type="Texture2D" uid="uid://cdi57fs2er4gc" path="res://Art/Cell/UpgradeNote-2-7.png" id="4_fsk11"]
+[ext_resource type="Texture2D" uid="uid://blvgit4pemdgm" path="res://Art/Cell/UpgradeNote-3-7.png" id="5_u2vun"]
+[ext_resource type="SpriteFrames" uid="uid://b8sbuipgoqqm8" path="res://Art/Cell/UpgradeNote-1.tres" id="6_e1mhc"]
+[ext_resource type="Script" uid="uid://cc2nsn4kbnhnj" path="res://HUD/signalUp.gd" id="7_nogvs"]
+[ext_resource type="SpriteFrames" uid="uid://c6dsfxdnk4obu" path="res://Art/Cell/UpgradeNote-2.tres" id="7_yx07g"]
+[ext_resource type="SpriteFrames" uid="uid://bl70ebc4quodk" path="res://Art/Cell/UpgradeNote-3.tres" id="8_tr2en"]
+
+[node name="upgrade_container" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -734.0
+offset_bottom = -341.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 100
+script = ExtResource("1_icv03")
+panelParticles = ExtResource("2_iqb3e")
+upgradeText1 = ExtResource("3_nogvs")
+upgradeText2 = ExtResource("4_fsk11")
+upgradeText3 = ExtResource("5_u2vun")
+upgradePanel = ExtResource("2_iqb3e")
+upgradeFrames1 = ExtResource("6_e1mhc")
+upgradeFrames2 = ExtResource("7_yx07g")
+upgradeFrames3 = ExtResource("8_tr2en")
+
+[node name="Upgrade" parent="." instance=ExtResource("1_vjmms")]
+layout_mode = 2
+
+[node name="Upgrade2" parent="." instance=ExtResource("1_vjmms")]
+layout_mode = 2
+
+[node name="Upgrade3" parent="." instance=ExtResource("1_vjmms")]
+layout_mode = 2
+
+[node name="PanelContainer" type="Node2D" parent="."]
+script = ExtResource("7_nogvs")
+
+[connection signal="crumpled" from="PanelContainer" to="." method="_on_panel_container_crumpled"]

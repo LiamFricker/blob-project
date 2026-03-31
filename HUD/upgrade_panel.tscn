@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://uf7leml33x7h"]
+
+[ext_resource type="Script" uid="uid://b8njiwlb7he0o" path="res://HUD/upgrade_panel.gd" id="2_4quyk"]
+
+[node name="UpgradePanel" type="AnimatedSprite2D"]
+autoplay = "default"
+script = ExtResource("2_4quyk")
+
+[connection signal="animation_finished" from="." to="." method="_on_animation_finished"]

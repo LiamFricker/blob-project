@@ -17,7 +17,7 @@ uniform bool reverse_direction = false;
 
 void vertex() {
 	//Basic Wave
-	
+
 	VERTEX.y += sin((VERTEX.x - TIME * speed) * frequency) * amplitude * (1.0);
 	if (direction != 0.0){
 		VERTEX.y += (abs(direction) <= 1.0) ? tentLength*6.0*direction * pow(VERTEX.x/(tentLength*8.0), 2): tentLength*6.0*sign(direction) * pow(VERTEX.x/(tentLength*8.0), 2);
@@ -34,7 +34,7 @@ void vertex() {
 			VERTEX.x -= tentLength*8.0*abs(whip_direction) * pow(VERTEX.x/(tentLength*8.0), 4);
 		}
 	}
-	
+
 	//VERTEX.y += tentLength*6.0 * pow(VERTEX.x/(tentLength*8.0), 2);
 	//VERTEX.x -= tentLength*2.0 * pow(VERTEX.x/(tentLength*8.0), 2);
 }

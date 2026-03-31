@@ -4,7 +4,7 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0wkqg"]
 shader = ExtResource("1_ibkvx")
-shader_parameter/progress = 1.0
+shader_parameter/progress = 0.0
 shader_parameter/startColor = Color(1, 1, 0, 1)
 shader_parameter/endColor = Color(0, 1, 0, 1)
 
@@ -37,6 +37,7 @@ shader_parameter/endColor = Color(0, 1, 0, 1)
 [node name="Spear" type="Node2D"]
 
 [node name="Spear1" type="Node2D" parent="."]
+visible = false
 scale = Vector2(2, 2)
 
 [node name="Juice" type="Polygon2D" parent="Spear1"]
@@ -104,7 +105,6 @@ color = Color(1, 1, 1, 0.482353)
 polygon = PackedVector2Array(-2, -2, 0, -13, 2, -2, 3, -3, 1, -18, -1, -18, -3, -3)
 
 [node name="Spear4" type="Node2D" parent="."]
-visible = false
 scale = Vector2(2, 2)
 
 [node name="Juice" type="Polygon2D" parent="Spear4"]
