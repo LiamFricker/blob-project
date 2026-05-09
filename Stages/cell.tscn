@@ -29,6 +29,23 @@ texture = ExtResource("3_wq666")
 
 [node name="Blob-Swim" parent="." node_paths=PackedStringArray("spawnerReference") instance=ExtResource("1_mjuci")]
 spawnerReference = NodePath("../SwimEntitySpawner")
+size = 1.0
+max_velocity = 100.0
+accel = 50.0
+turning_accel_ratio = 1.25
+friction = 0.25
+charge_cooldown = 1.0
+charge_max = 1.0
+charge_floor = 0.33
+charge_floor_speed = 0.33
+charge_pull_speed = 0.65
+charge_length = 0.5
+charge_angle_speed = 1.0
+charge_swim = true
+pulseDuration = 1.0
+tentacleAmount = 9
+tentacleLength = 8
+tentacleAlphaAmount = 0
 
 [node name="Camera2D" type="Camera2D" parent="."]
 enabled = false
@@ -64,5 +81,11 @@ health_max = 0.1
 size = 1.0
 spawnerRef = NodePath("../SwimEntitySpawner")
 
+[node name="UpdateTick" type="Timer" parent="."]
+wait_time = 0.2
+autostart = true
+
+[connection signal="currencyUpdate" from="Blob-Swim" to="." method="_on_blob_swim_currency_update"]
 [connection signal="timeout" from="OrbTimer" to="." method="_on_orb_timer_timeout"]
 [connection signal="timeout" from="UpdateZoneTimer" to="." method="_on_update_zone_timer_timeout"]
+[connection signal="timeout" from="UpdateTick" to="." method="_on_update_tick_timeout"]

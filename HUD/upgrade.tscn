@@ -130,9 +130,11 @@ texture = ExtResource("1_f3re1")
 
 [node name="BiggerIcon" type="TextureRect" parent="."]
 visible = false
+modulate = Color(0.85, 0.85, 0.85, 0.713726)
 layout_mode = 0
+offset_top = 27.0
 offset_right = 81.0
-offset_bottom = 81.0
+offset_bottom = 108.0
 theme = SubResource("Theme_o1kr3")
 texture = ExtResource("1_f3re1")
 

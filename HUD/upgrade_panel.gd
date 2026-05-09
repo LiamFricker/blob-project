@@ -4,12 +4,11 @@ extends AnimatedSprite2D
 #On completion, the panel is moved to the back and upgrade spawns a crumpled particle based on the color, position of the panel, and the animation played
 # Animation played = ending offset + ending sprite 
 
-signal crumpled(offset, texture) 
-
-var texture :int = 1
+signal crumpled(ofset : Vector2, col : Color) 
 
 # Needs to load the current animated sprites frames used for this panel
 #Have rng be in upgrade and pass it down here.
+#DUMBASS why would I put RNG in each upgrade!?!?
 func _reset(type : int) -> void:
 	match type:
 		1:
@@ -27,6 +26,5 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-
 func _on_animation_finished() -> void:
-	crumpled.emit(global_position, texture)
+	crumpled.emit(global_position, modulate)

@@ -1,7 +1,9 @@
 extends Control
 
-signal upgradeClick(eyeDee, upgradeCost) 
-signal upgradeSuccess(offset, text, color, count)
+#signal upgradeClick(eyeDee, upgradeCost) 
+#signal upgradeSuccess(offset, text, color, count)
+signal upgradeClick(eyeDee : int, upgradeCost : float, count : int, offset : Vector2, color : Color) 
+
 
 @export var ID : int = 0
 @export var upgradeMax : int = 100
@@ -75,7 +77,7 @@ func posChange(money : float) -> void:
 	if not canUpgrade and upgrade != upgradeMax and upgradeCost <= money:
 		canUpgrade = true
 		$Button.disabled = false
-		get_child(PANEL_INDEX+2).self_modulate = Color8(0, 0, 0)
+		get_child(PANEL_INDEX+2).self_modulate = Color8(255, 255, 255)
 		if upgradeMult == MULT_MAX:
 			upgradeCost = 0
 			for i in range(0, upgradeMax - upgrade, 1):
@@ -112,7 +114,7 @@ func negChange(money : float) -> void:
 			get_child(PANEL_INDEX+2).self_modulate = Color8(94, 94, 94)  
 		
 #upgrade currency needs a space in front
-func _setParams(eyeDee : int, imagePath : String, upgradeText : String, upgMoney : String, RichUB = "1", uB = 1, uC = 1.0, uE = 1.0) -> void:
+func setParams(eyeDee : int, imagePath : String, upgradeText : String, upgMoney : String, RichUB = "1", uB = 1, uC = 1.0, uE = 1.0) -> void:
 	ID = eyeDee
 	$UpgradeDescription.text = upgradeText
 	upgradeBase = uB
@@ -125,7 +127,7 @@ func _setParams(eyeDee : int, imagePath : String, upgradeText : String, upgMoney
 		$BiggerIcon.visible = true
 		$Icon2.visible = false
 	else:
-		$Icon/TextureRect.texture = Image.load_from_file(imagePath)
+		$Icon2/TextureRect.texture = Image.load_from_file(imagePath)
 
 #Pass in the formatted cost. When you emit the signal, make sure to send up the expected cost.
 func onUpgrade(upgradeCost : String) -> bool:
@@ -154,15 +156,34 @@ func onUpgrade(upgradeCost : String) -> bool:
 
 #Click down needs to change the modulate value of the current panel darker.
 func _on_button_button_down() -> void:
-	#Above needs to check player money as well as currency based on ID.
-	upgradeClick.emit(ID, upgradeBase + upgradeCoefficient * upgrade + pow(upgradeExponent, upgrade))
+	#Change the modulate darker
+	get_child(PANEL_INDEX+2).self_modulate = Color8(180, 180, 180)
 	
-func _on_animation_complete(child : Node2D, offset : Vector2, text : int) -> void:
-	upgradeClick.emit(child.position + offset, text, child.modulate)
+	#Not sure why we need to do this?!?!?
+	#Above needs to check player money as well as currency based on ID.
+	#upgradeClick.emit(ID, upgradeBase + upgradeCoefficient * upgrade + pow(upgradeExponent, upgrade))
+	
+#Brother there is NO animation being played wtf is this for?
+#func _on_animation_complete(child : Node2D, offset : Vector2, text : int) -> void:
+	#upgradeSuccess.emit(child.position + offset, text, child.modulate)
 
 #Make it so people can cancel an upgrade by clicking up somewhere else.
 func _on_button_mouse_exited() -> void:
-	pass # Replace with function body.
+	#Change the button modulate back to normal
+	get_child(PANEL_INDEX+2).self_modulate = Color8(255, 255, 255)
+	#Cancel the upgrade
+	pass
 
+#MAKE SURE TO TEST THIS TO SEE IF THIS WORKS PROPERLY
 func _on_button_button_up() -> void:
-	pass # Replace with function body.
+	#Change the button modulate back to normal
+	var tempPanel = get_child(PANEL_INDEX+2)
+	tempPanel.self_modulate = Color8(255, 255, 255)
+	var offset = tempPanel.global_position #Vector2(0,0)
+	var panelMod = tempPanel.modulate 
+	#Not sure if these will need panel by panel code so I'll just leave it formatted like this for now.
+	upgradeClick.emit(ID, upgradeCost, upgrade, offset, panelMod)
+	
+	#Emit the upgrade signal
+	#upgradeSuccess.emit(child.position + offset, text, child.modulate)
+	pass

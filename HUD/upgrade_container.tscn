@@ -21,6 +21,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 100
 script = ExtResource("1_icv03")
+upgradeBase = ExtResource("1_vjmms")
 panelParticles = ExtResource("2_iqb3e")
 upgradeText1 = ExtResource("3_nogvs")
 upgradeText2 = ExtResource("4_fsk11")
@@ -42,4 +43,7 @@ layout_mode = 2
 [node name="PanelContainer" type="Node2D" parent="."]
 script = ExtResource("7_nogvs")
 
+[connection signal="upgradeClick" from="Upgrade" to="." method="_on_upgrade_upgrade_click"]
+[connection signal="upgradeClick" from="Upgrade2" to="." method="_on_upgrade_upgrade_click"]
+[connection signal="upgradeClick" from="Upgrade3" to="." method="_on_upgrade_upgrade_click"]
 [connection signal="crumpled" from="PanelContainer" to="." method="_on_panel_container_crumpled"]

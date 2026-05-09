@@ -1,5 +1,12 @@
 extends Node2D
 
+#Currencies || They don't need to be added now but we do need to add their flags
+#When you add more currencies, be sure to change this array
+#0 = energy, 1 = RNA, 2 = DNA_Y, 3 = DNA_B 
+const CURRENCY_MAX = 3
+var currency_array = PackedFloat32Array([0, 0, 0])
+var currency_flags = [false, false, false]
+
 const SEED_LENGTH = 6
 var map_seed: int = 0
 var map_hash: String = ""
@@ -1370,3 +1377,20 @@ func updateZoneBackground() -> void:
 	else:
 		pass
 	
+#Update all changed currencies each update tick.
+#This code needs to be changed based on how the upgrade tabs are handled
+func _on_update_tick_timeout() -> void:
+	var tempIndexes = []
+	var tempValues = []
+	for i in range(CURRENCY_MAX):
+		if(currency_flags[i]):
+			currency_flags[i] = false
+			tempIndexes.append(i)
+			tempValues.append(currency_array[i])
+	if tempIndexes.size() > 0:
+		pass
+
+#This needs to update the HUD display for currencies as well
+func _on_blob_swim_currency_update(index: int, value: float) -> void:
+	currency_flags[index] = true
+	currency_array[index] = value

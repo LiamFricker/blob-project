@@ -1,6 +1,5 @@
 extends CharacterBody2D
 
-
 enum {
 	IDLE,
 	FLOAT,
@@ -11,6 +10,16 @@ enum {
 }
 @export var camReference : Camera2D
 @export var spawnerReference : Node2D
+
+var energy = 0
+signal currencyUpdate(index : int, value : float)
+#Upgrades and bonuses count
+var staticBonuses = []
+var upgradeTab1 = [0, 0, 0]
+var upgradeTab2 = [0, 0, 0]
+var upgradeTab3 = [0, 0, 0]
+var upgradeBonuses = [upgradeTab1, upgradeTab2, upgradeTab3]
+
 
 var tween #basic all purpose tween for stretches 
 var tween2 #tween for glimmer 
@@ -688,3 +697,27 @@ func getPosition() -> Vector2:
 
 func _death() -> void:
 	pass
+
+#For all events, collectables, abilities, and monsters to use
+func set_energy(amount : float) -> void:
+	energy += amount
+	currencyUpdate.emit(amount, 0)
+
+#For all events, collectables, abilities, and monsters to use
+func set_currency(amount : float, type = 1) -> void:
+	currencyUpdate.emit(amount, type)
+
+#For the parent to directly update currency on a purchase 
+func remove_energy(amount : float) -> void:
+	energy -= amount
+
+func updateUpgrade(upgradeTab : int, upgradeID : int, upgradeCount : int) -> void:
+	if (upgradeTab == 0):
+		staticBonuses[upgradeID] = upgradeCount
+	else:
+		upgradeBonuses[upgradeTab - 1][upgradeID] = upgradeCount
+		#ADD UPGRADE CASE BY CASE SCENARIOS HERE. Probably a match case idc
+
+func updateAllUpgrades(saveBonuses : Array) -> void:
+	staticBonuses = saveBonuses[0]
+	upgradeBonuses = saveBonuses.slice(1)

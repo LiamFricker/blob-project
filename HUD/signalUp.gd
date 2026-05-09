@@ -1,6 +1,6 @@
 extends Node2D
 
-signal crumpled(offset, texture) 
+signal crumpled(offset : Vector2, col : Color) 
 
-func _crumpledCatch(offset, texture) -> void:
-	crumpled.emit(offset, texture)
+func _crumpledCatch(off : Vector2, color : Color) -> void:
+	crumpled.emit(off, color)
