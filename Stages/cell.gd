@@ -7,6 +7,9 @@ const CURRENCY_MAX = 3
 var currency_array = PackedFloat32Array([0, 0, 0])
 var currency_flags = [false, false, false]
 
+#0 = x1, 1 = x5, 2 = x10, 3 = BUY MAX
+var upgradeMultiplier = 0
+
 const SEED_LENGTH = 6
 var map_seed: int = 0
 var map_hash: String = ""
@@ -82,6 +85,7 @@ var MapState = UNLOADED
 #Change this if speed is high relative to zone size
 @export var mapUpdateTime: float = 2.0
 
+@onready var HUD = $HUD_swim
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -1388,9 +1392,86 @@ func _on_update_tick_timeout() -> void:
 			tempIndexes.append(i)
 			tempValues.append(currency_array[i])
 	if tempIndexes.size() > 0:
-		pass
+		HUD.updateTickMoneyChange(tempIndexes, tempValues)
 
 #This needs to update the HUD display for currencies as well
 func _on_blob_swim_currency_update(index: int, value: float) -> void:
 	currency_flags[index] = true
 	currency_array[index] = value
+	HUD.updateCurrencyDisplay(index, value)
+	
+func _on_mult_change() -> void:
+	currency_flags.fill(false)
+	HUD.multChange(upgradeMultiplier, currency_array)
+	
+func _on_mult_button_one_press() -> void:
+	#You should disable the button
+	# > disable the button
+	
+	#Enable the previous button
+	match upgradeMultiplier:
+		1:
+			pass
+		2:
+			pass
+		3:
+			pass
+	
+	upgradeMultiplier = 1
+	_on_mult_change()
+	
+func _on_mult_button_five_press() -> void:
+	#You should disable the button
+	# > disable the button
+	
+	#Enable the previous button
+	match upgradeMultiplier:
+		0:
+			pass
+		2:
+			pass
+		3:
+			pass
+	
+	upgradeMultiplier = 1
+	_on_mult_change()
+	
+func _on_mult_button_ten_press() -> void:
+	#You should disable the button
+	# > disable the button
+	
+	#Enable the previous button
+	match upgradeMultiplier:
+		0:
+			pass
+		1:
+			pass
+		3:
+			pass
+	
+	upgradeMultiplier = 2
+	_on_mult_change()
+	
+func _on_mult_button_max_press() -> void:
+	#You should disable the button
+	# > disable the button
+	
+	#Enable the previous button
+	match upgradeMultiplier:
+		0:
+			pass
+		1:
+			pass
+		2:
+			pass
+	
+	upgradeMultiplier = 3
+	_on_mult_change()
+
+#The last two arguments is for loading in save data
+func addNewTab(tab : int, upgradeIDs : Array, upgradeLevels = [], setLevels = false) -> void:
+	HUD.addTab(tab, upgradeIDs, upgradeMultiplier, upgradeLevels, setLevels)
+
+#The last argument is for loading in save data or if there's a perk that lets an upgrade start at X level
+func addNewUpgrade(upgradeFullID : int, upgradeLevel = 0) -> void:
+	HUD.addUpgrade(upgradeFullID, upgradeMultiplier, upgradeLevel)

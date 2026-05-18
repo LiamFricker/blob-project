@@ -29,23 +29,6 @@ texture = ExtResource("3_wq666")
 
 [node name="Blob-Swim" parent="." node_paths=PackedStringArray("spawnerReference") instance=ExtResource("1_mjuci")]
 spawnerReference = NodePath("../SwimEntitySpawner")
-size = 1.0
-max_velocity = 100.0
-accel = 50.0
-turning_accel_ratio = 1.25
-friction = 0.25
-charge_cooldown = 1.0
-charge_max = 1.0
-charge_floor = 0.33
-charge_floor_speed = 0.33
-charge_pull_speed = 0.65
-charge_length = 0.5
-charge_angle_speed = 1.0
-charge_swim = true
-pulseDuration = 1.0
-tentacleAmount = 9
-tentacleLength = 8
-tentacleAlphaAmount = 0
 
 [node name="Camera2D" type="Camera2D" parent="."]
 enabled = false

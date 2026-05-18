@@ -1,12 +1,17 @@
-[gd_scene load_steps=11 format=3 uid="uid://qora73oubnt4"]
+[gd_scene load_steps=20 format=3 uid="uid://qora73oubnt4"]
 
 [ext_resource type="Script" uid="uid://dicwyhdaqa76u" path="res://HUD/hud_swim.gd" id="1_7fxp5"]
+[ext_resource type="PackedScene" uid="uid://dbo34n1yd6yo" path="res://HUD/upgrade_container.tscn" id="2_7a5bb"]
 [ext_resource type="Texture2D" uid="uid://bsibxwo8rf83v" path="res://Art/Cell/Orbs.png" id="2_nvojy"]
 [ext_resource type="Texture2D" uid="uid://txrhscadye7w" path="res://Art/Cell/MamaVirus.png" id="2_w0u7n"]
 [ext_resource type="Texture2D" uid="uid://cp5ggcynpb1x8" path="res://Art/Cell/MimiVirus.png" id="3_08pcb"]
 [ext_resource type="Texture2D" uid="uid://djkdgfuieb2yn" path="res://Art/Cell/Orbs_Mini.png" id="3_a8wkd"]
 [ext_resource type="Texture2D" uid="uid://5aqovn4bubul" path="res://Art/Cell/TestTextureLarge.png" id="4_a8wkd"]
 [ext_resource type="PackedScene" uid="uid://rxjijg5yfmbk" path="res://HUD/upgrade.tscn" id="7_08pcb"]
+[ext_resource type="Texture2D" uid="uid://b7a7c5s2drs6a" path="res://Art/Cell/DNA0.png" id="9_be5ed"]
+[ext_resource type="Texture2D" uid="uid://bbc1j3gfh23dm" path="res://Art/Cell/AminoAcidsPaneling.png" id="10_ruxfo"]
+[ext_resource type="Texture2D" uid="uid://b4bajw83dru4a" path="res://Art/Cell/MagicTiny.png" id="10_x0nch"]
+[ext_resource type="Texture2D" uid="uid://mb375binidtn" path="res://Art/Cell/HUD/DNA_Big_Paneling.png" id="12_u6o1b"]
 
 [sub_resource type="Theme" id="Theme_a8wkd"]
 VBoxContainer/constants/separation = 4
@@ -16,10 +21,43 @@ radius = 324.0
 
 [sub_resource type="Theme" id="Theme_08pcb"]
 
+[sub_resource type="Theme" id="Theme_x0nch"]
+TabContainer/constants/icon_max_width = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x0nch"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.59, 0.59, 0.5782, 0.623529)
+border_width_left = 4
+border_width_top = 3
+border_width_right = 2
+border_color = Color(0.36, 0.36, 0.36, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 16
+
+[sub_resource type="Theme" id="Theme_ruxfo"]
+Button/styles/normal = SubResource("StyleBoxFlat_x0nch")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ruxfo"]
+bg_color = Color(0.72, 0.66192, 0.6408, 1)
+border_width_left = 7
+border_width_top = 7
+border_width_right = 7
+border_width_bottom = 7
+border_color = Color(0.33, 0.2002, 0.1353, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
 [node name="HUD_swim" type="CanvasLayer"]
 script = ExtResource("1_7fxp5")
+upgradeTab = ExtResource("2_7a5bb")
 
 [node name="Left" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_bottom = 161.0
@@ -84,6 +122,7 @@ offset_right = 63.0
 offset_bottom = 161.0
 
 [node name="Right" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_left = 576.0
@@ -300,12 +339,10 @@ size_flags_vertical = 3
 texture = ExtResource("4_a8wkd")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(576, 324)
 shape = SubResource("CircleShape2D_oncep")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(324, 324)
 shape = SubResource("CircleShape2D_oncep")
 
@@ -314,33 +351,39 @@ position = Vector2(505, 0)
 shape = SubResource("CircleShape2D_oncep")
 
 [node name="Button" type="Button" parent="."]
+visible = false
 offset_left = 1088.0
 offset_top = 254.0
 offset_right = 1152.0
 offset_bottom = 382.0
 
 [node name="Marker2D" type="Marker2D" parent="."]
+visible = false
 position = Vector2(576, 324)
 
 [node name="ColorRect" type="ColorRect" parent="."]
+visible = false
 offset_left = 712.0
 offset_top = 165.0
 offset_right = 1131.0
 offset_bottom = 245.0
 
 [node name="ColorRect2" type="ColorRect" parent="."]
+visible = false
 offset_left = 712.0
 offset_top = 255.0
 offset_right = 1131.0
 offset_bottom = 335.0
 
 [node name="Upgrade" parent="." instance=ExtResource("7_08pcb")]
+visible = false
 offset_left = 712.0
 offset_top = 345.0
 offset_right = 712.0
 offset_bottom = 345.0
 
 [node name="Button2" type="Button" parent="."]
+visible = false
 offset_left = 712.0
 offset_top = 268.0
 offset_right = 781.0
@@ -349,6 +392,7 @@ icon = ExtResource("3_a8wkd")
 expand_icon = true
 
 [node name="Button3" type="Button" parent="."]
+visible = false
 offset_left = 710.0
 offset_top = 70.0
 offset_right = 779.0
@@ -357,9 +401,11 @@ icon = ExtResource("3_a8wkd")
 expand_icon = true
 
 [node name="TabContainer" type="TabContainer" parent="."]
+visible = false
 offset_right = 361.0
 offset_bottom = 223.0
 theme = SubResource("Theme_08pcb")
+theme_override_icons/menu = ExtResource("9_be5ed")
 current_tab = 0
 
 [node name="Tab1" type="VBoxContainer" parent="TabContainer"]
@@ -406,3 +452,218 @@ metadata/_tab_index = 2
 layout_mode = 2
 size_flags_vertical = 3
 texture = ExtResource("2_nvojy")
+
+[node name="Upgrades" type="TabContainer" parent="."]
+visible = false
+offset_left = 694.0
+offset_top = 46.0
+offset_right = 1154.0
+offset_bottom = 697.0
+theme = SubResource("Theme_x0nch")
+current_tab = 3
+
+[node name="Tab1" parent="Upgrades" instance=ExtResource("2_7a5bb")]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="Tab2" parent="Upgrades" instance=ExtResource("2_7a5bb")]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="Tab3" parent="Upgrades" instance=ExtResource("2_7a5bb")]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="TabBar" type="TabBar" parent="Upgrades"]
+layout_mode = 2
+metadata/_tab_index = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+offset_left = 691.0
+offset_right = 1152.0
+offset_bottom = 86.0
+vertical_scroll_mode = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = SubResource("Theme_ruxfo")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="TextureRect" type="TextureRect" parent="ScrollContainer/HBoxContainer/Button"]
+z_index = -1
+layout_mode = 0
+offset_top = 5.0
+offset_right = 85.0
+offset_bottom = 77.0
+texture = ExtResource("10_ruxfo")
+stretch_mode = 1
+
+[node name="Button6" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = SubResource("Theme_ruxfo")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button7" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = SubResource("Theme_ruxfo")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button8" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = SubResource("Theme_ruxfo")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button9" type="Button" parent="ScrollContainer/HBoxContainer"]
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = SubResource("Theme_ruxfo")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button2" type="Button" parent="ScrollContainer/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("10_x0nch")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button3" type="Button" parent="ScrollContainer/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("2_w0u7n")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button4" type="Button" parent="ScrollContainer/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("2_nvojy")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button5" type="Button" parent="ScrollContainer/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("3_a8wkd")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+visible = false
+offset_left = 691.0
+offset_right = 1153.0
+offset_bottom = 86.0
+
+[node name="Button" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button2" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("10_x0nch")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button3" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("2_w0u7n")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button4" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("2_nvojy")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button5" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("3_a8wkd")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = -1
+anchor_left = 0.6
+anchor_top = 0.2
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -0.200012
+offset_top = 0.399994
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ruxfo")
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer"]
+layout_mode = 2
+texture = ExtResource("12_u6o1b")
+stretch_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Tab1" parent="PanelContainer/MarginContainer/ScrollContainer2" instance=ExtResource("2_7a5bb")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+metadata/_tab_index = 0

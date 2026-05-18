@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://rxjijg5yfmbk"]
+[gd_scene load_steps=18 format=3 uid="uid://rxjijg5yfmbk"]
 
 [ext_resource type="Texture2D" uid="uid://djkdgfuieb2yn" path="res://Art/Cell/Orbs_Mini.png" id="1_f3re1"]
 [ext_resource type="Script" uid="uid://cy3pacpa6b7tk" path="res://HUD/upgrade.gd" id="1_rsijw"]
@@ -26,17 +26,47 @@ corner_detail = 4
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sscwy"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tabre"]
+content_margin_left = 15.0
+content_margin_top = 12.0
+content_margin_right = 15.0
+content_margin_bottom = 12.0
+draw_center = false
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0.53, 0.53, 0.53, 0)
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_tabre"]
+color = Color(0.31, 0.31, 0.31, 0.611765)
+thickness = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tabre"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nonn6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_151oc"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p4ytv"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lqheo"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pepks"]
+
 [node name="Upgrade" type="Control"]
+custom_minimum_size = Vector2(0, 105)
 layout_mode = 3
-anchor_right = 0.364
-anchor_bottom = 0.123
+anchor_right = 0.4
+anchor_bottom = 0.162
 offset_right = -0.328003
-offset_bottom = 27.296
+offset_bottom = 0.0799942
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_rsijw")
 
 [node name="Background2" type="TextureRect" parent="."]
+visible = false
 layout_mode = 0
 offset_right = 419.0
 offset_bottom = 107.0
@@ -44,20 +74,15 @@ texture = ExtResource("1_sscwy")
 stretch_mode = 1
 
 [node name="Background" type="TextureRect" parent="."]
+visible = false
 modulate = Color(0.68, 0.68, 0.68, 0.647059)
 layout_mode = 0
 offset_right = 419.0
 offset_bottom = 107.0
 texture = ExtResource("2_sscwy")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-visible = false
-modulate = Color(0.68, 0.68, 0.68, 0.278431)
-position = Vector2(209.5, 40)
-scale = Vector2(1.99524, 2)
-texture = ExtResource("2_sscwy")
-
 [node name="Name" type="Label" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 12.0
 offset_top = 10.0
@@ -70,6 +95,7 @@ theme_override_font_sizes/font_size = 15
 text = "Antonie van Leeuwenhoek"
 
 [node name="UpgradeDescription" type="RichTextLabel" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 76.0
 offset_top = 35.0
@@ -86,6 +112,7 @@ scroll_active = false
 vertical_alignment = 1
 
 [node name="UpgradeCost" type="RichTextLabel" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 76.0
 offset_top = 77.0
@@ -101,6 +128,7 @@ scroll_active = false
 vertical_alignment = 1
 
 [node name="Seperator" type="Panel" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 75.0
 offset_top = 33.0
@@ -109,6 +137,7 @@ offset_bottom = 35.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_151oc")
 
 [node name="Seperator2" type="Panel" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 75.0
 offset_top = 75.0
@@ -117,6 +146,7 @@ offset_bottom = 77.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_151oc")
 
 [node name="Icon2" type="PanelContainer" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 6.0
 offset_top = 32.0
@@ -139,6 +169,7 @@ theme = SubResource("Theme_o1kr3")
 texture = ExtResource("1_f3re1")
 
 [node name="Button" type="Button" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 324.0
 offset_top = 13.0
@@ -147,23 +178,235 @@ offset_bottom = 95.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_sscwy")
 
 [node name="Panel" type="Sprite2D" parent="."]
+visible = false
 modulate = Color(0.686275, 0.819608, 0.929412, 1)
 position = Vector2(362, 53)
 scale = Vector2(1.25, 1.25)
 texture = ExtResource("5_tabre")
 
 [node name="Panel2" type="Sprite2D" parent="."]
+visible = false
 modulate = Color(0.929412, 0.792157, 0.847059, 1)
 position = Vector2(365, 57)
 scale = Vector2(1.25, 1.25)
 texture = ExtResource("5_tabre")
 
 [node name="Panel3" type="Sprite2D" parent="."]
+visible = false
 modulate = Color(0.988235, 0.909804, 0.623529, 1)
 position = Vector2(361, 51)
 scale = Vector2(1.25, 1.25)
 texture = ExtResource("5_tabre")
 
+[node name="Control" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -1.52588e-05
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="TextureRect" parent="Control"]
+modulate = Color(1, 1, 1, 0.784314)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_sscwy")
+stretch_mode = 1
+
+[node name="Border" type="TextureRect" parent="Control"]
+modulate = Color(0.68, 0.68, 0.68, 0.647059)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_sscwy")
+
+[node name="Icon" type="TextureRect" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.02
+anchor_top = 0.25
+anchor_right = 0.2
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_f3re1")
+
+[node name="BiggerIcon" type="TextureRect" parent="Control"]
+visible = false
+modulate = Color(0.85, 0.85, 0.85, 0.713726)
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.13
+anchor_right = 0.21
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_o1kr3")
+texture = ExtResource("1_f3re1")
+
+[node name="PanelContainer" type="PanelContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tabre")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Name" type="Label" parent="Control/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.98, 0.98, 0.98, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 12
+text = "Antonie van Leeuwenhoek"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VSeparator" type="VSeparator" parent="Control/PanelContainer/VBoxContainer/HBoxContainer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.7
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 6.16
+
+[node name="HSeparator" type="HSeparator" parent="Control/PanelContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.0
+theme_override_constants/separation = 0
+theme_override_styles/separator = SubResource("StyleBoxLine_tabre")
+
+[node name="UpgradeDescription" type="RichTextLabel" parent="Control/PanelContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.5
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/normal_font_size = 10
+bbcode_enabled = true
+text = "Upgrade Desc: [color=red]BBCode injection[/color] 
+Upgrade Desc: [color=red]BBCode injection[/color] "
+scroll_active = false
+vertical_alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="Control/PanelContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.0
+theme_override_constants/separation = 0
+theme_override_styles/separator = SubResource("StyleBoxLine_tabre")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/PanelContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="UpgradeLevel" type="RichTextLabel" parent="Control/PanelContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/normal_font_size = 10
+bbcode_enabled = true
+text = "Level: [color=red]10/20
+[/color] "
+scroll_active = false
+autowrap_mode = 0
+vertical_alignment = 1
+
+[node name="UpgradeCost" type="RichTextLabel" parent="Control/PanelContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/normal_font_size = 10
+bbcode_enabled = true
+text = "Upgrade Cost: [color=red]$1.00k [/color] "
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="VSeparator2" type="VSeparator" parent="Control/PanelContainer/VBoxContainer/HBoxContainer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="HSplitContainer" type="HSplitContainer" parent="Control/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 110
+
+[node name="UpgradeButtons" type="Control" parent="Control"]
+layout_mode = 1
+anchor_left = 0.9
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -460.472
+offset_bottom = -121.256
+
+[node name="Panel" type="Sprite2D" parent="Control/UpgradeButtons"]
+modulate = Color(0.686275, 0.819608, 0.929412, 1)
+position = Vector2(-10.4248, 51)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_tabre")
+
+[node name="Panel2" type="Sprite2D" parent="Control/UpgradeButtons"]
+modulate = Color(0.929412, 0.792157, 0.847059, 1)
+position = Vector2(-7.4248, 55)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_tabre")
+
+[node name="Panel3" type="Sprite2D" parent="Control/UpgradeButtons"]
+modulate = Color(0.988235, 0.909804, 0.623529, 1)
+position = Vector2(-11.4248, 49)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("5_tabre")
+
+[node name="Button" type="Button" parent="Control/UpgradeButtons"]
+layout_mode = 0
+offset_left = -52.0
+offset_top = 11.0
+offset_right = 32.0
+offset_bottom = 93.0
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tabre")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_nonn6")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_151oc")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_p4ytv")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_lqheo")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_pepks")
+text = "x5"
+
 [connection signal="button_down" from="Button" to="." method="_on_button_button_down"]
 [connection signal="button_up" from="Button" to="." method="_on_button_button_up"]
 [connection signal="mouse_exited" from="Button" to="." method="_on_button_mouse_exited"]
+[connection signal="button_down" from="Control/UpgradeButtons/Button" to="." method="_on_button_button_down"]
+[connection signal="button_up" from="Control/UpgradeButtons/Button" to="." method="_on_button_button_up"]
+[connection signal="mouse_exited" from="Control/UpgradeButtons/Button" to="." method="_on_button_mouse_exited"]

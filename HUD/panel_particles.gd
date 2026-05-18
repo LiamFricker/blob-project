@@ -15,6 +15,7 @@ func initialize(pos : Vector2, sV : Vector2, secV: Vector2, text : Texture) -> v
 func _process(delta: float) -> void:
 	currVelocity.y -= gravity * delta
 	position += currVelocity * delta
+	rotation += 0.1 * currVelocity.x * delta
 	modulate.a -= delta
 
 
