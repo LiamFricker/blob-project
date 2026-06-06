@@ -3,17 +3,49 @@ extends CanvasLayer
 @export var upgradeTab : PackedScene
 
 const UPGRADE_CURRENCY_MAX = 3
-var currency_array = PackedFloat32Array([0, 0, 0])
+var currency_array = PackedFloat32Array([100, 100, 100])
 var maxedUpgradesHidden = false
 
 #I'm pretty sure the upgrade tabs will likely have a container of itself, but let's just pretend they don't for simplicity.
 #We could also just store their direct references in this array since they'll be used often
 var tab_to_positionsDict = {}
-var upgradeTabs
+var upgradeTabs = []
+var currentTab = -1
+var tabCount = 0
 
 const UPGRADE_DATA_FILEPATH = "res://etc.json"
 
 var bigIcon = false
+
+@onready var fullUpgradePanel = $Upgrades
+const MARGIN = 16
+
+@onready var panelContainer = $PanelContainer
+
+@export var panelParticles : PackedScene
+@export var upgradeText1 : Texture
+@export var upgradeText2 : Texture
+@export var upgradeText3 : Texture
+
+@export var upgradePanel : PackedScene
+@export var upgradeFrames1 : SpriteFrames
+@export var upgradeFrames2 : SpriteFrames
+@export var upgradeFrames3 : SpriteFrames
+
+#@onready var panelCont = $PanelContainer
+@onready var globalPosOffset = Vector2.ZERO#$PanelContainer.global_position - Vector2(MARGIN, MARGIN)  #Vector2(691.2,129.6) + Vector2(16, 16)
+
+@export var upgradeTabButton : PackedScene
+@export var upgradeTabContainer : PackedScene
+
+@onready var tabButtons = []
+
+var rng = RandomNumberGenerator.new()
+var type = 0
+
+func _ready() -> void:
+	for i in range(5):
+		addTab(-1, [0, 1, 2, 3, 4, 5, 6, 7], 0, [0, 1, 2, 3, 4, 5, 6, 7], true)
 
 #I kinda want to ceiling all of this stuff to make it look more consistent. If it's bad you can remove it later. 
 #Update the display to show current money
@@ -42,23 +74,69 @@ func multChange(newMult: int, currentCurrencies : Array) -> void:
 		for uT in upgradeTabs:
 			uT.upgradeTabMultChange(newMult, i, currentCurrencies[i])
 
+func getTabData(tab = -1) -> Dictionary:
+	if tab == -1:
+		#0 : Upgrade's Currency, 1 : Path, 2 : Name, 3 : Description, 4: CurrencyIcon, 5: upgradeBase, 
+		#6 : upgradeCoefficient, 7 : upgradeExponent, 8 : upgradeMax, 9 : currentMoney
+		return {
+			0 : [0, "res://Art/Cell/Orbs_Mini.png", "More Orbs", "Get More Orbs", "$", 0, 0, 0, 100],
+			1 : [0, "res://Art/Cell/Orbs_Mini.png", "More Orbs", "Get More Orbs", "$", 0, 0, 0, 100],
+			2 : [0, "res://Art/Cell/Orbs_Mini.png", "More Orbs", "Get More Orbs", "$", 0, 0, 0, 100],
+			3 : [0, "res://Art/Cell/Orbs_Mini.png", "More Orbs", "Get More Orbs", "$", 0, 0, 0, 100],
+			4 : [0, "res://Art/Cell/Orbs_Mini.png", "More Orbs", "Get More Orbs", "$", 0, 0, 0, 100],
+			5 : [0, "res://Art/Cell/Orbs_Mini.png", "More Orbs", "Get More Orbs", "$", 0, 0, 0, 100],
+			6 : [0, "res://Art/Cell/Orbs_Mini.png", "More Orbs", "Get More Orbs", "$", 0, 0, 0, 100],
+			7 : [0, "res://Art/Cell/Orbs_Mini.png", "More Orbs", "Get More Orbs", "$", 0, 0, 0, 100]
+			}
+	return {}
+
 func addTab(tab : int, upgradeIDs : Array, mult : int, upgradeLevels = [], setLevels = false) -> void:
 	#helper function to access data file and such
 	# > here
-	var upgradeFullDict = {}
+	var tempTabButton = upgradeTabButton.instantiate()
+	var tempIconPath = "res://Art/Cell/DNA0.png"
+	tempTabButton.icon = load(tempIconPath)
+	tempTabButton.pressed.connect(changeTab.bind(tabCount))
+	tabCount += 1
+	
+	$UpgradeHeader/HBoxContainer.add_child(tempTabButton)
+	tabButtons.append(tempTabButton)
+	
+	#NEED TO INITIALIZE THE TAB ITSELF TOO WITH ITS APPEARANCE AND SUCH 
+	#THEN THE UPGRADE CONTAINTER CAN BE ADDED TO IT
+	
+	 
+	var upgradeFullDict = getTabData(tab)
 	var upgradeDict = {}
 	for ID in upgradeIDs:
 		var tempInfo = upgradeFullDict[ID]
 		tempInfo.append(currency_array[tempInfo[0]])
 		upgradeDict[ID] = tempInfo
 	
-	var tempTab = upgradeTab.instantiate()
-	tempTab.initializeUpgrades(tab, upgradeDict, mult, bigIcon, upgradeLevels, setLevels)
+	#var upgOffset = fullUpgradePanel.global_position - Vector2(MARGIN, MARGIN)
+	
+	var tempTabContainer = upgradeTabContainer.instantiate()
+	#var containerRef
+	if currentTab == -1:
+		tempTabContainer.initializeTab("res://Art/Cell/HUD/DNA_Big_Paneling.png")
+	else:
+		tempTabContainer.initializeTab("res://Art/Cell/HUD/forest.png")
+	tempTabContainer.upgradeSuccess.connect(_on_upgrade_success)
+	fullUpgradePanel.add_child(tempTabContainer)
+	
+	#var tempTab = upgradeTab.instantiate()
+	tempTabContainer.initializeUpgrades(tab, upgradeDict, mult, bigIcon, upgradeLevels, setLevels)
 	if maxedUpgradesHidden:
-		tempTab.toggleMaxedUpgrades()
+		tempTabContainer.toggleMaxedUpgrades()
+	upgradeTabs.append(tempTabContainer)
+	
+	if currentTab == -1:
+		#tempTabButton.show()
+		tempTabContainer.show()
+		currentTab = 0
 	
 	#MAKE SURE TO ADD THIS TO THE CORRECT CONTAINER
-	add_child(tempTab)
+	#containerRef.add_child(tempTab)
 	
 func addUpgrade(upgradeFullID : int, mult : int, upgradeLevel = 0) -> void:
 	#@warning_ignore("integer_division")
@@ -72,6 +150,17 @@ func addUpgrade(upgradeFullID : int, mult : int, upgradeLevel = 0) -> void:
 	tempInfo.append(currency_array[tempInfo[0]])
 	upgradeTabs[tabPos].addNewUpgrade(upgID, tempInfo, mult, bigIcon)
 
+#Change Tab
+func changeTab(newTab) -> void:
+	#tabButtons[newTab].show()
+	upgradeTabs[newTab].show()
+	#tabButtons[currentTab].hide()
+	upgradeTabs[currentTab].hide()
+	
+	print("tab changed ", newTab)
+	
+	currentTab = newTab
+
 #Make sure to toggle this on a setting or something.
 func toggleCompletedUpgrades() -> void:
 	for uT in upgradeTabs:
@@ -82,6 +171,61 @@ func toggleCompletedUpgrades() -> void:
 func getUpgradeTab(pos : int) -> VBoxContainer:
 	return $TabContainer/VBoxContainer2
 
+func _on_upgrade_success(upgradeTab: int, upgradeID: int, upgradeCost: float, upgradeCount: int, off : Vector2, color : Color) -> void:
+	print("Upgrade Success!")
+	
+	off = off - globalPosOffset
+	_createPanel(off, color)
+	if upgradeCount > 1:
+		_createPanel(off, color)
+		if upgradeCount > 3:
+			_createPanel(off, color)
+			if upgradeCount > 5:
+				_createPanel(off, color)
+				if upgradeCount > 10:
+					_createPanel(off, color)
+					for i in range(20, upgradeCount, 10):
+						_createPanel(off, color)
+
+func _createPanel(global_pos : Vector2, col : Color) -> void:
+	var tempPanel = upgradePanel.instantiate()
+	tempPanel.global_position = global_pos
+	tempPanel.modulate = col
+	type = (type + rng.randi_range(1, 2)) % 3
+	match type:
+		0:
+			tempPanel.sprite_frames = upgradeFrames1
+		1:
+			tempPanel.sprite_frames = upgradeFrames2
+		2:
+			tempPanel.sprite_frames = upgradeFrames3
+	
+	#Couldn't I just connect this directly though? Am I an idiot or something?
+	#panelCont.connect(tempPanel.crumpled, panelCont._crumpledCatch)
+	tempPanel.crumpled.connect(_spawn)
+	#panelCont.
+	panelContainer.add_child(tempPanel)
+
+#Run this based on the count 
+
+#offset should be global pos of child
+#should add a degree to it based on the ending pos
+func _spawn(off : Vector2, col : Color) -> void:
+	off -= globalPosOffset
+	var tempPanel = panelParticles.instantiate()
+	tempPanel.modulate = col
+	var angle = rng.randf_range(-PI/4, -3*PI/4)
+	var veloc = rng.randf_range(0.75, 1.75) * Vector2.from_angle(angle)
+	angle = rng.randf_range(PI/4, 3*PI/4)
+	var secVeloc = rng.randf_range(0.75, 1.75) * Vector2.from_angle(angle)
+	match type:
+		0:
+			tempPanel.initialize(off - Vector2(5, -14), veloc, secVeloc, upgradeText1, Vector2(5, -14))
+		1:
+			tempPanel.initialize(off - Vector2(1, 11), veloc, secVeloc, upgradeText2, Vector2(1, 11))
+		2:
+			tempPanel.initialize(off - Vector2(13, 9), veloc, secVeloc, upgradeText3, Vector2(13, 9))
+	add_child(tempPanel)
 
 
 """

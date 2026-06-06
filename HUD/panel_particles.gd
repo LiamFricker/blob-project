@@ -1,21 +1,23 @@
 extends Sprite2D
 
-var startVelocity : Vector2 = Vector2(0,-1)
+#var startVelocity : Vector2 = Vector2(0,-1)
 var currVelocity : Vector2 = Vector2(0,0)
 var secondVelocity : Vector2 = Vector2(0,-1)
 
-const gravity = 9.8
+const gravity = 1500
+const velocityMult = 250
 
-func initialize(pos : Vector2, sV : Vector2, secV: Vector2, text : Texture) -> void:
+func initialize(pos : Vector2, sV : Vector2, secV: Vector2, text : Texture, off : Vector2) -> void:
 	position = pos
-	startVelocity = sV
-	secondVelocity = secV
+	currVelocity = sV * Vector2(velocityMult, 2 * velocityMult)
+	#secondVelocity = secV * Vector2(velocityMult, 2 * velocityMult)
 	texture = text
-
+	offset = off
+	
 func _process(delta: float) -> void:
-	currVelocity.y -= gravity * delta
 	position += currVelocity * delta
-	rotation += 0.1 * currVelocity.x * delta
+	currVelocity.y += gravity * delta
+	rotation += 0.15 * currVelocity.x * delta
 	modulate.a -= delta
 
 

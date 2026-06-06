@@ -9,6 +9,7 @@ script = ExtResource("1_7062g")
 wait_time = 0.5
 
 [node name="LifeTime" type="Timer" parent="."]
+autostart = true
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
 [connection signal="timeout" from="LifeTime" to="." method="_on_life_time_timeout"]

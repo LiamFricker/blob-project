@@ -18,13 +18,6 @@ func _reset(type : int) -> void:
 		3:
 			pass
 
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-
 func _on_animation_finished() -> void:
 	crumpled.emit(global_position, modulate)
+	queue_free()

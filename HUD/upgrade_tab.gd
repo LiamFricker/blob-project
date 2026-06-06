@@ -1,4 +1,4 @@
-extends VBoxContainer
+extends Control
 
 #NEED TO PUT IN A WAY TO INITIALIZE ALL UPGRADES
 #Get them from somewhere, likely store their text and data in a file
@@ -19,7 +19,9 @@ signal upgradeSuccess(upgradeTab : int, upgradeID : int, upgradeCost : float, up
 @export var upgradeFrames2 : SpriteFrames
 @export var upgradeFrames3 : SpriteFrames
 
-@onready var panelCont = $PanelContainer
+#@onready var panelCont = $PanelContainer
+
+@onready var upgradeContainer = $MarginContainer/ScrollContainer2/upgrade_container
 
 var rng = RandomNumberGenerator.new()
 
@@ -53,6 +55,10 @@ var upgMax = 0
 var UPGRADE_INDEX_OFFSET = 1
 
 #@onready var globalPosOffset = Vector2(691.2,129.6) + Vector2(16, 16)#global_position#
+
+func initializeTab(imagePath = "res://Art/Cell/HUD/DNA_Big_Paneling.png") -> Control:
+	$TextureRect.texture = Image.load_from_file(imagePath)
+	return $MarginContainer/ScrollContainer2
 
 #BIG PROBLEM HERE
 #UPGRADES DONT SHOW UP UNTIL YOU UNLOCK THEM
@@ -111,7 +117,7 @@ func _addUpgrade(upgID : int, upgradeInfo : Array, mult : int, bigIcon = false, 
 	#var tempStatus = tempUpgrade.multChange(mult, upgradeInfo[8])
 	tempUpgrade.upgradeClick.connect(_on_upgrade_upgrade_click)
 	upgrades.append(tempUpgrade)
-	add_child(tempUpgrade)
+	upgradeContainer.add_child(tempUpgrade)
 	
 	upgradeStatus.append(tempStatus)
 
@@ -136,51 +142,7 @@ func upgradeTabMoneyChange(currency : int, money : float, gain : bool) -> void:
 					upgradeStatus[i] = upgrades[i].posChange(money)#get_child(UPGRADE_INDEX_OFFSET + i).posChange(money)
 				elif not gain and upgradeStatus <= 1:
 					upgradeStatus[i] = upgrades[i].negChange(money)#get_child(UPGRADE_INDEX_OFFSET + i).negChange(money)
-"""
-func _createPanel(global_pos : Vector2, col : Color) -> void:
-	var tempPanel = upgradePanel.instantiate()
-	tempPanel.global_position = global_pos
-	tempPanel.modulate = col
-	type = (type + rng.randi_range(1, 2)) % 3
-	match type:
-		0:
-			tempPanel.sprite_frames = upgradeFrames1
-		1:
-			tempPanel.sprite_frames = upgradeFrames2
-		2:
-			tempPanel.sprite_frames = upgradeFrames3
-	
-	#Couldn't I just connect this directly though? Am I an idiot or something?
-	#panelCont.connect(tempPanel.crumpled, panelCont._crumpledCatch)
-	tempPanel.crumpled.connect(_on_panel_container_crumpled)
-	panelCont.add_child(tempPanel)
 
-#Run this based on the count 
-
-#offset should be global pos of child
-#should add a degree to it based on the ending pos
-func _spawn(offset : Vector2, col : Color) -> void:
-	var tempPanel = panelParticles.instantiate()
-	tempPanel.modulate = col
-	var angle = rng.randf_range(-PI/4, -3*PI/4)
-	var veloc = rng.randf_range(0.75, 1.75) * Vector2.from_angle(angle)
-	angle = rng.randf_range(PI/4, 3*PI/4)
-	var secVeloc = rng.randf_range(0.75, 1.75) * Vector2.from_angle(angle)
-	match type:
-		0:
-			tempPanel.initialize(offset - Vector2(5, -14), veloc, secVeloc, upgradeText1, Vector2(5, -14))
-		1:
-			tempPanel.initialize(offset - Vector2(1, 11), veloc, secVeloc, upgradeText2, Vector2(1, 11))
-		2:
-			tempPanel.initialize(offset - Vector2(13, 9), veloc, secVeloc, upgradeText3, Vector2(13, 9))
-	add_child(tempPanel)
-
-
-
-#Tbh I should put the spawn code in here but just in caseI want to add something later
-func _on_panel_container_crumpled(offset: Vector2, col: Color) -> void:
-	_spawn(offset, col)
-"""
 
 func _on_upgrade_upgrade_click(eyeDee: int, upgradeCost: float, count: int, offset: Vector2, color: Color, maxedOut : bool) -> void:
 	if maxedOut:
@@ -198,6 +160,11 @@ func _on_upgrade_upgrade_click(eyeDee: int, upgradeCost: float, count: int, offs
 	
 	upgradeSuccess.emit(tab, eyeDee, upgradeCost, count, offset, color)
 	
+
+#Tbh I should put the spawn code in here but just in caseI want to add something later
+#func _on_panel_container_crumpled(offset: Vector2, col: Color) -> void:
+	#_spawn(offset - globalPosOffset, col)
+
 func toggleMaxedUpgrades() -> void:
 	for pos in completedUpgrades:
 		upgrades[pos].visible = maxedUpgradesHidden#get_child(UPGRADE_INDEX_OFFSET + pos).visible = maxedUpgradesHidden

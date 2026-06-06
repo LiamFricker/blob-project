@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://cl8ea8lybsgao"]
+
+[ext_resource type="Theme" uid="uid://cu0uwbxbmwaof" path="res://HUD/upgradeTabButtonTheme.tres" id="1_k427i"]
+[ext_resource type="Texture2D" uid="uid://b7a7c5s2drs6a" path="res://Art/Cell/DNA0.png" id="1_mk7ky"]
+[ext_resource type="Texture2D" uid="uid://bbc1j3gfh23dm" path="res://Art/Cell/AminoAcidsPaneling.png" id="2_k427i"]
+
+[node name="tab_button" type="Button"]
+custom_minimum_size = Vector2(89, 77)
+size_flags_horizontal = 3
+theme = ExtResource("1_k427i")
+toggle_mode = true
+icon = ExtResource("1_mk7ky")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="TextureRect" type="TextureRect" parent="."]
+z_index = -1
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.01
+anchor_top = 0.06
+anchor_right = 0.95
+anchor_bottom = 0.99
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_k427i")
+stretch_mode = 1

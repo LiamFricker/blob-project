@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://bbmamg4bc74wy"]
+
+[ext_resource type="Texture2D" uid="uid://mb375binidtn" path="res://Art/Cell/HUD/DNA_Big_Paneling.png" id="1_j0n1t"]
+[ext_resource type="StyleBox" uid="uid://dgjrqaqdn2ysa" path="res://HUD/upgradeTabBackground.tres" id="1_oetjm"]
+[ext_resource type="Script" uid="uid://d2yswu7i5jsqd" path="res://HUD/upgrade_tab.gd" id="2_lnyka"]
+[ext_resource type="PackedScene" uid="uid://rxjijg5yfmbk" path="res://HUD/upgrade.tscn" id="3_lnyka"]
+
+[node name="upgrade_tab" type="PanelContainer"]
+visible = false
+anchors_preset = -1
+anchor_left = 0.6
+anchor_top = 0.15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("1_oetjm")
+script = ExtResource("2_lnyka")
+upgradeBase = ExtResource("3_lnyka")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 2
+texture = ExtResource("1_j0n1t")
+stretch_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="upgrade_container" type="VBoxContainer" parent="MarginContainer/ScrollContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3

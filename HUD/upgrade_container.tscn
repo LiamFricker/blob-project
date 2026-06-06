@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dbo34n1yd6yo"]
+[gd_scene load_steps=12 format=3 uid="uid://dbo34n1yd6yo"]
 
 [ext_resource type="Script" uid="uid://lkvhnnn2b32h" path="res://HUD/upgrade_container.gd" id="1_icv03"]
 [ext_resource type="PackedScene" uid="uid://rxjijg5yfmbk" path="res://HUD/upgrade.tscn" id="1_vjmms"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://blvgit4pemdgm" path="res://Art/Cell/UpgradeNote-3-7.png" id="5_u2vun"]
 [ext_resource type="SpriteFrames" uid="uid://b8sbuipgoqqm8" path="res://Art/Cell/UpgradeNote-1.tres" id="6_e1mhc"]
 [ext_resource type="Script" uid="uid://cc2nsn4kbnhnj" path="res://HUD/signalUp.gd" id="7_nogvs"]
+[ext_resource type="PackedScene" uid="uid://uf7leml33x7h" path="res://HUD/upgrade_panel.tscn" id="7_tr2en"]
 [ext_resource type="SpriteFrames" uid="uid://c6dsfxdnk4obu" path="res://Art/Cell/UpgradeNote-2.tres" id="7_yx07g"]
 [ext_resource type="SpriteFrames" uid="uid://bl70ebc4quodk" path="res://Art/Cell/UpgradeNote-3.tres" id="8_tr2en"]
 
@@ -23,7 +24,7 @@ panelParticles = ExtResource("2_iqb3e")
 upgradeText1 = ExtResource("3_nogvs")
 upgradeText2 = ExtResource("4_fsk11")
 upgradeText3 = ExtResource("5_u2vun")
-upgradePanel = ExtResource("2_iqb3e")
+upgradePanel = ExtResource("7_tr2en")
 upgradeFrames1 = ExtResource("6_e1mhc")
 upgradeFrames2 = ExtResource("7_yx07g")
 upgradeFrames3 = ExtResource("8_tr2en")
@@ -37,10 +38,30 @@ layout_mode = 2
 [node name="Upgrade3" parent="." instance=ExtResource("1_vjmms")]
 layout_mode = 2
 
+[node name="Upgrade4" parent="." instance=ExtResource("1_vjmms")]
+layout_mode = 2
+
+[node name="Upgrade5" parent="." instance=ExtResource("1_vjmms")]
+layout_mode = 2
+
+[node name="Upgrade6" parent="." instance=ExtResource("1_vjmms")]
+layout_mode = 2
+
+[node name="Upgrade7" parent="." instance=ExtResource("1_vjmms")]
+layout_mode = 2
+
+[node name="Upgrade8" parent="." instance=ExtResource("1_vjmms")]
+layout_mode = 2
+
 [node name="PanelContainer" type="Node2D" parent="."]
 script = ExtResource("7_nogvs")
 
 [connection signal="upgradeClick" from="Upgrade" to="." method="_on_upgrade_upgrade_click"]
 [connection signal="upgradeClick" from="Upgrade2" to="." method="_on_upgrade_upgrade_click"]
 [connection signal="upgradeClick" from="Upgrade3" to="." method="_on_upgrade_upgrade_click"]
+[connection signal="upgradeClick" from="Upgrade4" to="." method="_on_upgrade_upgrade_click"]
+[connection signal="upgradeClick" from="Upgrade5" to="." method="_on_upgrade_upgrade_click"]
+[connection signal="upgradeClick" from="Upgrade6" to="." method="_on_upgrade_upgrade_click"]
+[connection signal="upgradeClick" from="Upgrade7" to="." method="_on_upgrade_upgrade_click"]
+[connection signal="upgradeClick" from="Upgrade8" to="." method="_on_upgrade_upgrade_click"]
 [connection signal="crumpled" from="PanelContainer" to="." method="_on_panel_container_crumpled"]

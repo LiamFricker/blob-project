@@ -648,6 +648,8 @@ icon_alignment = 1
 vertical_icon_alignment = 2
 expand_icon = true
 
+[node name="PanelContainer" type="Node2D" parent="."]
+
 [node name="Upgrades" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -657,6 +659,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="UpgradeTab1" type="PanelContainer" parent="Upgrades"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.6
@@ -687,7 +690,5 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 metadata/_tab_index = 0
-
-[node name="PanelContainer" type="Node2D" parent="."]
 
 [connection signal="upgradeSuccess" from="Upgrades/UpgradeTab1/MarginContainer/ScrollContainer2/Tab1" to="." method="_on_upgrade_success"]

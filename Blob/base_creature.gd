@@ -45,7 +45,7 @@ var dot_tween
 var dot_remaining
 var dot_pow
 enum{
-	NONE, VIRUS
+	NONE, VIRUS, POISON
 } 
 var dot_type = NONE
 
@@ -198,8 +198,21 @@ func increaseVirusLevel(type : int, intensity : float, duration = 2.0) -> void: 
 	dot_tween.tween_callback(_dot_end.bind(false, type))
 	dot_pow = intensity
 	dot_remaining = 0
+	
+func applyPoison(intensity : float, duration = 2.0) -> void: #ID : int, 
+	var dotLeft = 0
+	dot_type = POISON
+	if dot_tween:
+		dot_tween.kill()
+		if dot_remaining == -1:
+			dotLeft = dot_remaining * dot_pow
+	dot_tween = create_tween()
+	dot_tween.tween_method(_dot_tick, 0, int(dotLeft + intensity*duration), duration) #ID, 
+	dot_tween.tween_callback(_dot_end.bind(false))
+	dot_pow = intensity
+	dot_remaining = 0
 
-func _dot_tick(dot_speed : int, type : int) -> void:
+func _dot_tick(dot_speed : int, type : int = 0) -> void:
 	health -= (dot_speed - dot_remaining)
 	dot_remaining = dot_speed
 	if health <= 0:
@@ -207,7 +220,7 @@ func _dot_tick(dot_speed : int, type : int) -> void:
 			dot_tween.kill()
 		_dot_end(true, type)	#ID, 
 
-func _dot_end(death : bool, type : int) -> void: #ID : int, 
+func _dot_end(death : bool, type : int = 0) -> void: #ID : int, 
 	dot_remaining = -1
 	if death:
 		if dot_type == VIRUS:
@@ -222,6 +235,11 @@ func _dot_end(death : bool, type : int) -> void: #ID : int,
 				#zoneReference.addCreature(tempC)
 				get_parent().add_child(tempC)
 				tempC.explode(size, v * angle + angle * vRNG.randf_range(-0.5, 0.5), getPosition())
+		_OnDeath()		
+		
+func takeDamage(amt : float, _kwargs = []) -> void:
+	health -= amt
+	if health <= 0:
 		_OnDeath()		
 		
 func _on_roam_timer_timeout():
