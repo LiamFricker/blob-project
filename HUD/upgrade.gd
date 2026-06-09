@@ -233,13 +233,13 @@ func setParams(eyeDee : int, upgradeInfo : Array, mult : int, bigIcon = false, u
 		#$BiggerIcon.texture = Image.load_from_file(imagePath)
 		#$BiggerIcon.visible = true
 		#$Icon2.visible = false
-		$Control/BiggerIcon.texture = Image.load_from_file(upgradeInfo[1])
+		$Control/BiggerIcon.texture = load(upgradeInfo[1])#Image.load_from_file(upgradeInfo[1])
 		$Control/BiggerIcon.visible = true
 		$Control/Icon.visible = false
 	else:
 		#$Icon2/TextureRect.texture = Image.load_from_file(imagePath)
 		#$Control/Icon.texture = Image.load_from_file(upgradeInfo[1])
-		pass
+		$Control/Icon.texture = load(upgradeInfo[1])
 	return _setFirstMultChange(mult, upgradeInfo[9])
 
 #Return Upgrade cost as a formatted string

@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://qora73oubnt4"]
+[gd_scene load_steps=35 format=3 uid="uid://qora73oubnt4"]
 
 [ext_resource type="Script" uid="uid://dicwyhdaqa76u" path="res://HUD/hud_swim.gd" id="1_7fxp5"]
 [ext_resource type="PackedScene" uid="uid://dbo34n1yd6yo" path="res://HUD/upgrade_container.tscn" id="2_7a5bb"]
@@ -25,6 +25,7 @@
 [ext_resource type="Texture2D" uid="uid://cf6orckq4v3cx" path="res://Art/Cell/HUD/brown_gray_gradient.png" id="18_d0gex"]
 [ext_resource type="Theme" uid="uid://cu0uwbxbmwaof" path="res://HUD/upgradeTabButtonTheme.tres" id="19_fns87"]
 [ext_resource type="Shader" uid="uid://8sk83drha550" path="res://HUD/tab_bg_gradient.gdshader" id="19_uivk0"]
+[ext_resource type="Shader" uid="uid://y2bx3bb0h8gl" path="res://HUD/new_upgrade.gdshader" id="26_aqmfv"]
 
 [sub_resource type="Theme" id="Theme_a8wkd"]
 VBoxContainer/constants/separation = 4
@@ -53,6 +54,18 @@ corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_u504b"]
+shader = ExtResource("26_aqmfv")
+shader_parameter/size = 5.0
+shader_parameter/border_size = 0.1
+shader_parameter/speed = 0.33
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aqmfv"]
+shader = ExtResource("26_aqmfv")
+shader_parameter/size = 5.0
+shader_parameter/border_size = 0.1
+shader_parameter/speed = 0.33
 
 [node name="HUD_swim" type="CanvasLayer"]
 script = ExtResource("1_7fxp5")
@@ -519,89 +532,6 @@ grow_vertical = 2
 texture = ExtResource("18_d0gex")
 expand_mode = 2
 
-[node name="UpgradeHeader" type="ScrollContainer" parent="."]
-anchors_preset = -1
-anchor_left = 0.6
-anchor_right = 1.0
-anchor_bottom = 0.15
-grow_horizontal = 2
-grow_vertical = 2
-horizontal_scroll_mode = 2
-vertical_scroll_mode = 0
-
-[node name="HBoxContainer" type="HBoxContainer" parent="UpgradeHeader"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Button" type="Button" parent="UpgradeHeader/HBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(89, 77)
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("19_fns87")
-icon = ExtResource("9_be5ed")
-icon_alignment = 1
-vertical_icon_alignment = 2
-expand_icon = true
-
-[node name="TextureRect" type="TextureRect" parent="UpgradeHeader/HBoxContainer/Button"]
-z_index = -1
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.01
-anchor_top = 0.06
-anchor_right = 0.95
-anchor_bottom = 0.99
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("10_ruxfo")
-stretch_mode = 1
-
-[node name="Button6" type="Button" parent="UpgradeHeader/HBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(89, 77)
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("19_fns87")
-icon = ExtResource("9_be5ed")
-icon_alignment = 1
-vertical_icon_alignment = 2
-expand_icon = true
-
-[node name="Button7" type="Button" parent="UpgradeHeader/HBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(89, 77)
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("19_fns87")
-icon = ExtResource("9_be5ed")
-icon_alignment = 1
-vertical_icon_alignment = 2
-expand_icon = true
-
-[node name="Button8" type="Button" parent="UpgradeHeader/HBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(89, 77)
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("19_fns87")
-icon = ExtResource("9_be5ed")
-icon_alignment = 1
-vertical_icon_alignment = 2
-expand_icon = true
-
-[node name="Button9" type="Button" parent="UpgradeHeader/HBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(89, 77)
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("19_fns87")
-icon = ExtResource("9_be5ed")
-icon_alignment = 1
-vertical_icon_alignment = 2
-expand_icon = true
-
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 visible = false
 offset_left = 691.0
@@ -688,6 +618,100 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 metadata/_tab_index = 0
 
+[node name="UpgradeHeader" type="ScrollContainer" parent="."]
+anchors_preset = -1
+anchor_left = 0.6
+anchor_right = 1.0
+anchor_bottom = 0.15
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UpgradeHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Button" type="Button" parent="UpgradeHeader/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("19_fns87")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="TextureRect" type="TextureRect" parent="UpgradeHeader/HBoxContainer/Button"]
+z_index = -1
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.01
+anchor_top = 0.06
+anchor_right = 0.95
+anchor_bottom = 0.99
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("10_ruxfo")
+stretch_mode = 1
+
+[node name="Button6" type="Button" parent="UpgradeHeader/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("19_fns87")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button7" type="Button" parent="UpgradeHeader/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("19_fns87")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button8" type="Button" parent="UpgradeHeader/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("19_fns87")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
+[node name="Button9" type="Button" parent="UpgradeHeader/HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(89, 77)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("19_fns87")
+icon = ExtResource("9_be5ed")
+icon_alignment = 1
+vertical_icon_alignment = 2
+expand_icon = true
+
 [node name="PanelContainer" type="Node2D" parent="."]
+
+[node name="ColorRect5" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_u504b")
+offset_right = 648.0
+offset_bottom = 648.0
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_aqmfv")
+polygon = PackedVector2Array(0, 0, 404, 6, 378, 376, 1, 365)
+uv = PackedVector2Array(0, 0, 10, 0, 10, 10, 0, 10)
 
 [connection signal="upgradeSuccess" from="Upgrades/UpgradeTab1/MarginContainer/ScrollContainer2/Tab1" to="." method="_on_upgrade_success"]

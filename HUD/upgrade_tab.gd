@@ -57,7 +57,7 @@ var UPGRADE_INDEX_OFFSET = 1
 #@onready var globalPosOffset = Vector2(691.2,129.6) + Vector2(16, 16)#global_position#
 
 func initializeTab(imagePath = "res://Art/Cell/HUD/DNA_Big_Paneling.png") -> Control:
-	$TextureRect.texture = Image.load_from_file(imagePath)
+	$TextureRect.texture = load(imagePath)
 	return $MarginContainer/ScrollContainer2
 
 #BIG PROBLEM HERE

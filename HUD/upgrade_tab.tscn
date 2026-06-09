@@ -21,6 +21,7 @@ upgradeBase = ExtResource("3_lnyka")
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 2
 texture = ExtResource("1_j0n1t")
+expand_mode = 1
 stretch_mode = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
