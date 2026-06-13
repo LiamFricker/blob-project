@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://qora73oubnt4"]
+[gd_scene load_steps=36 format=3 uid="uid://qora73oubnt4"]
 
 [ext_resource type="Script" uid="uid://dicwyhdaqa76u" path="res://HUD/hud_swim.gd" id="1_7fxp5"]
 [ext_resource type="PackedScene" uid="uid://dbo34n1yd6yo" path="res://HUD/upgrade_container.tscn" id="2_7a5bb"]
@@ -57,9 +57,11 @@ corner_radius_bottom_left = 18
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_u504b"]
 shader = ExtResource("26_aqmfv")
-shader_parameter/size = 5.0
+shader_parameter/size = 0.1
 shader_parameter/border_size = 0.1
 shader_parameter/speed = 0.33
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_aqmfv"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aqmfv"]
 shader = ExtResource("26_aqmfv")
@@ -704,9 +706,20 @@ expand_icon = true
 [node name="PanelContainer" type="Node2D" parent="."]
 
 [node name="ColorRect5" type="ColorRect" parent="."]
+visible = false
 material = SubResource("ShaderMaterial_u504b")
 offset_right = 648.0
 offset_bottom = 648.0
+
+[node name="TextRect" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_u504b")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("PlaceholderTexture2D_aqmfv")
+stretch_mode = 1
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
 visible = false
