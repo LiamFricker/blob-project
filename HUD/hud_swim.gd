@@ -17,7 +17,13 @@ const UPGRADE_DATA_FILEPATH = "res://etc.json"
 
 var bigIcon = false
 
-@onready var fullUpgradePanel = $Upgrades
+@onready var fullUpgradePanel = $FullUpgradeContainer/Upgrades
+@onready var fullUpgradeContainer = $FullUpgradeContainer
+var upgrade_tween
+var upgrade_state = false
+var pending_up_state = false
+signal upgrade_tab_toggled(state : bool)
+const UPGRADE_TAB_MOVE_TIME : float = 1.0
 const MARGIN = 16
 
 @onready var panelContainer = $PanelContainer
@@ -99,7 +105,7 @@ func addTab(tab : int, upgradeIDs : Array, mult : int, upgradeLevels = [], setLe
 	tempTabButton.pressed.connect(changeTab.bind(tabCount))
 	tabCount += 1
 	
-	$UpgradeHeader/HBoxContainer.add_child(tempTabButton)
+	$FullUpgradeContainer/UpgradeHeader/HBoxContainer.add_child(tempTabButton)
 	tabButtons.append(tempTabButton)
 	
 	#NEED TO INITIALIZE THE TAB ITSELF TOO WITH ITS APPEARANCE AND SUCH 
@@ -227,7 +233,63 @@ func _spawn(off : Vector2, col : Color) -> void:
 			tempPanel.initialize(off - Vector2(13, 9), veloc, secVeloc, upgradeText3, Vector2(13, 9))
 	add_child(tempPanel)
 
-
+func _on_toggle_upgrades() -> void:
+	fullUpgradeContainer.offset_left = 0.0
+	
+	if upgrade_tween:
+		upgrade_tween.kill()
+	
+	upgrade_tween = create_tween()
+	upgrade_tween.finished.connect(_on_transition_complete)
+	
+	if pending_up_state != upgrade_state:
+		if pending_up_state:
+			#0.0 = done, 0.4 = just started
+			var remaining_percent = (0.4 - fullUpgradeContainer.anchor_left) * 2.5
+			upgrade_tween.tween_property(fullUpgradeContainer, "anchor_left", 0.4, UPGRADE_TAB_MOVE_TIME * remaining_percent)
+			upgrade_tween.parallel().tween_property(fullUpgradeContainer, "anchor_right", 1.4, UPGRADE_TAB_MOVE_TIME * remaining_percent)
+		else:
+			#0.4 = done, 0.0 = just started
+			var remaining_percent = fullUpgradeContainer.anchor_left * 2.5   
+			upgrade_tween.tween_property(fullUpgradeContainer, "anchor_left", 0.0, UPGRADE_TAB_MOVE_TIME * remaining_percent)
+			upgrade_tween.parallel().tween_property(fullUpgradeContainer, "anchor_right", 1.0, UPGRADE_TAB_MOVE_TIME * remaining_percent)
+		pending_up_state = not pending_up_state
+	else:
+		pending_up_state = not upgrade_state
+		$FullUpgradeContainer/progress.show()
+		if upgrade_state:
+			$FullUpgradeContainer/off.hide()
+			upgrade_tween.tween_property(fullUpgradeContainer, "anchor_left", 0.4, UPGRADE_TAB_MOVE_TIME)
+			upgrade_tween.parallel().tween_property(fullUpgradeContainer, "anchor_right", 1.4, UPGRADE_TAB_MOVE_TIME)
+			
+			upgrade_tab_toggled.emit(false)
+		else:
+			fullUpgradePanel.show()
+			$FullUpgradeContainer/UpgradeHeader.show()
+			$FullUpgradeContainer/on.hide()
+			upgrade_tween.tween_property(fullUpgradeContainer, "anchor_left", 0.0, UPGRADE_TAB_MOVE_TIME)
+			upgrade_tween.parallel().tween_property(fullUpgradeContainer, "anchor_right", 1.0, UPGRADE_TAB_MOVE_TIME)
+	
+func _on_transition_complete() -> void:
+	
+	upgrade_state = pending_up_state
+	$FullUpgradeContainer/progress.hide()
+	if pending_up_state:
+		$FullUpgradeContainer/off.show()
+		upgrade_tab_toggled.emit(true)
+	else:
+		$FullUpgradeContainer/on.show()
+		fullUpgradePanel.hide()
+		$FullUpgradeContainer/UpgradeHeader.hide()
+	
+	upgrade_tween = create_tween()
+	
+	var upg_dir : float = 20.0 if pending_up_state else -20.0
+	
+	upgrade_tween.tween_property(fullUpgradeContainer, "offset_left", upg_dir, 0.1)
+	upgrade_tween.tween_property(fullUpgradeContainer, "offset_left", 0.0, 0.1)
+	
+	upgrade_tab_toggled.emit(upgrade_state)
 """
 func load_from_file(jsoncase : String, stringstr : String, fN = fileNum, dec = decimal):
 	
