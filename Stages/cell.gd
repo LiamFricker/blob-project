@@ -1475,3 +1475,12 @@ func addNewTab(tab : int, upgradeIDs : Array, upgradeLevels = [], setLevels = fa
 #The last argument is for loading in save data or if there's a perk that lets an upgrade start at X level
 func addNewUpgrade(upgradeFullID : int, upgradeLevel = 0) -> void:
 	HUD.addUpgrade(upgradeFullID, upgradeMultiplier, upgradeLevel)
+
+#This function needs to trigger the change in the position of the camera for the player
+#it also needs to disable player input on the right side of the screen.
+func _on_hud_swim_upgrade_tab_toggled(state: bool) -> void:
+	pass # Replace with function body.
+
+#This needs to update the dimensions of the invalid space where click based input doesn't trigger player movement/abilities
+func _on_resolution_change() -> void:
+	pass

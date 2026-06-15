@@ -28,6 +28,8 @@ var tween4 #idk
 var tween5
 
 var current_map = -1
+var upgrade_tab_open : bool = false
+var upgrade_tab_
 
 #Fat:
 #Pos(-17, -35) Scale(1.063, 1.063)
@@ -139,6 +141,10 @@ var virus_immunity : float = 1.0
 var virus_max : float = 100
 
 func _input(event: InputEvent) -> void:
+	if upgrade_tab_open:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				print("Mouse clicked at: ", event.position)
 	if event.is_action_pressed("Special"):
 		position = Vector2.ZERO
 		velocity = Vector2.ZERO
@@ -721,3 +727,6 @@ func updateUpgrade(upgradeTab : int, upgradeID : int, upgradeCount : int) -> voi
 func updateAllUpgrades(saveBonuses : Array) -> void:
 	staticBonuses = saveBonuses[0]
 	upgradeBonuses = saveBonuses.slice(1)
+
+func changeUpgradeTabState(newState : bool) -> void:
+	upgrade_tab_open = newState

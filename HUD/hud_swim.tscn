@@ -771,6 +771,8 @@ expand_icon = true
 
 [node name="PanelContainer" type="Node2D" parent="."]
 
+[node name="ChildSibling" type="Node2D" parent="PanelContainer"]
+
 [node name="ColorRect5" type="ColorRect" parent="."]
 visible = false
 material = SubResource("ShaderMaterial_u504b")

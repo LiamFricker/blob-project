@@ -58,6 +58,7 @@ offset_bottom = -139.0
 wait_time = 0.2
 autostart = true
 
+[connection signal="upgrade_tab_toggled" from="HUD_swim" to="." method="_on_hud_swim_upgrade_tab_toggled"]
 [connection signal="currencyUpdate" from="Blob-Swim" to="." method="_on_blob_swim_currency_update"]
 [connection signal="timeout" from="OrbTimer" to="." method="_on_orb_timer_timeout"]
 [connection signal="timeout" from="UpdateZoneTimer" to="." method="_on_update_zone_timer_timeout"]

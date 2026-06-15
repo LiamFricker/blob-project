@@ -26,7 +26,7 @@ signal upgrade_tab_toggled(state : bool)
 const UPGRADE_TAB_MOVE_TIME : float = 1.0
 const MARGIN = 16
 
-@onready var panelContainer = $PanelContainer
+@onready var panelContainer = $PanelContainer/ChildSibling
 
 @export var panelParticles : PackedScene
 @export var upgradeText1 : Texture
@@ -210,7 +210,8 @@ func _createPanel(global_pos : Vector2, col : Color) -> void:
 	#panelCont.connect(tempPanel.crumpled, panelCont._crumpledCatch)
 	tempPanel.crumpled.connect(_spawn)
 	#panelCont.
-	panelContainer.add_child(tempPanel)
+	#panelContainer.add_child(tempPanel)
+	panelContainer.add_sibling(tempPanel)
 
 #Run this based on the count 
 
