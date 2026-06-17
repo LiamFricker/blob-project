@@ -20,7 +20,7 @@ var upgradeTab2 = [0, 0, 0]
 var upgradeTab3 = [0, 0, 0]
 var upgradeBonuses = [upgradeTab1, upgradeTab2, upgradeTab3]
 
-
+var charge_tween
 var tween #basic all purpose tween for stretches 
 var tween2 #tween for glimmer 
 var tween3 #tween for ripple amp UNUSED USE IT FOR SOMETHING ELSE
@@ -141,10 +141,6 @@ var virus_immunity : float = 1.0
 var virus_max : float = 100
 
 func _input(event: InputEvent) -> void:
-	if upgrade_tab_open:
-		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				print("Mouse clicked at: ", event.position)
 	if event.is_action_pressed("Special"):
 		position = Vector2.ZERO
 		velocity = Vector2.ZERO
@@ -196,7 +192,11 @@ func _physics_process(delta: float) -> void:
 	
 	if charge and charge_cool < 0:
 		_chargeLogic(delta)
-		
+	
+	match state:
+		pass
+	
+	#These all need to be changed and optimized.	
 	if rippleOn:
 		oscilator += delta * 1.25
 		var rippleAmpCurrent = rippleAmp/2.5 * sin(2.5 * oscilator)/oscilator
@@ -269,13 +269,20 @@ func _chargeSwim(delta: float)-> void:
 	velocity *= tempPow
 	chargeStrength *= tempPow	
 
-func _chargeLogic(delta: float) -> void:
-	if Input.is_action_pressed("Charge"):
-		if state != CHARGING and state != CHARGE:
+ 
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			print("Left click pressed at: ", event.position)
+		else:
+			print("Left click released")
+	if charge and charge_cool < 0:
+		if event.is_action_pressed("Charge"):
 			state = CHARGING
-			#var tempDirection = Vector2(int(Input.is_action_pressed("Right")) - int(Input.is_action_pressed("Left")), int(Input.is_action_pressed("Up")) - int(Input.is_action_pressed("Down")))
-			#charge_angle = tempDirection.angle()
-			_animate()
+			if tween:
+				tween.kill()
+			tween = create_tween()
 			if $Sprite/Node2D.position.y != 0:
 				resetCharge(true)
 			$Pivot.modulate = Color(1,1,1,1)
@@ -283,8 +290,51 @@ func _chargeLogic(delta: float) -> void:
 			tween.parallel().tween_property($Sprite/Node2D, "scale", Vector2(1, 0.25), charge_max)
 			handleTentacleSqueeze()	
 			waddle_modfier = 0.25
+		elif event.is_action_released("Charge"):
+			charge_cool = charge_cooldown 
+			state = IDLE
+			waddle_modfier = 1
+			_animate()
+			tween.tween_property($Pivot, "scale", Vector2(1, 1.5), 0.1 * charge_cooldown)
+			$Pivot/Node2D/Glimmer.texture_offset = Vector2(3, 25)
+			$Pivot/Node2D/Polygon2D2.color = Color(0.8, 0.8, 0.8)
 			
+			var temp = ceil(10 * charge_floor/charge_max) * charge_length if charge_time < charge_floor else ceil(10 * charge_time/charge_max) * charge_length
 			
+			print("Temp ", temp / charge_length)
+			tween.tween_property($Sprite/Node2D, "scale", Vector2(temp/20, 1 + 0.1 * temp), 0.08 * charge_cooldown)
+			tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+			tween.parallel().tween_property(self, "reverseTentacleSpin", 1.0, 0.08 * charge_cooldown)
+			handleTentacleStretch(temp)
+
+			tween.tween_callback(self.setTempVelocity.bind(temp))
+			tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10))
+			tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.3 * charge_cooldown/charge_pull_speed)
+			tween.parallel().tween_property(self, "reverseTentacleSpin", 0.0, 0.3 * charge_cooldown)
+			tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.3 * charge_cooldown /charge_pull_speed) #-4.8 * temp
+			handleTentacleReturn()
+			
+			tween.tween_callback(self.resetCharge.bind(false))#.bind(4.8*temp, charge_angle - PI/2))
+			
+			if charge_swim:
+				if charge_time <= charge_max * charge_floor: 
+					chargeStrength += charge_floor_speed * 100 * charge_speed
+				else:
+					chargeStrength += charge_time * 50 * charge_speed
+			else:
+				if charge_time <= charge_max * charge_floor: 
+					velocity.x += cos(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
+					velocity.y += sin(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
+				else:
+					velocity.x += cos(charge_angle - PI/2) * charge_time * 50 * charge_speed
+					velocity.y += sin(charge_angle - PI/2) * charge_time * 50 * charge_speed
+			
+			charge_time = 0	
+
+func _chargeLogic(delta: float) -> void:
+	if Input.is_action_pressed("Charge"):
+		if state != CHARGING and state != CHARGE:
+			pass
 		elif charge_time < charge_max * 0.8:
 			charge_time += delta
 			var temp = (int(Input.is_action_pressed("Right")) - int(Input.is_action_pressed("Left"))) * delta * pow((charge_max / (charge_time + 0.2)), 1.6)
@@ -321,53 +371,7 @@ func _chargeLogic(delta: float) -> void:
 			
 			
 			
-	elif Input.is_action_just_released("Charge"):
-		charge_cool = charge_cooldown 
-		state = IDLE
-		waddle_modfier = 1
-		_animate()
-		tween.tween_property($Pivot, "scale", Vector2(1, 1.5), 0.1 * charge_cooldown)
-		$Pivot/Node2D/Glimmer.texture_offset = Vector2(3, 25)
-		$Pivot/Node2D/Polygon2D2.color = Color(0.8, 0.8, 0.8)
-		
-		var temp = ceil(10 * charge_floor/charge_max) * charge_length if charge_time < charge_floor else ceil(10 * charge_time/charge_max) * charge_length
-		
-		print("Temp ", temp / charge_length)
-		tween.tween_property($Sprite/Node2D, "scale", Vector2(temp/20, 1 + 0.1 * temp), 0.08 * charge_cooldown)
-		tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
-		tween.parallel().tween_property(self, "reverseTentacleSpin", 1.0, 0.08 * charge_cooldown)
-		handleTentacleStretch(temp)
-		#tween.parallel().tween_property($Sprite, "position", Vector2(9 - (9 * 0.4 * ceil(10 * charge_floor/charge_max) * sin(charge_angle)), 9 - (9 * 0.4 * ceil(10 * charge_floor/charge_max)) * cos(charge_angle)), 0.2 * charge_cooldown)
-		tween.tween_callback(self.setTempVelocity.bind(temp))
-		tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10))
-		tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.3 * charge_cooldown/charge_pull_speed)
-		tween.parallel().tween_property(self, "reverseTentacleSpin", 0.0, 0.3 * charge_cooldown)
-		tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.3 * charge_cooldown /charge_pull_speed) #-4.8 * temp
-		handleTentacleReturn()
-		#tween.parallel().tween_property($CollisionShape2D, "position", temp * 4.8 * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2)), 0.3 * charge_cooldown/charge_pull_speed)
-		#tween.parallel().tween_property($Camera2D, "position", temp * 4.8 * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2)), 0.45 * charge_cooldown/charge_pull_speed)
-		#tween.parallel().tween_property($Pivot, "modulate", Color(1,1,1,0), 0.3 * charge_cooldown)
-		
-		tween.tween_callback(self.resetCharge.bind(false))#.bind(4.8*temp, charge_angle - PI/2))
-		
-		#tween.tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.001)
-		#tween.parallel().tween_property($Pivot/Node2D, "position", Vector2(0, 0), 0.001)
-		
-		#tween.parallel().tween_property($Sprite, "position", Vector2(9, 9), 0.4 * charge_cooldown)
-		if charge_swim:
-			if charge_time <= charge_max * charge_floor: 
-				chargeStrength += charge_floor_speed * 100 * charge_speed
-			else:
-				chargeStrength += charge_time * 50 * charge_speed
-		else:
-			if charge_time <= charge_max * charge_floor: 
-				velocity.x += cos(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
-				velocity.y += sin(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
-			else:
-				velocity.x += cos(charge_angle - PI/2) * charge_time * 50 * charge_speed
-				velocity.y += sin(charge_angle - PI/2) * charge_time * 50 * charge_speed
-		
-		charge_time = 0
+	
 
 #Just so idiot ol' me doesn't forget what this does again:
 #It's meant to align the animation dumbass. 
