@@ -8,6 +8,8 @@ enum {
 	JAVELIN,
 	SHROOM
 }
+var state = IDLE
+
 @export var camReference : Camera2D
 @export var spawnerReference : Node2D
 
@@ -20,8 +22,10 @@ var upgradeTab2 = [0, 0, 0]
 var upgradeTab3 = [0, 0, 0]
 var upgradeBonuses = [upgradeTab1, upgradeTab2, upgradeTab3]
 
-var charge_tween
-var charge_queued = false
+var primary_queued = false
+
+var primary_tween
+
 var tween #basic all purpose tween for stretches 
 var tween2 #tween for glimmer 
 var tween3 #tween for ripple amp UNUSED USE IT FOR SOMETHING ELSE
@@ -29,8 +33,6 @@ var tween4 #idk
 var tween5
 
 var current_map = -1
-var upgrade_tab_open : bool = false
-var upgrade_tab_
 
 #Fat:
 #Pos(-17, -35) Scale(1.063, 1.063)
@@ -40,9 +42,24 @@ func _animate()-> void:
 		tween.kill()
 	tween = create_tween()
 
-var state = IDLE
 
 @export var size: float = 1
+
+enum {
+	WADDLE,
+	BOARD,
+	FROG,
+	TANK,
+	FREESTYLE, 
+	BACKSTROKE,
+	BUTTERFLY,
+	DOLPHIN
+}
+var basic_movement_type = WADDLE
+var left_input = false
+var right_input = false
+var up_input = false
+var down_input = false
 
 var waddle = false
 @export var waddle_speed = 1
@@ -54,6 +71,16 @@ var isHazard : bool = false
 @export var accel: float = 50
 @export var turning_accel_ratio: float = 1.25
 @export var friction: float = 0.25
+
+enum {
+	CHARGE_DASH,
+	JUMP,
+	GRAPPLE,
+	DIVE, 
+	WALLKICK,
+	KITE
+}
+var primary_ability = CHARGE_DASH
 
 #Charge Variables
 var charge = true
@@ -71,7 +98,7 @@ var tempVelocity: Vector2 = Vector2.ZERO
 var charge_angle: float = 0
 @export var charge_angle_speed: float = 1
 
-@export var charge_swim: bool = true
+@export var charge_dash: bool = true
 #var chargeVelocity: Vector2 = Vector2.ZERO
 var chargeStrength: float = 0
 
@@ -191,7 +218,7 @@ func _testMethod(i : float) -> void:
 func _physics_process(delta: float) -> void:
 	_waddleLogic(delta)
 	
-	if charge and charge_cool < 0:
+	if state == CHARGING:# or state == CHARGE:
 		_chargeLogic(delta)
 	
 	match state:
@@ -221,15 +248,15 @@ func _physics_process(delta: float) -> void:
 				#print("Pulse Amp 3: ", pulseAmp3)
 				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", pulseAmp3)
 	
-	if charge_swim and chargeStrength > 2:
-		_chargeSwim(delta)
+	if charge_dash and chargeStrength > 2:
+		_chargeDash(delta)
 	else:
 		velocity += tempVelocity	 	
 		move_and_slide()
 		velocity -= tempVelocity	 
 		
 		velocity *= pow(friction, delta)
-	
+		
 	if charge_cool > 0 and abs(chargeTentacleSpin + reverseTentacleSpin) > 0:
 		chargeTentacleSpin *= pow(0.1, delta)
 		handleTentacleShader()
@@ -237,8 +264,8 @@ func _physics_process(delta: float) -> void:
 	_timers(delta)
 
 func _waddleLogic(delta: float) -> void:
-	var x_dir = int(Input.is_action_pressed("Right")) - int(Input.is_action_pressed("Left"))
-	var y_dir = -1 * (int(Input.is_action_pressed("Up")) - int(Input.is_action_pressed("Down")))
+	var x_dir = int(right_input) - int(left_input)
+	var y_dir = int(down_input) - int(up_input)
 	#print("Xdirection: ", x_dir)
 	#print("Right: ", Input.is_action_pressed("Right"))
 	#print(velocity.length()/100)
@@ -246,7 +273,6 @@ func _waddleLogic(delta: float) -> void:
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 	if x_dir == sign(velocity.x) * -1:
 		velocity.x += x_dir * accel * turning_accel_ratio * delta * waddle_speed * waddle_modfier
-		#print(x_dir)
 	else:
 		velocity.x += x_dir * accel * delta * waddle_speed * waddle_modfier
 	if y_dir == sign(velocity.y) * -1:
@@ -254,8 +280,8 @@ func _waddleLogic(delta: float) -> void:
 	else:
 		velocity.y += y_dir * accel * delta * waddle_speed * waddle_modfier
 
-func _chargeSwim(delta: float)-> void:
-	var temp = (int(Input.is_action_pressed("Right")) - int(Input.is_action_pressed("Left")))
+func _chargeDash(delta: float)-> void:
+	var temp = (int(right_input) - int(left_input))
 	charge_angle += charge_angle_speed * temp * delta * chargeStrength * 0.005
 	$Pivot.rotation = charge_angle
 	$Sprite.rotation = charge_angle
@@ -268,9 +294,8 @@ func _chargeSwim(delta: float)-> void:
 	
 	var tempPow = pow(friction, delta)
 	velocity *= tempPow
+	#velocity.move_toward(Vector2.ZERO, friction*delta)
 	chargeStrength *= tempPow	
-
- 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -279,64 +304,105 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			print("Left click released")
 	
-	if event.is_action_pressed("Charge"):
-		if charge and charge_cool < 0:
-			_chargePress()
-		else:
-			charge_queued = true
-	elif event.is_action_released("Charge"):
-		if charge and charge_cool < 0:
-			_chargeRelease()
-		else:
-			charge_queued = false
+	if event.is_action_pressed("Primary"):
+		_primaryOnPress()
+	elif event.is_action_released("Primary"):
+		_primaryOnRelease()
+	
+	if event.is_action_pressed("Secondary"):
+		pass
+	elif event.is_action_released("Secondary"):
+		pass
+	
+	if event.is_action_pressed("Left"):
+		left_input = true
+	elif event.is_action_released("Left"):
+		left_input = false
+		
+	if event.is_action_pressed("Right"):
+		right_input = true
+	elif event.is_action_released("Right"):
+		right_input = false
+	
+	if event.is_action_pressed("Up"):
+		up_input = true
+	elif event.is_action_released("Up"):
+		up_input = false
+	
+	if event.is_action_pressed("Down"):
+		down_input = true
+	elif event.is_action_released("Down"):
+		down_input = false
+
+func _primaryOnPress() -> void:
+	match primary_ability:
+		CHARGE_DASH:
+			if charge_cool < 0:
+				_chargePress()
+			else:
+				primary_queued = true
+				
+func _primaryOnRelease() -> void:
+	match primary_ability:
+		CHARGE_DASH:
+			if charge_cool < 0:
+				_chargeRelease()
+			else:
+				primary_queued = false
 
 func _chargePress() -> void:
 	state = CHARGING
-	if tween:
-		tween.kill()
-	tween = create_tween()
+	if primary_tween:
+		primary_tween.kill()
+	primary_tween = create_tween()
 	if $Sprite/Node2D.position.y != 0:
 		resetCharge(true)
 	$Pivot.modulate = Color(1,1,1,1)
-	tween.tween_property($Pivot, "scale", Vector2(-2, 0.6), charge_max)
-	tween.parallel().tween_property($Sprite/Node2D, "scale", Vector2(1, 0.25), charge_max)
+	primary_tween.tween_property($Pivot, "scale", Vector2(-2, 0.6), charge_max)
+	primary_tween.parallel().tween_property($Sprite/Node2D, "scale", Vector2(1, 0.25), charge_max)
+	primary_tween.finished.connect(_onFullCharge)
 	handleTentacleSqueeze()	
 	waddle_modfier = 0.25
+	charge_time = 0
 
 func _chargeOffCD() -> void:
-	if charge_queued:
+	if primary_queued:
 		_chargePress()
 	
 func _chargeRelease() -> void:
+	primary_queued = false
 	charge_cool = charge_cooldown 
 	state = IDLE
 	waddle_modfier = 1
-	_animate()
-	tween.tween_property($Pivot, "scale", Vector2(1, 1.5), 0.1 * charge_cooldown)
+	if primary_tween:
+		primary_tween.kill()
+	primary_tween = create_tween()
+	primary_tween.tween_property($Pivot, "scale", Vector2(1, 1.5), 0.1 * charge_cooldown)
 	$Pivot/Node2D/Glimmer.texture_offset = Vector2(3, 25)
 	$Pivot/Node2D/Polygon2D2.color = Color(0.8, 0.8, 0.8)
+	charge_time = min(charge_time, charge_max)
+	charge_time = max(charge_time, charge_floor)  
+	var temp = ceil(10 * charge_time/charge_max) * charge_length# if charge_time < charge_floor else ceil(10 * charge_time/charge_max) * charge_length
 	
-	var temp = ceil(10 * charge_floor/charge_max) * charge_length if charge_time < charge_floor else ceil(10 * charge_time/charge_max) * charge_length
-	
-	print("Temp ", temp / charge_length)
-	tween.tween_property($Sprite/Node2D, "scale", Vector2(temp/20, 1 + 0.1 * temp), 0.08 * charge_cooldown)
-	tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
-	tween.parallel().tween_property(self, "reverseTentacleSpin", 1.0, 0.08 * charge_cooldown)
+	#print("Temp ", temp / charge_length)
+	primary_tween.tween_property($Sprite/Node2D, "scale", Vector2(temp/20, 1 + 0.1 * temp), 0.08 * charge_cooldown)
+	primary_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+	primary_tween.parallel().tween_property(self, "reverseTentacleSpin", 1.0, 0.08 * charge_cooldown)
 	handleTentacleStretch(temp)
 
-	tween.tween_callback(self.setTempVelocity.bind(temp))
-	tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10))
-	tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.3 * charge_cooldown/charge_pull_speed)
-	tween.parallel().tween_property(self, "reverseTentacleSpin", 0.0, 0.3 * charge_cooldown)
-	tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.3 * charge_cooldown /charge_pull_speed) #-4.8 * temp
+	primary_tween.tween_callback(self.setTempVelocity.bind(temp))
+	primary_tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10))
+	primary_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.3 * charge_cooldown/charge_pull_speed)
+	primary_tween.parallel().tween_property(self, "reverseTentacleSpin", 0.0, 0.3 * charge_cooldown)
+	primary_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.3 * charge_cooldown /charge_pull_speed) #-4.8 * temp
 	handleTentacleReturn()
 	
-	tween.tween_callback(self.resetCharge.bind(false))#.bind(4.8*temp, charge_angle - PI/2))
+	primary_tween.tween_callback(self.resetCharge.bind(false))#.bind(4.8*temp, charge_angle - PI/2))
 	
 	#Too lazy to create a timer for this exact case
 	get_tree().create_timer(charge_cool).timeout.connect(_chargeOffCD)
 	
-	if charge_swim:
+	if charge_dash:
 		if charge_time <= charge_max * charge_floor: 
 			chargeStrength += charge_floor_speed * 100 * charge_speed
 		else:
@@ -348,50 +414,33 @@ func _chargeRelease() -> void:
 		else:
 			velocity.x += cos(charge_angle - PI/2) * charge_time * 50 * charge_speed
 			velocity.y += sin(charge_angle - PI/2) * charge_time * 50 * charge_speed
-	
-	charge_time = 0
 
 func _chargeLogic(delta: float) -> void:
-	if Input.is_action_pressed("Charge"):
-		if state != CHARGING and state != CHARGE:
-			pass
-		elif charge_time < charge_max * 0.8:
-			charge_time += delta
-			var temp = (int(Input.is_action_pressed("Right")) - int(Input.is_action_pressed("Left"))) * delta * pow((charge_max / (charge_time + 0.2)), 1.6)
-			chargeTentacleSpin *= pow(0.05, delta)
-			chargeTentacleSpin += -2 *temp# if abs(chargeTentacleSpin) <= 1.0 else 0
-			handleTentacleShader()
-			charge_angle += charge_angle_speed * temp
+	charge_time += delta
+	if charge_time < charge_max * 0.8:
+		var temp = (int(right_input) - int(left_input)) * delta * pow((charge_max / (charge_time + 0.2)), 1.6)
+		chargeTentacleSpin *= pow(0.05, delta)
+		chargeTentacleSpin += -2 *temp# if abs(chargeTentacleSpin) <= 1.0 else 0
+		charge_angle += charge_angle_speed * temp
+		
+	else:
+		var temp = int((right_input) - int(left_input)) * delta
+		chargeTentacleSpin *= pow(0.1, delta)
+		chargeTentacleSpin += -1.5*temp# if abs(chargeTentacleSpin) < 2.5 else 0
+		charge_angle += charge_angle_speed * temp
+		
+	handleTentacleShader()	
+	$Pivot.rotation = charge_angle
+	$Sprite.rotation = charge_angle
 			
-			$Pivot.rotation = charge_angle
-			$Sprite.rotation = charge_angle
-		else:
-			if charge_time < charge_max:	
-				charge_time += delta
-			elif state != CHARGE:
-				if tween2:
-					tween2.kill()
-				tween2 = create_tween()
-				 
-				tween2.tween_property($Pivot/Node2D/Glimmer, "texture_offset", Vector2(24, 7), 0.4)
-				tween2.parallel().tween_property($Pivot/Node2D/Polygon2D2, "color", Color(1, 1, 0), 0.2)
-				tween2.tween_property($Pivot/Node2D/Polygon2D2, "color", Color(0.8, 0.8, 0.8), 0.2) 
-				state = CHARGE
-				charge_time = charge_max
-			
-			var temp = (int(Input.is_action_pressed("Right")) - int(Input.is_action_pressed("Left"))) * delta
-			
-			chargeTentacleSpin *= pow(0.1, delta)
-			chargeTentacleSpin += -1.5*temp# if abs(chargeTentacleSpin) < 2.5 else 0
-			handleTentacleShader()
-			charge_angle += charge_angle_speed * temp
-			
-			$Pivot.rotation = charge_angle
-			$Sprite.rotation = charge_angle
-			
-			
-			
-	
+
+func _onFullCharge() -> void:
+	if tween2:
+		tween2.kill()
+	tween2 = create_tween()
+	tween2.tween_property($Pivot/Node2D/Glimmer, "texture_offset", Vector2(24, 7), 0.4)
+	tween2.parallel().tween_property($Pivot/Node2D/Polygon2D2, "color", Color(1, 1, 0), 0.2)
+	tween2.tween_property($Pivot/Node2D/Polygon2D2, "color", Color(0.8, 0.8, 0.8), 0.2) 
 
 #Just so idiot ol' me doesn't forget what this does again:
 #It's meant to align the animation dumbass. 
@@ -448,15 +497,15 @@ func handleTentacleSqueeze():
 		0:
 			pass
 		9:
-			tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -2), charge_max)
+			primary_tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -2), charge_max)
 			
-			tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 2), charge_max)
-			tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 2), charge_max)
-			tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 2), charge_max)
-			tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 2), charge_max)
-			tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 2), charge_max)
+			primary_tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 2), charge_max)
+			primary_tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 2), charge_max)
+			primary_tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 2), charge_max)
+			primary_tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 2), charge_max)
+			primary_tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 2), charge_max)
 			
-			tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -2), charge_max)
+			primary_tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -2), charge_max)
 			#tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)		
 
 func handleTentacleStretch(temp:float):
@@ -464,11 +513,11 @@ func handleTentacleStretch(temp:float):
 		0:
 			pass
 		1:
-			tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
 		2:
-			tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
 		3:
-			tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
 			
 			if tween3:
 				tween3.kill()
@@ -476,17 +525,17 @@ func handleTentacleStretch(temp:float):
 			tween3.tween_property($Sprite/Tentacle1, "rotation", PI/2, 0.3 * charge_cooldown)
 			tween3.parallel().tween_property($Sprite/Tentacle7, "rotation", -3*PI/2, 0.3 * charge_cooldown)
 		4:
-			tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)	
+			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)	
 		9:
-			tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -4-3.6*temp), 0.08 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(6, -3.6*temp), 0.08 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 4-3.6*temp), 0.08 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 6-3.6*temp), 0.08 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 8-3.6*temp), 0.08 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 6-3.6*temp), 0.08 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 4-3.6*temp), 0.08 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle7, "position", Vector2(-6, -3.6*temp), 0.08 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -4-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -4-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(6, -3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 4-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 6-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 8-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 6-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 4-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle7, "position", Vector2(-6, -3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -4-3.6*temp), 0.08 * charge_cooldown)
 			
 			if tween3:
 				tween3.kill()
@@ -507,21 +556,21 @@ func handleTentacleReturn():
 		0:
 			pass
 		1:
-			tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
 		3:
-			tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
 			tween3.tween_property($Sprite/Tentacle1, "rotation", 0, 0.6 * charge_cooldown)
 			tween3.parallel().tween_property($Sprite/Tentacle7, "rotation", PI, 0.6 * charge_cooldown)
 		9:
-			tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -4), 0.3 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 4), 0.3 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 6), 0.3 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 8), 0.3 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 6), 0.3 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 4), 0.3 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle7, "position", Vector2(-8, 0), 0.3 * charge_cooldown)
-			tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -4), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -4), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 4), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 6), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 8), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 6), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 4), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle7, "position", Vector2(-8, 0), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -4), 0.3 * charge_cooldown)
 			
 			tween3.tween_property($Sprite/Tentacle1, "rotation", 0, 0.6 * charge_cooldown)
 			tween3.parallel().tween_property($Sprite/Tentacle7, "rotation", PI, 0.6 * charge_cooldown)
@@ -753,4 +802,4 @@ func updateAllUpgrades(saveBonuses : Array) -> void:
 	upgradeBonuses = saveBonuses.slice(1)
 
 func changeUpgradeTabState(newState : bool) -> void:
-	upgrade_tab_open = newState
+	pass
