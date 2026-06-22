@@ -154,7 +154,7 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 		var newSize = 2.5 + rng.randi_range(0, 2) / 10.0
 		var newColor = Color.from_hsv(rng.randf_range(0, 1), rng.randf_range(0.5, 1), rng.randf_range(0.5, 1))
 		var tempChild = get_child(temp_id + CHILD_OFFSET)
-		tempChild.create(weight*spawn_orb_weight*bigOrbBonusWeight, temp_id, newSize*orb_size, 2, newColor, newPos)
+		tempChild.create(weight*spawn_orb_weight*bigOrbBonusWeight, temp_id, newSize*orb_size, 2, newColor, newPos, true)
 		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 25 * range_bonus) * Vector2(cos(angle), sin(angle)), 2 + rng.randi_range(0, 8) / 10.0)
 
 	for i in range(med_orbs):
@@ -167,7 +167,7 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 		var newSize = 1.2 + rng.randi_range(0, 2) / 10.0
 		var newColor = Color.from_hsv(rng.randf_range(0, 1), rng.randf_range(0.5, 1), rng.randf_range(0.5, 1))
 		var tempChild = get_child(temp_id + CHILD_OFFSET)
-		tempChild.create(weight*spawn_orb_weight*medOrbBonusWeight, temp_id, newSize*orb_size, 1, newColor, newPos)
+		tempChild.create(weight*spawn_orb_weight*medOrbBonusWeight, temp_id, newSize*orb_size, 1, newColor, newPos, true)
 		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 25 * range_bonus) * Vector2(cos(angle), sin(angle)), 1.75 + rng.randi_range(0, 6) / 10.0)
 		
 	for i in range(small_orbs):
@@ -180,7 +180,7 @@ func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
 		var newSize = 0.6 + rng.randi_range(0, 2) / 10.0
 		var newColor = Color.from_hsv(rng.randf_range(0, 1), rng.randf_range(0.5, 1), rng.randf_range(0.5, 1))
 		var tempChild = get_child(temp_id + CHILD_OFFSET)
-		tempChild.create(weight*spawn_orb_weight*smallOrbBonusWeight, temp_id, newSize*orb_size, 0, newColor, newPos)
+		tempChild.create(weight*spawn_orb_weight*smallOrbBonusWeight, temp_id, newSize*orb_size, 0, newColor, newPos, true)
 		tempChild.move(spawncenter + rng.randf_range(10 * range_bonus, 25 * range_bonus) * Vector2(cos(angle), sin(angle)), 1.5 + rng.randi_range(0, 4) / 10.0)
 #Check if orbs are past despawn dist, and if so, move them back in if they're far orbs
 #If they're near orbs, remove them

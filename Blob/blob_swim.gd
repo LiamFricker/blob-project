@@ -55,22 +55,35 @@ enum {
 	BUTTERFLY,
 	DOLPHIN
 }
-var basic_movement_type = WADDLE
+@export var basic_movement_type = WADDLE#WADDLE
 var left_input = false
 var right_input = false
 var up_input = false
 var down_input = false
 
-var waddle = false
+var move_abil_mod = 1
+
+#You should attach these to a resource
+#WADDLE VARS
+#var waddle = false
 @export var waddle_speed = 1
-var waddle_modfier = 1
+var waddle_speed_bonus : float = 1.0
+@export var orb_speed_gain : float = 0.2
+var accel: float = 50
+var turning_accel_ratio: float = 1.25
+
+#BOARD VARS
+@export var board_accel: float = 150
+@export var board_speed_cap: float = 5000
+@export var board_turning_speed: float = 1.0
+var board_speed: float = 0
+@export var dash_convers_mult : float = 0.25
+
+@export var friction: float = 0.25
 
 var isHazard : bool = false
 
-@export var max_velocity: float = 100
-@export var accel: float = 50
-@export var turning_accel_ratio: float = 1.25
-@export var friction: float = 0.25
+
 
 enum {
 	CHARGE_DASH,
@@ -215,8 +228,12 @@ func _testMethod(i : float) -> void:
 	#print("TEST, ", i)
 	pass
 
+#Move some of this stuff to _process()
+#Physics process runs at 60fps constant
 func _physics_process(delta: float) -> void:
-	_waddleLogic(delta)
+	var friction_delta = pow(friction, delta)
+	
+	_movementLogic(delta,friction_delta)
 	
 	if state == CHARGING:# or state == CHARGE:
 		_chargeLogic(delta)
@@ -248,14 +265,14 @@ func _physics_process(delta: float) -> void:
 				#print("Pulse Amp 3: ", pulseAmp3)
 				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", pulseAmp3)
 	
-	if charge_dash and chargeStrength > 2:
-		_chargeDash(delta)
+	if charge_dash:# and chargeStrength > 2:
+		_chargeDash(delta, friction_delta)
 	else:
 		velocity += tempVelocity	 	
 		move_and_slide()
 		velocity -= tempVelocity	 
 		
-		velocity *= pow(friction, delta)
+		velocity *= friction_delta#pow(friction, delta)
 		
 	if charge_cool > 0 and abs(chargeTentacleSpin + reverseTentacleSpin) > 0:
 		chargeTentacleSpin *= pow(0.1, delta)
@@ -263,24 +280,61 @@ func _physics_process(delta: float) -> void:
 	
 	_timers(delta)
 
-func _waddleLogic(delta: float) -> void:
+func _movementLogic(delta: float, friction_delta:float) -> void:
+	match basic_movement_type:
+		WADDLE:
+			_waddleLogic(delta, friction_delta)
+		BOARD:
+			_boardLogic(delta, friction_delta)
+
+func _waddleLogic(delta: float, friction_delta : float) -> void:
 	var x_dir = int(right_input) - int(left_input)
 	var y_dir = int(down_input) - int(up_input)
-	#print("Xdirection: ", x_dir)
 	#print("Right: ", Input.is_action_pressed("Right"))
 	#print(velocity.length()/100)
 	#$Sprite/Node2D/Inside.material.set_shader_parameter("frequency", 2.5 + ceil(velocity.length())/100 * size)
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
+	
+	var waddle_total_speed = accel * delta * waddle_speed * move_abil_mod * waddle_speed_bonus
+	
 	if x_dir == sign(velocity.x) * -1:
-		velocity.x += x_dir * accel * turning_accel_ratio * delta * waddle_speed * waddle_modfier
+		velocity.x += x_dir * waddle_total_speed * turning_accel_ratio
 	else:
-		velocity.x += x_dir * accel * delta * waddle_speed * waddle_modfier
+		velocity.x += x_dir * waddle_total_speed
 	if y_dir == sign(velocity.y) * -1:
-		velocity.y += y_dir * accel * turning_accel_ratio * delta * waddle_speed * waddle_modfier
+		velocity.y += y_dir * waddle_total_speed * turning_accel_ratio
 	else:
-		velocity.y += y_dir * accel * delta * waddle_speed * waddle_modfier
+		velocity.y += y_dir * waddle_total_speed
 
-func _chargeDash(delta: float)-> void:
+func _boardLogic(delta: float, friction_delta : float) -> void:
+	var x_dir = int(right_input) - int(left_input)
+	var y_dir = int(down_input) - int(up_input)
+	
+	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
+	
+	charge_angle += board_turning_speed * x_dir * delta * move_abil_mod
+	$Pivot.rotation = charge_angle
+	$Sprite.rotation = charge_angle
+		
+	print(board_speed)
+	
+	#board_speed += board_accel
+	
+	if y_dir == -1:
+		board_speed += board_accel * move_abil_mod
+		#velocity.y += y_dir * accel * turning_accel_ratio * delta * waddle_speed * move_abil_mod	
+	elif y_dir == 0:
+		board_speed += board_accel * 0.25 * move_abil_mod
+		board_speed *= sqrt(friction_delta)
+	else:
+		board_speed *= friction_delta
+	
+	if board_speed > board_speed_cap:
+		board_speed = board_speed_cap
+	
+	velocity = board_speed * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
+
+func _chargeDash(delta: float, friction_delta : float)-> void:
 	var temp = (int(right_input) - int(left_input))
 	charge_angle += charge_angle_speed * temp * delta * chargeStrength * 0.005
 	$Pivot.rotation = charge_angle
@@ -292,10 +346,13 @@ func _chargeDash(delta: float)-> void:
 	move_and_slide()
 	velocity -= tempVelocity + chargeVelocity	 
 	
-	var tempPow = pow(friction, delta)
-	velocity *= tempPow
+	#var tempPow = friction_delta#pow(friction, delta)
+	velocity *= friction_delta
 	#velocity.move_toward(Vector2.ZERO, friction*delta)
-	chargeStrength *= tempPow	
+	chargeStrength *= friction_delta	
+	
+	if chargeStrength < 2:
+		charge_dash = false
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -362,7 +419,7 @@ func _chargePress() -> void:
 	primary_tween.parallel().tween_property($Sprite/Node2D, "scale", Vector2(1, 0.25), charge_max)
 	primary_tween.finished.connect(_onFullCharge)
 	handleTentacleSqueeze()	
-	waddle_modfier = 0.25
+	move_abil_mod = 0.25
 	charge_time = 0
 
 func _chargeOffCD() -> void:
@@ -373,7 +430,7 @@ func _chargeRelease() -> void:
 	primary_queued = false
 	charge_cool = charge_cooldown 
 	state = IDLE
-	waddle_modfier = 1
+	move_abil_mod = 1
 	if primary_tween:
 		primary_tween.kill()
 	primary_tween = create_tween()
@@ -402,11 +459,16 @@ func _chargeRelease() -> void:
 	#Too lazy to create a timer for this exact case
 	get_tree().create_timer(charge_cool).timeout.connect(_chargeOffCD)
 	
-	if charge_dash:
-		if charge_time <= charge_max * charge_floor: 
-			chargeStrength += charge_floor_speed * 100 * charge_speed
-		else:
-			chargeStrength += charge_time * 50 * charge_speed
+	charge_dash = true
+	#if charge_dash:
+	if charge_time <= charge_max * charge_floor: 
+		chargeStrength += charge_floor_speed * 100 * charge_speed
+	else:
+		chargeStrength += charge_time * 50 * charge_speed
+	
+	if basic_movement_type == BOARD:
+		board_speed += chargeStrength * dash_convers_mult
+	"""
 	else:
 		if charge_time <= charge_max * charge_floor: 
 			velocity.x += cos(charge_angle - PI/2) * charge_floor_speed * 100 * charge_speed
@@ -414,6 +476,7 @@ func _chargeRelease() -> void:
 		else:
 			velocity.x += cos(charge_angle - PI/2) * charge_time * 50 * charge_speed
 			velocity.y += sin(charge_angle - PI/2) * charge_time * 50 * charge_speed
+	"""
 
 func _chargeLogic(delta: float) -> void:
 	charge_time += delta
@@ -424,7 +487,7 @@ func _chargeLogic(delta: float) -> void:
 		charge_angle += charge_angle_speed * temp
 		
 	else:
-		var temp = int((right_input) - int(left_input)) * delta
+		var temp = (int(right_input) - int(left_input)) * delta
 		chargeTentacleSpin *= pow(0.1, delta)
 		chargeTentacleSpin += -1.5*temp# if abs(chargeTentacleSpin) < 2.5 else 0
 		charge_angle += charge_angle_speed * temp
@@ -594,14 +657,26 @@ func _timers(delta:float) -> void:
 	
 	if charge_cool >= 0:
 		charge_cool -= delta
-		#if waddle_modfier < 1 and charge_cool <= charge_cooldown * 0.75:
-		#	waddle_modfier = 1
+		#if move_abil_mod < 1 and charge_cool <= charge_cooldown * 0.75:
+		#	move_abil_mod = 1
 
-func collect(_value : int, orbpos : Vector2) -> void:
+func _waddleOrbDecay() -> void:
+	waddle_speed_bonus -= orb_speed_gain
+	if waddle_speed_bonus > 1.0:
+		$WaddleOrbTimer.start(0.15)
+	else:
+		waddle_speed_bonus = 1.0
+
+func collect(_value : int, orbpos : Vector2, enemy_drop : bool) -> void:
 	#Need a variable that tracks ripples
 	#Need 3 variables that track ripple amps.
 	#Need a function that's called when ripple amp reaches 0
 	#Might be easier to do this with tweens than with process to be honest.
+	if not enemy_drop:
+		if waddle_speed < 1.0 + orb_speed_gain * 10:	
+			waddle_speed_bonus += orb_speed_gain
+		$WaddleOrbTimer.start(1.0)
+	
 	if pulseCount > 2:
 		return
 		#This didn't look good

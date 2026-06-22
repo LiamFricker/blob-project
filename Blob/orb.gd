@@ -4,6 +4,8 @@ extends Node2D
 @export var id: int = 1
 signal collect(id : int)
 
+var enemy_drop = false
+
 var tween
 var tween2
 var visible_sprite
@@ -20,7 +22,7 @@ func move(endPos :  Vector2, moveTime : float) -> void:
 	tween2.set_trans(Tween.TRANS_CUBIC)
 	tween2.tween_property(self, "position", endPos, moveTime)
 
-func create(val : float, i_d : int, size : float, type : int, color : Color, pos : Vector2) -> void:
+func create(val : float, i_d : int, size : float, type : int, color : Color, pos : Vector2, en_drop = false) -> void:
 	#print(size)
 	
 	var temp_child = get_child(type)
@@ -28,6 +30,7 @@ func create(val : float, i_d : int, size : float, type : int, color : Color, pos
 	get_child((type + 1) % 3).visible = false
 	get_child((type + 2) % 3).visible = false
 	visible_sprite = temp_child
+	enemy_drop = en_drop
 	
 	if tween:
 		tween.kill()
@@ -83,7 +86,7 @@ func _on_detection_area_entered(_area: Area2D) -> void:
 
 func _on_detection_body_entered(body: Node2D) -> void:
 	#Call the player's collect here too as well with the value from this orb
-	body.collect(value, position)# w/e
+	body.collect(value, position, enemy_drop)# w/e
 	print("collect")
 	collect.emit(id)
 	disable()
