@@ -17,6 +17,7 @@ radius = 18.0
 collision_mask = 0
 script = ExtResource("1_560oe")
 camReference = NodePath("Camera2D")
+basic_movement_type = 1
 board_accel = 0.5
 board_speed_cap = 250.0
 board_turning_speed = 1.5

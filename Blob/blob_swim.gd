@@ -55,7 +55,7 @@ enum {
 	BUTTERFLY,
 	DOLPHIN
 }
-@export var basic_movement_type = WADDLE#WADDLE
+@export var basic_movement_type = 0#WADDLE#WADDLE			
 var left_input = false
 var right_input = false
 var up_input = false
@@ -305,7 +305,7 @@ func _waddleLogic(delta: float, friction_delta : float) -> void:
 		velocity.y += y_dir * waddle_total_speed * turning_accel_ratio
 	else:
 		velocity.y += y_dir * waddle_total_speed
-
+	
 func _boardLogic(delta: float, friction_delta : float) -> void:
 	var x_dir = int(right_input) - int(left_input)
 	var y_dir = int(down_input) - int(up_input)
