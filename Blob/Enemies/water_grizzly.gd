@@ -3,8 +3,13 @@ extends Node2D
 enum {
 	IDLE,
 	AGGRESSION, 
+	WALKING, 
+	CHARGE_RUN,
+	RUN,
 	CHARGE_SWIPE,
 	SWIPE,
+	CHARGE_DASH,
+	DASH,
 	DEAD
 }
 var state = IDLE
@@ -14,6 +19,7 @@ var TargetRef : Node2D
 var playerTarget : bool = false
 
 @onready var Inner = $InnerNode
+@onready var AnimPlay = $AnimationPlayer
 
 var ID : int = -1
 
@@ -28,17 +34,32 @@ var difficulty = 0
 var swing_speed : float = 1.0
 var direction_angle: float = 1.0
 
+@export var turning_speed : float = 1.0
+var turning_direction : int = 0
+const max_turn_angle : float = 3 * PI / 2
+@export var acceleration : float = 50
+var velocity = 0
+var run_charge_speed : float = 1.0
+@export var run_charge_speed_base : float = 1.0
+
+var swipe_array: Array = [false, false, false, false]
+var swipe_rng = RandomNumberGenerator.new()
+
 var MapULBound: Vector2
 var MapDRBound: Vector2
 var homepos : Vector2
 
 var move_tween
+var ear_tween
 
 var current_attack = 0
 var phase = 1
 
 var swipe_count = 0
 const swipe_max = 3
+
+var dash_count = 0
+const dash_max = 3
 
 const follow_range_squared = 4000000 
 
@@ -64,7 +85,13 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	if state == RUN:
+		velocity += acceleration * delta
+		Inner.position += velocity * Vector2.from_angle(direction_angle)
+		direction_angle += turning_speed * delta * sign(turning_direction)
+		
+		var end_angle = log(direction_angle+1) if direction_angle < 0 else log(-direction_angle+1)
+		rotation = end_angle
 
 func _stateMachine() -> void:
 	pass
@@ -85,35 +112,124 @@ func _chooseNextAttack() -> void:
 #Set run speed scale to 1.25x
 #Set run charge to 1.5x for first attack in phase 2. Either that or make a shorter duration version
 func _runStart() -> void:
-	pass
+	state = CHARGE_RUN
+	AnimPlay.play("RunCharge", -1, run_charge_speed)
+	if move_tween:
+		move_tween.kill()
+	move_tween = create_tween()
+	
+	direction_angle = _getTargetDirection()
+	
+	var end_angle = log(direction_angle+1) if direction_angle < 0 else log(-direction_angle+1)
+	move_tween.tween_property(self, rotation, end_angle, 1.5/run_charge_speed)
+	move_tween.tween_callback(_updateRotation)
+	
+	
+func _running() -> void:
+	state = RUN
+	
+	AnimPlay.play("Run")
+	if ear_tween:
+		ear_tween.kill()
+
+	ear_tween = create_tween().set_loops(16)
+	ear_tween.tween_callback(_refreshRunDirection).set_delay(0.5)
+	ear_tween.finished.connect(_runEnd)
 
 func _runEnd() -> void:
+	if state == RUN:
+		_runSkid()	
+	state = AGGRESSION	
+
+#Skid logic here
+#An option is for to instant flip turn around to player. We'd have to make everything else a flip though.
+#Need to also align angles with visual. Not sure if this looks very good.
+#Add the little bounces as well too
+func _runSkid() -> void:
+	direction_angle = _getTargetDirection()
+	var end_angle = log(direction_angle+1) if direction_angle < 0 else log(-direction_angle+1)
+	rotation = end_angle
 	
+	if move_tween:
+		move_tween.kill()
+	move_tween = create_tween()
+	
+	while velocity > 10:
+		velocity /= 4.0
+		
+		var perpAngle = direction_angle + PI/2 if direction_angle < PI/2 and direction_angle > -PI/2 else direction_angle - PI/2
+		
+		var swipeEndLoc : Vector2 = -0.5 * velocity * Vector2.from_angle(direction_angle)
+		var swipePerpLoc : Vector2 = 0.1 * velocity * Vector2.from_angle(perpAngle)
+		
+		move_tween.set_ease(Tween.EASE_IN)
+		move_tween.tween_property(Inner, position, swipeEndLoc+swipePerpLoc, 0.2).as_relative().set_trans(Tween.TRANS_QUAD)
+		move_tween.set_ease(Tween.EASE_OUT)
+		move_tween.tween_property(Inner, position, swipeEndLoc-swipePerpLoc, 0.2).as_relative().set_trans(Tween.TRANS_QUAD)
+		
+	move_tween.finished.connect(_runRealEnd)
+
+func _runRealEnd() -> void:	
+	if state == CHARGE_RUN:
+		state = RUN
+		return
+		
+	run_charge_speed = run_charge_speed_base
 	if phase == 1 or swipe_count == 0:
 		current_attack = 1
-		swipe_count = 0
+		_walkTransition()
 	else:
 		current_attack = 2
 		swipe_count = 0
+
+func _walkTransition() -> void:
+	state = WALKING
+	#Determine the left right swipes good night
+	var swipes = swipe_rng.randi_range(0, 7)
+	swipe_array[2] = swipes > 3
+	swipe_array[1] = (swipes-4) > 1
+	swipe_array[0] = (swipes-6) == 1
+	
+	AnimPlay.play("Walk", 0.5)
+	if move_tween:
+		move_tween.kill()
+	move_tween = create_tween()
+	
+	#move_tween.tween_callback(_walkToPlayer).set_delay(1.0)
+	move_tween.tween_interval(0.5)
+	_walkToPlayer(8)
+	move_tween.finished.connect(_chooseNextAttack)
+	
+	if ear_tween:
+		ear_tween.kill()
+	ear_tween = create_tween()
+	
+	ear_tween.tween_interval(0.5)
+	_earMove(swipe_array[0])
+	ear_tween.tween_interval(0.25)
+	_earMove(swipe_array[1])
+	ear_tween.tween_interval(0.25)
+	_earMove(swipe_array[2])
+	ear_tween
 
 func _swipeStart() -> void:
 	#I don't think the ear wags really do matter that much, so let's just get rid of them for now.
 	#If you think it's fun after trying it, you can add it in later.
 	#Maybe in Phase 3 have a mechanic where the ear wags do actually matter with larger dirctional hitbox.
 	#Maybe in Phase 3 also add in feints too. You can reverse the animation to do so.
-	$AnimationPlayer.speed_scale = swing_speed
+	AnimPlay.speed_scale = swing_speed
+	var animName = "LeftSwingStart" if swipe_array[swipe_count] else "RightSwingStart"
 	match swipe_count:
 		0:
-			$AnimationPlayer.play("LeftSwingStart")
-		1:
-			$AnimationPlayer.play("RightSwingStart")
-		2:
-			$AnimationPlayer.play("LeftSwingStart")
+			AnimPlay.play(animName, 0.25)
 		swipe_max:
 			swipe_count = -1
 			current_attack = 0
+			AnimPlay.speed_scale = 1.0
 			_chooseNextAttack()
 			return
+		_:
+			AnimPlay.play(animName)
 	
 	if move_tween:
 		move_tween.kill()
@@ -121,30 +237,50 @@ func _swipeStart() -> void:
 	var temp_angle = _getTargetDirection()
 	var end_angle = log(temp_angle+1) if temp_angle < 0 else log(-temp_angle+1)
 	move_tween.tween_property(self, rotation, end_angle, 0.3 / swing_speed)
-	move_tween.tween_parallel(self, direction_angle, temp_angle, 0.3 / swing_speed)
+	#move_tween.parallel().tween_property(self, direction_angle, temp_angle, 0.3 / swing_speed)
+	direction_angle = temp_angle
 	
-
 func _swipeRelease(isLeft : bool) -> void:
 	var angleOffset : float 
 	if isLeft:
 		angleOffset = -PI/6
-		$AnimationPlayer.play("LeftSwingEnd")
+		AnimPlay.play("LeftSwingEnd")
 	else:
 		angleOffset = PI/6
-		$AnimationPlayer.play("RightSwingEnd")
+		AnimPlay.play("RightSwingEnd")
 	
-	var swipeEndLoc : Vector2 = getPosition() + swipe_length * Vector2.from_angle(direction_angle+angleOffset)
+	var swipeEndLoc : Vector2 = Inner.position + swipe_length * Vector2.from_angle(direction_angle+angleOffset)#getPosition()
 	
 	move_tween.tween_property(Inner, position, swipeEndLoc, 0.45 / swing_speed)
+	move_tween.tween_callback(_swipeStart).set_delay(0.2)
 	
 func _dashStart() -> void:
-	pass
+	if dash_count >= dash_max:
+		current_attack = 0
+		run_charge_speed = 1.5 * run_charge_speed_base
+		_chooseNextAttack()
+		
+	state = CHARGE_DASH
+	AnimPlay.play("DashCharge")
 	
+func _dashEnd() -> void:
+	
+	if move_tween:
+		move_tween.kill()
+	move_tween = create_tween()
+
 func _phaseChange() -> void:
 	match phase:
 		1:
 			phase = 2
 			swipe_count = 0
+			current_attack = 2
+			AnimPlay.stop()
+			AnimPlay.speed_scale = 1.0
+			move_tween.kill()
+			ear_tween.kill()
+			
+			_chooseNextAttack()
 		2:
 			phase = 3
 
@@ -165,7 +301,45 @@ func _aggressionTrigger(playerFound : bool) -> void:
 		state = AGGRESSION
 	else:
 		_findClosestTarget()
+
+func _updateRotation() -> void:
+	direction_angle = _getTargetDirection()
+	
+	var end_angle = log(direction_angle+1) if direction_angle < 0 else log(-direction_angle+1)
+	move_tween.tween_property(self, rotation, end_angle, 1.0/run_charge_speed)
+	
+func _refreshRunDirection() -> void:
+	turning_direction = _getTargetDirection() - direction_angle
+	if abs(turning_direction) >= max_turn_angle:
+		state = CHARGE_RUN
+		_runSkid()
 		
+func _earMove(isLeft : bool) -> void:
+	
+	if isLeft:
+		var tempEarRef = $InnerNode/Sprite/Neck/WaterGrizzlyEarL
+		ear_tween.tween_property(tempEarRef, "position", Vector2(-25, -26), 0.1)
+		ear_tween.parallel().tween_property(tempEarRef, "scale", Vector2(-1, -1), 0.035).set_delay(0.035)
+		ear_tween.tween_property(tempEarRef, "position", Vector2(-25, -34), 0.1).set_delay(0.065)
+		ear_tween.parallel().tween_property(tempEarRef, "scale", Vector2(1, 1), 0.035).set_delay(0.1)
+	else:
+		var tempEarRef = $InnerNode/Sprite/Neck/WaterGrizzlyEarR
+		ear_tween.tween_property(tempEarRef, "position", Vector2(21, -25), 0.1)
+		ear_tween.parallel().tween_property(tempEarRef, "scale", Vector2(-1, -1), 0.035).set_delay(0.035)
+		ear_tween.tween_property(tempEarRef, "position", Vector2(22, -35), 0.1).set_delay(0.065)
+		ear_tween.parallel().tween_property(tempEarRef, "scale", Vector2(1, 1), 0.035).set_delay(0.1)
+	
+func _walkToPlayer(count : int) -> void:
+	if count <= 0:
+		return
+	var temp_angle = _getTargetDirection()
+	var end_angle = log(temp_angle+1) if temp_angle < 0 else log(-temp_angle+1)
+	var walkEndPos : Vector2 = Inner.position + 100 * Vector2.from_angle(end_angle)
+	
+	move_tween.tween_property(self, rotation, end_angle, 0.4)
+	move_tween.parallel().tween_property(Inner, position, walkEndPos, 0.8)
+	move_tween.tween_callback(_walkToPlayer.bind(count-1))
+	
 #Use the 
 func _findClosestTarget() -> void:
 	var DetectionNode = $InnerNode/BroadDetectionRadius
@@ -291,3 +465,8 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 			_swipeRelease(true)
 		"RightSwingStart":
 			_swipeRelease(false)
+		"RunCharge":
+			_running()
+		"DashCharge":
+			_dashEnd()
+			
