@@ -60,8 +60,10 @@ const swipe_max = 3
 
 var dash_count = 0
 const dash_max = 3
+var dash_length = 2000
 
-const follow_range_squared = 4000000 
+const follow_range_squared_base = 4000000 
+var follow_range_squared = 4000000 
 
 #dot (poison)
 var dot_remaining
@@ -90,11 +92,8 @@ func _process(delta: float) -> void:
 		Inner.position += velocity * Vector2.from_angle(direction_angle)
 		direction_angle += turning_speed * delta * sign(turning_direction)
 		
-		var end_angle = log(direction_angle+1) if direction_angle < 0 else log(-direction_angle+1)
+		var end_angle = log(direction_angle+1) if direction_angle < 0 else -log(-direction_angle+1)
 		rotation = end_angle
-
-func _stateMachine() -> void:
-	pass
 
 func _chooseNextAttack() -> void:
 	if playerTarget:
@@ -120,9 +119,9 @@ func _runStart() -> void:
 	
 	direction_angle = _getTargetDirection()
 	
-	var end_angle = log(direction_angle+1) if direction_angle < 0 else log(-direction_angle+1)
+	var end_angle = log(direction_angle+1) if direction_angle < 0 else -log(-direction_angle+1)
 	move_tween.tween_property(self, rotation, end_angle, 1.5/run_charge_speed)
-	move_tween.tween_callback(_updateRotation)
+	move_tween.tween_callback(_updateRotation.bind(1.0/run_charge_speed))
 	
 	
 func _running() -> void:
@@ -147,7 +146,7 @@ func _runEnd() -> void:
 #Add the little bounces as well too
 func _runSkid() -> void:
 	direction_angle = _getTargetDirection()
-	var end_angle = log(direction_angle+1) if direction_angle < 0 else log(-direction_angle+1)
+	var end_angle = log(direction_angle+1) if direction_angle < 0 else -log(-direction_angle+1)
 	rotation = end_angle
 	
 	if move_tween:
@@ -235,7 +234,7 @@ func _swipeStart() -> void:
 		move_tween.kill()
 	move_tween = create_tween()
 	var temp_angle = _getTargetDirection()
-	var end_angle = log(temp_angle+1) if temp_angle < 0 else log(-temp_angle+1)
+	var end_angle = log(temp_angle+1) if temp_angle < 0 else -log(-temp_angle+1)
 	move_tween.tween_property(self, rotation, end_angle, 0.3 / swing_speed)
 	#move_tween.parallel().tween_property(self, direction_angle, temp_angle, 0.3 / swing_speed)
 	direction_angle = temp_angle
@@ -258,16 +257,30 @@ func _dashStart() -> void:
 	if dash_count >= dash_max:
 		current_attack = 0
 		run_charge_speed = 1.5 * run_charge_speed_base
+		follow_range_squared = follow_range_squared_base
 		_chooseNextAttack()
+	$InnerNode/Polygon2D.visible = true
+	follow_range_squared = follow_range_squared_base * 2.25
 		
 	state = CHARGE_DASH
 	AnimPlay.play("DashCharge")
 	
-func _dashEnd() -> void:
-	
 	if move_tween:
 		move_tween.kill()
 	move_tween = create_tween()
+	move_tween.tween_callback(_updateRotation.bind(0.1))
+	
+func _dashEnd() -> void:
+	$InnerNode/Polygon2D.visible = false
+	if move_tween:
+		move_tween.kill()
+	move_tween = create_tween()
+	
+	AnimPlay.play("DashCharge")
+	
+	var swipeEndLoc : Vector2 = dash_length * Vector2.from_angle(direction_angle)
+	move_tween.tween_property(Inner, position, swipeEndLoc, 2.2).as_relative()
+	
 
 func _phaseChange() -> void:
 	match phase:
@@ -279,17 +292,14 @@ func _phaseChange() -> void:
 			AnimPlay.speed_scale = 1.0
 			move_tween.kill()
 			ear_tween.kill()
+			$InnerNode/Polygon2D.visible = false
 			
-			_chooseNextAttack()
+			_stunned()
 		2:
 			phase = 3
 
-func _sceneTransition(next_scene : int) -> void:
-	match next_scene:
-		0:
-			pass
-		1:
-			pass
+func _stunned() -> void:
+	AnimPlay.play("Stun")
 
 func _getTargetDirection() -> float:
 	var targetPos : Vector2 = TargetRef.getPosVector2
@@ -302,11 +312,18 @@ func _aggressionTrigger(playerFound : bool) -> void:
 	else:
 		_findClosestTarget()
 
-func _updateRotation() -> void:
+func _updateRotation(rotTime : float) -> void:
 	direction_angle = _getTargetDirection()
 	
-	var end_angle = log(direction_angle+1) if direction_angle < 0 else log(-direction_angle+1)
-	move_tween.tween_property(self, rotation, end_angle, 1.0/run_charge_speed)
+	var end_angle = log(direction_angle+1) if direction_angle < 0 else -log(-direction_angle+1)
+	move_tween.tween_property(self, rotation, end_angle, rotTime)
+
+func _updateRotationAug(rotTime : float) -> void:
+	direction_angle = _getTargetDirection()
+	
+	var end_angle = log(direction_angle+1) if direction_angle < 0 else -log(-direction_angle+1)
+	move_tween.tween_property(self, rotation, end_angle, rotTime)
+	move_tween.parallel().tween_property($Polygon2D, rotation, direction_angle - end_angle, rotTime)
 	
 func _refreshRunDirection() -> void:
 	turning_direction = _getTargetDirection() - direction_angle
@@ -333,7 +350,7 @@ func _walkToPlayer(count : int) -> void:
 	if count <= 0:
 		return
 	var temp_angle = _getTargetDirection()
-	var end_angle = log(temp_angle+1) if temp_angle < 0 else log(-temp_angle+1)
+	var end_angle = log(temp_angle+1) if temp_angle < 0 else -log(-temp_angle+1)
 	var walkEndPos : Vector2 = Inner.position + 100 * Vector2.from_angle(end_angle)
 	
 	move_tween.tween_property(self, rotation, end_angle, 0.4)
@@ -469,4 +486,9 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 			_running()
 		"DashCharge":
 			_dashEnd()
+		"Stun":
+			_chooseNextAttack()
 			
+func _on_damage_test_timer_timeout() -> void:
+	if state != IDLE:
+		takeDamage(2)
