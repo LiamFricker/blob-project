@@ -252,5 +252,5 @@ func addCreature(c : Node2D) -> void:
 	creatureAmount += 1
 	add_child(c)
 
-func removeRoaming(creatureID : int) -> void:
+func removeRoaming(_creatureID : int) -> void:
 	pass

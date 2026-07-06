@@ -17,7 +17,7 @@ radius = 18.0
 collision_mask = 0
 script = ExtResource("1_560oe")
 camReference = NodePath("Camera2D")
-basic_movement_type = 1
+waddle_speed = 10
 board_accel = 0.5
 board_speed_cap = 250.0
 board_turning_speed = 1.5
@@ -130,6 +130,8 @@ polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
 [node name="Camera2D2" type="Camera2D" parent="."]
 offset = Vector2(115, 0)
+enabled = false
+zoom = Vector2(0.25, 0.25)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 offset = Vector2(115, 0)

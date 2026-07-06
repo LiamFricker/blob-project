@@ -1304,7 +1304,7 @@ func _on_update_zone_timer_timeout():
 	var zoneBarrierY = ZONE_HEIGHT[current_map]/2
 	
 	var updatezoneref = $UpdateZoneTimer
-	print("update zone check: ", currentZone)
+	#print("update zone check: ", currentZone)
 	#This logic only handles one zone at a time btw.
 	if playerPos.x > currentZonePosition.x + zoneBarrierX:
 		if playerPos.y > currentZonePosition.y + zoneBarrierY:

@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cpr1vlwelo21x" path="res://Blob/zone.gd" id="1_gpdc1"]
 
 [node name="Zone" type="Node2D"]
+visible = false
 script = ExtResource("1_gpdc1")
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
