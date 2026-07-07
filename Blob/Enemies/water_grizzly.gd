@@ -10,6 +10,7 @@ enum {
 	SWIPE,
 	CHARGE_DASH,
 	DASH,
+	STUN, 
 	DEAD
 }
 var state = IDLE
@@ -53,16 +54,17 @@ var homepos : Vector2
 
 var move_tween
 var ear_tween
+var health_mod_tween
 
-var current_attack = 0
-var phase = 1
+var current_attack : int = 0
+var phase : int = 1
 
 var swipe_count = 0
 const swipe_max = 5
 
 var dash_count = 0
 const dash_max = 3
-var dash_length = 2000
+@export var dash_length = 2000
 
 const follow_range_squared_base = 4000000 
 var follow_range_squared = 4000000 
@@ -146,8 +148,7 @@ func _process(delta: float) -> void:
 	$Polygon2D.rotation = direction_angle
 
 func _chooseNextAttack() -> void:
-	_dashStart()
-	return
+	
 	if playerTarget:
 		#0: Run, 1: Swipe, 2: Dash
 
@@ -166,6 +167,7 @@ func _chooseNextAttack() -> void:
 func _runStart() -> void:
 	state = CHARGE_RUN
 	AnimPlay.play("RunCharge", -1, run_charge_speed)
+	run_charge_speed = run_charge_speed_base
 	
 	if move_tween:
 		move_tween.kill()
@@ -185,15 +187,17 @@ func _running() -> void:
 	if ear_tween:
 		ear_tween.kill()
 
-	ear_tween = create_tween().set_loops(32)
+	ear_tween = create_tween().set_loops(28)
 	ear_tween.tween_callback(_refreshRunDirection).set_delay(0.5)
-	ear_tween.finished.connect(_runRealEnd)
+	ear_tween.finished.connect(_runEnd)
 	#get_tree().create_timer(16*0.5).timeout.connect(_runEnd)
 
 func _runEnd() -> void:
-	if state == RUN:
-		_runSkid()	
-	state = AGGRESSION	
+	AnimPlay.play("RunBreak", 0.5)
+	turning_direction = 0
+	#if state == RUN:
+	#	_runSkid()	
+	#state = AGGRESSION	
 
 #Skid logic here
 #An option is for to instant flip turn around to player. We'd have to make everything else a flip though.
@@ -242,13 +246,14 @@ func _runRealEnd() -> void:
 	#	return
 	
 	#Inner.scale.x = 1
-	run_charge_speed = run_charge_speed_base
+	
 	if phase == 1 or swipe_count == 0:
 		current_attack = 1
 		_walkTransition()
 	else:
 		current_attack = 2
 		swipe_count = 0
+		_chooseNextAttack()
 
 func _walkTransition() -> void:
 	#print("Walk Trans")
@@ -269,7 +274,7 @@ func _walkTransition() -> void:
 	
 	#move_tween.tween_callback(_walkToPlayer).set_delay(1.0)
 	move_tween.tween_interval(0.5)
-	_walkToPlayer(8)
+	_walkToPlayer(7)
 	#move_tween.finished.connect(_chooseNextAttack)
 	
 	if ear_tween:
@@ -312,8 +317,8 @@ func _swipeStart() -> void:
 	if move_tween:
 		move_tween.kill()
 	move_tween = create_tween()
-	var temp_angle = _getTargetDirection() - PI/2
-	var end_angle = log(temp_angle+1) if temp_angle >= 0 else -log(-temp_angle+1)
+	var temp_angle = _getTargetDirection()
+	var end_angle = log((temp_angle - PI/2)+1) if (temp_angle - PI/2) >= 0 else -log(-(temp_angle - PI/2)+1)
 	move_tween.tween_property(arm, "rotation", armSign * end_angle, 1.0 / swing_speed).as_relative()
 	move_tween.parallel().tween_property(arm, "position", Vector2(-5 * armSign, -10), 1.0 / swing_speed).as_relative()
 	direction_angle = temp_angle
@@ -342,17 +347,20 @@ func _dashStart() -> void:
 		current_attack = 0
 		run_charge_speed = 1.5 * run_charge_speed_base
 		follow_range_squared = follow_range_squared_base
+		dash_count = 0
 		_chooseNextAttack()
-	$InnerNode/Polygon2D.visible = true
-	follow_range_squared = follow_range_squared_base * 2.25
+	else:
+		$InnerNode/Polygon2D.visible = true
+		$InnerNode/Polygon2D.rotation = _getTargetDirection()
+		follow_range_squared = follow_range_squared_base * 2.25
+			
+		state = CHARGE_DASH
+		AnimPlay.play("DashCharge")
 		
-	state = CHARGE_DASH
-	AnimPlay.play("DashCharge")
-	
-	if move_tween:
-		move_tween.kill()
-	move_tween = create_tween().set_loops(11)
-	move_tween.tween_callback(_updateRotation.bind(0.1)).set_delay(0.1)
+		if move_tween:
+			move_tween.kill()
+		move_tween = create_tween().set_loops(11)
+		move_tween.tween_callback(_updateRotationAug.bind(0.1)).set_delay(0.1)
 	
 func _dashEnd() -> void:
 	$InnerNode/Polygon2D.visible = false
@@ -360,15 +368,19 @@ func _dashEnd() -> void:
 		move_tween.kill()
 	move_tween = create_tween()
 	
-	AnimPlay.play("DashCharge")
-	
+	AnimPlay.play("Dashing")
+	dash_count += 1
 	var swipeEndLoc : Vector2 = dash_length * Vector2.from_angle(direction_angle)
-	move_tween.tween_property(Inner, "position", swipeEndLoc, 2.2).as_relative()
+	#move_tween.tween_property(Inner, "position", 0.2 * swipeEndLoc, 0.2).as_relative().set_trans(Tween.TRANS_QUAD)
+	move_tween.set_ease(Tween.EASE_OUT)
+	move_tween.tween_property(Inner, "position", swipeEndLoc, 1.5).as_relative().set_trans(Tween.TRANS_QUAD)
 	
 
 func _phaseChange() -> void:
 	match phase:
 		1:
+			#IF there is phase 3, heal the grizzly back to full health 
+			#actually don't, just edit the code incase we want damage bars.
 			phase = 2
 			swipe_count = 0
 			current_attack = 2
@@ -377,8 +389,9 @@ func _phaseChange() -> void:
 			move_tween.kill()
 			ear_tween.kill()
 			$InnerNode/Polygon2D.visible = false
-			
+			state = STUN
 			_stunned()
+			AnimPlay.queue("RunBreak")
 		2:
 			phase = 3
 
@@ -408,15 +421,16 @@ func _updateRotation(rotTime : float) -> void:
 	ear_tween.tween_property(Inner, "rotation", end_angle, rotTime)
 
 func _updateRotationAug(rotTime : float) -> void:
+	print("rot update")
 	direction_angle = _getTargetDirection()
 	
-	var end_angle = log(direction_angle+1) if direction_angle >= 0 else -log(-direction_angle+1)
+	#var end_angle = log(direction_angle+1) if direction_angle >= 0 else -log(-direction_angle+1)
 	
 	if ear_tween:
 		ear_tween.kill()
 	ear_tween = create_tween()
-	ear_tween.tween_property(Inner, "rotation", end_angle, rotTime)
-	ear_tween.parallel().tween_property($Polygon2D, rotation, direction_angle - end_angle, rotTime)
+	#ear_tween.tween_property(Inner, "rotation", end_angle, rotTime)
+	ear_tween.tween_property($InnerNode/Polygon2D, "rotation", direction_angle, rotTime)
 	
 func _refreshRunDirection() -> void:
 	#print("gTD: ", rad_to_deg(_getTargetDirection()))
@@ -563,11 +577,19 @@ func _dot_end(death : bool, _type : int = 0) -> void: #ID : int,
 		_OnDeath()		
 		
 func takeDamage(amt : float, _kwargs = []) -> void:
+	if health_mod_tween:
+		health_mod_tween.kill()
+	health_mod_tween = create_tween()
+	health_mod_tween.tween_property($InnerNode/Sprite, "modulate", Color8(255, 200, 200), 0.1)
+	health_mod_tween.tween_property($InnerNode/Sprite, "modulate", Color8(255, 255, 255), 0.1)
+	
 	if state == IDLE:
 		_aggressionTrigger(false)
 	health -= amt
 	if health <= 0:
 		_OnDeath()	
+	elif health <= max_health * 0.55:
+		_phaseChange()
 
 func _OnDeath() -> void:
 	state = DEAD
@@ -614,14 +636,21 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 			_running()
 		"DashCharge":
 			_dashEnd()
-		"Stun":
-			_chooseNextAttack()
+		"Dashing":
+			_dashStart()
+		#"Stun":
+		#	_chooseNextAttack()
 		"LeftSwingEnd", "RightSwingEnd":
 			_swipeStart()
+		"RunBreak":
+			if state == STUN:
+				_chooseNextAttack()
+			else:	
+				_runRealEnd()
 			
 func _on_damage_test_timer_timeout() -> void:
 	if state != IDLE:
-		takeDamage(0)
+		takeDamage(2)
 
 func _on_detection_radius_body_entered(body: Node2D) -> void:
 	_onPlayerDetection(body)
