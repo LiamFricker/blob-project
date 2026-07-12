@@ -22,7 +22,7 @@ var playerTarget : bool = false
 @onready var Inner = $InnerNode
 @onready var AnimPlay = $AnimationPlayer
 
-var ID : int = -1
+var ID : int = -100
 
 @export var max_health: float = 100
 @onready var health = max_health

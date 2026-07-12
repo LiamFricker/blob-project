@@ -3,6 +3,7 @@ extends Node2D
 var stageLevel = 0
 var sizeLevel = 0
 
+#This should be a dictionary honestly
 var entitiesList = []
 var entitiesSize = 0
 
@@ -193,6 +194,11 @@ func _loadEntity(path : String, weight : int, weightTotal : int, biome = 4, isRe
 	EntUpRef.append(weightTotal)
 	return weightTotal
 
+#Hey dumbass
+#how about using a fucking dictionary idiot
+#Weight = -1 if you don't want to go through a random weight system
+#Thanks for not explaining it idiot. 
+
 #To be honest, I should probably use a 2D list but my experience in coding up the zones
 #has taught me that 2D lists are a pain in the ass here
 #Since we know these IDs before hand, the spawners will want to spawn them directly.
@@ -204,7 +210,7 @@ func _loadEntity(path : String, weight : int, weightTotal : int, biome = 4, isRe
 #Anyways idk what the fuck this shit is, it's way too fucking messy.
 #Binary search this shit. We have upper and lower bound so use upper to check for > upper
 #and < to check for less than lower.
-func spawnEntity(biomeOrID : int, weight : float, pos : Vector2) -> Node2D:
+func spawnEntity(biomeOrID : int, weight : float, pos : Vector2, kwargs : Array = []) -> Node2D:
 	var tempEntity = Node2D
 	
 	#Huh I just learnt you can do a ton of stuff with switch cases in Godot

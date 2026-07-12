@@ -1,0 +1,74 @@
+[gd_scene load_steps=11 format=3 uid="uid://bvn6n8cok7di3"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_pjcfb"]
+[ext_resource type="Script" uid="uid://qrsbstggt8co" path="res://Blob/Enemies/glider.gd" id="2_4ubj5"]
+[ext_resource type="Texture2D" uid="uid://bs3g2ngwqopqh" path="res://Art/Cell/Enemies/glider.png" id="2_u42xb"]
+[ext_resource type="Script" uid="uid://c68hxhqm3c2b6" path="res://Blob/areaCommon.gd" id="4_80p6y"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ubj5"]
+atlas = ExtResource("2_u42xb")
+region = Rect2(0, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_80p6y"]
+atlas = ExtResource("2_u42xb")
+region = Rect2(40, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gyxji"]
+atlas = ExtResource("2_u42xb")
+region = Rect2(80, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yakco"]
+atlas = ExtResource("2_u42xb")
+region = Rect2(120, 0, 40, 40)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gua2v"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ubj5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_80p6y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gyxji")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yakco")
+}],
+"loop": true,
+"name": &"default",
+"speed": 4.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_4ubj5"]
+radius = 18.0278
+
+[node name="glider" node_paths=PackedStringArray("hurtboxReference") instance=ExtResource("1_pjcfb")]
+script = ExtResource("2_4ubj5")
+speed = 10
+orb_reward = 2
+health_max = 1.0
+size = 1.0
+hurtboxReference = NodePath("InnerNode/Hurtbox")
+spawnerID = 4
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="0"]
+sprite_frames = SubResource("SpriteFrames_gua2v")
+autoplay = "default"
+
+[node name="Hurtbox" type="Area2D" parent="InnerNode" index="1" node_paths=PackedStringArray("parentRef")]
+collision_layer = 0
+collision_mask = 3
+script = ExtResource("4_80p6y")
+parentRef = NodePath("../..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
+shape = SubResource("CircleShape2D_4ubj5")
+
+[node name="Lifetime" type="Timer" parent="." index="2"]
+wait_time = 10.0
+
+[connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
+[connection signal="timeout" from="Lifetime" to="." method="_on_lifetime_timeout"]

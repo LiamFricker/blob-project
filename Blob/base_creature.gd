@@ -4,7 +4,14 @@ class_name base_creature
 
 @onready var Sprite = $InnerNode/Sprite
 @onready var Inner = $InnerNode
-@onready var attach = $Attachments
+@onready var attach = $InnerNode/Sprite/Attachments
+
+@export var orb_reward = 0
+
+var isChild : bool = false
+var parentRef : Node2D 
+
+@export var base_damage : float = 0
 
 var children_list = []
 @export var health_max: float = 0
@@ -74,7 +81,7 @@ func reset() -> void:
 func disable() -> void:
 	state = DISABLE
 	#Children should be ideally removed or deleted when parent is disabled
-	for c in children_list:
+	for c in children_list:	
 		c.disable()
 	visible = false
 	toggleHitbox(false)
@@ -131,12 +138,15 @@ func knockback(direction: Vector2, strength : int) -> void:
 
 func _knockbackEnd() -> void:
 	kb_moving = false
-	if state == IDLE and $IdleTimer.is_stopped():
-		idle()
+	#if state == IDLE and $IdleTimer.is_stopped():
+		#idle()
 
 #Use this to get the position for the creature
 func getPosition() -> Vector2:
 	return position + Inner.position
+	
+func getDamage() -> float:
+	return base_damage
 
 #Override this if needs be (such as multiple hitboxes)
 func toggleHitbox(toggle : bool) -> void:
@@ -150,6 +160,17 @@ func toggleHurtbox(toggle : bool) -> void:
 		hurtboxReference.set_deferred("monitoring", toggle)
 		hitboxReference.set_deferred("monitorable", toggle)
 
+func _on_hurtbox_area_entered(area: Area2D) -> void:
+	var temp_enemy = area.getParent()
+	if temp_enemy.ID != ID:
+		takeDamage(area.getDamage())
+
+func _on_hurtbox_body_entered(body: Node2D) -> void:
+	if body.ID != ID:
+		takeDamage(body.getDamage())
+
+
+"""
 func idle() -> void:
 	if not kb_moving:
 		if movement_tween:
@@ -161,7 +182,7 @@ func idle() -> void:
 func _on_idle_timer_timeout() -> void:
 	if state == IDLE:
 		idle()
-
+"""
 
 func addPosition(addpos : Vector2) -> void:#, dims : Vector2) -> void:
 	#You can make this slightly more efficient if you make this calculation 
@@ -179,6 +200,9 @@ func addPosition(addpos : Vector2) -> void:#, dims : Vector2) -> void:
 func _OnDeath() -> void:
 	print("DEATH: ", self)
 	state = DEAD
+	if isChild:
+		parentRef.removeChild(self)
+		call_deferred("queue_free")
 	for c in children_list:
 		c.orphan()
 	visible = false
