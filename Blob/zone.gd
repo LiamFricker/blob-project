@@ -1,6 +1,7 @@
 extends Node2D
 
 signal zoneHandleRoamer(supplyState : int, position : Vector2, creatureRef : Node2D)
+signal spawnOrbs(amt : int, pos : Vector2)
 
 #var cellReference Just do a get_parent call tbh
 var entitySpawnerReference #This one should probably be saved since it's called a lot

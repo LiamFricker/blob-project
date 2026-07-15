@@ -1,5 +1,7 @@
 extends base_creature
 
+
+
 #	Glider
 #	Very Simple Object. Moves in one direction and that's it.
 

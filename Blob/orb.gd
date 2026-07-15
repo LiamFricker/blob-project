@@ -75,9 +75,9 @@ func disable() -> void:
 	#visible = false
 	$Detection.set_deferred("monitoring", false)
 	
-func _on_detection_area_entered(_area: Area2D) -> void:
+func _on_detection_area_entered(area: Area2D) -> void:
 	#Call the player's collect here too as well with the value from this orb
-	#Player.collect() w/e
+	area.getParent().collect() 
 	#This needs to connect to tentacle or something since it's an area rather than a body.
 	print("collect")
 	#Need to fix this signal

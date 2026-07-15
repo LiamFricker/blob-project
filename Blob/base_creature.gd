@@ -2,6 +2,8 @@ extends Node2D
 
 class_name base_creature
 
+signal spawnOrbs(amt : int, pos : Vector2)
+
 @onready var Sprite = $InnerNode/Sprite
 @onready var Inner = $InnerNode
 @onready var attach = $InnerNode/Sprite/Attachments
@@ -169,6 +171,8 @@ func _on_hurtbox_body_entered(body: Node2D) -> void:
 	if body.ID != ID:
 		takeDamage(body.getDamage())
 
+func _spawnOrbs(orb_amt = orb_reward) -> void:
+	spawnOrbs.emit(orb_amt, getPosition())
 
 """
 func idle() -> void:
@@ -198,6 +202,7 @@ func addPosition(addpos : Vector2) -> void:#, dims : Vector2) -> void:
 		c.addPosition(addpos)
 
 func _OnDeath() -> void:
+	_spawnOrbs()
 	print("DEATH: ", self)
 	state = DEAD
 	if isChild:
@@ -209,6 +214,7 @@ func _OnDeath() -> void:
 	toggleHitbox(false)
 	toggleHurtbox(false)
 	set_process(false)
+	
 
 func increaseVirusLevel(type : int, intensity : float, duration = 2.0) -> void: #ID : int, 
 	var dotLeft = 0

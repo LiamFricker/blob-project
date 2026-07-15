@@ -1,0 +1,115 @@
+[gd_scene load_steps=12 format=3 uid="uid://sghfc0jsrpng"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_umwnb"]
+[ext_resource type="Script" uid="uid://by0edai1i8gio" path="res://Blob/Enemies/obelisk.gd" id="2_rgdhf"]
+[ext_resource type="Texture2D" uid="uid://c8out4olen73w" path="res://Art/Cell/Enemies/obelisk_fill.png" id="3_g8nrq"]
+[ext_resource type="Texture2D" uid="uid://dntgplsuodkpo" path="res://Art/Cell/Enemies/obelisk_border.png" id="4_xw2e7"]
+[ext_resource type="Texture2D" uid="uid://bm2x358p161et" path="res://Art/Cell/Enemies/obelisk_green.png" id="5_xw2e7"]
+[ext_resource type="Shader" uid="uid://b5h0ft5dnwwdk" path="res://Blob/Enemies/obelisk_gradient.gdshader" id="6_1pq4i"]
+[ext_resource type="Texture2D" uid="uid://dpa0dlb8isgia" path="res://Art/Cell/Enemies/obelisk_red.png" id="6_hiuv4"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p1p87"]
+shader = ExtResource("6_1pq4i")
+shader_parameter/start_color = Color(0, 1, 0, 1)
+shader_parameter/end_color = Color(0, 0, 0, 1)
+shader_parameter/leng_tenth = 9.6
+shader_parameter/osc_size = 0.5
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_3wasn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hiuv4"]
+shader = ExtResource("6_1pq4i")
+shader_parameter/start_color = Color(1, 0, 0, 1)
+shader_parameter/end_color = Color(0, 0, 0, 1)
+shader_parameter/leng_tenth = 9.6
+shader_parameter/osc_size = 0.5
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hiuv4"]
+size = Vector2(29, 104)
+
+[node name="obelisk" node_paths=PackedStringArray("hitboxReference", "hurtboxReference") instance=ExtResource("1_umwnb")]
+script = ExtResource("2_rgdhf")
+rotation_speed = 1.0
+orb_reward = 0
+base_damage = 1.0
+health_max = 2.0
+size = 1.0
+hitboxReference = NodePath("InnerNode/Hitbox")
+hurtboxReference = NodePath("InnerNode/Hurtbox")
+spawnerID = 6
+
+[node name="Sprite" parent="InnerNode" index="0"]
+position = Vector2(-16, -48)
+
+[node name="Body" type="Polygon2D" parent="InnerNode/Sprite" index="1"]
+texture = ExtResource("3_g8nrq")
+polygon = PackedVector2Array(7.62939e-06, 3.8147e-06, 32, 3.8147e-06, 32, 96, 0, 96)
+
+[node name="Sprite2D" type="Sprite2D" parent="InnerNode/Sprite" index="2"]
+position = Vector2(16, 48)
+scale = Vector2(1, 1.5)
+texture = ExtResource("4_xw2e7")
+
+[node name="Greens" type="Node2D" parent="InnerNode/Sprite" index="3"]
+
+[node name="Green1" type="Sprite2D" parent="InnerNode/Sprite/Greens" index="0"]
+visible = false
+position = Vector2(-6, 16)
+texture = ExtResource("5_xw2e7")
+
+[node name="Green2" type="Sprite2D" parent="InnerNode/Sprite/Greens" index="1"]
+visible = false
+position = Vector2(-6, 48)
+texture = ExtResource("5_xw2e7")
+
+[node name="Green3" type="Sprite2D" parent="InnerNode/Sprite/Greens" index="2"]
+visible = false
+position = Vector2(-6, 80)
+texture = ExtResource("5_xw2e7")
+
+[node name="Polygon2D" type="Polygon2D" parent="InnerNode/Sprite/Greens" index="3"]
+material = SubResource("ShaderMaterial_p1p87")
+scale = Vector2(-1, 1)
+texture = SubResource("PlaceholderTexture2D_3wasn")
+polygon = PackedVector2Array(0, 0, 12, 0, 12, 96, 0, 96)
+
+[node name="Reds" type="Node2D" parent="InnerNode/Sprite" index="4"]
+
+[node name="Red1" type="Sprite2D" parent="InnerNode/Sprite/Reds" index="0"]
+position = Vector2(38, 16)
+texture = ExtResource("6_hiuv4")
+
+[node name="Red2" type="Sprite2D" parent="InnerNode/Sprite/Reds" index="1"]
+position = Vector2(38, 47)
+texture = ExtResource("6_hiuv4")
+
+[node name="Red3" type="Sprite2D" parent="InnerNode/Sprite/Reds" index="2"]
+position = Vector2(38, 80)
+texture = ExtResource("6_hiuv4")
+
+[node name="Polygon2D" type="Polygon2D" parent="InnerNode/Sprite/Reds" index="3"]
+material = SubResource("ShaderMaterial_hiuv4")
+position = Vector2(32, 0)
+texture = SubResource("PlaceholderTexture2D_3wasn")
+polygon = PackedVector2Array(0, 0, 12, 0, 12, 96, 0, 96)
+
+[node name="Hurtbox" type="Area2D" parent="InnerNode" index="1"]
+position = Vector2(-16, -48)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
+position = Vector2(-5.5, 48)
+shape = SubResource("RectangleShape2D_hiuv4")
+
+[node name="Hitbox" type="Area2D" parent="InnerNode" index="2"]
+position = Vector2(-16, -48)
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hitbox" index="0"]
+position = Vector2(37, 48)
+shape = SubResource("RectangleShape2D_hiuv4")
+
+[connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]

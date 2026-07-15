@@ -81,7 +81,8 @@ func expand(newsize : int) -> void:
 		unused_orb_list[i - another_temp_size] = i
 
 #Spawn orb (usually on enemy death)
-func spawnOrbs(amount : int, spawncenter : Vector2) -> void:
+func spawnOrbs(amt : int, spawncenter : Vector2) -> void:
+	var amount = ceil(amt / weight)
 	var small_orbs:int = 0
 	var med_orbs:int = 0
 	var big_orbs:int = 0
