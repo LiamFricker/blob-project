@@ -91,18 +91,10 @@ func spawnPiece(offset : Vector2, rot_speed : float, direction : Vector2) -> voi
 	if spawnerRef:
 		var childPiece = spawnerRef.spawnEntity(piece_id, -1, getPosition() + offset)
 		childPiece.setParams($InnerNode.rotation, rot_speed, direction, self, size)
-		children_list.append(childPiece)
-		if zoneReference:
-			zoneReference.add_child(childPiece)
-		else:
-			get_parent().add_child(childPiece)
+		_addConnectChild(childPiece)
 	else:
 		var childPiece = test_part.instantiate()
 		childPiece.position = getPosition() + offset
 		childPiece.setParams($InnerNode.rotation, rot_speed, direction, self, size)
-		children_list.append(childPiece)
-		if zoneReference:
-			zoneReference.add_child(childPiece)
-		else:
-			get_parent().add_child(childPiece)
+		_addConnectChild(childPiece)
 	

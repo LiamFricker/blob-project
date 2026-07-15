@@ -838,6 +838,7 @@ func generateMap() -> void:
 				_calculateZonePosition(i, j),
 				Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
 				temp.zoneHandleRoamer.connect(cellHandleRoamer)
+				zone.spawnOrbs.connect(_spawnOrbs)
 				add_child(temp)
 				#"""
 				
@@ -1484,3 +1485,6 @@ func _on_hud_swim_upgrade_tab_toggled(state: bool) -> void:
 #This needs to update the dimensions of the invalid space where click based input doesn't trigger player movement/abilities
 func _on_resolution_change() -> void:
 	pass
+
+func _spawnOrbs(orb_amt : float, pos : Vector2) -> void:
+	orbReference.spawnOrbs(orb_amt, pos)

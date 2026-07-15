@@ -174,6 +174,17 @@ func _on_hurtbox_body_entered(body: Node2D) -> void:
 func _spawnOrbs(orb_amt = orb_reward) -> void:
 	spawnOrbs.emit(orb_amt, getPosition())
 
+func _addConnectChild(childRef : Node2D) -> void:
+	children_list.append(childRef)
+	
+	var parentZone
+	if zoneReference:
+		parentZone = zoneReference
+	else:
+		parentZone = get_parent()
+	childRef.spawnOrbs.connect(parentZone._spawnOrbs)
+	parentZone.add_child(childRef)
+
 """
 func idle() -> void:
 	if not kb_moving:

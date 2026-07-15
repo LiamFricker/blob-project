@@ -48,18 +48,10 @@ func _spawnGlider() -> void:
 	if spawnerRef:
 		var childGlider = spawnerRef.spawnEntity(glider_id, -1, getPosition())
 		childGlider.setParams(self, dir)
-		children_list.append(childGlider)
-		if zoneReference:
-			zoneReference.add_child(childGlider)
-		else:
-			get_parent().add_child(childGlider)
+		_addConnectChild(childGlider)
 	else:
 		var childGlider = test_glider.instantiate()
 		childGlider.position = getPosition()
 		childGlider.setParams(self, dir)
-		children_list.append(childGlider)
-		if zoneReference:
-			zoneReference.add_child(childGlider)
-		else:
-			get_parent().add_child(childGlider)
+		_addConnectChild(childGlider)
 	

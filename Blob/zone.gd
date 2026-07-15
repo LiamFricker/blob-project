@@ -255,3 +255,6 @@ func addCreature(c : Node2D) -> void:
 
 func removeRoaming(_creatureID : int) -> void:
 	pass
+
+func _spawnOrbs(orb_amt : float, pos : Vector2) -> void:
+	spawnOrbs.emit(orb_amt, pos)
