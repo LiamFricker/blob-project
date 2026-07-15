@@ -1,0 +1,66 @@
+[gd_scene load_steps=8 format=3 uid="uid://dvs4crgcvrhaf"]
+
+[ext_resource type="PackedScene" uid="uid://cnyy1i8flh38v" path="res://Blob/base_child_collect.tscn" id="1_005ng"]
+[ext_resource type="Script" uid="uid://u82m0qujl1ur" path="res://Blob/Enemies/obelisk_part.gd" id="2_k3cxu"]
+[ext_resource type="Texture2D" uid="uid://c8out4olen73w" path="res://Art/Cell/Enemies/obelisk_fill.png" id="2_n2865"]
+[ext_resource type="Shader" uid="uid://b5h0ft5dnwwdk" path="res://Blob/Enemies/obelisk_gradient.gdshader" id="3_k3cxu"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_k3cxu"]
+radius = 29.14
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2r4ka"]
+shader = ExtResource("3_k3cxu")
+shader_parameter/start_color = Color(0, 1, 0, 1)
+shader_parameter/end_color = Color(0, 0, 0, 1)
+shader_parameter/leng_tenth = 3.2
+shader_parameter/osc_size = 0.472
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_2aeea"]
+
+[node name="obelisk_part" instance=ExtResource("1_005ng")]
+script = ExtResource("2_k3cxu")
+size = 1.0
+value = 3.0
+
+[node name="Hurtbox" parent="Inner" index="0"]
+collision_layer = 0
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Inner/Hurtbox" index="0"]
+shape = SubResource("CircleShape2D_k3cxu")
+
+[node name="Body" type="Polygon2D" parent="Inner/Sprite" index="0"]
+position = Vector2(-15, -15.9999)
+texture = ExtResource("2_n2865")
+polygon = PackedVector2Array(0, 0, 32, 0, 32, 32, 0, 32)
+
+[node name="Left" type="Polygon2D" parent="Inner/Sprite" index="1"]
+material = SubResource("ShaderMaterial_2r4ka")
+position = Vector2(-15, -15.9999)
+rotation = 3.14159
+scale = Vector2(1, -1)
+texture = SubResource("PlaceholderTexture2D_2aeea")
+polygon = PackedVector2Array(0, 0, 12, 0, 12, 32, 0, 32)
+
+[node name="Top" type="Polygon2D" parent="Inner/Sprite" index="2"]
+material = SubResource("ShaderMaterial_2r4ka")
+position = Vector2(17, -15.9999)
+rotation = -1.57079
+scale = Vector2(1, -1)
+color = Color(1, 1, 1, 0)
+texture = SubResource("PlaceholderTexture2D_2aeea")
+polygon = PackedVector2Array(0, 0, 12, 0, 12, 32, 0, 32)
+
+[node name="Right" type="Polygon2D" parent="Inner/Sprite" index="3"]
+material = SubResource("ShaderMaterial_2r4ka")
+position = Vector2(17, -15.9999)
+texture = SubResource("PlaceholderTexture2D_2aeea")
+polygon = PackedVector2Array(0, 0, 12, 0, 12, 32, 0, 32)
+
+[node name="Bot" type="Polygon2D" parent="Inner/Sprite" index="4"]
+material = SubResource("ShaderMaterial_2r4ka")
+position = Vector2(17, 16.0001)
+rotation = 1.5708
+color = Color(1, 1, 1, 0)
+texture = SubResource("PlaceholderTexture2D_2aeea")
+polygon = PackedVector2Array(0, 0, 12, 0, 12, 32, 0, 32)

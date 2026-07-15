@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://cnyy1i8flh38v"]
+
+[ext_resource type="PackedScene" uid="uid://dswmyneepbsx2" path="res://Blob/base_collectable.tscn" id="1_ctu2e"]
+[ext_resource type="Script" uid="uid://dbv6f43wxuycf" path="res://base_child_collect.gd" id="2_cvnwq"]
+
+[node name="base_child_collect" instance=ExtResource("1_ctu2e")]
+script = ExtResource("2_cvnwq")

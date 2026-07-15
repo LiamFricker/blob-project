@@ -122,7 +122,7 @@ func knockback(direction: Vector2, strength : int) -> void:
 				print("OLDpower NEGATIVE FORMULA WRONG")
 			oldDirection = oldDirection / oldLen
 			startPosition = getPosition()
-			movement_tween.tween_property(Inner, "position", startPosition + direction * power + oldDirection * oldPower, power / 2)
+			movement_tween.tween_property(Inner, "position", direction * power + oldDirection * oldPower, power / 2).as_relative()
 			movement_tween.parallel(self, "rotation", 2 * PI * floor(power + oldPower), power / 2)
 			movement_tween.tween_callback(_knockbackEnd)
 		else:
@@ -134,7 +134,7 @@ func knockback(direction: Vector2, strength : int) -> void:
 			kb_moving = true
 			startPosition = getPosition()
 			
-			movement_tween.tween_property(Inner, "position", startPosition + direction * power, power / 2)
+			movement_tween.tween_property(Inner, "position", direction * power, power / 2).as_relative()
 			movement_tween.parallel(self, "rotation", 2 * PI * floor(power), power / 2)
 			movement_tween.tween_callback(_knockbackEnd)
 
@@ -153,23 +153,23 @@ func getDamage() -> float:
 #Override this if needs be (such as multiple hitboxes)
 func toggleHitbox(toggle : bool) -> void:
 	if hitboxReference:
-		hitboxReference.set_deferred("monitoring", toggle)
+		#hitboxReference.set_deferred("monitoring", toggle)
 		hitboxReference.set_deferred("monitorable", toggle)
 	
 #Override this if needs be (such as multiple hurtboxes)
 func toggleHurtbox(toggle : bool) -> void:
 	if hurtboxReference:
 		hurtboxReference.set_deferred("monitoring", toggle)
-		hitboxReference.set_deferred("monitorable", toggle)
+		#hurtboxReference.set_deferred("monitorable", toggle)
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var temp_enemy = area.getParent()
 	if temp_enemy.ID != ID:
-		takeDamage(area.getDamage())
+		takeDamage(area.getDamage(), area.getPosition())
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	if body.ID != ID:
-		takeDamage(body.getDamage())
+		takeDamage(body.getDamage(), body.getPosition())
 
 func _spawnOrbs(orb_amt = orb_reward) -> void:
 	spawnOrbs.emit(orb_amt, getPosition())
@@ -201,18 +201,50 @@ func addPosition(addpos : Vector2) -> void:#, dims : Vector2) -> void:
 	for c in children_list:
 		c.addPosition(addpos)
 
-func _OnDeath() -> void:
-	_spawnOrbs()
+func _OnDeath(pos = Vector2.ZERO, _kwargs = []) -> void:
 	print("DEATH: ", self)
 	state = DEAD
-	if isChild:
-		parentRef.removeChild(self)
-		call_deferred("queue_free")
+	
 	for c in children_list:
-		c.orphan()
-	visible = false
+		c.orphan(pos)
 	toggleHitbox(false)
 	toggleHurtbox(false)
+	if pos == Vector2.ZERO:
+		if isChild:
+			if parentRef:
+				parentRef.removeChild(self)
+			call_deferred("queue_free")
+		_spawnOrbs()
+		visible = false
+		set_process(false)
+	else:
+		_deathKnockback(pos)
+
+func orphan(pos = Vector2.ZERO) -> void:
+	get_tree().create_timer(6.0).timeout.connect(_OnDeath.bind(pos))
+
+func _deathKnockback(pos : Vector2) -> void:
+	var dir : Vector2 = getPosition() - pos
+	
+	var rot_speed = dir.length() if dir.x > 0 else -1 * dir.length()
+	
+	if dot_tween:
+		dot_tween.kill()
+	dot_tween = create_tween()
+	modulate = Color(0.8, 0.5, 0.5, 1.0)
+	dot_tween.tween_property(self, modulate, Color(1.0, 0, 0, 0), 1.0)
+	oscillate_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	dot_tween.parallel().tween_property(Inner, "position", 1.5*dir, 1.0).as_relative()
+	dot_tween.parallel().tween_property(Inner, "rotation", rot_speed, 1.0).as_relative()
+	dot_tween.finished.connect(_FullDeath)
+	
+func _FullDeath() -> void:
+	if isChild:
+		if parentRef:	
+			parentRef.removeChild(self)
+		call_deferred("queue_free")
+	_spawnOrbs()
+	visible = false
 	set_process(false)
 	
 
@@ -267,10 +299,10 @@ func _dot_end(death : bool, type : int = 0) -> void: #ID : int,
 				tempC.explode(size, v * angle + angle * vRNG.randf_range(-0.5, 0.5), getPosition())
 		_OnDeath()		
 		
-func takeDamage(amt : float, _kwargs = []) -> void:
+func takeDamage(amt : float, pos : Vector2, _kwargs = []) -> void:
 	health -= amt
 	if health <= 0:
-		_OnDeath()		
+		_OnDeath(pos)		
 		
 func _on_roam_timer_timeout():
 	var roamTemp = $RoamTimer

@@ -77,7 +77,7 @@ func disable() -> void:
 	
 func _on_detection_area_entered(area: Area2D) -> void:
 	#Call the player's collect here too as well with the value from this orb
-	area.getParent().collect() 
+	area.getParent().collect(value, position, enemy_drop, 0) 
 	#This needs to connect to tentacle or something since it's an area rather than a body.
 	print("collect")
 	#Need to fix this signal
@@ -86,7 +86,7 @@ func _on_detection_area_entered(area: Area2D) -> void:
 
 func _on_detection_body_entered(body: Node2D) -> void:
 	#Call the player's collect here too as well with the value from this orb
-	body.collect(value, position, enemy_drop)# w/e
+	body.collect(value, position, enemy_drop, 0)# w/e
 	print("collect")
 	collect.emit(id)
 	disable()

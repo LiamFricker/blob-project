@@ -1,5 +1,7 @@
 extends base_creature
 
+@export var test_glider : PackedScene
+
 const glider_id : int = 4
 var current_anim : int = 0
 var direction : Vector2 = Vector2.ZERO
@@ -42,7 +44,22 @@ func _on_animated_sprite_2d_animation_finished() -> void:
 
 func _spawnGlider() -> void:
 	#You might need to add an offset to this later.
-	var childGlider = spawnerRef.spawnEntity(glider_id, -1, getPosition())
-	childGlider.setParams(self, dir)
-	children_list.append(childGlider)
+	
+	if spawnerRef:
+		var childGlider = spawnerRef.spawnEntity(glider_id, -1, getPosition())
+		childGlider.setParams(self, dir)
+		children_list.append(childGlider)
+		if zoneReference:
+			zoneReference.add_child(childGlider)
+		else:
+			get_parent().add_child(childGlider)
+	else:
+		var childGlider = test_glider.instantiate()
+		childGlider.position = getPosition()
+		childGlider.setParams(self, dir)
+		children_list.append(childGlider)
+		if zoneReference:
+			zoneReference.add_child(childGlider)
+		else:
+			get_parent().add_child(childGlider)
 	

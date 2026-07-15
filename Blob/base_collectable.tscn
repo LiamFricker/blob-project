@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://dswmyneepbsx2"]
+
+[ext_resource type="Script" uid="uid://y4hx4f42unjw" path="res://Blob/base_collectable.gd" id="1_0xeln"]
+
+[node name="base_collectable" type="Node2D"]
+script = ExtResource("1_0xeln")
+
+[node name="Lifetime" type="Timer" parent="."]
+wait_time = 10.0
+autostart = true
+
+[node name="Inner" type="Node2D" parent="."]
+
+[node name="Hurtbox" type="Area2D" parent="Inner"]
+
+[node name="Sprite" type="Node2D" parent="Inner"]
+
+[connection signal="timeout" from="Lifetime" to="." method="_on_lifetime_timeout"]
+[connection signal="area_entered" from="Inner/Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="Inner/Hurtbox" to="." method="_on_hurtbox_body_entered"]

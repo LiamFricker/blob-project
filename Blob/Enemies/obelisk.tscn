@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://sghfc0jsrpng"]
+[gd_scene load_steps=13 format=3 uid="uid://sghfc0jsrpng"]
 
 [ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_umwnb"]
 [ext_resource type="Script" uid="uid://by0edai1i8gio" path="res://Blob/Enemies/obelisk.gd" id="2_rgdhf"]
+[ext_resource type="PackedScene" uid="uid://dvs4crgcvrhaf" path="res://Blob/Enemies/obelisk_part.tscn" id="3_1pq4i"]
 [ext_resource type="Texture2D" uid="uid://c8out4olen73w" path="res://Art/Cell/Enemies/obelisk_fill.png" id="3_g8nrq"]
 [ext_resource type="Texture2D" uid="uid://dntgplsuodkpo" path="res://Art/Cell/Enemies/obelisk_border.png" id="4_xw2e7"]
 [ext_resource type="Texture2D" uid="uid://bm2x358p161et" path="res://Art/Cell/Enemies/obelisk_green.png" id="5_xw2e7"]
@@ -29,8 +30,9 @@ size = Vector2(29, 104)
 
 [node name="obelisk" node_paths=PackedStringArray("hitboxReference", "hurtboxReference") instance=ExtResource("1_umwnb")]
 script = ExtResource("2_rgdhf")
-rotation_speed = 1.0
-orb_reward = 0
+rotation_speed = null
+test_part = ExtResource("3_1pq4i")
+orb_reward = null
 base_damage = 1.0
 health_max = 2.0
 size = 1.0

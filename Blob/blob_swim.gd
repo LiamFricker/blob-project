@@ -667,7 +667,7 @@ func _waddleOrbDecay() -> void:
 	else:
 		waddle_speed_bonus = 1.0
 
-func collect(_value : int, orbpos : Vector2, enemy_drop : bool) -> void:
+func collect(_value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
 	#Need a variable that tracks ripples
 	#Need 3 variables that track ripple amps.
 	#Need a function that's called when ripple amp reaches 0
