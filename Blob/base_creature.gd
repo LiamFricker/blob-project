@@ -18,7 +18,7 @@ var parentRef : Node2D
 var children_list = []
 @export var health_max: float = 0
 @onready var health : float = health_max 
-var ID: int = 0
+#var ID: int = 0
 @export var size: float = 0
 var isHazard : bool = false
 
@@ -27,7 +27,7 @@ var zoneReference : Node2D
 @export var hurtboxReference : Area2D
 @export var spawnerRef : Node2D
 
-@export var spawnerID: int = -1
+@export var ID: int = -1
 
 #State:
 enum{
@@ -164,11 +164,13 @@ func toggleHurtbox(toggle : bool) -> void:
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var temp_enemy = area.getParent()
-	if temp_enemy.ID != ID:
-		takeDamage(area.getDamage(), area.getPosition())
+	var dmg = area.getDamage()
+	if temp_enemy.ID != ID and dmg > 0:
+		takeDamage(dmg, area.getPosition())
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
-	if body.ID != ID:
+	var dmg = body.getDamage()
+	if body.ID != ID and dmg > 0:
 		takeDamage(body.getDamage(), body.getPosition())
 
 func _spawnOrbs(orb_amt = orb_reward) -> void:
@@ -176,14 +178,15 @@ func _spawnOrbs(orb_amt = orb_reward) -> void:
 
 func _addConnectChild(childRef : Node2D) -> void:
 	children_list.append(childRef)
-	
+	childRef.isChild = true
 	var parentZone
 	if zoneReference:
 		parentZone = zoneReference
 	else:
 		parentZone = get_parent()
+	childRef.parentRef = self
 	childRef.spawnOrbs.connect(parentZone._spawnOrbs)
-	parentZone.add_child(childRef)
+	parentZone.call_deferred("add_child", childRef)
 
 """
 func idle() -> void:
@@ -221,13 +224,13 @@ func _OnDeath(pos = Vector2.ZERO, _kwargs = []) -> void:
 	toggleHitbox(false)
 	toggleHurtbox(false)
 	if pos == Vector2.ZERO:
+		_spawnOrbs()
+		visible = false
+		set_process(false)
 		if isChild:
 			if parentRef:
 				parentRef.removeChild(self)
 			call_deferred("queue_free")
-		_spawnOrbs()
-		visible = false
-		set_process(false)
 	else:
 		_deathKnockback(pos)
 
@@ -236,16 +239,17 @@ func orphan(pos = Vector2.ZERO) -> void:
 
 func _deathKnockback(pos : Vector2) -> void:
 	var dir : Vector2 = getPosition() - pos
+	var dir_len : float = dir.length()
 	
-	var rot_speed = dir.length() if dir.x > 0 else -1 * dir.length()
-	
+	var rot_speed = 0.1 * dir_len if dir.x > 0 else -0.1 * dir_len
+	var end_dir = 6000.0*dir.normalized()/dir_len
 	if dot_tween:
 		dot_tween.kill()
 	dot_tween = create_tween()
 	modulate = Color(0.8, 0.5, 0.5, 1.0)
-	dot_tween.tween_property(self, modulate, Color(1.0, 0, 0, 0), 1.0)
-	oscillate_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
-	dot_tween.parallel().tween_property(Inner, "position", 1.5*dir, 1.0).as_relative()
+	dot_tween.tween_property(self, "modulate", Color(1.0, 0, 0, 0), 1.0)
+	dot_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	dot_tween.parallel().tween_property(Inner, "position", end_dir, 1.0).as_relative()
 	dot_tween.parallel().tween_property(Inner, "rotation", rot_speed, 1.0).as_relative()
 	dot_tween.finished.connect(_FullDeath)
 	

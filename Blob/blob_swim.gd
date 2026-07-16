@@ -10,8 +10,12 @@ enum {
 }
 var state = IDLE
 
+var ID : int = 0
+
 @export var camReference : Camera2D
 @export var spawnerReference : Node2D
+
+var damage = 1
 
 var energy = 0
 signal currencyUpdate(index : int, value : float)
@@ -876,5 +880,5 @@ func updateAllUpgrades(saveBonuses : Array) -> void:
 	staticBonuses = saveBonuses[0]
 	upgradeBonuses = saveBonuses.slice(1)
 
-func changeUpgradeTabState(newState : bool) -> void:
-	pass
+func getDamage() -> float:
+	return damage

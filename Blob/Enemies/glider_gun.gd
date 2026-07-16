@@ -30,21 +30,21 @@ func _ready() -> void:
 				direction = Vector2.RIGHT
 			7:
 				direction = Vector2(0.71, -0.71)
-		$InnerNode/Sprite.rotation += direction.angle() - PI/4
+		$InnerNode/Sprite.rotation += direction.angle()# - PI/4
 
 func _on_animated_sprite_2d_animation_finished() -> void:
 	current_anim += 1
-	if current_anim % 14 == 10 || current_anim % 14 == 12:
+	if current_anim % 14 == 7 || current_anim % 14 == 9:
 		_spawnGlider()
 		animRef.play("idle")
-	elif current_anim % 14 == 9 || current_anim % 14 == 11:
+	elif current_anim % 14 == 6 || current_anim % 14 == 8:
 		animRef.play("spawn")
 	else:
 		animRef.play("idle")
 
 func _spawnGlider() -> void:
 	#You might need to add an offset to this later.
-	
+	print("DIR: ", dir, rad_to_deg(Sprite.rotation)) 
 	if spawnerRef:
 		var childGlider = spawnerRef.spawnEntity(glider_id, -1, getPosition())
 		childGlider.setParams(self, dir)

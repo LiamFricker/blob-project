@@ -7,21 +7,22 @@ var rot_speed : float = 0
 var dir : Vector2 = Vector2.ZERO
 
 func _ready() -> void:
-	$Inner/Sprite.scale = size
+	
+	$Inner/Sprite.scale = size * Vector2(1,1)
 	var tempCirc = CircleShape2D.new()
 	tempCirc.radius = 29.14 * size
-	$Inner/Hurtbox/CollisionShape2D.shape = tempCirc
+	$Inner/Hurtbox/CollisionShape2D.set_deferred("shape", tempCirc)
 	if color_tween:
 		color_tween.kill()
 	color_tween = create_tween()
-	color_tween.tween_property($Top, "modulate", Color(1.0,1.0,1.0,1.0), 0.75)
-	color_tween.parallel().tween_property($Bot, "modulate", Color(1.0,1.0,1.0,1.0), 0.75)
-	color_tween.finished.connect(_enableHurtbox)
+	color_tween.tween_property($Inner/Sprite/Top, "modulate", Color(1.0,1.0,1.0,1.0), 0.75)
+	color_tween.parallel().tween_property($Inner/Sprite/Bot, "modulate", Color(1.0,1.0,1.0,1.0), 0.75)
+	color_tween.finished.connect(toggleHurtbox.bind(true))
 	
 	if oscillate_tween:
 		oscillate_tween.kill()
 	oscillate_tween = create_tween()
-	oscillate_tween.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	oscillate_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	oscillate_tween.tween_property(Inner, "position", dir, 5.0).as_relative()
 	oscillate_tween.parallel().tween_property($Inner/Sprite, "rotation", rot_speed, 5.0).as_relative()
 

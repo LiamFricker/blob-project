@@ -1,6 +1,7 @@
 extends "res://Blob/base_collectable.gd"
 
 var parentRef : Node2D
+var isChild : bool = true
 
 func _OnDeath() -> void:
 	if parentRef:
@@ -25,4 +26,5 @@ func disable() -> void:
 	set_process(false)
 
 func orphan(pos = Vector2.ZERO) -> void:
-	_on_lifetime_timeout()
+	parentRef = null
+	#_on_lifetime_timeout()

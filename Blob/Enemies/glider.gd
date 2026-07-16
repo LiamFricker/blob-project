@@ -7,7 +7,7 @@ extends base_creature
 
 #Direction from 1-8
 var direction : Vector2 = Vector2.ZERO
-@export var speed = 10
+@export var speed = 1
 
 func setParams(parRef, dir = 0) -> void:
 	parentRef = parRef
@@ -29,9 +29,12 @@ func setParams(parRef, dir = 0) -> void:
 			direction = Vector2.RIGHT
 		7:
 			direction = Vector2(0.71, -0.71)
+	$InnerNode/Sprite.rotation += direction.angle()# - PI/4
 	$Lifetime.autostart = true
+	print("DIRE: ", dir)
 
 func _ready() -> void:
+	print(rad_to_deg(Sprite.rotation))
 	if direction == Vector2.ZERO:
 		var dir_rng = RandomNumberGenerator.new()
 		var dir = dir_rng.randi_range(0, 7)
@@ -52,15 +55,16 @@ func _ready() -> void:
 				direction = Vector2.RIGHT
 			7:
 				direction = Vector2(0.71, -0.71)
-		$InnerNode/Sprite.rotation += direction.angle() - PI/4
-
+		$InnerNode/Sprite.rotation += direction.angle()# - PI/4
+	print(rad_to_deg(Sprite.rotation))
 func _process(delta: float) -> void:
-	while state != IDLE:
-		Inner.position += speed * direction
+	#while state != IDLE:
+	Inner.position += speed * direction
 
 func _on_lifetime_timeout() -> void:
 	if oscillate_tween:
 		oscillate_tween.kill()
 	oscillate_tween = create_tween()
 	oscillate_tween.tween_property(self, "modulate", Color(0,0,0,0), 0.5)
+	orb_reward -= 1
 	oscillate_tween.finished.connect(_OnDeath)

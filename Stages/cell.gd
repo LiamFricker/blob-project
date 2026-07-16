@@ -1486,5 +1486,5 @@ func _on_hud_swim_upgrade_tab_toggled(state: bool) -> void:
 func _on_resolution_change() -> void:
 	pass
 
-func _spawnOrbs(orb_amt : float, pos : Vector2) -> void:
+func _spawnOrbs(orb_amt : int, pos : Vector2) -> void:
 	orbReference.spawnOrbs(orb_amt, pos)

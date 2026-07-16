@@ -175,18 +175,18 @@ test_glider = ExtResource("3_mhu38")
 orb_reward = 3
 health_max = 2.0
 size = 1.0
-spawnerID = 5
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="1"]
 position = Vector2(-9, -11)
 sprite_frames = SubResource("SpriteFrames_a6sou")
-animation = &"idle"
+animation = &"spawn"
 autoplay = "idle"
 
 [node name="Hurtbox" type="Area2D" parent="InnerNode" index="1"]
 position = Vector2(-13, -2)
 collision_layer = 0
 collision_mask = 3
+monitorable = false
 script = ExtResource("4_kdk4l")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
@@ -197,3 +197,5 @@ wait_time = 4.0
 autostart = true
 
 [connection signal="animation_finished" from="InnerNode/Sprite/AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]
+[connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]

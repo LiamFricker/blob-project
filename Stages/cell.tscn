@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://wsjcdvgoy5e2" path="res://Blob/zone.tscn" id="2_we7fo"]
 [ext_resource type="Texture2D" uid="uid://b6w38vk3c7fqh" path="res://Art/Cell/Orb_Small.png" id="3_wq666"]
 [ext_resource type="PackedScene" uid="uid://iye6rfpbns41" path="res://Blob/orb_spawner.tscn" id="6_e6ll5"]
-[ext_resource type="PackedScene" uid="uid://47gpk8e80fh5" path="res://Blob/Enemies/water_grizzly.tscn" id="8_4dxcb"]
+[ext_resource type="PackedScene" uid="uid://sghfc0jsrpng" path="res://Blob/Enemies/obelisk.tscn" id="8_4dxcb"]
 
 [node name="Cell" type="Node2D" node_paths=PackedStringArray("playerReference", "orbReference")]
 script = ExtResource("1_udkfl")
@@ -52,11 +52,12 @@ offset_bottom = -139.0
 wait_time = 0.2
 autostart = true
 
-[node name="WaterGrizzly" parent="." instance=ExtResource("8_4dxcb")]
-position = Vector2(403, -32)
+[node name="obelisk" parent="." instance=ExtResource("8_4dxcb")]
+position = Vector2(-267, -13)
 
 [connection signal="upgrade_tab_toggled" from="HUD_swim" to="." method="_on_hud_swim_upgrade_tab_toggled"]
 [connection signal="currencyUpdate" from="Blob-Swim" to="." method="_on_blob_swim_currency_update"]
 [connection signal="timeout" from="OrbTimer" to="." method="_on_orb_timer_timeout"]
 [connection signal="timeout" from="UpdateZoneTimer" to="." method="_on_update_zone_timer_timeout"]
 [connection signal="timeout" from="UpdateTick" to="." method="_on_update_tick_timeout"]
+[connection signal="spawnOrbs" from="obelisk" to="." method="_spawnOrbs"]
