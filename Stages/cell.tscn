@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://40hcl2pacvut"]
+[gd_scene load_steps=9 format=3 uid="uid://40hcl2pacvut"]
 
 [ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="1_mjuci"]
 [ext_resource type="Script" uid="uid://sgaihncgtns3" path="res://Stages/cell.gd" id="1_udkfl"]
@@ -8,7 +8,6 @@
 [ext_resource type="Texture2D" uid="uid://b6w38vk3c7fqh" path="res://Art/Cell/Orb_Small.png" id="3_wq666"]
 [ext_resource type="PackedScene" uid="uid://iye6rfpbns41" path="res://Blob/orb_spawner.tscn" id="6_e6ll5"]
 [ext_resource type="PackedScene" uid="uid://bifas756uwbs" path="res://Blob/Enemies/glider_gun.tscn" id="8_4dxcb"]
-[ext_resource type="Material" uid="uid://2ha0um1a7qna" path="res://Blob/Enemies/base_creature_material.tres" id="9_foiph"]
 
 [node name="Cell" type="Node2D" node_paths=PackedStringArray("playerReference", "orbReference")]
 script = ExtResource("1_udkfl")
@@ -55,7 +54,16 @@ autostart = true
 
 [node name="glider_gun" parent="." instance=ExtResource("8_4dxcb")]
 position = Vector2(254, -25)
-shadMat = ExtResource("9_foiph")
+health_max = 5.0
+
+[node name="glider_gun2" parent="." instance=ExtResource("8_4dxcb")]
+position = Vector2(172, -201)
+health_max = 5.0
+
+[node name="glider_gun3" parent="." instance=ExtResource("8_4dxcb")]
+position = Vector2(270, 94)
+health_max = 5.0
+weight = 10.0
 
 [connection signal="upgrade_tab_toggled" from="HUD_swim" to="." method="_on_hud_swim_upgrade_tab_toggled"]
 [connection signal="currencyUpdate" from="Blob-Swim" to="." method="_on_blob_swim_currency_update"]

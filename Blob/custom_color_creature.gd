@@ -8,12 +8,12 @@ func _ready() -> void:
 	shadMat = shadMat.duplicate()
 	spriteRef.material = shadMat
 
-func _handleRedFlash() -> void:
+func _handleRedFlash(tweener : Tween = movement_tween) -> void:
 	#print("this triggered")
 	spriteRef.material.set_shader_parameter("end_color", Color(1,0,0))
 	var tempMod = spriteRef.material.get_shader_parameter("progress")
-	movement_tween.parallel().tween_method(_updateSpriteModulate, tempMod, 0.5, 0.25)
-	movement_tween.tween_method(_updateSpriteModulate, tempMod, 0.0, 0.25)
+	tweener.parallel().tween_method(_updateSpriteModulate, tempMod, 0.5, 0.2)
+	tweener.tween_method(_updateSpriteModulate, 0.5, 0.0, 0.2)
 
 func _handleRedDeath() -> void:
 	#print("this triggered")

@@ -106,7 +106,10 @@ func _shake(direction: Vector2, power : float) -> void:
 	oscillate_tween.tween_property(Sprite, "position", direction * 0.75, power / 4)
 	oscillate_tween.tween_property(Sprite, "position", direction * -0.5, power / 2)
 	oscillate_tween.tween_property(Sprite, "position", direction * 0.25, power / 2)
-	oscillate_tween.tween_property(Sprite, "position", 0, power / 4)
+	oscillate_tween.tween_property(Sprite, "position", Vector2.ZERO, power / 4)
+	_handleRedFlash(oscillate_tween)
+	oscillate_tween.tween_callback(_collisionCheck)
+	
 
 func knockback(pos: Vector2, dmg : float, speed = 0) -> void:
 	var power = 4.0 * dmg / (health_max * weight)
@@ -170,7 +173,7 @@ func knockback(pos: Vector2, dmg : float, speed = 0) -> void:
 
 func _knockbackEnd() -> void:
 	kb_moving = false
-	modulate = Color(1.0, 1.0, 1.0, 1.0)
+	#modulate = Color(1.0, 1.0, 1.0, 1.0)
 	_collisionCheck()
 	#if state == IDLE and $IdleTimer.is_stopped():
 		#idle()
@@ -301,9 +304,9 @@ func _deathKnockback(pos : Vector2) -> void:
 	dot_tween.parallel().tween_property(Inner, "rotation", rot_speed, 1.0).as_relative()
 	dot_tween.finished.connect(_FullDeath)
 
-func _handleRedFlash() -> void:
-	movement_tween.parallel().tween_property(self, "modulate", Color(0.8, 0.4, 0.4, 1.0), 0.25)
-	movement_tween.tween_property(self, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
+func _handleRedFlash(tweener : Tween = movement_tween) -> void:
+	tweener.parallel().tween_property(self, "modulate", Color(0.8, 0.4, 0.4, 1.0), 0.25)
+	tweener.tween_property(self, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
 
 func _handleRedDeath() -> void:
 	dot_tween.tween_property(self, "modulate", Color(1.0, 0, 0, 0), 1.0)

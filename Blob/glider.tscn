@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://bvn6n8cok7di3"]
+[gd_scene load_steps=12 format=3 uid="uid://bvn6n8cok7di3"]
 
 [ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_pjcfb"]
 [ext_resource type="Script" uid="uid://qrsbstggt8co" path="res://Blob/Enemies/glider.gd" id="2_4ubj5"]
 [ext_resource type="Texture2D" uid="uid://bs3g2ngwqopqh" path="res://Art/Cell/Enemies/glider.png" id="2_u42xb"]
+[ext_resource type="Material" uid="uid://2ha0um1a7qna" path="res://Blob/Enemies/base_creature_material.tres" id="3_gyxji"]
 [ext_resource type="Script" uid="uid://c68hxhqm3c2b6" path="res://Blob/areaCommon.gd" id="4_80p6y"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4ubj5"]
@@ -44,13 +45,14 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_4ubj5"]
 radius = 18.0278
 
-[node name="glider" node_paths=PackedStringArray("hurtboxReference") instance=ExtResource("1_pjcfb")]
+[node name="glider" node_paths=PackedStringArray("spriteRef", "hurtboxReference") instance=ExtResource("1_pjcfb")]
 script = ExtResource("2_4ubj5")
+speed = 1
+spriteRef = NodePath("InnerNode/Sprite/AnimatedSprite2D")
+shadMat = ExtResource("3_gyxji")
 orb_reward = 2
 health_max = 1.0
 size = 1.0
-speed = null
-shadMat = null
 hurtboxReference = NodePath("InnerNode/Hurtbox")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="0"]

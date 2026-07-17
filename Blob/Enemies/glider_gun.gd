@@ -1,4 +1,4 @@
-extends "res://custom_color_creature.gd"
+extends "res://Blob/custom_color_creature.gd"
 
 @export var test_glider : PackedScene
 
