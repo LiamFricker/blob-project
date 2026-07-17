@@ -83,7 +83,7 @@ func _on_detection_area_entered(area: Area2D) -> void:
 		var tempTarget = area.getParent()
 		#print("TARGET: ", tempTarget)
 		#print("SELF: ", self)
-		if tempTarget.ID == ID:
+		if tempTarget.getID() == ID:
 			print("SELFFFFFFF")
 			return
 		if tempTarget.size < size * 4 and not tempTarget.isHazard:
@@ -102,7 +102,7 @@ func _on_detection_body_entered(body: Node2D) -> void:
 		var tempTarget = body
 		print("TARGET: ", tempTarget, " ", tempTarget.size, " ", size * 4)
 		print("SELF: ", self)
-		if tempTarget.ID == ID:
+		if tempTarget.getID() == ID:
 			print("How?")
 			return
 		if tempTarget.size < size * 4 and not tempTarget.isHazard:
@@ -132,7 +132,7 @@ func _on_detection_body_entered(body: Node2D) -> void:
 func _on_hitbox_area_entered(area: Area2D) -> void:
 	if state == FIGHT:
 		var tempTarget = area.getParent()
-		if tempTarget.ID != ID and tempTarget.size < size * 4 and not tempTarget.isHazard:
+		if tempTarget.getID() != ID and tempTarget.size < size * 4 and not tempTarget.isHazard:
 			var tempDecay = virus_decay.instantiate()
 			tempDecay.construct($InnerNode/Sprite/Sprite2D.texture, duration, Vector2(0.75,0.75) * size, getPosition() - tempTarget.getPosition())
 			tempTarget.attach.add_child(tempDecay)
@@ -143,7 +143,7 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 func _on_hitbox_body_entered(body: Node2D) -> void:
 	if state == FIGHT:
 		var tempTarget = body
-		if tempTarget.ID != ID and tempTarget.size < size * 4 and not tempTarget.isHazard:
+		if tempTarget.getID() != ID and tempTarget.size < size * 4 and not tempTarget.isHazard:
 			var tempDecay = virus_decay.instantiate()
 			tempDecay.construct($InnerNode/Sprite/Sprite2D.texture, duration, Vector2(0.75,0.75) * size, getPosition() - tempTarget.getPosition())
 			tempTarget.attach.add_child(tempDecay)

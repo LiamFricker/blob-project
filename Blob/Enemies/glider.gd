@@ -8,6 +8,7 @@ extends base_creature
 #Direction from 1-8
 var direction : Vector2 = Vector2.ZERO
 @export var speed = 1
+@export var shadMat : ShaderMaterial = preload("res://Blob/Enemies/base_creature_material.tres")
 
 func setParams(parRef, dir = 0) -> void:
 	parentRef = parRef
@@ -31,10 +32,27 @@ func setParams(parRef, dir = 0) -> void:
 			direction = Vector2(0.71, -0.71)
 	$InnerNode/Sprite.rotation += direction.angle()# - PI/4
 	$Lifetime.autostart = true
-	print("DIRE: ", dir)
+	
+func _handleRedFlash() -> void:
+	#print("this triggered")
+	$InnerNode/Sprite/AnimatedSprite2D.material.set_shader_parameter("end_color", Color(1,0,0))
+	var tempMod = $InnerNode/Sprite/AnimatedSprite2D.material.get_shader_parameter("progress")
+	movement_tween.parallel().tween_method(_updateSpriteModulate, tempMod, 0.5, 0.25)
+	movement_tween.tween_method(_updateSpriteModulate, tempMod, 0.0, 0.25)
+
+func _handleRedDeath() -> void:
+	#print("this triggered")
+	$InnerNode/Sprite/AnimatedSprite2D.material.set_shader_parameter("end_color", Color(1,0,0))
+	var tempMod = $InnerNode/Sprite/AnimatedSprite2D.material.get_shader_parameter("progress")
+	dot_tween.tween_method(_updateSpriteModulate, tempMod, 0.5, 0.5)
+	dot_tween.parallel().tween_property(self, "modulate:a", 0.0, 1.0)
+
+func _updateSpriteModulate(progress: float) -> void:
+	$InnerNode/Sprite/AnimatedSprite2D.material.set_shader_parameter("progress", progress)
 
 func _ready() -> void:
-	print(rad_to_deg(Sprite.rotation))
+	shadMat = shadMat.duplicate()
+	$InnerNode/Sprite/AnimatedSprite2D.material = shadMat
 	if direction == Vector2.ZERO:
 		var dir_rng = RandomNumberGenerator.new()
 		var dir = dir_rng.randi_range(0, 7)
@@ -56,7 +74,7 @@ func _ready() -> void:
 			7:
 				direction = Vector2(0.71, -0.71)
 		$InnerNode/Sprite.rotation += direction.angle()# - PI/4
-	print(rad_to_deg(Sprite.rotation))
+
 func _process(delta: float) -> void:
 	#while state != IDLE:
 	Inner.position += speed * direction

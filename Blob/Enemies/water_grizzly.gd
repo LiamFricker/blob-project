@@ -436,36 +436,36 @@ func _findClosestTarget() -> void:
 			move_tween.kill()
 		if ear_tween:
 			ear_tween.kill()
+	else:	
+		var localAreas = DetectionNode.get_overlapping_areas()
+		#Could probably do a mapped lambda function here but I'm lazy
 		
-	var localAreas = DetectionNode.get_overlapping_areas()
-	#Could probably do a mapped lambda function here but I'm lazy
-	
-	var minDistance = follow_range_squared
-	var tempPos = getPosition()
-	var currDist = 0
-	var closestNodeRef
-	for a in localAreas:
-		var mainbody = a.getParent()
-		if mainbody.ID == ID:
-			continue
-		currDist = tempPos.distance_squared_to(mainbody.getPosition()) 
-		if currDist < minDistance:
-			minDistance = currDist
-			closestNodeRef = mainbody
-	
-	var localBodies = DetectionNode.get_overlapping_bodies()
-	
-	for b in localBodies:
-		if b.ID == ID:
-			continue
-		currDist = tempPos.distance_squared_to(b.getPosition()) 
-		if currDist < minDistance:
-			minDistance = currDist
-			closestNodeRef = b
-	
-	TargetRef = closestNodeRef
-	state = AGGRESSION
-	DetectionNode.monitoring = false
+		var minDistance = follow_range_squared
+		var tempPos = getPosition()
+		var currDist = 0
+		var closestNodeRef
+		for a in localAreas:
+			var mainbody = a.getParent()
+			if mainbody.ID == ID:
+				continue
+			currDist = tempPos.distance_squared_to(mainbody.getPosition()) 
+			if currDist < minDistance:
+				minDistance = currDist
+				closestNodeRef = mainbody
+		
+		var localBodies = DetectionNode.get_overlapping_bodies()
+		
+		for b in localBodies:
+			if b.ID == ID:
+				continue
+			currDist = tempPos.distance_squared_to(b.getPosition()) 
+			if currDist < minDistance:
+				minDistance = currDist
+				closestNodeRef = b
+		
+		TargetRef = closestNodeRef
+		state = AGGRESSION
+		DetectionNode.monitoring = false
 	
 func _onPlayerDetection(PlayRef : Node2D) -> void:
 	#Disable the detection radius

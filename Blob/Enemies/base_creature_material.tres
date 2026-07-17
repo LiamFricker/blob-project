@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://2ha0um1a7qna"]
+
+[ext_resource type="Shader" uid="uid://d0nk0g6q2b0jc" path="res://Blob/test_creature.gdshader" id="1_hrbaw"]
+
+[resource]
+shader = ExtResource("1_hrbaw")
+shader_parameter/end_color = Color(1, 0, 0, 1)
+shader_parameter/progress = 0.0

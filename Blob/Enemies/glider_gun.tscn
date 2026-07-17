@@ -1,9 +1,10 @@
-[gd_scene load_steps=29 format=3 uid="uid://bifas756uwbs"]
+[gd_scene load_steps=30 format=3 uid="uid://bifas756uwbs"]
 
 [ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_jjbn2"]
 [ext_resource type="Script" uid="uid://hb6jsb8mvr7e" path="res://Blob/Enemies/glider_gun.gd" id="2_0ksf1"]
 [ext_resource type="Texture2D" uid="uid://d2eb77gb2wt54" path="res://Art/Cell/Enemies/gun.png" id="3_gc2q0"]
 [ext_resource type="PackedScene" uid="uid://bvn6n8cok7di3" path="res://Blob/glider.tscn" id="3_mhu38"]
+[ext_resource type="Material" uid="uid://2ha0um1a7qna" path="res://Blob/Enemies/base_creature_material.tres" id="4_kbr1d"]
 [ext_resource type="Script" uid="uid://c68hxhqm3c2b6" path="res://Blob/areaCommon.gd" id="4_kdk4l"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kdk4l"]
@@ -172,6 +173,7 @@ radius = 38.64
 [node name="glider_gun" instance=ExtResource("1_jjbn2")]
 script = ExtResource("2_0ksf1")
 test_glider = ExtResource("3_mhu38")
+shadMat = ExtResource("4_kbr1d")
 orb_reward = 3
 health_max = 2.0
 size = 1.0

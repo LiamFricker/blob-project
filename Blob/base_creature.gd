@@ -29,6 +29,8 @@ var zoneReference : Node2D
 
 @export var ID: int = -1
 
+#@export var white_flash : bool = false
+
 #State:
 enum{
 	IDLE, FIGHT, FLEE, FEAST, DEAD, DISABLE
@@ -61,12 +63,12 @@ var dot_type = NONE
 
 #knockback info
 var startPosition: Vector2
-var power : float = 0
-var weight : float = 1
+var oldDirPower : float = 0
+#var power : float = 0
+@export var weight : float = 1.0
 var kb_moving = false
 
 var superArmor = false
-
 
 func reset() -> void:
 	state = IDLE
@@ -97,52 +99,93 @@ func removeChild(childRef : Node2D) -> void:
 	else:
 		children_list.remove_at(temppos)
 
-func knockback(direction: Vector2, strength : int) -> void:
-	var tempPower = power
-	power = strength / weight
+func _shake(direction: Vector2, power : float) -> void:
+	if oscillate_tween:
+		oscillate_tween.kill()
+	oscillate_tween = create_tween()
+	oscillate_tween.tween_property(Sprite, "position", direction * 0.75, power / 4)
+	oscillate_tween.tween_property(Sprite, "position", direction * -0.5, power / 2)
+	oscillate_tween.tween_property(Sprite, "position", direction * 0.25, power / 2)
+	oscillate_tween.tween_property(Sprite, "position", 0, power / 4)
+
+func knockback(pos: Vector2, dmg : float, speed = 0) -> void:
+	var power = 4.0 * dmg / (health_max * weight)
+	var dir : Vector2 = getPosition() - pos
+	var dir_len : float = dir.length()
+	var dir_norm : Vector2 = dir.normalized() #Could also do dir / dir_len
+	
+	oldDirPower = 5000.0 * power / dir_len 
+	var end_dir = oldDirPower*dir_norm
 	if power <= 0.5 or superArmor:
-		if oscillate_tween:
-			oscillate_tween.kill()
-		oscillate_tween = create_tween()
-		oscillate_tween.tween_property(Sprite, "position", direction * power * 0.75, power / 4)
-		oscillate_tween.tween_property(Sprite, "position", direction * power * -0.5, power / 2)
-		oscillate_tween.tween_property(Sprite, "position", direction * power * 0.25, power / 2)
-		oscillate_tween.tween_property(Sprite, "position", 0, power / 4)
+		_shake(end_dir, power)
 	else:
+		var rot_speed = 0.1 * power * dir_len if dir.x > 0 else -0.1 * power * dir_len
+		
 		if kb_moving:
-			if movement_tween:
-				movement_tween.kill()
-			movement_tween = create_tween()
-			movement_tween.set_ease(Tween.EASE_OUT)
-			movement_tween.set_trans(Tween.TRANS_QUART)
 			var oldDirection = (getPosition() - startPosition)
 			var oldLen = oldDirection.length()
-			var oldPower = 1 - (oldLen / tempPower)
-			if oldPower < 0:
-				print("OLDpower NEGATIVE FORMULA WRONG")
-			oldDirection = oldDirection / oldLen
-			startPosition = getPosition()
-			movement_tween.tween_property(Inner, "position", direction * power + oldDirection * oldPower, power / 2).as_relative()
-			movement_tween.parallel(self, "rotation", 2 * PI * floor(power + oldPower), power / 2)
-			movement_tween.tween_callback(_knockbackEnd)
+			var percentDist = 1 - oldLen/(oldDirPower+1)
+			if percentDist <= 0:
+				kb_moving = false
+				knockback(pos, dmg, speed)
+			else:
+				end_dir += oldDirPower * percentDist * oldDirection.normalized()
+				oldDirPower = end_dir.length()
+				power += percentDist
+				
+				if movement_tween:
+					movement_tween.kill()
+				movement_tween = create_tween()
+				match speed:
+					0:
+						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+					1:
+						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+					2:
+						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+				startPosition = getPosition()
+				var timeSpeed = snapped(log(power+1.25), 0.01)
+				movement_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
+				movement_tween.parallel().tween_property(Inner, "rotation", rot_speed, timeSpeed)
+				_handleRedFlash()
+				movement_tween.tween_callback(_knockbackEnd)
 		else:
 			if movement_tween:
 				movement_tween.kill()
 			movement_tween = create_tween()
-			movement_tween.set_ease(Tween.EASE_OUT)
-			movement_tween.set_trans(Tween.TRANS_QUART)
+			match speed:
+				0:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+				1:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+				2:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
 			kb_moving = true
 			startPosition = getPosition()
-			
-			movement_tween.tween_property(Inner, "position", direction * power, power / 2).as_relative()
-			movement_tween.parallel(self, "rotation", 2 * PI * floor(power), power / 2)
+			var timeSpeed = snapped(log(power+1.25), 0.01)
+			movement_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
+			movement_tween.parallel().tween_property(Inner, "rotation", rot_speed, timeSpeed)
+			_handleRedFlash()
 			movement_tween.tween_callback(_knockbackEnd)
 
 func _knockbackEnd() -> void:
 	kb_moving = false
+	modulate = Color(1.0, 1.0, 1.0, 1.0)
+	_collisionCheck()
 	#if state == IDLE and $IdleTimer.is_stopped():
 		#idle()
 
+func _collisionCheck() -> void:
+	if hurtboxReference:
+		if (hurtboxReference.has_overlapping_areas() or hurtboxReference.has_overlapping_bodies()):
+			var localAreas = hurtboxReference.get_overlapping_areas()
+			for a in localAreas:
+				_on_hurtbox_area_entered(a)
+			
+			var localBodies = hurtboxReference.get_overlapping_bodies()
+			for b in localBodies:
+				_on_hurtbox_body_entered(b)
+				
 #Use this to get the position for the creature
 func getPosition() -> Vector2:
 	return position + Inner.position
@@ -165,12 +208,12 @@ func toggleHurtbox(toggle : bool) -> void:
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var temp_enemy = area.getParent()
 	var dmg = area.getDamage()
-	if temp_enemy.ID != ID and dmg > 0:
+	if temp_enemy.getID() != ID and dmg > 0:
 		takeDamage(dmg, area.getPosition())
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var dmg = body.getDamage()
-	if body.ID != ID and dmg > 0:
+	if body.getID() != ID and dmg > 0:
 		takeDamage(body.getDamage(), body.getPosition())
 
 func _spawnOrbs(orb_amt = orb_reward) -> void:
@@ -234,6 +277,12 @@ func _OnDeath(pos = Vector2.ZERO, _kwargs = []) -> void:
 	else:
 		_deathKnockback(pos)
 
+func getID(IDtype = 0) -> int:
+	if IDtype:
+		return ID
+	else:
+		return 0
+
 func orphan(pos = Vector2.ZERO) -> void:
 	get_tree().create_timer(6.0).timeout.connect(_OnDeath.bind(pos))
 
@@ -246,13 +295,19 @@ func _deathKnockback(pos : Vector2) -> void:
 	if dot_tween:
 		dot_tween.kill()
 	dot_tween = create_tween()
-	modulate = Color(0.8, 0.5, 0.5, 1.0)
-	dot_tween.tween_property(self, "modulate", Color(1.0, 0, 0, 0), 1.0)
+	_handleRedDeath()
 	dot_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 	dot_tween.parallel().tween_property(Inner, "position", end_dir, 1.0).as_relative()
 	dot_tween.parallel().tween_property(Inner, "rotation", rot_speed, 1.0).as_relative()
 	dot_tween.finished.connect(_FullDeath)
-	
+
+func _handleRedFlash() -> void:
+	movement_tween.parallel().tween_property(self, "modulate", Color(0.8, 0.4, 0.4, 1.0), 0.25)
+	movement_tween.tween_property(self, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
+
+func _handleRedDeath() -> void:
+	dot_tween.tween_property(self, "modulate", Color(1.0, 0, 0, 0), 1.0)
+
 func _FullDeath() -> void:
 	if isChild:
 		if parentRef:	
@@ -318,6 +373,11 @@ func takeDamage(amt : float, pos : Vector2, _kwargs = []) -> void:
 	health -= amt
 	if health <= 0:
 		_OnDeath(pos)		
+	else:
+		_damagedEffect(amt, pos, _kwargs)
+
+func _damagedEffect(amt : float, pos : Vector2, _kwargs = []) -> void:
+	knockback(pos, amt, 0)
 		
 func _on_roam_timer_timeout():
 	var roamTemp = $RoamTimer

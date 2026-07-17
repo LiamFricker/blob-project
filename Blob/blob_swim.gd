@@ -10,8 +10,6 @@ enum {
 }
 var state = IDLE
 
-var ID : int = 0
-
 @export var camReference : Camera2D
 @export var spawnerReference : Node2D
 
@@ -882,3 +880,9 @@ func updateAllUpgrades(saveBonuses : Array) -> void:
 
 func getDamage() -> float:
 	return damage
+
+func getID(idtype = 0) -> int:
+	if idtype:	
+		return 0
+	else:
+		return 0
