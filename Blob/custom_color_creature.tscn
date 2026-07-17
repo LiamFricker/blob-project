@@ -1,0 +1,9 @@
+[gd_scene load_steps=4 format=3 uid="uid://djbjxk8g233e1"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_8e6yg"]
+[ext_resource type="Script" uid="uid://dirntanean2r8" path="res://Blob/custom_color_creature.gd" id="2_xg24f"]
+[ext_resource type="Material" uid="uid://2ha0um1a7qna" path="res://Blob/Enemies/base_creature_material.tres" id="3_mbtpv"]
+
+[node name="custom_color_creature" instance=ExtResource("1_8e6yg")]
+script = ExtResource("2_xg24f")
+shadMat = ExtResource("3_mbtpv")
