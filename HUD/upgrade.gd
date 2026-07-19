@@ -45,7 +45,7 @@ func setUpgradeCost() -> void:
 	#$UpgradeCost.text = str(upgradeCost) + upgradeCurrency
 	UpgradeCostLabel.text = "Upgrade Cost: " + str(upgradeCost) + upgradeCurrency
 
-func _setFirstMultChange(newMult : float, money : float) -> int:
+func _setFirstMultChange(newMult : int, money : float) -> int:
 	#Mult change shouldn't occur on a max upgrade
 	if (upgrade == upgradeMax):
 		print("ERROR maxed upgrade needs to be set to null currencies.")
@@ -71,7 +71,7 @@ func _setFirstMultChange(newMult : float, money : float) -> int:
 		canUpgrade = true
 		return 2 if newMult != MULT_MAX else 1
 
-func multChange(newMult : float, money : float) -> int:
+func multChange(newMult : int, money : float) -> int:
 	#Mult change shouldn't occur on a max upgrade
 	if (upgrade == upgradeMax):
 		print("ERROR maxed upgrade needs to be set to null currencies.")
@@ -103,16 +103,16 @@ func _calcMultCost(money = 0.0) -> float:
 		0:
 			return tempCost
 		1:
-			var max = 5 if (upgradeMax - upgrade) > 5 else upgradeMax - upgrade  
-			for i in range(1, max, 1):
+			var maxUpg = 5 if (upgradeMax - upgrade) > 5 else upgradeMax - upgrade  
+			for i in range(1, maxUpg, 1):
 				tempCost += upgradeBase + upgradeCoefficient * (upgrade+i) + pow(upgradeExponent, upgrade+i)
-			upgradeCount = max
+			upgradeCount = maxUpg
 			return tempCost
 		2:
-			var max = 10 if (upgradeMax - upgrade) > 10 else upgradeMax - upgrade  
-			for i in range(1, max, 1):
+			var maxUpg = 10 if (upgradeMax - upgrade) > 10 else upgradeMax - upgrade  
+			for i in range(1, maxUpg, 1):
 				tempCost += upgradeBase + upgradeCoefficient * (upgrade+i) + pow(upgradeExponent, upgrade+i)
-			upgradeCount = max
+			upgradeCount = maxUpg
 			return tempCost
 		#Usually 3, default is to keep the error handler happy.
 		_:

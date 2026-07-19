@@ -218,7 +218,6 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var dmg = body.getDamage()
-	var kb = body.getKnockback()
 	if body.getID() != ID and dmg > 0:
 		takeDamage(dmg, body.getPosition(), body.getKnockback())
 

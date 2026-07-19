@@ -56,7 +56,6 @@ shader_parameter/speed = 0.33
 
 [node name="HUD_swim" type="CanvasLayer"]
 script = ExtResource("1_7fxp5")
-upgradeTab = ExtResource("2_7a5bb")
 panelParticles = ExtResource("3_bidat")
 upgradeText1 = ExtResource("4_d0gex")
 upgradeText2 = ExtResource("5_fns87")

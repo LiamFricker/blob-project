@@ -25,6 +25,6 @@ func disable() -> void:
 	visible = false
 	set_process(false)
 
-func orphan(pos = Vector2.ZERO) -> void:
+func orphan(_pos = Vector2.ZERO) -> void:
 	parentRef = null
 	#_on_lifetime_timeout()

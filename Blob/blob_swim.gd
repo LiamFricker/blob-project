@@ -11,7 +11,7 @@ enum {
 var state = IDLE
 
 @export var mouseMovement : bool = true
-var mouseCenter : Vector2 = Vector2(1152/2, 648/2)
+var mouseCenter : Vector2 = Vector2(1152/2.0, 648/2.0)
 var mousePos : Vector2 = Vector2.ZERO
 
 @export var camReference : Camera2D
@@ -86,6 +86,7 @@ var board_speed: float = 0
 @export var frog_speed : float = 1.0
 @export var frog_charge_gain : float = 1.0
 @export var frog_travel_speed : float = 1.0
+@export var frog_max_charges : float = 3.0
 var frog_charge : float = 0.0
 var frogState : int = 0 
 var frogDirection : Vector2 = Vector2.ZERO
@@ -225,7 +226,7 @@ func _get_input() -> Dictionary:
 """
 
 func _ready() -> void:
-	pass
+	_frogReset()
 	"""
 	print("START")
 	tween4 = create_tween()
@@ -235,10 +236,6 @@ func _ready() -> void:
 	tween5.tween_callback(print.bind("1DONE"))
 	"""
 	#camReference = get_node("Camera2D")
-
-func _testMethod(i : float) -> void:
-	#print("TEST, ", i)
-	pass
 
 #Move some of this stuff to _process()
 #Physics process runs at 60fps constant
@@ -303,7 +300,7 @@ func _movementLogic(delta: float, friction_delta:float) -> void:
 		FROG:
 			_frogLogic(delta, friction_delta)
 
-func _waddleLogic(delta: float, friction_delta : float) -> void:
+func _waddleLogic(delta: float, _friction_delta : float) -> void:
 	var x_dir : float
 	var y_dir : float
 	if mouseMovement:
@@ -383,79 +380,15 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 	
 	velocity = board_speed * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
 
-func _frogLogic(delta : float, friction_delta : float) -> void:
+func _frogLogic(_delta : float, _friction_delta : float) -> void:
 	#This is not handled in _unhandledInput because that can only detect 1 input at a time
 	#We want to handle in case someone wants to dash diagonally.
-	print(frog_charge)
-	match frogState:
-		0:
-			var x_dir : float
-			var y_dir : float
-			if mouseMovement:
-				var absMPX = abs(mousePos.x)
-				if absMPX < 25:
-					x_dir = 0
-				else:
-					x_dir = sign(mousePos.x)
-				var absMPY = abs(mousePos.y)
-				if absMPY < 25:
-					y_dir = 0
-				else:
-					y_dir = sign(mousePos.y)
-			else:
-				x_dir = int(right_input) - int(left_input)
-				y_dir = int(down_input) - int(up_input)
-			if x_dir or y_dir:
-				frogDirection = Vector2(x_dir, y_dir)
-				if frog_charge >= 1.0:
-					frogState = 3
-					frog_charge = 1
-					_frogRelease()
-				else:
-					frogState = 1
-					_frogPress()
-			else:
-				frog_charge += 0.5 * frog_charge_gain * delta
-		1:
-			frog_charge += frog_charge_gain * delta
-			if frog_charge >= 0.34:
-				var x_dir : float
-				var y_dir : float
-				if mouseMovement:
-					var absMPX = abs(mousePos.x)
-					if absMPX < 25:
-						x_dir = 0
-					else:
-						x_dir = sign(mousePos.x)
-					var absMPY = abs(mousePos.y)
-					if absMPY < 25:
-						y_dir = 0
-					else:
-						y_dir = sign(mousePos.y)
-				else:
-					x_dir = int(right_input) - int(left_input)
-					y_dir = int(down_input) - int(up_input)
-				if x_dir or y_dir:
-					frogDirection = Vector2(x_dir, y_dir)
-					frogState = 2
-				else:
-					frogState = 0
-					_frogCancel()
-		2:
-			frog_charge += frog_charge_gain * delta
-			
-			if frog_charge >= 1.0:
-				frogState = 3
-				frog_charge = 1
-				_frogRelease()
-		3:
-			frog_charge -= 2.0 * delta * frog_travel_speed
-			velocity = frogDirection * frog_speed * 100 * frog_travel_speed
-			if frog_charge <= 0:
-				frogState = 0
-				frog_charge = 0
+	#print("X: ", frog_charge, " ", frogTemp)
 	
-	
+	#HAHAHAH TAKE THAT OLD ME
+	#YOU WERE WRONG I SURPASSED YOU
+	#Let's just keep this here in case we need it.
+	pass
 
 func _chargeDash(delta: float, friction_delta : float)-> void:
 	var temp : float
@@ -501,6 +434,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	else:
 		if event.is_action_pressed("Left"):
 			left_input = true
+			_basicOnPress()
 			return
 		elif event.is_action_released("Left"):
 			left_input = false
@@ -508,6 +442,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			
 		if event.is_action_pressed("Right"):
 			right_input = true
+			_basicOnPress()
 			return
 		elif event.is_action_released("Right"):
 			right_input = false
@@ -515,6 +450,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 		if event.is_action_pressed("Up"):
 			up_input = true
+			_basicOnPress()
 			return
 		elif event.is_action_released("Up"):
 			up_input = false
@@ -522,10 +458,129 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 		if event.is_action_pressed("Down"):
 			down_input = true
+			_basicOnPress()
 			return
 		elif event.is_action_released("Down"):
 			down_input = false
 			return
+
+func _basicOnPress() -> void:
+	match basic_movement_type:
+		FROG:
+			if frogState == 0:
+				_frogReset()
+
+func _getFrogDirection() -> bool:
+	var x_dir : float
+	var y_dir : float
+	if mouseMovement:
+		var absMPX = abs(mousePos.x)
+		if absMPX < 25:
+			x_dir = 0
+		else:
+			x_dir = sign(mousePos.x)
+		var absMPY = abs(mousePos.y)
+		if absMPY < 25:
+			y_dir = 0
+		else:
+			y_dir = sign(mousePos.y)
+	else:
+		x_dir = int(right_input) - int(left_input)
+		y_dir = int(down_input) - int(up_input)
+	frogDirection = Vector2(x_dir, y_dir)
+	return x_dir or y_dir
+
+func _frogPressStart() -> void:
+	if frog_charge >= 1.0:
+		if frog_charge >= frog_max_charges:
+			frog_charge = frog_max_charges
+		frogState = 3
+		_frogRelease()
+	else:
+		frogState = 1
+		if basic_tween:
+			basic_tween.kill()
+		basic_tween = create_tween()
+		
+		var frogLowerBound = 0.4
+		
+		if frogDirection.y:
+			if frogDirection.x:
+				basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.7, 0.7), frogLowerBound / frog_charge_gain)
+			else:
+				basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 0.7), frogLowerBound / frog_charge_gain)
+		elif frogDirection.x:
+			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.7, 1), frogLowerBound / frog_charge_gain)
+		basic_tween.parallel().tween_property(self, "frog_charge", frogLowerBound, frogLowerBound / frog_charge_gain).as_relative()
+		basic_tween.finished.connect(_frogPress)
+
+func _frogPress() -> void:
+	if _getFrogDirection():
+		frogState = 2
+		if basic_tween:
+			basic_tween.kill()
+		basic_tween = create_tween()
+		
+		var frogLowerBound = (1 - 0.4)
+		
+		if frogDirection.y:
+			if frogDirection.x:
+				basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.3, 0.3), frogLowerBound / frog_charge_gain)
+			else:
+				basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 0.3), frogLowerBound / frog_charge_gain)
+		elif frogDirection.x:
+			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.3, 1), frogLowerBound / frog_charge_gain)
+		basic_tween.parallel().tween_property(self, "frog_charge", frogLowerBound, frogLowerBound / frog_charge_gain).as_relative()
+		basic_tween.finished.connect(_frogRelease)
+	else:
+		_frogCancel()
+
+func _frogCancel() -> void:
+	frogState = 0
+	if basic_tween:
+		basic_tween.kill()
+	basic_tween = create_tween()
+	basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1.0, 1.0), 0.25)
+	basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0.0, 0.0), 0.25)
+	basic_tween.parallel().tween_property(self, "frog_charge", frog_max_charges, frog_max_charges * 2.0 / frog_charge_gain).as_relative()
+
+func _frogReset() -> void:
+	if _getFrogDirection():
+		_frogPressStart()
+	else:
+		_frogCancel() 
+
+func _frogRelease() -> void:
+	frogState = 3
+	velocity = frogDirection * frog_speed * 100 * frog_travel_speed
+	if frog_charge <= (frogState - frog_max_charges):
+		frogState = 0
+	if basic_tween:
+		basic_tween.kill()
+	basic_tween = create_tween()
+	var temp = 3.5
+	if frogDirection.y:
+		if frogDirection.x:
+			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1 + 0.1 * temp, 1 + 0.1 * temp), 0.1 / frog_travel_speed)
+			basic_tween.parallel().tween_property($Sprite/Node2D, "position", frogDirection.sign() * Vector2(3.6 * temp, 3.6 * temp), 0.1 / frog_travel_speed)
+		else:
+			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.6, 1 + 0.1 * temp), 0.1 / frog_travel_speed)
+			basic_tween.parallel().tween_property($Sprite/Node2D, "position", sign(frogDirection.y) * Vector2(0, 3.6 * temp), 0.1 / frog_travel_speed)
+	elif frogDirection.x:
+		basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1 + 0.1 * temp, 0.6), 0.1 / frog_travel_speed)
+		basic_tween.parallel().tween_property($Sprite/Node2D, "position", sign(frogDirection.x) * Vector2(3.6 * temp, 0), 0.1 / frog_travel_speed)
+	
+	#basic_tween.parallel().tween_property(self, "reverseTentacleSpin", 1.0, 0.1)
+	#handleTentacleStretch(temp)
+
+	#basic_tween.tween_callback(self.setTempVelocity.bind(temp))
+	#basic_tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10))
+	basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.4 / frog_travel_speed)
+	#basic_tween.parallel().tween_property(self, "reverseTentacleSpin", 0.0, 0.3)
+	basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.4 / frog_travel_speed) #-4.8 * temp
+	basic_tween.parallel().tween_property(self, "frog_charge", -1.0, 0.4 / frog_travel_speed).as_relative()
+	basic_tween.finished.connect(_frogReset)
+	#handleTentacleReturn()
 
 func _primaryOnPress() -> void:
 	match primary_ability:
@@ -792,58 +847,7 @@ func handleTentacleReturn():
 	#Cool useless line of code
 	#for i in range(tentacleAmount):	
 	#	tween.parallel().tween_property(get_node("Sprite/Tentacle"+str(i+1)), "position", Vector2(8, 0), 0.3 * charge_cooldown)
-func _frogCancel() -> void:
-	if basic_tween:
-		basic_tween.kill()
-	basic_tween = create_tween()
-	basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.25)
-	basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.25)
 
-func _frogRelease() -> void:
-	if basic_tween:
-		basic_tween.kill()
-	basic_tween = create_tween()
-	var temp = 3.5
-	if frogDirection.y:
-		if frogDirection.x:
-			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1 + 0.1 * temp, 1 + 0.1 * temp), 0.1 / frog_travel_speed)
-			basic_tween.parallel().tween_property($Sprite/Node2D, "position", frogDirection.sign() * Vector2(3.6 * temp, 3.6 * temp), 0.1 / frog_travel_speed)
-		else:
-			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.6, 1 + 0.1 * temp), 0.1 / frog_travel_speed)
-			basic_tween.parallel().tween_property($Sprite/Node2D, "position", sign(frogDirection.y) * Vector2(0, 3.6 * temp), 0.1 / frog_travel_speed)
-	elif frogDirection.x:
-		basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1 + 0.1 * temp, 0.6), 0.1 / frog_travel_speed)
-		basic_tween.parallel().tween_property($Sprite/Node2D, "position", sign(frogDirection.x) * Vector2(3.6 * temp, 0), 0.1 / frog_travel_speed)
-	
-	#basic_tween.parallel().tween_property(self, "reverseTentacleSpin", 1.0, 0.1)
-	#handleTentacleStretch(temp)
-
-	#basic_tween.tween_callback(self.setTempVelocity.bind(temp))
-	#basic_tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10))
-	basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.4 / frog_travel_speed)
-	#basic_tween.parallel().tween_property(self, "reverseTentacleSpin", 0.0, 0.3)
-	basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.4 / frog_travel_speed) #-4.8 * temp
-	#handleTentacleReturn()
-
-func _frogPress() -> void:
-	if basic_tween:
-		basic_tween.kill()
-	#if $Sprite/Node2D.position.y != 0:
-	#	resetCharge(true)
-	#$Pivot.modulate = Color(1,1,1,1)
-	#basic_tween.tween_property($Pivot, "scale", Vector2(-2, 0.6), charge_max)
-	if frogDirection.y:
-		basic_tween = create_tween()
-		if frogDirection.x:
-			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.3, 0.3), 1.0 / frog_charge_gain)
-		else:
-			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 0.3), 1.0 / frog_charge_gain)
-		
-	elif frogDirection.x:
-		basic_tween = create_tween()
-		basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.3, 1), 1.0 / frog_charge_gain)
-
-	
 #Run all the times here that you can about the values for.
 func _timers(delta:float) -> void:
 	if virus_level >= 0:
@@ -861,7 +865,7 @@ func _waddleOrbDecay() -> void:
 	else:
 		waddle_speed_bonus = 1.0
 
-func collect(_value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
+func collect(_value : int, orbpos : Vector2, enemy_drop : bool, _currency_type = 0) -> void:
 	#Need a variable that tracks ripples
 	#Need 3 variables that track ripple amps.
 	#Need a function that's called when ripple amp reaches 0
@@ -1006,7 +1010,8 @@ func changeCamera() -> void:
 	#camReference.position = camera_offset/zoom
 	#print("CAMERA OFFSET: ", camera_offset)
 	print("CAMERA CHANGED")
-	return
+	
+	"""
 	$Camera2D2.enabled = true
 	#$Camera2D.enabled = false
 	camReference.enabled = false
@@ -1018,7 +1023,9 @@ func changeCamera() -> void:
 	tween4.tween_callback(_fixCamera.bind(0)).set_delay(0.3)
 	tween4.tween_callback(_fixCamera.bind(1)).set_delay(0.3)
 	tween4.tween_callback(_fixCamera.bind(2)).set_delay(3.3)
+	"""
 	#tween4.parallel().tween_property(camReference, "position", Vector2(0,0), 2).from(camera_offset/zoom)
+	return
 
 func _fixCamera(i : int) -> void:
 	match i:
@@ -1034,7 +1041,9 @@ func _fixCamera(i : int) -> void:
 	
 	#camReference.enabled = true
 
-func increaseVirusLevel(type : int, intensity : float, duration = 2.0) -> void:
+#Duration isn't used for this?
+#This should be changed anyways. DOT damage sounds like ass for constant health.
+func increaseVirusLevel(_type : int, intensity : float, _duration = 2.0) -> void:
 	virus_level += intensity
 	if virus_level >= virus_max:
 		#Have the viri spawn out of the player as well. Just choose random ones tbh, no need to store type

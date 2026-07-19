@@ -7,7 +7,7 @@ var secondVelocity : Vector2 = Vector2(0,-1)
 const gravity = 1500
 const velocityMult = 250
 
-func initialize(pos : Vector2, sV : Vector2, secV: Vector2, text : Texture, off : Vector2) -> void:
+func initialize(pos : Vector2, sV : Vector2, _secV: Vector2, text : Texture, off : Vector2) -> void:
 	position = pos
 	currVelocity = sV * Vector2(velocityMult, 2 * velocityMult)
 	#secondVelocity = secV * Vector2(velocityMult, 2 * velocityMult)

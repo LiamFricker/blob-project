@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-@export var upgradeTab : PackedScene
+#@export var upgradeTab : PackedScene
 
 const UPGRADE_CURRENCY_MAX = 3
 var currency_array = PackedFloat32Array([100, 100, 100])
@@ -55,8 +55,8 @@ func _ready() -> void:
 
 #I kinda want to ceiling all of this stuff to make it look more consistent. If it's bad you can remove it later. 
 #Update the display to show current money
-func updateCurrencyDisplay(currencyIndex : int, money : float) -> void:
-	var ceilMoney = ceilf(money)
+func updateCurrencyDisplay(_currencyIndex : int, money : float) -> void:
+	var _ceilMoney = ceilf(money)
 	pass
 
 #Each update tick, process the new currency amounts
@@ -145,7 +145,7 @@ func addTab(tab : int, upgradeIDs : Array, mult : int, upgradeLevels = [], setLe
 	#containerRef.add_child(tempTab)
 	
 func addUpgrade(upgradeFullID : int, mult : int, upgradeLevel = 0) -> void:
-	#@warning_ignore("integer_division")
+	@warning_ignore("integer_division")
 	var tabPos = tab_to_positionsDict[upgradeFullID / 100]
 	var upgID = upgradeFullID % 100
 	
@@ -154,7 +154,7 @@ func addUpgrade(upgradeFullID : int, mult : int, upgradeLevel = 0) -> void:
 	var upgradeFullDict = {}
 	var tempInfo = upgradeFullDict[upgID]
 	tempInfo.append(currency_array[tempInfo[0]])
-	upgradeTabs[tabPos].addNewUpgrade(upgID, tempInfo, mult, bigIcon)
+	upgradeTabs[tabPos].addNewUpgrade(upgID, tempInfo, mult, bigIcon, upgradeLevel)
 
 #Change Tab
 func changeTab(newTab) -> void:
@@ -175,9 +175,13 @@ func toggleCompletedUpgrades() -> void:
 	
 #Placeholder code for finding the correct upgrade tab if I need this
 func getUpgradeTab(pos : int) -> VBoxContainer:
-	return $TabContainer/VBoxContainer2
+	return fullUpgradePanel.get_child(pos + 1)
 
-func _on_upgrade_success(upgradeTab: int, upgradeID: int, upgradeCost: float, upgradeCount: int, off : Vector2, color : Color) -> void:
+#Need to minus the money at some point
+#MONEY INFO TO REMOVE IS HERE
+func _on_upgrade_success(_upgradeT: int, _upgradeID: int, _upgradeCost: float, upgradeCount: int, off : Vector2, color : Color) -> void:
+	
+	
 	print("Upgrade Success!")
 	
 	off = off - globalPosOffset

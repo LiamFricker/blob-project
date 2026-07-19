@@ -131,7 +131,7 @@ func _ready() -> void:
 		print(plantString)
 		print(hazString)
 		print(totalString)
-	var zoneString = "Zone Info: \n["		
+	#var zoneString = "Zone Info: \n["		
 	#print out the zone array 
 	"""
 	for i in range(MAP_DIMS[current_map]):
@@ -776,8 +776,8 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> Vec
 	#WOW WASNT THAT SO MUCH EASIER THAN WRITING 1000 LINES OF NESTED IF BLOCKS?
 	return Vector3(minin, playerEndPos.x - sources[index].x, playerEndPos.y-sources[index].y)
 
-func cellHandleRoamer(supplyState : int, position : Vector2, creatureRef : Node2D) -> void:
-	var temp_ij = _uncalculateZonePosition(position)
+func cellHandleRoamer(supplyState : int, pos : Vector2, creatureRef : Node2D) -> void:
+	var temp_ij = _uncalculateZonePosition(pos)
 	var i = temp_ij.x
 	var j = temp_ij.y
 	#Should really just use a switch state here
@@ -1479,7 +1479,8 @@ func addNewUpgrade(upgradeFullID : int, upgradeLevel = 0) -> void:
 
 #This function needs to trigger the change in the position of the camera for the player
 #it also needs to disable player input on the right side of the screen.
-func _on_hud_swim_upgrade_tab_toggled(state: bool) -> void:
+#NEED TO CHANGE THIS SOON
+func _on_hud_swim_upgrade_tab_toggled(_state: bool) -> void:
 	pass # Replace with function body.
 
 #This needs to update the dimensions of the invalid space where click based input doesn't trigger player movement/abilities
