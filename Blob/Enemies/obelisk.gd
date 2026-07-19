@@ -15,10 +15,10 @@ func _process(delta: float) -> void:
 	Inner.rotation += delta * rotation_speed
 
 #Override the function and remove its ability to spawn orbs.
-func _spawnOrbs(orb_amt = 0) -> void:
+func _spawnOrbs(_orb_amt = 0) -> void:
 	return
 
-func takeDamage(amt : float, pos = Vector2.ZERO, _kwargs = []) -> void:
+func takeDamage(_amt : float, pos = Vector2.ZERO, _kb = 1.0, _kwargs = []) -> void:
 	breakPiece(pos)
 	
 func _on_hurtbox_area_entered(area: Area2D) -> void:
@@ -49,7 +49,8 @@ func breakPiece(posDiff) -> void:
 	#	spinDir = -1 if posDiff.x > 0 else 1 
 	
 	var dir_len : float = posDiff.length()
-	
+	if dir_len < 20:
+		dir_len = 20
 	var end_dir = 7500.0*posDiff.normalized()/dir_len
 	var rot_speed = 0.1*dir_len * spinDir
 	

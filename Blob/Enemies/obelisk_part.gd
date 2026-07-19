@@ -7,7 +7,6 @@ var rot_speed : float = 0
 var dir : Vector2 = Vector2.ZERO
 
 func _ready() -> void:
-	
 	$Inner/Sprite.scale = size * Vector2(1,1)
 	var tempCirc = CircleShape2D.new()
 	tempCirc.radius = 29.14 * size
@@ -15,8 +14,8 @@ func _ready() -> void:
 	if color_tween:
 		color_tween.kill()
 	color_tween = create_tween()
-	color_tween.tween_property($Inner/Sprite/Top, "modulate", Color(1.0,1.0,1.0,1.0), 0.75)
-	color_tween.parallel().tween_property($Inner/Sprite/Bot, "modulate", Color(1.0,1.0,1.0,1.0), 0.75)
+	color_tween.tween_property($Inner/Sprite/Top, "scale:x", 1.0, 2.0)
+	color_tween.parallel().tween_property($Inner/Sprite/Bot, "scale:x", 1.0, 2.0)
 	color_tween.finished.connect(toggleHurtbox.bind(true))
 	
 	if oscillate_tween:

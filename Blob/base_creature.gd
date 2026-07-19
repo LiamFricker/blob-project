@@ -111,10 +111,12 @@ func _shake(direction: Vector2, power : float) -> void:
 	oscillate_tween.tween_callback(_collisionCheck)
 	
 
-func knockback(pos: Vector2, dmg : float, speed = 0) -> void:
-	var power = 4.0 * dmg / (health_max * weight)
+func knockback(pos: Vector2, dmg : float, kb = 1.0, speed = 0) -> void:
+	var power = 4.0 * kb * dmg / (health_max * weight)
 	var dir : Vector2 = getPosition() - pos
 	var dir_len : float = dir.length()
+	if dir_len < 20:
+		dir_len = 20
 	var dir_norm : Vector2 = dir.normalized() #Could also do dir / dir_len
 	
 	oldDirPower = 5000.0 * power / dir_len 
@@ -212,12 +214,16 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var temp_enemy = area.getParent()
 	var dmg = area.getDamage()
 	if temp_enemy.getID() != ID and dmg > 0:
-		takeDamage(dmg, area.getPosition())
+		takeDamage(dmg, area.getPosition(), area.getKnockback())
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var dmg = body.getDamage()
+	var kb = body.getKnockback()
 	if body.getID() != ID and dmg > 0:
-		takeDamage(body.getDamage(), body.getPosition())
+		takeDamage(dmg, body.getPosition(), body.getKnockback())
+
+func getKnockback() -> float:
+	return 1.0
 
 func _spawnOrbs(orb_amt = orb_reward) -> void:
 	spawnOrbs.emit(orb_amt, getPosition())
@@ -261,7 +267,7 @@ func addPosition(addpos : Vector2) -> void:#, dims : Vector2) -> void:
 	for c in children_list:
 		c.addPosition(addpos)
 
-func _OnDeath(pos = Vector2.ZERO, _kwargs = []) -> void:
+func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
 	print("DEATH: ", self)
 	state = DEAD
 	
@@ -278,7 +284,7 @@ func _OnDeath(pos = Vector2.ZERO, _kwargs = []) -> void:
 				parentRef.removeChild(self)
 			call_deferred("queue_free")
 	else:
-		_deathKnockback(pos)
+		_deathKnockback(pos, kb)
 
 func getID(IDtype = 0) -> int:
 	if IDtype:
@@ -289,12 +295,14 @@ func getID(IDtype = 0) -> int:
 func orphan(pos = Vector2.ZERO) -> void:
 	get_tree().create_timer(6.0).timeout.connect(_OnDeath.bind(pos))
 
-func _deathKnockback(pos : Vector2) -> void:
+func _deathKnockback(pos : Vector2, kb = 1.0) -> void:
 	var dir : Vector2 = getPosition() - pos
 	var dir_len : float = dir.length()
+	if dir_len < 20:
+		dir_len = 20
 	
 	var rot_speed = 0.1 * dir_len if dir.x > 0 else -0.1 * dir_len
-	var end_dir = 6000.0*dir.normalized()/dir_len
+	var end_dir = kb * 6000.0*dir.normalized()/dir_len
 	if dot_tween:
 		dot_tween.kill()
 	dot_tween = create_tween()
@@ -372,15 +380,15 @@ func _dot_end(death : bool, type : int = 0) -> void: #ID : int,
 				tempC.explode(size, v * angle + angle * vRNG.randf_range(-0.5, 0.5), getPosition())
 		_OnDeath()		
 		
-func takeDamage(amt : float, pos : Vector2, _kwargs = []) -> void:
+func takeDamage(amt : float, pos : Vector2, kb = 1.0, _kwargs = []) -> void:
 	health -= amt
 	if health <= 0:
-		_OnDeath(pos)		
+		_OnDeath(pos, kb)		
 	else:
-		_damagedEffect(amt, pos, _kwargs)
+		_damagedEffect(amt, pos, knockback, _kwargs)
 
-func _damagedEffect(amt : float, pos : Vector2, _kwargs = []) -> void:
-	knockback(pos, amt, 0)
+func _damagedEffect(amt : float, pos : Vector2, kb = 1.0, _kwargs = []) -> void:
+	knockback(pos, amt, kb)
 		
 func _on_roam_timer_timeout():
 	var roamTemp = $RoamTimer

@@ -10,10 +10,16 @@ enum {
 }
 var state = IDLE
 
+@export var mouseMovement : bool = true
+var mouseCenter : Vector2 = Vector2(1152/2, 648/2)
+var mousePos : Vector2 = Vector2.ZERO
+
 @export var camReference : Camera2D
 @export var spawnerReference : Node2D
 
-var damage = 1
+#Offensive variables
+var damage : float = 1.0
+var base_knockback : float = 1.0
 
 var energy = 0
 signal currencyUpdate(index : int, value : float)
@@ -233,6 +239,8 @@ func _testMethod(i : float) -> void:
 #Move some of this stuff to _process()
 #Physics process runs at 60fps constant
 func _physics_process(delta: float) -> void:
+	$Test.position = mousePos
+	
 	var friction_delta = pow(friction, delta)
 	
 	_movementLogic(delta,friction_delta)
@@ -290,8 +298,26 @@ func _movementLogic(delta: float, friction_delta:float) -> void:
 			_boardLogic(delta, friction_delta)
 
 func _waddleLogic(delta: float, friction_delta : float) -> void:
-	var x_dir = int(right_input) - int(left_input)
-	var y_dir = int(down_input) - int(up_input)
+	var x_dir : float
+	var y_dir : float
+	if mouseMovement:
+		var absMPX = abs(mousePos.x)
+		if absMPX < 15:
+			x_dir = 0
+		elif absMPX < 100:
+			x_dir = mousePos.x/100
+		else:
+			x_dir = sign(mousePos.x)
+		var absMPY = abs(mousePos.y)
+		if absMPY < 15:
+			y_dir = 0
+		elif absMPY < 100:
+			y_dir = mousePos.y/100
+		else:
+			y_dir = sign(mousePos.y)
+	else:
+		x_dir = int(right_input) - int(left_input)
+		y_dir = int(down_input) - int(up_input)
 	#print("Right: ", Input.is_action_pressed("Right"))
 	#print(velocity.length()/100)
 	#$Sprite/Node2D/Inside.material.set_shader_parameter("frequency", 2.5 + ceil(velocity.length())/100 * size)
@@ -309,17 +335,32 @@ func _waddleLogic(delta: float, friction_delta : float) -> void:
 		velocity.y += y_dir * waddle_total_speed
 	
 func _boardLogic(delta: float, friction_delta : float) -> void:
-	var x_dir = int(right_input) - int(left_input)
-	var y_dir = int(down_input) - int(up_input)
+	var x_dir : float
+	var y_dir : float
+	if mouseMovement:
+		#This is inefficient but I know doing this manually is a pain in the ass to bug fix so I cba
+		var tempAng = mousePos.angle_to(Vector2.from_angle(charge_angle+PI/2))
+	
+		x_dir = sign(tempAng)
+		var mousePosLen = mousePos.length()
+		if abs(tempAng) > PI/2:
+			y_dir = -1
+		elif mousePosLen < 15:
+			y_dir = 0
+		elif mousePosLen < 100:
+			y_dir = mousePos.y/100
+		else:
+			y_dir = 1
+	else:
+		x_dir = int(right_input) - int(left_input)
+		y_dir = int(down_input) - int(up_input)
 	
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 	
 	charge_angle += board_turning_speed * x_dir * delta * move_abil_mod
 	$Pivot.rotation = charge_angle
 	$Sprite.rotation = charge_angle
-		
-	print(board_speed)
-	
+			
 	#board_speed += board_accel
 	
 	if y_dir == -1:
@@ -337,7 +378,11 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 	velocity = board_speed * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
 
 func _chargeDash(delta: float, friction_delta : float)-> void:
-	var temp = (int(right_input) - int(left_input))
+	var temp : float
+	if mouseMovement:
+		temp = sign(mousePos.angle_to(Vector2.from_angle(charge_angle+PI/2)))
+	else:
+		temp = int(right_input) - int(left_input)
 	charge_angle += charge_angle_speed * temp * delta * chargeStrength * 0.005
 	$Pivot.rotation = charge_angle
 	$Sprite.rotation = charge_angle
@@ -357,41 +402,50 @@ func _chargeDash(delta: float, friction_delta : float)-> void:
 		charge_dash = false
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			print("Left click pressed at: ", event.position)
-		else:
-			print("Left click released")
 	
 	if event.is_action_pressed("Primary"):
 		_primaryOnPress()
+		return
 	elif event.is_action_released("Primary"):
 		_primaryOnRelease()
+		return
 	
 	if event.is_action_pressed("Secondary"):
-		pass
+		return
 	elif event.is_action_released("Secondary"):
-		pass
+		return
 	
-	if event.is_action_pressed("Left"):
-		left_input = true
-	elif event.is_action_released("Left"):
-		left_input = false
+	if mouseMovement:
+		if event is InputEventMouseMotion:
+			mousePos = event.position - mouseCenter
+	else:
+		if event.is_action_pressed("Left"):
+			left_input = true
+			return
+		elif event.is_action_released("Left"):
+			left_input = false
+			return
+			
+		if event.is_action_pressed("Right"):
+			right_input = true
+			return
+		elif event.is_action_released("Right"):
+			right_input = false
+			return
 		
-	if event.is_action_pressed("Right"):
-		right_input = true
-	elif event.is_action_released("Right"):
-		right_input = false
-	
-	if event.is_action_pressed("Up"):
-		up_input = true
-	elif event.is_action_released("Up"):
-		up_input = false
-	
-	if event.is_action_pressed("Down"):
-		down_input = true
-	elif event.is_action_released("Down"):
-		down_input = false
+		if event.is_action_pressed("Up"):
+			up_input = true
+			return
+		elif event.is_action_released("Up"):
+			up_input = false
+			return
+		
+		if event.is_action_pressed("Down"):
+			down_input = true
+			return
+		elif event.is_action_released("Down"):
+			down_input = false
+			return
 
 func _primaryOnPress() -> void:
 	match primary_ability:
@@ -482,14 +536,21 @@ func _chargeRelease() -> void:
 
 func _chargeLogic(delta: float) -> void:
 	charge_time += delta
+	var temp : float
+	if mouseMovement:
+		#I don't like how I have +Pi/2 and -PI/2 . Fix this later.
+		temp = sign(mousePos.angle_to(Vector2.from_angle(charge_angle+PI/2)))
+	else:
+		temp = int(right_input) - int(left_input)
+	
 	if charge_time < charge_max * 0.8:
-		var temp = (int(right_input) - int(left_input)) * delta * pow((charge_max / (charge_time + 0.2)), 1.6)
+		temp *= delta * pow((charge_max / (charge_time + 0.2)), 1.6)
 		chargeTentacleSpin *= pow(0.05, delta)
 		chargeTentacleSpin += -2 *temp# if abs(chargeTentacleSpin) <= 1.0 else 0
 		charge_angle += charge_angle_speed * temp
 		
 	else:
-		var temp = (int(right_input) - int(left_input)) * delta
+		temp *= delta
 		chargeTentacleSpin *= pow(0.1, delta)
 		chargeTentacleSpin += -1.5*temp# if abs(chargeTentacleSpin) < 2.5 else 0
 		charge_angle += charge_angle_speed * temp
@@ -880,6 +941,9 @@ func updateAllUpgrades(saveBonuses : Array) -> void:
 
 func getDamage() -> float:
 	return damage
+	
+func getKnockback() -> float:
+	return base_knockback 
 
 func getID(idtype = 0) -> int:
 	if idtype:	
