@@ -74,12 +74,12 @@ func removeRoamer(ID : int, dead = false) -> void:
 					creatureList[i].remove(i)
 
 
-func handleRoamer(supplyState : int, position : Vector2, ID = 0) -> void:
+func handleRoamer(supplyState : int, pos : Vector2, ID = 0) -> void:
 	#Creature -> Roamer
 	if supplyState == 0:
 		roamingCreatures.append(creatureList[ID])
 		#Emit signal
-		zoneHandleRoamer.emit(supplyState, position, creatureList[ID])
+		zoneHandleRoamer.emit(supplyState, pos, creatureList[ID])
 	#Guest -> Roamer
 	else:
 		for i in range(guestList.size()):
@@ -87,7 +87,7 @@ func handleRoamer(supplyState : int, position : Vector2, ID = 0) -> void:
 				#Emit signal
 				#Remove from Guest List
 				guestList.remove(i)
-				zoneHandleRoamer.emit(supplyState, position, creatureList[ID])
+				zoneHandleRoamer.emit(supplyState, pos, creatureList[ID])
 				break
 				
 
