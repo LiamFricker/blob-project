@@ -110,7 +110,64 @@ func _shake(direction: Vector2, power : float) -> void:
 	_handleRedFlash(oscillate_tween)
 	oscillate_tween.tween_callback(_collisionCheck)
 	
-
+func directedKnockback(pos: Vector2, dmg : float, kb = 1.0, speed = 0) -> void:
+	var power = 4.0 * kb * dmg / (health_max * weight)
+	var dir : Vector2 = getPosition() - pos
+	var dir_len : float = dir.length()
+	var dir_norm : Vector2 = dir.normalized() #Could also do dir / dir_len
+	
+	oldDirPower = 300.0 * power * dir_len 
+	var end_dir = oldDirPower*dir_norm
+	
+	var rot_speed = 0.1 * power * dir_len if dir.x > 0 else -0.1 * power * dir_len
+		
+	if kb_moving:
+		var oldDirection = (getPosition() - startPosition)
+		var oldLen = oldDirection.length()
+		var percentDist = 1 - oldLen/(oldDirPower+1)
+		if percentDist <= 0:
+			kb_moving = false
+			knockback(pos, dmg, kb, speed)
+		else:
+			end_dir += oldDirPower * percentDist * oldDirection.normalized()
+			oldDirPower = end_dir.length()
+			power += percentDist
+			
+			if movement_tween:
+				movement_tween.kill()
+			movement_tween = create_tween()
+			match speed:
+				0:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+				1:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+				2:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+			startPosition = getPosition()
+			var timeSpeed = snapped(log(power+1.25), 0.01)
+			movement_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
+			movement_tween.parallel().tween_property(Inner, "rotation", rot_speed, timeSpeed)
+			_handleRedFlash()
+			movement_tween.tween_callback(_knockbackEnd)
+	else:
+		if movement_tween:
+			movement_tween.kill()
+		movement_tween = create_tween()
+		match speed:
+			0:
+				movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+			1:
+				movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+			2:
+				movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+		kb_moving = true
+		startPosition = getPosition()
+		var timeSpeed = snapped(log(power+1.25), 0.01)
+		movement_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
+		movement_tween.parallel().tween_property(Inner, "rotation", rot_speed, timeSpeed)
+		_handleRedFlash()
+		movement_tween.tween_callback(_knockbackEnd)	
+	
 func knockback(pos: Vector2, dmg : float, kb = 1.0, speed = 0) -> void:
 	var power = 4.0 * kb * dmg / (health_max * weight)
 	var dir : Vector2 = getPosition() - pos
@@ -132,7 +189,7 @@ func knockback(pos: Vector2, dmg : float, kb = 1.0, speed = 0) -> void:
 			var percentDist = 1 - oldLen/(oldDirPower+1)
 			if percentDist <= 0:
 				kb_moving = false
-				knockback(pos, dmg, speed)
+				knockback(pos, dmg, kb, speed)
 			else:
 				end_dir += oldDirPower * percentDist * oldDirection.normalized()
 				oldDirPower = end_dir.length()

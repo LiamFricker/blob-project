@@ -100,6 +100,7 @@ var isHazard : bool = false
 
 enum {
 	CHARGE_DASH,
+	LASSO,
 	JUMP,
 	GRAPPLE,
 	DIVE, 
@@ -482,12 +483,12 @@ func _getFrogDirection() -> bool:
 	var y_dir : float
 	if mouseMovement:
 		var absMPX = abs(mousePos.x)
-		if absMPX < 50:
+		if absMPX < 75:
 			x_dir = 0
 		else:
 			x_dir = sign(mousePos.x)
 		var absMPY = abs(mousePos.y)
-		if absMPY < 45:
+		if absMPY < 75:
 			y_dir = 0
 		else:
 			y_dir = sign(mousePos.y)
@@ -712,9 +713,10 @@ func _chargeRelease() -> void:
 		elif frog_max_charges == 1.0:
 			frogBuff = 1 + frog_charge_dash_ratio
 		elif frog_charge <= frog_max_charges:
-			frogBuff = 1 + frog_charge_dash_ratio * (1+ 0.5 * frog_charge)
+			frogBuff = 1 + frog_charge_dash_ratio * (1 + 0.5 * frog_charge)
 		else:
 			frogBuff = 1 + frog_charge_dash_ratio * (1 + 0.5 * frog_max_charges)
+		#Put it on CD for a bit to avoid bad interactions	
 		frog_charge = -0.5
 		if basic_tween:
 			basic_tween.kill()
@@ -1047,7 +1049,9 @@ func changePosition(newpos : Vector2, dims : Vector2) -> void:
 	#changeCamera()
 	
 	position = newpos + (modPos-dims/2)  	
-	
+	#CHANGE LASSO COORD
+	if primary_ability == LASSO:
+		pass
 	
 	call_deferred("changeCamera")
 	#return position
