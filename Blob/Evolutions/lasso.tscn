@@ -1,12 +1,51 @@
 [gd_scene load_steps=9 format=3 uid="uid://5o87u003agn6"]
 
 [ext_resource type="Script" uid="uid://dfn02mb5kdree" path="res://Blob/Evolutions/lasso.gd" id="1_t4wgx"]
-[ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="2_j1ffb"]
 [ext_resource type="Texture2D" uid="uid://d27dws7qr6ccd" path="res://Art/Cell/Evolutions/tongue.png" id="3_njjpe"]
 [ext_resource type="Texture2D" uid="uid://ehsc021vow7h" path="res://Art/Cell/Evolutions/tongue_tip.png" id="4_8j52b"]
+[ext_resource type="Texture2D" uid="uid://d1i0643sg4xhp" path="res://Art/Cell/Evolutions/ThrowRange.png" id="4_njjpe"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_j1ffb"]
 radius = 38.71
+
+[sub_resource type="Animation" id="Animation_njjpe"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Center:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [-1.99783]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Center:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-1.90735e-06, -1.90735e-06)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Center:z_index")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
 [sub_resource type="Animation" id="Animation_j1ffb"]
 resource_name = "SpinLasso"
@@ -49,45 +88,6 @@ tracks/2/keys = {
 "values": [0, 0]
 }
 
-[sub_resource type="Animation" id="Animation_njjpe"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Center:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [-1.99783]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Center:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(-1.90735e-06, -1.90735e-06)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Center:z_index")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [0]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_njjpe"]
 _data = {
 &"RESET": SubResource("Animation_njjpe"),
@@ -98,6 +98,7 @@ _data = {
 script = ExtResource("1_t4wgx")
 
 [node name="RetractHitbox" type="Area2D" parent="."]
+visible = false
 monitoring = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RetractHitbox"]
@@ -116,12 +117,8 @@ offset = Vector2(14, 0)
 position = Vector2(31.9656, 0.109073)
 texture = ExtResource("4_8j52b")
 
-[node name="ThrowRange" type="Polygon2D" parent="."]
-visible = false
-color = Color(1, 1, 1, 0.054902)
-polygon = PackedVector2Array(-110, -120, -170, -56, -180, 11, -154, 55, -117, 130, -42, 136, 35, 131, 111, 81, 165, 32, 156, -40, 156, -78, 143, -115, 47, -148, -73, -127, -97, -126)
-
-[node name="Blob-Swim" parent="." instance=ExtResource("2_j1ffb")]
+[node name="ThrowRange" type="Sprite2D" parent="."]
+texture = ExtResource("4_njjpe")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

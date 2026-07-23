@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3 uid="uid://blvad8r1y76gf"]
+[gd_scene load_steps=11 format=3 uid="uid://blvad8r1y76gf"]
 
 [ext_resource type="Script" uid="uid://4u6uw0h6fqhw" path="res://Blob/blob_swim.gd" id="1_560oe"]
 [ext_resource type="Texture2D" uid="uid://6r00aigasy26" path="res://Art/Cell/Glimmer.png" id="2_02q5b"]
 [ext_resource type="PackedScene" uid="uid://dg5dmmg4xvh2b" path="res://Blob/tentacle.tscn" id="3_8tadd"]
+[ext_resource type="PackedScene" uid="uid://5o87u003agn6" path="res://Blob/Evolutions/lasso.tscn" id="3_xsdnl"]
 [ext_resource type="Texture2D" uid="uid://c43vreo7c407m" path="res://Art/Cell/TestTexture2.png" id="4_cws7r"]
 [ext_resource type="Material" uid="uid://cnn885v4juwuw" path="res://Blob/Materials/blob_swim.tres" id="5_8tadd"]
+[ext_resource type="Texture2D" uid="uid://nkptmcawvx1e" path="res://Art/Cell/Evolutions/X_indicator.png" id="6_fcc0v"]
 [ext_resource type="PackedScene" uid="uid://dg88vj8yfbw4t" path="res://Blob/organelles.tscn" id="7_fcc0v"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_8tadd"]
@@ -46,6 +48,8 @@ texture = ExtResource("2_02q5b")
 texture_offset = Vector2(24, 7)
 texture_scale = Vector2(4, 4)
 polygon = PackedVector2Array(-12, 0, 0, -17, 12, 0, 4, 2, 0, -7, -4, 2)
+
+[node name="lasso" parent="." instance=ExtResource("3_xsdnl")]
 
 [node name="Sprite" type="Node2D" parent="."]
 
@@ -129,6 +133,11 @@ polygon = PackedVector2Array(16, 12, 24, 12, 24, 20, 16, 20)
 position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
+[node name="Crosshair" type="Sprite2D" parent="Sprite"]
+visible = false
+texture = ExtResource("6_fcc0v")
+offset = Vector2(0, 1)
+
 [node name="Camera2D2" type="Camera2D" parent="."]
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -157,4 +166,6 @@ one_shot = true
 visible = false
 polygon = PackedVector2Array(-19, -51, -39, -2, -7, 28, 37, 31, 29, -9, 3, -49, -14, -57)
 
+[connection signal="lassoLocationReached" from="lasso" to="." method="_on_lasso_lasso_location_reached"]
+[connection signal="lassoThrowCancel" from="lasso" to="." method="_on_lasso_lasso_throw_cancel"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]

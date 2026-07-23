@@ -130,6 +130,17 @@ var charge_angle: float = 0
 #var chargeVelocity: Vector2 = Vector2.ZERO
 var chargeStrength: float = 0
 
+#Lasso Variables
+const lasso_base_range = 160
+@export var lasso_max_speed : float = 0.5
+@export var lasso_cursor_speed : float = 1.0
+@export var lasso_retract_speed : float = 1.0 
+@export var lasso_gain_speed : float = 1.0
+@export var max_lasso_range : float = 1.0
+var lasso_progress : float = 0.0
+@onready var lassoRef = $lasso
+@onready var crosshairRef = $Sprite/Crosshair
+
 @onready var attach = $Attachments
 
 #A couple things here:
@@ -282,7 +293,7 @@ func _physics_process(delta: float) -> void:
 				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", pulseAmp3)
 	
 	if charge_dash:# and chargeStrength > 2:
-		_chargeDash(delta, friction_delta)
+		_primaryLogic(delta, friction_delta)
 	else:
 		velocity += tempVelocity	 	
 		move_and_slide()
@@ -395,6 +406,13 @@ func _frogLogic(_delta : float, _friction_delta : float) -> void:
 	#Let's just keep this here in case we need it.
 	pass
 
+func _primaryLogic(delta : float, friction_delta : float) -> void:
+	match primary_ability:
+		CHARGE:
+			_chargeDash(delta, friction_delta)
+		LASSO:
+			_lassoLogic(delta, friction_delta)
+
 func _chargeDash(delta: float, friction_delta : float)-> void:
 	var temp : float
 	if mouseMovement:
@@ -418,6 +436,26 @@ func _chargeDash(delta: float, friction_delta : float)-> void:
 	
 	if chargeStrength < 2:
 		charge_dash = false
+
+func _lassoLogic(delta: float, friction_delta : float) -> void:
+	if mouseMovement:
+		crosshairRef.position = mousePos
+	else:
+		var x_dir : float
+		var y_dir : float
+		x_dir = int(right_input) - int(left_input)
+		y_dir = int(down_input) - int(up_input)
+		crosshairRef.position += 25 * delta * lasso_cursor_speed * Vector2(x_dir, y_dir)
+	
+	var crossLen = crosshairRef.position.length()
+	if crossLen > lasso_base_range * lasso_progress:
+		crosshairRef.position = lasso_base_range * lasso_progress * crosshairRef.position / (crossLen+1) #No divide by 0
+	
+	velocity += tempVelocity	 	
+	move_and_slide()
+	velocity -= tempVelocity	 
+	
+	velocity *= friction_delta#pow(friction, delta)
 
 func _unhandled_input(event: InputEvent) -> void:
 	
@@ -638,6 +676,8 @@ func _primaryOnPress() -> void:
 				_chargePress()
 			else:
 				primary_queued = true
+		LASSO:
+			_lassoPress()
 				
 func _primaryOnRelease() -> void:
 	match primary_ability:
@@ -646,6 +686,8 @@ func _primaryOnRelease() -> void:
 				_chargeRelease()
 			else:
 				primary_queued = false
+		LASSO:
+			_lassoRelease()
 
 func _chargePress() -> void:
 	state = CHARGING
@@ -765,6 +807,59 @@ func _chargeLogic(delta: float) -> void:
 	handleTentacleShader()	
 	$Pivot.rotation = charge_angle
 	$Sprite.rotation = charge_angle
+
+func _lassoPress() -> void:
+	if lasso_progress >= 100:
+		_lassoGo()
+	else:
+		charge_dash = true
+		lassoRef.activate()
+		crosshairRef.show()
+		if primary_tween:
+			primary_tween.kill()
+		primary_tween = create_tween()
+		primary_tween.tween_property(self, "move_abil_mod", lasso_max_speed, max_lasso_range * 3.0 / lasso_gain_speed).from(1.0)
+		primary_tween.parallel().tween_property(self, "lasso_progress", max_lasso_range, max_lasso_range * 3.0 / lasso_gain_speed).from(0.0)
+
+func _lassoRelease() -> void:
+	charge_dash = false
+	move_abil_mod = 1.0
+	crosshairRef.hide()
+	if lassoRef.endLasso(getPosition()+crosshairRef.position):
+		pass
+	else:
+		_lassoCancel()
+	
+func _lassoGo() -> void:
+	if _lassoCollisionCheck(crosshairRef.position) and lasso_progress < 500:
+		move_abil_mod = 0
+		$CollisionShape2D.set_deferred("disabled", true)
+		if primary_tween:
+			primary_tween.kill()
+		primary_tween = create_tween() 
+		
+		var crossLen = crosshairRef.position.length()
+		primary_tween.tween_property(self, position, crosshairRef.position, crossLen / (2.0*lasso_base_range*lasso_retract_speed)).as_relative()
+		primary_tween.finished.connect(_lassoEnd)
+	else:
+		lasso_progress = 1000
+		lassoRef.cancelThrow()
+		move_abil_mod = 1.0
+
+#Check for solid objects and if it's out of bounds.
+func _lassoCollisionCheck(checkPos : Vector2) -> bool:
+	
+	return true
+
+func _lassoEnd() -> void:
+	move_abil_mod = 1.0
+	$CollisionShape2D.set_deferred("disabled", false)
+
+#Placeholder incase I need to do stuff with this
+func _lassoCancel() -> void:
+	lasso_progress = 0
+	crosshairRef.position = Vector2.ZERO
+	move_abil_mod = 1.0
 
 func _onFullCharge() -> void:
 	if tween2:
@@ -1051,7 +1146,10 @@ func changePosition(newpos : Vector2, dims : Vector2) -> void:
 	position = newpos + (modPos-dims/2)  	
 	#CHANGE LASSO COORD
 	if primary_ability == LASSO:
-		pass
+		lassoRef.updateLocation(getPosition()+crosshairRef.position)
+		#Since we're relative this shouldn't be needed
+		#if move_abil_mod == 0: 
+		#	pass
 	
 	call_deferred("changeCamera")
 	#return position
@@ -1163,3 +1261,13 @@ func getID(idtype = 0) -> int:
 		return 0
 	else:
 		return 0
+
+
+func _on_lasso_lasso_location_reached() -> void:
+	lasso_progress = 100
+	#Also need to spawn stuff here if need to
+	#Spawn the damage effect as well the area of effects
+	#Also need to activate the new movement for board 
+
+func _on_lasso_lasso_throw_cancel() -> void:
+	_lassoCancel()

@@ -40,6 +40,8 @@ var lassoProgress : float = 0.0
 
 @export var maxLen : float = 300.0 * maxProgress
 
+const baseThrowRange = 160
+
 #You should probably spawn an entity at the location. The player itself can probably handle that.  
 #Have it be named "delayed shockwave or something"
 
@@ -147,12 +149,16 @@ func beginLasso() -> void:
 	lasso_tween.parallel().tween_property($ThrowRange, scale, scaleVec, maxProgress * 3.0 / progressGainSpeed)
 	lasso_tween.parallel().tween_property($CenterRef, scale, Vector2(1,1), 0.2)
 
-func endLasso(relativePos : Vector2) -> void:
+func updateLocation(pos : Vector2) -> void:
+	finalLocation = pos
+
+func endLasso(relativePos : Vector2) -> bool:
 	$ThrowRange.hide()
 	$ThrowRange.scale = Vector2(baseProgress,baseProgress)
 	if lassoProgress < minProgress:
 		cancelLasso()
 		lassoThrowCancel.emit()
+		return false
 	else:
 		finalLocation = relativePos
 		tongue_distance = 0
@@ -165,11 +171,11 @@ func endLasso(relativePos : Vector2) -> void:
 		lasso_tween.tween_property(centerRef, "angle", tempAngle, 0.1).as_relative()
 		lasso_tween.parallel().tween_property(centerRef, "position", Vector2(0,0), 0.1)
 		lasso_tween.finished.connect(beginThrow)
+		return true
 		
 		#start = true
 
 func cancelLasso() -> void:
-	$Center.z_index = 0
 	if lasso_tween:
 		lasso_tween.kill()
 	lasso_tween = create_tween()
@@ -182,19 +188,21 @@ func beginThrow() -> void:
 	start = true	
 
 func cancelThrow() -> void:
-	start = false
-	if lasso_tween:
-		lasso_tween.kill()
-	lasso_tween = create_tween()
-	 #This may not be aligned. If so, try to align it or do this in process
-	lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), lassoProgress * 0.3) 
-	lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), lassoProgress * 0.3) 
-	lasso_tween.parallel().tween_property(centerRef, "angle", 0.1, 0.1).as_relative()
-	lasso_tween.tween_property(centerRef, "angle", -0.1, 0.1).as_relative()
-	lasso_tween.tween_property(centerRef, "angle", 0.1, 0.1).as_relative()
-	lasso_tween.tween_property(centerRef, "angle", -0.1, 0.1).as_relative()
-	lasso_tween.tween_property(centerRef, "angle", 0.0, 0.1).as_relative()
-	lasso_tween.finished.connect(deactivate)
+	if start:
+		start = false
+		if lasso_tween:
+			lasso_tween.kill()
+		lasso_tween = create_tween()
+		 #This may not be aligned. If so, try to align it or do this in process
+		lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), lassoProgress * 0.3) 
+		lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), lassoProgress * 0.3) 
+		lasso_tween.parallel().tween_property(centerRef, "angle", 0.1, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "angle", -0.1, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "angle", 0.1, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "angle", -0.1, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "angle", 0.0, 0.1).as_relative()
+		lasso_tween.finished.connect(deactivate)
+		lassoThrowCancel.emit()
 
 func deactivate() -> void:
 	$RetractHitbox.set_deferred("monitorable", false)
