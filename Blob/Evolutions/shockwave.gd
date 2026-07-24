@@ -13,4 +13,5 @@ func _ready() -> void:
 	tween.finished.connect(_delete)
 	
 func _delete() -> void:
+	parentRef.removeChild(self)
 	call_deferred("queue_free")

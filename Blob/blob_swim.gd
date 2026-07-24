@@ -16,6 +16,7 @@ var mousePos : Vector2 = Vector2.ZERO
 
 @export var camReference : Camera2D
 @export var spawnerReference : Node2D
+var children_list : Array = []
 
 #Offensive variables
 var damage : float = 1.0
@@ -1182,6 +1183,8 @@ func pulseCancel(pulseNum : int) -> void:
 			if pulseTween3:
 				pulseTween3.kill()
 func changePosition(newpos : Vector2, dims : Vector2) -> void:
+	var oldPos = position
+	
 	var modPos = (position - dims/2).posmodv(dims)
 	
 	#changeCamera()
@@ -1189,13 +1192,23 @@ func changePosition(newpos : Vector2, dims : Vector2) -> void:
 	position = newpos + (modPos-dims/2)  	
 	#CHANGE LASSO COORD
 	if primary_ability == LASSO:
-		lassoRef.updateLocation(getPosition())
+		lassoRef.updateLocation(position - oldPos)
+	
+	for c in children_list:
+		c.add_position(position - oldPos)
 		#Since we're relative this shouldn't be needed
 		#if move_abil_mod == 0: 
 		#	pass
 	
 	call_deferred("changeCamera")
 	#return position
+	
+func removeChild(childRef : Node2D) -> void:
+	var temppos = children_list.find(childRef)
+	if temppos == -1:
+		print("CHILD NOT FOUND CHANGE THIS FUNC")
+	else:
+		children_list.remove_at(temppos)
 
 #IDk why I kept this shitty function for
 func changeCameraSpeed(toggle : bool, updateTime : float) -> void:
@@ -1307,7 +1320,7 @@ func getID(idtype = 0) -> int:
 
 
 func _on_lasso_lasso_location_reached() -> void:
-	lasso_progress = 1000
+	
 	#Also need to spawn stuff here if need to
 	#Spawn the damage effect as well the area of effects
 	#Also need to activate the new movement for board 
@@ -1315,15 +1328,21 @@ func _on_lasso_lasso_location_reached() -> void:
 		var tempImpactId = lassoRef.getID(-1)
 		var tempLasId = lassoRef.getID(lasso_type)
 		
-		spawnerReference.spawnEntity(tempImpactId, -2, lassoRef.getPos())
+		var shock = spawnerReference.spawnEntity(tempImpactId, -2, lassoRef.getPos())
+		shock.setParams(3.0, 2.0, self, 80 * lasso_progress, 2.0)
+		children_list.append(shock)
 		
 		if tempLasId != -1:
 			match lasso_type:
 				0:
 					buffRef = spawnerReference.spawnEntity(tempLasId, -2, lassoRef.getPos())
-				1:
+				2:
 					buffRef = spawnerReference.spawnEntity(tempLasId, -2, lassoRef.getPos())
-
+			buffRef.setParams(lasso_type, lasso_progress, self)		
+			children_list.append(buffRef)
+			
+			
+	lasso_progress = 1000
 func _on_lasso_lasso_throw_cancel() -> void:
 	_lassoCancel()
 
