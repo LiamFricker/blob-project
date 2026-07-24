@@ -7,9 +7,11 @@ extends Node2D
 
 signal lassoLocationReached()
 signal lassoThrowCancel()
+signal lassoBuffToggle(on : bool)
 
 #var currentPos : Vector2 = Vector2.ZERO
 var finalLocation : Vector2 = Vector2.ZERO
+var oldLocation : Vector2 = Vector2.ZERO
 var thrownAngle : float = 0
 var lassoLength : float = 1.0
 @export var throwSpeed : float = 1.0
@@ -40,6 +42,10 @@ var lassoProgress : float = 0.0
 
 @export var maxLen : float = 300.0 * maxProgress
 
+var lassoBuff : int = -1
+var lassoBuffPoolRange : float = 0 
+
+
 const baseThrowRange = 160
 
 #You should probably spawn an entity at the location. The player itself can probably handle that.  
@@ -47,10 +53,12 @@ const baseThrowRange = 160
 
 func getID(type : int) -> int:
 	match type:
+		#0:
+		#	return impactID
 		0:
-			return impactID
-		1:
 			return orbBoonID
+		1:
+			return -1
 		2:
 			return idleBoonID
 		3:
@@ -150,9 +158,9 @@ func beginLasso() -> void:
 	lasso_tween.parallel().tween_property($CenterRef, scale, Vector2(1,1), 0.2)
 
 func updateLocation(pos : Vector2) -> void:
-	finalLocation = pos
+	finalLocation = finalLocation - oldLocation + pos
 
-func endLasso(relativePos : Vector2) -> bool:
+func endLasso(relativePos : Vector2, lasBuf : int = 0) -> bool:
 	$ThrowRange.hide()
 	$ThrowRange.scale = Vector2(baseProgress,baseProgress)
 	if lassoProgress < minProgress:
@@ -161,6 +169,7 @@ func endLasso(relativePos : Vector2) -> bool:
 		return false
 	else:
 		finalLocation = relativePos
+		oldLocation = playerRef.getPosition()
 		tongue_distance = 0
 		if lasso_tween:
 			lasso_tween.kill()
@@ -171,6 +180,7 @@ func endLasso(relativePos : Vector2) -> bool:
 		lasso_tween.tween_property(centerRef, "angle", tempAngle, 0.1).as_relative()
 		lasso_tween.parallel().tween_property(centerRef, "position", Vector2(0,0), 0.1)
 		lasso_tween.finished.connect(beginThrow)
+		lassoBuff = lasBuf
 		return true
 		
 		#start = true
@@ -212,6 +222,9 @@ func deactivate() -> void:
 func startAnim() -> void:
 	$AnimationPlayer.play("SpinLasso")
 
+func getPos() -> Vector2:
+	return finalLocation
+
 func eating(delta):
 	#This has got to be the most messy code outside of any of the player code
 	
@@ -247,7 +260,15 @@ func eating(delta):
 				retract = true
 				tongue_timer += throwSpeed * delta * 250 / disLen
 				angle += sin(tongue_timer) / tongue_timer
-			elif throwing:
+			else:
+				if lassoBuff >= 0:
+					lassoBuffPoolRange = baseThrowRange * 0.75 * lassoProgress
+					if disLen <= lassoBuffPoolRange:
+						lassoBuffToggle.emit(true)
+						lassoBuff = 2
+					else:
+						lassoBuffToggle.emit(false)
+						lassoBuff = 1
 				throwing = false
 				lassoLocationReached.emit()
 				if lasso_tween:
@@ -255,9 +276,16 @@ func eating(delta):
 				lasso_tween = create_tween()
 				lasso_tween.tween_property(self, "angle", -sin(tongue_timer) / tongue_timer, 0.25).as_relative()
 				#angle += 0.5 * sin(tongue_timer) / tongue_timer
-			tongue_distance = (distance_vector.length() * tongue_timer)
+			tongue_distance = (disLen * tongue_timer)
 		else:
-			tongue_distance = (distance_vector.length())
+			tongue_distance = disLen
+			if lassoBuff >= 0:
+				if lassoBuff == 1 and disLen <= lassoBuffPoolRange:
+					lassoBuffToggle.emit(true)
+					lassoBuff = 2
+				elif lassoBuff == 2:
+					lassoBuffToggle.emit(false)
+					lassoBuff = 1
 		
 		centerRef.rotation = angle
 		

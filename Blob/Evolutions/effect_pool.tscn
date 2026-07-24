@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://d02r0bbl2y8tg"]
+
+[ext_resource type="Script" uid="uid://cw3oiw15qwyx0" path="res://Blob/Evolutions/effect_pool.gd" id="1_dpvwq"]
+[ext_resource type="Texture2D" uid="uid://1ku3nivviyn8" path="res://Art/Cell/Evolutions/EffectPool.png" id="1_w3b1f"]
+
+[node name="effect_pool" type="Sprite2D"]
+modulate = Color(0.85, 1, 0, 0.513726)
+texture = ExtResource("1_w3b1f")
+script = ExtResource("1_dpvwq")

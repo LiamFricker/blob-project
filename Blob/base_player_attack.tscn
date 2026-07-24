@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1a8a2g5anmiw"]
+
+[ext_resource type="Script" uid="uid://oec33u4piltn" path="res://Blob/base_player_attack.gd" id="1_qfffv"]
+
+[node name="base_player_attack" type="Area2D"]
+script = ExtResource("1_qfffv")

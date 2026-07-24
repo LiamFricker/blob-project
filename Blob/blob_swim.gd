@@ -140,6 +140,12 @@ const lasso_base_range = 160
 var lasso_progress : float = 0.0
 @onready var lassoRef = $lasso
 @onready var crosshairRef = $Sprite/Crosshair
+var lasso_buff : bool = true
+@export var lasso_type : int = 0
+var buffRef : Node2D
+var boardClockwise : int = 1
+
+var lasso_buffs : Array = [false, false, false, false]
 
 @onready var attach = $Attachments
 
@@ -364,21 +370,21 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 		var mousePosLen = mousePos.length()
 		if abs(tempAng) > PI/2:
 			y_dir = -1
+			boardClockwise = -1
 		elif mousePosLen < 15:
 			y_dir = 0
 		elif mousePosLen < 100:
 			y_dir = mousePos.y/100
 		else:
 			y_dir = 1
+			boardClockwise = 1
 	else:
 		x_dir = int(right_input) - int(left_input)
 		y_dir = int(down_input) - int(up_input)
+		if y_dir != 0:
+			boardClockwise = y_dir
 	
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
-	
-	charge_angle += board_turning_speed * x_dir * delta * move_abil_mod
-	$Pivot.rotation = charge_angle
-	$Sprite.rotation = charge_angle
 			
 	#board_speed += board_accel
 	
@@ -394,7 +400,21 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 	if board_speed > board_speed_cap:
 		board_speed = board_speed_cap
 	
-	velocity = board_speed * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
+	if primary_ability == LASSO and lasso_buff and lasso_progress >= 1000:
+		var lassoPos = lassoRef.get_pos() - getPosition()
+		var tempAngle = lassoPos.angle() 
+		charge_angle = tempAngle + PI/2 * boardClockwise
+		if y_dir == 0:
+			velocity = Vector2.ZERO
+		else:
+			velocity = 1.5 * board_speed_cap * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
+	else:
+		charge_angle += board_turning_speed * x_dir * delta * move_abil_mod
+		velocity = board_speed * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
+	
+	$Pivot.rotation = charge_angle
+	$Sprite.rotation = charge_angle
+	
 
 func _frogLogic(_delta : float, _friction_delta : float) -> void:
 	#This is not handled in _unhandledInput because that can only detect 1 input at a time
@@ -635,7 +655,10 @@ func _frogReset() -> void:
 
 func _frogRelease() -> void:
 	frogState = 3
-	velocity += frogDirection * frog_speed * 100 * frog_travel_speed
+	if state == CHARGING:
+		velocity += frogDirection * frog_speed * 100 * frog_travel_speed
+	else:
+		velocity += frogDirection * frog_speed * 100 * frog_travel_speed * move_abil_mod
 	if frog_charge <= (frogState - frog_max_charges):
 		frogState = 0
 	if basic_tween:
@@ -809,7 +832,7 @@ func _chargeLogic(delta: float) -> void:
 	$Sprite.rotation = charge_angle
 
 func _lassoPress() -> void:
-	if lasso_progress >= 100:
+	if lasso_progress >= 1000:
 		_lassoGo()
 	else:
 		charge_dash = true
@@ -831,18 +854,20 @@ func _lassoRelease() -> void:
 		_lassoCancel()
 	
 func _lassoGo() -> void:
-	if _lassoCollisionCheck(crosshairRef.position) and lasso_progress < 500:
+	var endPos = lassoRef.getPos()
+	if _lassoCollisionCheck(endPos) and lasso_progress >= 1000:
 		move_abil_mod = 0
 		$CollisionShape2D.set_deferred("disabled", true)
 		if primary_tween:
 			primary_tween.kill()
 		primary_tween = create_tween() 
 		
-		var crossLen = crosshairRef.position.length()
-		primary_tween.tween_property(self, position, crosshairRef.position, crossLen / (2.0*lasso_base_range*lasso_retract_speed)).as_relative()
+		var normEndPos = endPos - getPosition()
+		var crossLen = normEndPos.length()
+		primary_tween.tween_property(self, position, normEndPos, crossLen / (2.0*lasso_base_range*lasso_retract_speed)).as_relative()
 		primary_tween.finished.connect(_lassoEnd)
 	else:
-		lasso_progress = 1000
+		lasso_progress = 100
 		lassoRef.cancelThrow()
 		move_abil_mod = 1.0
 
@@ -854,12 +879,19 @@ func _lassoCollisionCheck(checkPos : Vector2) -> bool:
 func _lassoEnd() -> void:
 	move_abil_mod = 1.0
 	$CollisionShape2D.set_deferred("disabled", false)
+	if buffRef:
+		buffRef.disable()
+		buffRef = null
 
 #Placeholder incase I need to do stuff with this
 func _lassoCancel() -> void:
 	lasso_progress = 0
 	crosshairRef.position = Vector2.ZERO
 	move_abil_mod = 1.0
+	if buffRef:
+		buffRef.disable()
+		buffRef = null
+		lasso_buffs = [false, false, false, false]
 
 func _onFullCharge() -> void:
 	if tween2:
@@ -1031,7 +1063,18 @@ func _waddleOrbDecay() -> void:
 	else:
 		waddle_speed_bonus = 1.0
 
-func collect(_value : int, orbpos : Vector2, enemy_drop : bool, _currency_type = 0) -> void:
+func energyGainFormula(value : int, enemy_drop : bool) -> float:
+	if enemy_drop:
+		return value
+	else:
+		return value * lasso_buffs[1] * 1.5
+
+func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
+	if currency_type == 0:
+		set_energy(energyGainFormula(value, enemy_drop))
+	else: 
+		set_currency(value, currency_type)
+	
 	#Need a variable that tracks ripples
 	#Need 3 variables that track ripple amps.
 	#Need a function that's called when ripple amp reaches 0
@@ -1146,7 +1189,7 @@ func changePosition(newpos : Vector2, dims : Vector2) -> void:
 	position = newpos + (modPos-dims/2)  	
 	#CHANGE LASSO COORD
 	if primary_ability == LASSO:
-		lassoRef.updateLocation(getPosition()+crosshairRef.position)
+		lassoRef.updateLocation(getPosition())
 		#Since we're relative this shouldn't be needed
 		#if move_abil_mod == 0: 
 		#	pass
@@ -1264,10 +1307,25 @@ func getID(idtype = 0) -> int:
 
 
 func _on_lasso_lasso_location_reached() -> void:
-	lasso_progress = 100
+	lasso_progress = 1000
 	#Also need to spawn stuff here if need to
 	#Spawn the damage effect as well the area of effects
 	#Also need to activate the new movement for board 
+	if lasso_buff:
+		var tempImpactId = lassoRef.getID(-1)
+		var tempLasId = lassoRef.getID(lasso_type)
+		
+		spawnerReference.spawnEntity(tempImpactId, -2, lassoRef.getPos())
+		
+		if tempLasId != -1:
+			match lasso_type:
+				0:
+					buffRef = spawnerReference.spawnEntity(tempLasId, -2, lassoRef.getPos())
+				1:
+					buffRef = spawnerReference.spawnEntity(tempLasId, -2, lassoRef.getPos())
 
 func _on_lasso_lasso_throw_cancel() -> void:
 	_lassoCancel()
+
+func _on_lasso_lasso_buff_toggle(on: bool) -> void:
+	lasso_buffs[lasso_type] = on

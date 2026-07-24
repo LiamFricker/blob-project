@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://5o87u003agn6"]
+[gd_scene load_steps=10 format=3 uid="uid://5o87u003agn6"]
 
 [ext_resource type="Script" uid="uid://dfn02mb5kdree" path="res://Blob/Evolutions/lasso.gd" id="1_t4wgx"]
+[ext_resource type="PackedScene" uid="uid://c1a8a2g5anmiw" path="res://Blob/base_player_attack.tscn" id="2_njjpe"]
 [ext_resource type="Texture2D" uid="uid://d27dws7qr6ccd" path="res://Art/Cell/Evolutions/tongue.png" id="3_njjpe"]
 [ext_resource type="Texture2D" uid="uid://ehsc021vow7h" path="res://Art/Cell/Evolutions/tongue_tip.png" id="4_8j52b"]
 [ext_resource type="Texture2D" uid="uid://d1i0643sg4xhp" path="res://Art/Cell/Evolutions/ThrowRange.png" id="4_njjpe"]
@@ -97,9 +98,7 @@ _data = {
 [node name="lasso" type="Node2D"]
 script = ExtResource("1_t4wgx")
 
-[node name="RetractHitbox" type="Area2D" parent="."]
-visible = false
-monitoring = false
+[node name="RetractHitbox" parent="." instance=ExtResource("2_njjpe")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RetractHitbox"]
 shape = SubResource("CircleShape2D_j1ffb")

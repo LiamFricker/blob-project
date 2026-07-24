@@ -166,6 +166,7 @@ one_shot = true
 visible = false
 polygon = PackedVector2Array(-19, -51, -39, -2, -7, 28, 37, 31, 29, -9, 3, -49, -14, -57)
 
+[connection signal="lassoBuffToggle" from="lasso" to="." method="_on_lasso_lasso_buff_toggle"]
 [connection signal="lassoLocationReached" from="lasso" to="." method="_on_lasso_lasso_location_reached"]
 [connection signal="lassoThrowCancel" from="lasso" to="." method="_on_lasso_lasso_throw_cancel"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]

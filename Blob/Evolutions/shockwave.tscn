@@ -1,0 +1,56 @@
+[gd_scene load_steps=13 format=3 uid="uid://dalfy2bp2pyxg"]
+
+[ext_resource type="PackedScene" uid="uid://c1a8a2g5anmiw" path="res://Blob/base_player_attack.tscn" id="1_poyfi"]
+[ext_resource type="Script" uid="uid://ccsrluj1tar3a" path="res://Blob/Evolutions/shockwave.gd" id="2_1ed2i"]
+[ext_resource type="Texture2D" uid="uid://bvyt5rqr5icgc" path="res://Art/Cell/Evolutions/shockwave_5.png" id="3_of5hx"]
+[ext_resource type="Texture2D" uid="uid://ujg3aaukw7mb" path="res://Art/Cell/Evolutions/shockwave_4.png" id="4_ub3mr"]
+[ext_resource type="Texture2D" uid="uid://dcmaehfufagjj" path="res://Art/Cell/Evolutions/shockwave_3.png" id="5_igjp6"]
+[ext_resource type="Texture2D" uid="uid://bnqmfl7tkf2h4" path="res://Art/Cell/Evolutions/shockwave_2.png" id="6_lq3np"]
+[ext_resource type="Texture2D" uid="uid://b57uxi1vt7v2" path="res://Art/Cell/Evolutions/shockwave_1.png" id="7_styyt"]
+[ext_resource type="Texture2D" uid="uid://dgex8b2ajxhlh" path="res://Art/Cell/Evolutions/shockwave_0.png" id="8_uhi5r"]
+[ext_resource type="Texture2D" uid="uid://cjmfqx02qloie" path="res://Art/Cell/Evolutions/shockwave.png" id="9_67y8v"]
+[ext_resource type="Texture2D" uid="uid://p3tcjdlt8k7j" path="res://Art/Cell/Evolutions/shockwave_6png.png" id="10_7lrpj"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1ed2i"]
+radius = 60.208
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_omgrr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_of5hx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_ub3mr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_igjp6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_lq3np")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_styyt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_uhi5r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_67y8v")
+}, {
+"duration": 5.0,
+"texture": ExtResource("10_7lrpj")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[node name="shockwave" instance=ExtResource("1_poyfi")]
+script = ExtResource("2_1ed2i")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="0"]
+shape = SubResource("CircleShape2D_1ed2i")
+
+[node name="AnimatedSprite" type="AnimatedSprite2D" parent="." index="1"]
+sprite_frames = SubResource("SpriteFrames_omgrr")

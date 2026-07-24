@@ -1,5 +1,10 @@
 extends Node2D
 
+#Test player entities:
+#Spawn these in if these abilities are available in a run
+var shockwave = preload("res://Blob/Evolutions/shockwave.tscn")
+var effect_pool = preload("res://Blob/Evolutions/effect_pool.tscn")
+
 var stageLevel = 0
 var sizeLevel = 0
 
@@ -216,6 +221,19 @@ func spawnEntity(biomeOrID : int, weight : float, pos : Vector2, kwargs : Array 
 	#Huh I just learnt you can do a ton of stuff with switch cases in Godot
 	#Makes me wonder why no one uses them, I'll prob go read up on them in a bit
 	#It's because if type cases are for babies dumbass.
+	
+	#This is for testing cause I cba:
+	if weight == -2: 
+		
+		match biomeOrID:
+			1001:
+				tempEntity = shockwave.instantiate()
+			1002:
+				tempEntity = effect_pool.instantiate()
+			1003:
+				tempEntity = effect_pool.instantiate()
+		tempEntity.position = pos
+		return tempEntity
 	
 	if weight == -1:
 		tempEntity = entitiesList[biomeOrID].instantiate()
