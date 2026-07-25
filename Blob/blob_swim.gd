@@ -108,7 +108,7 @@ enum {
 	WALLKICK,
 	KITE
 }
-var primary_ability = CHARGE_DASH
+@export var primary_ability : int = 0
 
 #Charge Variables
 var charge = true
@@ -132,7 +132,7 @@ var charge_angle: float = 0
 var chargeStrength: float = 0
 
 #Lasso Variables
-const lasso_base_range = 160
+const lasso_base_range = 240
 @export var lasso_max_speed : float = 0.5
 @export var lasso_cursor_speed : float = 1.0
 @export var lasso_retract_speed : float = 1.0 
@@ -246,9 +246,6 @@ func _get_input() -> Dictionary:
 """
 
 func _ready() -> void:
-	for i in range(18):
-		print(rad_to_deg((i - 9.5) * PI/8), " ueh ", (Vector2.from_angle(snapped((i - 9.5) * PI/8, PI/4))).snappedf(1.0))
-	
 	_frogReset()
 	"""
 	print("START")
@@ -466,7 +463,7 @@ func _lassoLogic(delta: float, friction_delta : float) -> void:
 		var y_dir : float
 		x_dir = int(right_input) - int(left_input)
 		y_dir = int(down_input) - int(up_input)
-		crosshairRef.position += 25 * delta * lasso_cursor_speed * Vector2(x_dir, y_dir)
+		crosshairRef.position += 250 * delta * lasso_cursor_speed * Vector2(x_dir, y_dir)
 	
 	var crossLen = crosshairRef.position.length()
 	if crossLen > lasso_base_range * lasso_progress:
@@ -833,9 +830,10 @@ func _chargeLogic(delta: float) -> void:
 	$Sprite.rotation = charge_angle
 
 func _lassoPress() -> void:
+	print("LAS PROG, " , lasso_progress)
 	if lasso_progress >= 1000:
 		_lassoGo()
-	else:
+	elif lasso_progress < 100:
 		charge_dash = true
 		lassoRef.activate()
 		crosshairRef.show()
@@ -846,31 +844,33 @@ func _lassoPress() -> void:
 		primary_tween.parallel().tween_property(self, "lasso_progress", max_lasso_range, max_lasso_range * 3.0 / lasso_gain_speed).from(0.0)
 
 func _lassoRelease() -> void:
-	charge_dash = false
-	move_abil_mod = 1.0
-	crosshairRef.hide()
-	if lassoRef.endLasso(getPosition()+crosshairRef.position):
-		pass
-	else:
-		_lassoCancel()
-	
+	if lasso_progress < 100:
+		charge_dash = false
+		move_abil_mod = 1.0
+		crosshairRef.hide()
+		if lassoRef.endLasso(getPosition()+crosshairRef.position):
+			_on_lasso_lasso_stall()
+		else:
+			_lassoCancel()
+	elif lasso_progress >= 1000:
+		_lassoGo()	
 func _lassoGo() -> void:
 	var endPos = lassoRef.getPos()
-	if _lassoCollisionCheck(endPos) and lasso_progress >= 1000:
-		move_abil_mod = 0
-		$CollisionShape2D.set_deferred("disabled", true)
-		if primary_tween:
-			primary_tween.kill()
-		primary_tween = create_tween() 
-		
-		var normEndPos = endPos - getPosition()
-		var crossLen = normEndPos.length()
-		primary_tween.tween_property(self, position, normEndPos, crossLen / (2.0*lasso_base_range*lasso_retract_speed)).as_relative()
-		primary_tween.finished.connect(_lassoEnd)
-	else:
-		lasso_progress = 100
-		lassoRef.cancelThrow()
-		move_abil_mod = 1.0
+	if lasso_progress >= 1000:
+		if _lassoCollisionCheck(endPos):
+			move_abil_mod = 0
+			$CollisionShape2D.set_deferred("disabled", true)
+			if primary_tween:
+				primary_tween.kill()
+			primary_tween = create_tween() 
+			
+			var normEndPos = endPos - getPosition()
+			var crossLen = normEndPos.length()
+			primary_tween.tween_property(self, "position", normEndPos, crossLen / (2.0*lasso_base_range*lasso_retract_speed)).as_relative()
+			primary_tween.finished.connect(_lassoEnd)
+		else:
+			lassoRef.cancelLasso(true)
+			move_abil_mod = 1.0
 
 #Check for solid objects and if it's out of bounds.
 func _lassoCollisionCheck(checkPos : Vector2) -> bool:
@@ -879,14 +879,13 @@ func _lassoCollisionCheck(checkPos : Vector2) -> bool:
 
 func _lassoEnd() -> void:
 	move_abil_mod = 1.0
+	_lassoCancel()
 	$CollisionShape2D.set_deferred("disabled", false)
-	if buffRef:
-		buffRef.disable()
-		buffRef = null
-
+	
 #Placeholder incase I need to do stuff with this
 func _lassoCancel() -> void:
 	lasso_progress = 0
+	lassoRef.deactivate()
 	crosshairRef.position = Vector2.ZERO
 	move_abil_mod = 1.0
 	if buffRef:
@@ -1068,13 +1067,13 @@ func energyGainFormula(value : int, enemy_drop : bool) -> float:
 	if enemy_drop:
 		return value
 	else:
-		return value * lasso_buffs[1] * 1.5
+		return value * (1 + int(lasso_buffs[1]) * 0.5)
 
-func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
-	if currency_type == 0:
-		set_energy(energyGainFormula(value, enemy_drop))
-	else: 
-		set_currency(value, currency_type)
+func collect(_value : int, orbpos : Vector2, enemy_drop : bool, _currency_type = 0) -> void:
+	#if currency_type == 0:
+	#	set_energy(energyGainFormula(value, enemy_drop))
+	#else: 
+		#set_currency(value, currency_type)
 	
 	#Need a variable that tracks ripples
 	#Need 3 variables that track ripple amps.
@@ -1340,11 +1339,20 @@ func _on_lasso_lasso_location_reached() -> void:
 					buffRef = spawnerReference.spawnEntity(tempLasId, -2, lassoRef.getPos())
 			buffRef.setParams(lasso_type, lasso_progress, self)		
 			children_list.append(buffRef)
-			
-			
+	if primary_tween:
+		primary_tween.kill()		
+	move_abil_mod = 1.0		
 	lasso_progress = 1000
 func _on_lasso_lasso_throw_cancel() -> void:
 	_lassoCancel()
 
 func _on_lasso_lasso_buff_toggle(on: bool) -> void:
 	lasso_buffs[lasso_type] = on
+
+func _on_lasso_lasso_stall() -> void:
+	lasso_progress = 100
+	if primary_tween:
+		primary_tween.kill()
+	primary_tween = create_tween()
+	primary_tween.tween_interval(3.0)
+	primary_tween.tween_callback(_lassoCancel)

@@ -7,11 +7,12 @@ extends Node2D
 
 signal lassoLocationReached()
 signal lassoThrowCancel()
+signal lassoStall()
 signal lassoBuffToggle(on : bool)
 
 #var currentPos : Vector2 = Vector2.ZERO
 var finalLocation : Vector2 = Vector2.ZERO
-var oldLocation : Vector2 = Vector2.ZERO
+#var oldLocation : Vector2 = Vector2.ZERO
 var thrownAngle : float = 0
 var lassoLength : float = 1.0
 @export var throwSpeed : float = 1.0
@@ -20,7 +21,7 @@ var lasso_tween #all purpose tween for now cause I LOVE tweens compared to when 
 
 @export var damage = 0
 @export var knockback = 0
-var playerRef : Node2D
+@export var playerRef : Node2D
 
 const impactID : int = 1001
 const orbBoonID : int = 1002
@@ -40,13 +41,13 @@ var lassoProgress : float = 0.0
 @export var minProgress : float = 0.1
 @export var baseProgress : float = 0.4
 
-@export var maxLen : float = 300.0 * maxProgress
+@onready var maxLen : float = 1.5 * baseThrowRange * maxProgress
 
 var lassoBuff : int = -1
 var lassoBuffPoolRange : float = 0 
 
 
-const baseThrowRange = 160
+const baseThrowRange = 240
 
 #You should probably spawn an entity at the location. The player itself can probably handle that.  
 #Have it be named "delayed shockwave or something"
@@ -85,27 +86,26 @@ func getKnockback() -> float:
 
 #var sprite 
 var distance_vector = Vector2(0,0)
-var ghost_vector = Vector2(0,0)
+#var ghost_vector = Vector2(0,0)
 #var tongue_speed = 3.0 Commenting this out to show that I overhauled this mechanic 
 #var tongue_speed = 2.0
 
 var tongue_distance = 0
-var angle = 0.0
+#var angle = 0.0
 
-var descend_down = false
-var frog_seperation = 0
+#var descend_down = false
+#var frog_seperation = 0
 
 const TONGUE_BASE_LENGTH = 34
 #const TONGUE_BASE_WIDTH = 18
 #const TONGUE_TIP_RADIUS = 16
 
-var eat = false
-var despawn = false
+#var eat = false
+#var despawn = false
 
-var start = true
-var retract = false
+var start = false
+#var retract = false
 
-var target_enemy = Node2D
 var tongue_timer = 0.0
 
 @export var mana_mult = 0.6
@@ -120,14 +120,14 @@ func _ready():
 	pass 
 	
 func _process(delta):
-	if eat:
-		eating(delta)
+	eating(delta)
 
 func setParams():
 	pass
 	
 func activate() -> void:
 	show()
+	start = false
 	set_process(true)
 	"""
 	if lasso_tween:
@@ -135,12 +135,13 @@ func activate() -> void:
 	lasso_tween = create_tween()
 	lasso_tween.tween_property(tongueRef, "scale", Vector2(1,1), 0.2)
 	lasso_tween.parallel().tween_property(endRef, "position", Vector2(32,0.1), 0.2)
-	lasso_tween.parallel().tween_property(centerRef, "angle", -1.28*PI, 0.2)
+	lasso_tween.parallel().tween_property(centerRef, "rotation", -1.28*PI, 0.2)
 	lasso_tween.parallel().tween_property(centerRef, "position", Vector2(-6,4), 0.2)
 	"""
 	endRef.position = Vector2(32,0.1)
 	tongueRef.scale = Vector2(1,1)
 	centerRef.scale = Vector2(0, 1)
+	centerRef.rotation = -1.28*PI
 	#centerRef.angle = -1.28*PI
 	#centerRef.position = Vector2(-6,4)
 	#lasso_tween.finished.connect(beginLasso)
@@ -152,32 +153,35 @@ func beginLasso() -> void:
 	if lasso_tween:
 		lasso_tween.kill()
 	lasso_tween = create_tween()
-	var scaleVec = Vector2(1,1) * (baseProgress + maxProgress * 0.1)  
+	var scaleVec = Vector2(1,1) * (baseProgress + maxProgress * 1.0)  
 	lasso_tween.tween_property(self, "lassoProgress", maxProgress, maxProgress * 3.0 / progressGainSpeed)
-	lasso_tween.parallel().tween_property($ThrowRange, scale, scaleVec, maxProgress * 3.0 / progressGainSpeed)
-	lasso_tween.parallel().tween_property($CenterRef, scale, Vector2(1,1), 0.2)
+	lasso_tween.parallel().tween_property($ThrowRange, "scale", scaleVec, maxProgress * 3.0 / progressGainSpeed)
+	lasso_tween.parallel().tween_property(centerRef, "scale", Vector2(1,1), 0.2)
 
 func updateLocation(pos : Vector2) -> void:
-	finalLocation = finalLocation - oldLocation + pos
+	finalLocation = finalLocation + pos
 
 func endLasso(relativePos : Vector2, lasBuf : int = 0) -> bool:
+	$AnimationPlayer.stop()
 	$ThrowRange.hide()
 	$ThrowRange.scale = Vector2(baseProgress,baseProgress)
 	if lassoProgress < minProgress:
-		cancelLasso()
-		lassoThrowCancel.emit()
+		cancelThrow()
+		#lassoThrowCancel.emit()
 		return false
 	else:
+		
 		finalLocation = relativePos
-		oldLocation = playerRef.getPosition()
+		#oldLocation = playerRef.getPosition()
 		tongue_distance = 0
+		tongue_timer = 0
 		if lasso_tween:
 			lasso_tween.kill()
 		lasso_tween = create_tween()
 		#lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), 0.2)
 		#lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), 0.2)
 		var tempAngle = (-(playerRef.getPosition() - (relativePos))).angle()
-		lasso_tween.tween_property(centerRef, "angle", tempAngle, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "rotation", tempAngle, 0.1).as_relative()
 		lasso_tween.parallel().tween_property(centerRef, "position", Vector2(0,0), 0.1)
 		lasso_tween.finished.connect(beginThrow)
 		lassoBuff = lasBuf
@@ -185,17 +189,23 @@ func endLasso(relativePos : Vector2, lasBuf : int = 0) -> bool:
 		
 		#start = true
 
-func cancelLasso() -> void:
+func cancelLasso(_emitSig : bool) -> void:
 	if lasso_tween:
 		lasso_tween.kill()
 	lasso_tween = create_tween()
 	lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), 0.2)
 	lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), 0.2)
-	lasso_tween.parallel().tween_property(centerRef, "angle", 2*PI, 0.2).as_relative()
+	lasso_tween.parallel().tween_property(centerRef, "rotation", 2*PI, 0.2).as_relative()
 	lasso_tween.parallel().tween_property(centerRef, "position", Vector2(0,0), 0.2)
+	lasso_tween.finished.connect(emitCancel)
+	lassoStall.emit()
+	
+	#if emitSig:	
+	#	lassoThrowCancel.emit()
 
 func beginThrow() -> void:	
 	start = true	
+	throwing = true
 
 func cancelThrow() -> void:
 	if start:
@@ -206,13 +216,16 @@ func cancelThrow() -> void:
 		 #This may not be aligned. If so, try to align it or do this in process
 		lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), lassoProgress * 0.3) 
 		lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), lassoProgress * 0.3) 
-		lasso_tween.parallel().tween_property(centerRef, "angle", 0.1, 0.1).as_relative()
-		lasso_tween.tween_property(centerRef, "angle", -0.1, 0.1).as_relative()
-		lasso_tween.tween_property(centerRef, "angle", 0.1, 0.1).as_relative()
-		lasso_tween.tween_property(centerRef, "angle", -0.1, 0.1).as_relative()
-		lasso_tween.tween_property(centerRef, "angle", 0.0, 0.1).as_relative()
-		lasso_tween.finished.connect(deactivate)
-		lassoThrowCancel.emit()
+		lasso_tween.parallel().tween_property(centerRef, "rotation", 0.1, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "rotation", -0.1, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "rotation", 0.1, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "rotation", -0.1, 0.1).as_relative()
+		lasso_tween.tween_property(centerRef, "rotation", 0.0, 0.1).as_relative()
+		lasso_tween.finished.connect(emitCancel)
+		lassoStall.emit()
+
+func emitCancel() -> void:
+	lassoThrowCancel.emit()
 
 func deactivate() -> void:
 	$RetractHitbox.set_deferred("monitorable", false)
@@ -249,17 +262,16 @@ func eating(delta):
 			#This is the one with the bugs right now. It points at the opposite side. Fix this.
 		#else:
 			#distance_vector = ghost_vector - Vector2(-7,-1.2)
-		angle = distance_vector.angle()
+		var angle = distance_vector.angle()
 		
 		var disLen = distance_vector.length()
 		if disLen >= maxLen:
-			cancelThrow()
+			cancelLasso(true)
 		
 		if throwing:
 			if tongue_distance <= (disLen): 
-				retract = true
 				tongue_timer += throwSpeed * delta * 250 / disLen
-				angle += sin(tongue_timer) / tongue_timer
+				angle += 1.0 * delta * sin(4.0*tongue_timer) / tongue_timer
 			else:
 				if lassoBuff >= 0:
 					lassoBuffPoolRange = baseThrowRange * 0.75 * lassoProgress
@@ -274,7 +286,8 @@ func eating(delta):
 				if lasso_tween:
 					lasso_tween.kill()
 				lasso_tween = create_tween()
-				lasso_tween.tween_property(self, "angle", -sin(tongue_timer) / tongue_timer, 0.25).as_relative()
+				lasso_tween.tween_property(self, "rotation", -0.1, 0.1).as_relative()
+				lasso_tween.tween_property(self, "rotation", 0.1, 0.1).as_relative()
 				#angle += 0.5 * sin(tongue_timer) / tongue_timer
 			tongue_distance = (disLen * tongue_timer)
 		else:
@@ -298,7 +311,8 @@ func eating(delta):
 		#$FrogSprite/Tongue.scale.x += tongue_speed * delta * 60
 		
 		#The frog's tongue is a length ~7px at 0.2x scale. 
-		tongueRef.scale.x = (1) + (tongue_distance / TONGUE_BASE_LENGTH)
+		tongueRef.scale.x = (tongue_distance) / TONGUE_BASE_LENGTH
+		endRef.position.x = tongue_distance#* Vector2(cos(angle), sin(angle))
 		
 		#35.5 is length of base tongue vector(35, -6)
 		#nvm that was dumb, should be fixed now
@@ -310,7 +324,7 @@ func eating(delta):
 		#Yeah ok wtf is all this?
 		#$FrogSprite/Area2D.position.x = 35 +($FrogSprite/Tongue.scale.x / 0.8 - 1) * TONGUE_BASE_LENGTH * 4 * cos(distance_vector.angle())
 		#$FrogSprite/Area2D.position.y = -6 + ($FrogSprite/Tongue.scale.x / 0.8 - 1) * TONGUE_BASE_LENGTH * 4 * sin(distance_vector.angle())
-		endRef.position = tongue_distance * Vector2(cos(angle), sin(angle))
+		
 		
 		#Some enemy register boxes aren't completely aligned with the hitbox. Make it a bit bigger incase.
 		
@@ -348,23 +362,3 @@ func eating(delta):
 		eat = false
 		start = true
 	"""
-		
-func _on_animation_player_animation_finished(anim_name):
-	match anim_name:
-		"Spawn":
-			$DetectionRange.monitoring = true
-		"Despawn":
-			queue_free()
-
-#Hey this code is pretty useful huh
-func setDamage(dmg : float) -> void:
-	$FrogSprite/Area2D.damage = dmg * 2.0
-
-func _on_attack_cooldown_timeout():
-	$DetectionRange.position.y -= 10000
-	$DetectionRange.monitoring = true
-	
-func _on_area_2d_body_entered(body):
-	if body == target_enemy:
-		retract = true
-		print("hit enemy")
