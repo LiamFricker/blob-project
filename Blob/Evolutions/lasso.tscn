@@ -98,6 +98,7 @@ _data = {
 [node name="lasso" type="Node2D"]
 script = ExtResource("1_t4wgx")
 progressGainSpeed = 2.0
+minProgress = 0.4
 
 [node name="RetractHitbox" parent="." instance=ExtResource("2_njjpe")]
 collision_layer = 8

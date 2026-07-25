@@ -204,6 +204,23 @@ func _loadEntity(path : String, weight : int, weightTotal : int, biome = 4, isRe
 #Weight = -1 if you don't want to go through a random weight system
 #Thanks for not explaining it idiot. 
 
+func spawnFriend(ID : int, pos : Vector2, kwargs : Array = []) -> Node2D:
+	var tempEntity = Node2D
+	
+	#This is for testing cause I cba:	
+	match ID:
+		1001:
+			tempEntity = shockwave.instantiate()
+		1002:
+			tempEntity = effect_pool.instantiate()
+		1003:
+			tempEntity = effect_pool.instantiate()
+	tempEntity.position = pos
+	
+	call_deferred("add_child", tempEntity)
+	#add_child(tempEntity)
+	return tempEntity
+
 #To be honest, I should probably use a 2D list but my experience in coding up the zones
 #has taught me that 2D lists are a pain in the ass here
 #Since we know these IDs before hand, the spawners will want to spawn them directly.
@@ -222,18 +239,7 @@ func spawnEntity(biomeOrID : int, weight : float, pos : Vector2, kwargs : Array 
 	#Makes me wonder why no one uses them, I'll prob go read up on them in a bit
 	#It's because if type cases are for babies dumbass.
 	
-	#This is for testing cause I cba:
-	if weight == -2: 
-		
-		match biomeOrID:
-			1001:
-				tempEntity = shockwave.instantiate()
-			1002:
-				tempEntity = effect_pool.instantiate()
-			1003:
-				tempEntity = effect_pool.instantiate()
-		tempEntity.position = pos
-		return tempEntity
+	
 	
 	if weight == -1:
 		tempEntity = entitiesList[biomeOrID].instantiate()

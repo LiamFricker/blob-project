@@ -844,7 +844,7 @@ func _lassoPress() -> void:
 		primary_tween.parallel().tween_property(self, "lasso_progress", max_lasso_range, max_lasso_range * 3.0 / lasso_gain_speed).from(0.0)
 
 func _lassoRelease() -> void:
-	if lasso_progress < 100:
+	if lasso_progress < 100 and lasso_progress > 0:
 		charge_dash = false
 		move_abil_mod = 1.0
 		crosshairRef.hide()
@@ -1323,21 +1323,29 @@ func _on_lasso_lasso_location_reached() -> void:
 	#Also need to spawn stuff here if need to
 	#Spawn the damage effect as well the area of effects
 	#Also need to activate the new movement for board 
+	
+	
 	if lasso_buff:
 		var tempImpactId = lassoRef.getID(-1)
 		var tempLasId = lassoRef.getID(lasso_type)
 		
-		var shock = spawnerReference.spawnEntity(tempImpactId, -2, lassoRef.getPos())
-		shock.setParams(3.0, 2.0, self, 80 * lasso_progress, 2.0)
+		var shock = spawnerReference.spawnFriend(tempImpactId, lassoRef.getPos())
+		if lasso_progress < 100:
+			shock.setParams(3.0, 2.0, self, 80 * lasso_progress, 2.0)
+		else:
+			shock.setParams(3.0, 2.0, self, 80 * (lasso_progress-100), 2.0)
 		children_list.append(shock)
 		
 		if tempLasId != -1:
 			match lasso_type:
 				0:
-					buffRef = spawnerReference.spawnEntity(tempLasId, -2, lassoRef.getPos())
+					buffRef = spawnerReference.spawnFriend(tempLasId, lassoRef.getPos())
 				2:
-					buffRef = spawnerReference.spawnEntity(tempLasId, -2, lassoRef.getPos())
-			buffRef.setParams(lasso_type, lasso_progress, self)		
+					buffRef = spawnerReference.spawnFriend(tempLasId, lassoRef.getPos())
+			if lasso_progress < 100:
+				buffRef.setParams(lasso_type, lasso_progress, self)	
+			else:
+				buffRef.setParams(lasso_type, (lasso_progress-100), self)			
 			children_list.append(buffRef)
 	if primary_tween:
 		primary_tween.kill()		
@@ -1350,7 +1358,8 @@ func _on_lasso_lasso_buff_toggle(on: bool) -> void:
 	lasso_buffs[lasso_type] = on
 
 func _on_lasso_lasso_stall() -> void:
-	lasso_progress = 100
+	print("LASSO STALLED")
+	lasso_progress += 100
 	if primary_tween:
 		primary_tween.kill()
 	primary_tween = create_tween()

@@ -154,7 +154,7 @@ func beginLasso() -> void:
 		lasso_tween.kill()
 	lasso_tween = create_tween()
 	var scaleVec = Vector2(1,1) * (baseProgress + maxProgress * 1.0)  
-	lasso_tween.tween_property(self, "lassoProgress", maxProgress, maxProgress * 3.0 / progressGainSpeed)
+	lasso_tween.tween_property(self, "lassoProgress", maxProgress, maxProgress * 3.0 / progressGainSpeed).from(0.0)
 	lasso_tween.parallel().tween_property($ThrowRange, "scale", scaleVec, maxProgress * 3.0 / progressGainSpeed)
 	lasso_tween.parallel().tween_property(centerRef, "scale", Vector2(1,1), 0.2)
 
@@ -214,13 +214,12 @@ func cancelThrow() -> void:
 			lasso_tween.kill()
 		lasso_tween = create_tween()
 		 #This may not be aligned. If so, try to align it or do this in process
-		lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), lassoProgress * 0.3) 
-		lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), lassoProgress * 0.3) 
-		lasso_tween.parallel().tween_property(centerRef, "rotation", 0.1, 0.1).as_relative()
-		lasso_tween.tween_property(centerRef, "rotation", -0.1, 0.1).as_relative()
-		lasso_tween.tween_property(centerRef, "rotation", 0.1, 0.1).as_relative()
-		lasso_tween.tween_property(centerRef, "rotation", -0.1, 0.1).as_relative()
-		lasso_tween.tween_property(centerRef, "rotation", 0.0, 0.1).as_relative()
+		lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), lassoProgress * 0.2) 
+		lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), lassoProgress * 0.2) 
+		lasso_tween.parallel().tween_property(centerRef, "rotation", 0.1, 0.05).as_relative()
+		lasso_tween.tween_property(centerRef, "rotation", -0.1, 0.05).as_relative()
+		lasso_tween.tween_property(centerRef, "rotation", 0.1, 0.05).as_relative()
+		lasso_tween.tween_property(centerRef, "rotation", -0.1, 0.05).as_relative()
 		lasso_tween.finished.connect(emitCancel)
 		lassoStall.emit()
 
@@ -267,6 +266,9 @@ func eating(delta):
 		var disLen = distance_vector.length()
 		if disLen >= maxLen:
 			cancelLasso(true)
+			start = false
+			throwing = false
+			return
 		
 		if throwing:
 			if tongue_distance <= (disLen): 
@@ -286,8 +288,9 @@ func eating(delta):
 				if lasso_tween:
 					lasso_tween.kill()
 				lasso_tween = create_tween()
-				lasso_tween.tween_property(self, "rotation", -0.1, 0.1).as_relative()
-				lasso_tween.tween_property(self, "rotation", 0.1, 0.1).as_relative()
+				lasso_tween.tween_property(self, "rotation", -0.075, 0.1).as_relative()
+				lasso_tween.tween_property(self, "rotation", 0.125, 0.1).as_relative()
+				lasso_tween.tween_property(self, "rotation", -0.05, 0.1).as_relative()
 				#angle += 0.5 * sin(tongue_timer) / tongue_timer
 			tongue_distance = (disLen * tongue_timer)
 		else:
