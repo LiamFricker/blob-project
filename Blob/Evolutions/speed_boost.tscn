@@ -1,0 +1,65 @@
+[gd_scene load_steps=11 format=3 uid="uid://bgxasyew2kt8g"]
+
+[ext_resource type="Texture2D" uid="uid://bylbuif25qne5" path="res://Art/Cell/Evolutions/SpeedBoostCrystal.png" id="1_kb6kg"]
+[ext_resource type="Script" uid="uid://cki36xfetuasj" path="res://Blob/Evolutions/speed_boost.gd" id="1_mng4l"]
+[ext_resource type="Texture2D" uid="uid://dyvqo58cjm5eh" path="res://Art/Cell/Evolutions/SpeedBoostCharge.png" id="2_mng4l"]
+[ext_resource type="Texture2D" uid="uid://5v1ls4dy4gnt" path="res://Art/Cell/Evolutions/SpeedBoostSpark0.png" id="3_iwu8j"]
+[ext_resource type="Texture2D" uid="uid://8cmuyxugc0g8" path="res://Art/Cell/Evolutions/SpeedBoostSpark1.png" id="4_gl3ta"]
+[ext_resource type="Texture2D" uid="uid://2ae5a80m0ca1" path="res://Art/Cell/Evolutions/SpeedBoostSpark2.png" id="5_tswh1"]
+[ext_resource type="Texture2D" uid="uid://bboqx8pqps2q2" path="res://Art/Cell/Evolutions/SpeedBoostSpark3.png" id="6_lqd87"]
+[ext_resource type="Texture2D" uid="uid://bqycekmxv2d8v" path="res://Art/Cell/Evolutions/SpeedBoostSpark4.png" id="7_78fqa"]
+[ext_resource type="Texture2D" uid="uid://cyc04vwlrjkdn" path="res://Art/Cell/Evolutions/SpeedBoostSpark.png" id="8_rc1fd"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_1o42n"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_iwu8j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_gl3ta")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_tswh1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_lqd87")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_78fqa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_rc1fd")
+}],
+"loop": true,
+"name": &"default",
+"speed": 6.0
+}]
+
+[node name="SpeedBoost" type="Node2D"]
+script = ExtResource("1_mng4l")
+
+[node name="Crystal" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("1_kb6kg")
+
+[node name="ChargeBar" type="Node2D" parent="."]
+
+[node name="ChargeBG" type="Sprite2D" parent="ChargeBar"]
+visible = false
+texture = ExtResource("2_mng4l")
+
+[node name="Polygon2D" type="Polygon2D" parent="ChargeBar"]
+position = Vector2(0, 24)
+color = Color(0.776, 1, 0.36, 1)
+polygon = PackedVector2Array(-5, 0, -5, -48, 5, -48, 5, 0)
+
+[node name="Bar" type="Sprite2D" parent="ChargeBar"]
+texture = ExtResource("2_mng4l")
+
+[node name="Spark" type="AnimatedSprite2D" parent="ChargeBar"]
+sprite_frames = SubResource("SpriteFrames_1o42n")
+
+[node name="Slipstream" type="Sprite2D" parent="."]
+
+[node name="Bubbles Trail (Placeholder)" type="Node2D" parent="."]

@@ -842,6 +842,8 @@ func _lassoPress() -> void:
 		primary_tween = create_tween()
 		primary_tween.tween_property(self, "move_abil_mod", lasso_max_speed, max_lasso_range * 3.0 / lasso_gain_speed).from(1.0)
 		primary_tween.parallel().tween_property(self, "lasso_progress", max_lasso_range, max_lasso_range * 3.0 / lasso_gain_speed).from(0.0)
+	elif lasso_progress < 210:
+		_on_lasso_lasso_stall()
 
 func _lassoRelease() -> void:
 	if lasso_progress < 100 and lasso_progress > 0:
