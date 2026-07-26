@@ -104,6 +104,7 @@ const TONGUE_BASE_LENGTH = 34
 #var despawn = false
 
 var start = false
+var reverse = false
 #var retract = false
 
 var tongue_timer = 0.0
@@ -126,6 +127,8 @@ func setParams():
 	pass
 	
 func activate() -> void:
+	rotation = 0
+	position = Vector2.ZERO
 	show()
 	start = false
 	set_process(true)
@@ -173,15 +176,23 @@ func endLasso(relativePos : Vector2, lasBuf : int = 0) -> bool:
 		
 		finalLocation = relativePos
 		#oldLocation = playerRef.getPosition()
+		var targetDir = (-(playerRef.getPosition() - (relativePos)))
+		var disLen = targetDir.length()
 		tongue_distance = 0
-		tongue_timer = 0
+		tongue_timer = TONGUE_BASE_LENGTH / (disLen + 1)
+		reverse = disLen < TONGUE_BASE_LENGTH
+		
+		#rotation = 0
 		if lasso_tween:
 			lasso_tween.kill()
 		lasso_tween = create_tween()
 		#lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), 0.2)
 		#lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), 0.2)
-		var tempAngle = (-(playerRef.getPosition() - (relativePos))).angle()
-		lasso_tween.tween_property(centerRef, "rotation", tempAngle, 0.1).as_relative()
+		var tempAngle = targetDir.angle()
+		lasso_tween.tween_property(centerRef, "rotation", tempAngle, 0.1)
+		lasso_tween.parallel().tween_property(self, "rotation", 0, 0.1)
+		lasso_tween.parallel().tween_property(tongueRef, "scale", Vector2(1,1), 0.1)
+		lasso_tween.parallel().tween_property(endRef, "position", Vector2(34,0), 0.1)
 		lasso_tween.parallel().tween_property(centerRef, "position", Vector2(0,0), 0.1)
 		lasso_tween.finished.connect(beginThrow)
 		lassoBuff = lasBuf
@@ -194,7 +205,8 @@ func cancelLasso(_emitSig : bool) -> void:
 		lasso_tween.kill()
 	lasso_tween = create_tween()
 	lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), 0.2)
-	lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), 0.2)
+	lasso_tween.parallel().tween_property(self, "rotation", 0, 0.2)
+	lasso_tween.parallel().tween_property(endRef, "position", Vector2(34,0), 0.2)
 	lasso_tween.parallel().tween_property(centerRef, "rotation", 2*PI, 0.2).as_relative()
 	lasso_tween.parallel().tween_property(centerRef, "position", Vector2(0,0), 0.2)
 	lasso_tween.finished.connect(emitCancel)
@@ -206,6 +218,7 @@ func cancelLasso(_emitSig : bool) -> void:
 func beginThrow() -> void:	
 	start = true	
 	throwing = true
+	
 
 func cancelThrow() -> void:
 	if start:
@@ -236,6 +249,25 @@ func startAnim() -> void:
 
 func getPos() -> Vector2:
 	return finalLocation
+
+func _reachLocation(disLen : float) -> void:
+	if lassoBuff >= 0:
+		lassoBuffPoolRange = baseThrowRange * 0.75 * lassoProgress
+		if disLen <= lassoBuffPoolRange:
+			lassoBuffToggle.emit(true)
+			lassoBuff = 2
+		else:
+			lassoBuffToggle.emit(false)
+			lassoBuff = 1
+	throwing = false
+	lassoLocationReached.emit()
+	if lasso_tween:
+		lasso_tween.kill()
+	lasso_tween = create_tween()
+	lasso_tween.tween_property(self, "rotation", -0.075, 0.1).as_relative()
+	lasso_tween.tween_property(self, "rotation", 0.125, 0.1).as_relative()
+	lasso_tween.tween_property(self, "rotation", -0.05, 0.1).as_relative()
+	#angle += 0.5 * sin(tongue_timer) / tongue_timer
 
 func eating(delta):
 	#This has got to be the most messy code outside of any of the player code
@@ -271,27 +303,18 @@ func eating(delta):
 			return
 		
 		if throwing:
-			if tongue_distance <= (disLen): 
-				tongue_timer += throwSpeed * delta * 250 / disLen
-				angle += 1.0 * delta * sin(4.0*tongue_timer) / tongue_timer
+			if reverse:
+				if tongue_distance >= (disLen): 
+					tongue_timer -= throwSpeed * delta * 250 / (disLen+1)
+					angle += 1.0 * delta * sin(4.0*tongue_timer) / tongue_timer
+				else:
+					_reachLocation(disLen)
 			else:
-				if lassoBuff >= 0:
-					lassoBuffPoolRange = baseThrowRange * 0.75 * lassoProgress
-					if disLen <= lassoBuffPoolRange:
-						lassoBuffToggle.emit(true)
-						lassoBuff = 2
-					else:
-						lassoBuffToggle.emit(false)
-						lassoBuff = 1
-				throwing = false
-				lassoLocationReached.emit()
-				if lasso_tween:
-					lasso_tween.kill()
-				lasso_tween = create_tween()
-				lasso_tween.tween_property(self, "rotation", -0.075, 0.1).as_relative()
-				lasso_tween.tween_property(self, "rotation", 0.125, 0.1).as_relative()
-				lasso_tween.tween_property(self, "rotation", -0.05, 0.1).as_relative()
-				#angle += 0.5 * sin(tongue_timer) / tongue_timer
+				if tongue_distance <= (disLen): 
+					tongue_timer += throwSpeed * delta * 250 / (disLen+1)
+					angle += 1.0 * delta * sin(4.0*tongue_timer) / tongue_timer
+				else:
+					_reachLocation(disLen)
 			tongue_distance = (disLen * tongue_timer)
 		else:
 			tongue_distance = disLen
@@ -314,7 +337,8 @@ func eating(delta):
 		#$FrogSprite/Tongue.scale.x += tongue_speed * delta * 60
 		
 		#The frog's tongue is a length ~7px at 0.2x scale. 
-		tongueRef.scale.x = (tongue_distance) / TONGUE_BASE_LENGTH
+		#if tongue_distance
+		tongueRef.scale.x = (tongue_distance / TONGUE_BASE_LENGTH)
 		endRef.position.x = tongue_distance#* Vector2(cos(angle), sin(angle))
 		
 		#35.5 is length of base tongue vector(35, -6)

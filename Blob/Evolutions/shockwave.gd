@@ -6,6 +6,7 @@ var lt : float = 2.0
 func setParams(dmg : float, kb : float, pR : Node2D, sz = 0.0, lifetime = 2.0) -> void:
 	super(dmg, kb, pR, sz)
 	lt = lifetime
+	$AnimatedSprite.scale = (sz / 80.0) * Vector2(1, 1)
 
 func _ready() -> void:
 	tween = create_tween()
@@ -15,3 +16,6 @@ func _ready() -> void:
 func _delete() -> void:
 	parentRef.removeChild(self)
 	call_deferred("queue_free")
+
+func addPosition(newpos) -> void:
+	position += newpos

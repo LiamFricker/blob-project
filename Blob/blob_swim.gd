@@ -1194,7 +1194,7 @@ func changePosition(newpos : Vector2, dims : Vector2) -> void:
 		lassoRef.updateLocation(position - oldPos)
 	
 	for c in children_list:
-		c.add_position(position - oldPos)
+		c.addPosition(position - oldPos)
 		#Since we're relative this shouldn't be needed
 		#if move_abil_mod == 0: 
 		#	pass
@@ -1329,13 +1329,6 @@ func _on_lasso_lasso_location_reached() -> void:
 		var tempImpactId = lassoRef.getID(-1)
 		var tempLasId = lassoRef.getID(lasso_type)
 		
-		var shock = spawnerReference.spawnFriend(tempImpactId, lassoRef.getPos())
-		if lasso_progress < 100:
-			shock.setParams(3.0, 2.0, self, 80 * lasso_progress, 2.0)
-		else:
-			shock.setParams(3.0, 2.0, self, 80 * (lasso_progress-100), 2.0)
-		children_list.append(shock)
-		
 		if tempLasId != -1:
 			match lasso_type:
 				0:
@@ -1347,6 +1340,13 @@ func _on_lasso_lasso_location_reached() -> void:
 			else:
 				buffRef.setParams(lasso_type, (lasso_progress-100), self)			
 			children_list.append(buffRef)
+			
+		var shock = spawnerReference.spawnFriend(tempImpactId, lassoRef.getPos())
+		if lasso_progress < 100:
+			shock.setParams(3.0, 2.0, self, 60 * lasso_progress, 2.0)
+		else:
+			shock.setParams(3.0, 2.0, self, 60 * (lasso_progress-100), 2.0)
+		children_list.append(shock)
 	if primary_tween:
 		primary_tween.kill()		
 	move_abil_mod = 1.0		

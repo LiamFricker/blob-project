@@ -43,7 +43,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"default",
-"speed": 10.0
+"speed": 15.0
 }]
 
 [node name="shockwave" instance=ExtResource("1_poyfi")]
@@ -54,3 +54,4 @@ shape = SubResource("CircleShape2D_1ed2i")
 
 [node name="AnimatedSprite" type="AnimatedSprite2D" parent="." index="1"]
 sprite_frames = SubResource("SpriteFrames_omgrr")
+autoplay = "default"
