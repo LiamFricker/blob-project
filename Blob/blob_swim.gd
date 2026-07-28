@@ -101,6 +101,7 @@ var isHazard : bool = false
 
 enum {
 	CHARGE_DASH,
+	SPEED_BOOST,
 	LASSO,
 	JUMP,
 	GRAPPLE,
@@ -131,6 +132,18 @@ var charge_angle: float = 0
 #var chargeVelocity: Vector2 = Vector2.ZERO
 var chargeStrength: float = 0
 
+#Speed Boost Variables
+var sb_synergy_buffs : Array = [false, false, false]
+@export var sb_buff : bool = true
+@export var sb_max_speed_buff : float = 1.5
+var sb_speed_buff : float = 1.0
+@export var sb_synergy_buff : float = 1.5
+var sb_state = 0
+@onready var sb_ref = $SpeedBoost
+@export var sb_anim_speed : float = 1.0
+const base_collection_radius : float = 18.0
+@export var base_sb_decay_rate : float = 1.0
+
 #Lasso Variables
 const lasso_base_range = 240
 @export var lasso_max_speed : float = 0.5
@@ -140,11 +153,11 @@ const lasso_base_range = 240
 @export var max_lasso_range : float = 1.0
 var lasso_progress : float = 0.0
 @onready var lassoRef = $lasso
-@onready var crosshairRef = $Sprite/Crosshair
+@onready var crosshairRef = $Crosshair
 var lasso_buff : bool = true
-@export var lasso_type : int = 0
+#@export var lasso_type : int = 0
 var buffRef : Node2D
-var boardClockwise : int = 1
+#var boardClockwise : int = 1
 
 var lasso_buffs : Array = [false, false, false, false]
 
@@ -346,7 +359,7 @@ func _waddleLogic(delta: float, _friction_delta : float) -> void:
 	#$Sprite/Node2D/Inside.material.set_shader_parameter("frequency", 2.5 + ceil(velocity.length())/100 * size)
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 	
-	var waddle_total_speed = accel * delta * waddle_speed * move_abil_mod * waddle_speed_bonus
+	var waddle_total_speed = accel * delta * waddle_speed * move_abil_mod * waddle_speed_bonus * sb_speed_buff
 	
 	if x_dir == sign(velocity.x) * -1:
 		velocity.x += x_dir * waddle_total_speed * turning_accel_ratio
@@ -368,44 +381,41 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 		var mousePosLen = mousePos.length()
 		if abs(tempAng) > PI/2:
 			y_dir = -1
-			boardClockwise = -1
 		elif mousePosLen < 15:
 			y_dir = 0
 		elif mousePosLen < 100:
 			y_dir = mousePos.y/100
 		else:
 			y_dir = 1
-			boardClockwise = 1
 	else:
 		x_dir = int(right_input) - int(left_input)
 		y_dir = int(down_input) - int(up_input)
-		if y_dir != 0:
-			boardClockwise = y_dir
 	
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 			
 	#board_speed += board_accel
 	
 	if y_dir == -1:
-		board_speed += board_accel * move_abil_mod
+		board_speed += board_accel * move_abil_mod * sb_speed_buff
 		#velocity.y += y_dir * accel * turning_accel_ratio * delta * waddle_speed * move_abil_mod	
 	elif y_dir == 0:
-		board_speed += board_accel * 0.25 * move_abil_mod
+		board_speed += board_accel * 0.25 * move_abil_mod * sb_speed_buff
 		board_speed *= sqrt(friction_delta)
 	else:
 		board_speed *= friction_delta
 	
-	if board_speed > board_speed_cap:
-		board_speed = board_speed_cap
+	if board_speed > board_speed_cap * sb_speed_buff:
+		board_speed = board_speed_cap * sb_speed_buff
 	
 	if primary_ability == LASSO and lasso_buff and lasso_progress >= 1000:
-		var lassoPos = lassoRef.get_pos() - getPosition()
+		var lassoPos = lassoRef.getPos() - getPosition()
 		var tempAngle = lassoPos.angle() 
-		charge_angle = tempAngle + PI/2 * boardClockwise
+		var boardClockwise = 1 if y_dir == 1 else 0
+		charge_angle = tempAngle + PI * boardClockwise
 		if y_dir == 0:
 			velocity = Vector2.ZERO
 		else:
-			velocity = 1.5 * board_speed_cap * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
+			velocity = 1.5 * board_speed_cap * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2)) * sb_speed_buff
 	else:
 		charge_angle += board_turning_speed * x_dir * delta * move_abil_mod
 		velocity = board_speed * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
@@ -573,13 +583,21 @@ func _frogPressStart() -> void:
 			scaleVec = Vector2(1.0, 1.0) - 0.3 * abs(newDir)			
 		else:
 			scaleVec = Vector2(1.0, 1.0) - 0.3 * abs(frogDirection)
-			
+		
+		
+		var synergy_gain = 1.0
+		if sb_synergy_buffs[basic_movement_type]:	
+			synergy_gain += (sb_synergy_buff-1.0)
+		var frog_charge_rate = frogLowerBound / (frog_charge_gain * synergy_gain)	
+		
+		#Think I made a bug here. It seemed like it worked before but if this fix breaks it, revert the fix:
 		if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0: 
-			basic_tween.tween_property(self, "frog_charge", frogLowerBound, frogLowerBound / frog_charge_gain).as_relative()
+			basic_tween.tween_property(self, "frog_charge", frogLowerBound, frog_charge_rate).as_relative()
 			#var tempVec = 0.25 * (scaleVec - Vector2(1.0, 1.0))
 			#basic_tween.tween_property($Sprite/Node2D, "scale", tempVec, frogLowerBound / frog_charge_gain).as_relative()
 		else:
-			basic_tween.tween_property($Sprite/Node2D, "scale", scaleVec, frogLowerBound / frog_charge_gain)
+			basic_tween.tween_property($Sprite/Node2D, "scale", scaleVec, frog_charge_rate)
+			basic_tween.parallel().tween_property(self, "frog_charge", frogLowerBound, frog_charge_rate).as_relative()
 			
 		"""
 		if frogDirection.y:
@@ -611,13 +629,19 @@ func _frogPress() -> void:
 			scaleVec = Vector2(1.0, 1.0) - 0.6 * abs(newDir)
 		else:
 			scaleVec = Vector2(1.0, 1.0) - 0.6 * abs(frogDirection)
+		
+		var synergy_gain = 1.0
+		if sb_synergy_buffs[basic_movement_type]:	
+			synergy_gain += (sb_synergy_buff-1.0)
+		var frog_charge_rate = frogLowerBound / (frog_charge_gain * synergy_gain)
+		
 		if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0: 
 			#var tempVec = 0.1 * (scaleVec - Vector2(1.0, 1.0))
 			#basic_tween.tween_property($Sprite/Node2D, "scale", tempVec, frogLowerBound / frog_charge_gain).as_relative()
-			basic_tween.tween_property(self, "frog_charge", frogLowerBound, frogLowerBound / frog_charge_gain).as_relative()
+			basic_tween.tween_property(self, "frog_charge", frogLowerBound, frog_charge_rate).as_relative()
 		else:
-			basic_tween.tween_property($Sprite/Node2D, "scale", scaleVec, frogLowerBound / frog_charge_gain)
-			basic_tween.parallel().tween_property(self, "frog_charge", frogLowerBound, frogLowerBound / frog_charge_gain).as_relative()
+			basic_tween.tween_property($Sprite/Node2D, "scale", scaleVec, frog_charge_rate)
+			basic_tween.parallel().tween_property(self, "frog_charge", frogLowerBound, frog_charge_rate).as_relative()
 			"""
 			if frogDirection.y:
 				if frogDirection.x:
@@ -637,13 +661,18 @@ func _frogCancel() -> void:
 	if basic_tween:
 		basic_tween.kill()
 	basic_tween = create_tween()
+	var synergy_gain = 1.0 #+ ((sb_synergy_buff-1.0) * int(sb_synergy_buffs[basic_movement_type]))
+	#I kinda prefer this than doing one big formula. 
+	if sb_synergy_buffs[basic_movement_type]:	
+		synergy_gain += (sb_synergy_buff-1.0)
+	var frog_charge_rate = frog_max_charges * 2.0 / (frog_charge_gain * synergy_gain)
 	if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0:
-		basic_tween.tween_property(self, "frog_charge", frog_max_charges, frog_max_charges * 2.0 / frog_charge_gain).as_relative() 
+		basic_tween.tween_property(self, "frog_charge", frog_max_charges, frog_charge_rate).as_relative() 
 		basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0.0, 0.0), 0.25)
 	else:
 		basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1.0, 1.0), 0.25)
 		basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0.0, 0.0), 0.25)
-		basic_tween.parallel().tween_property(self, "frog_charge", frog_max_charges, frog_max_charges * 2.0 / frog_charge_gain).as_relative()
+		basic_tween.parallel().tween_property(self, "frog_charge", frog_max_charges, frog_charge_rate).as_relative()
 
 func _frogReset() -> void:
 	if _getFrogDirection():
@@ -654,9 +683,9 @@ func _frogReset() -> void:
 func _frogRelease() -> void:
 	frogState = 3
 	if state == CHARGING:
-		velocity += frogDirection * frog_speed * 100 * frog_travel_speed
+		velocity += frogDirection * frog_speed * 100 * frog_travel_speed * sb_speed_buff
 	else:
-		velocity += frogDirection * frog_speed * 100 * frog_travel_speed * move_abil_mod
+		velocity += frogDirection * frog_speed * 100 * frog_travel_speed * move_abil_mod * sb_speed_buff
 	if frog_charge <= (frogState - frog_max_charges):
 		frogState = 0
 	if basic_tween:
@@ -697,6 +726,8 @@ func _primaryOnPress() -> void:
 				_chargePress()
 			else:
 				primary_queued = true
+		SPEED_BOOST:
+			_sbPress()
 		LASSO:
 			_lassoPress()
 				
@@ -707,6 +738,8 @@ func _primaryOnRelease() -> void:
 				_chargeRelease()
 			else:
 				primary_queued = false
+		SPEED_BOOST:
+			primary_queued = false
 		LASSO:
 			_lassoRelease()
 
@@ -781,10 +814,16 @@ func _chargeRelease() -> void:
 			frogBuff = 1 + frog_charge_dash_ratio * (1 + 0.5 * frog_max_charges)
 		#Put it on CD for a bit to avoid bad interactions	
 		frog_charge = -0.5
+		
+		var synergy_gain = 1.0
+		if sb_synergy_buffs[basic_movement_type]:	
+			synergy_gain += (sb_synergy_buff-1.0)
+		var frog_charge_rate = frog_max_charges * 2.0 / (frog_charge_gain * synergy_gain)
+		
 		if basic_tween:
 			basic_tween.kill()
 		basic_tween = create_tween()
-		basic_tween.tween_property(self, "frog_charge", frog_max_charges, frog_max_charges * 2.0 / frog_charge_gain).as_relative()
+		basic_tween.tween_property(self, "frog_charge", frog_max_charges, frog_charge_rate).as_relative()
 		frogState = 0
 	
 	if charge_time <= charge_max * charge_floor: 
@@ -829,6 +868,17 @@ func _chargeLogic(delta: float) -> void:
 	$Pivot.rotation = charge_angle
 	$Sprite.rotation = charge_angle
 
+func _sbPress() -> void:
+	match sb_state:
+		0:
+			sb_ref.activate(sb_anim_speed)
+			sb_state = 1 
+		1:
+			primary_queued = true
+		2: 
+			sb_ref.spitOutCrystal(sb_anim_speed)
+			sb_state = 1
+
 func _lassoPress() -> void:
 	print("LAS PROG, " , lasso_progress)
 	if lasso_progress >= 1000:
@@ -846,6 +896,7 @@ func _lassoPress() -> void:
 		_on_lasso_lasso_stall()
 
 func _lassoRelease() -> void:
+	primary_queued = false
 	if lasso_progress < 100 and lasso_progress > 0:
 		charge_dash = false
 		move_abil_mod = 1.0
@@ -856,7 +907,9 @@ func _lassoRelease() -> void:
 			_lassoCancel()
 	elif lasso_progress >= 1000:
 		_lassoGo()	
+		
 func _lassoGo() -> void:
+	primary_queued = true
 	var endPos = lassoRef.getPos()
 	if lasso_progress >= 1000:
 		if _lassoCollisionCheck(endPos):
@@ -894,6 +947,9 @@ func _lassoCancel() -> void:
 		buffRef.disable()
 		buffRef = null
 		lasso_buffs = [false, false, false, false]
+	
+	if primary_queued:
+		_lassoPress()
 
 func _onFullCharge() -> void:
 	if tween2:
@@ -1329,6 +1385,7 @@ func _on_lasso_lasso_location_reached() -> void:
 	
 	if lasso_buff:
 		var tempImpactId = lassoRef.getID(-1)
+		var lasso_type = basic_movement_type
 		var tempLasId = lassoRef.getID(lasso_type)
 		
 		if tempLasId != -1:
@@ -1340,14 +1397,14 @@ func _on_lasso_lasso_location_reached() -> void:
 			if lasso_progress < 100:
 				buffRef.setParams(lasso_type, lasso_progress, self)	
 			else:
-				buffRef.setParams(lasso_type, (lasso_progress-100), self)			
+				buffRef.setParams(lasso_type, (fmod(lasso_progress, 100.0)), self)			
 			children_list.append(buffRef)
 			
 		var shock = spawnerReference.spawnFriend(tempImpactId, lassoRef.getPos())
 		if lasso_progress < 100:
 			shock.setParams(3.0, 2.0, self, 60 * lasso_progress, 2.0)
 		else:
-			shock.setParams(3.0, 2.0, self, 60 * (lasso_progress-100), 2.0)
+			shock.setParams(3.0, 2.0, self, 60 * (fmod(lasso_progress, 100.0)), 2.0)
 		children_list.append(shock)
 	if primary_tween:
 		primary_tween.kill()		
@@ -1357,7 +1414,7 @@ func _on_lasso_lasso_throw_cancel() -> void:
 	_lassoCancel()
 
 func _on_lasso_lasso_buff_toggle(on: bool) -> void:
-	lasso_buffs[lasso_type] = on
+	lasso_buffs[basic_movement_type] = on
 
 func _on_lasso_lasso_stall() -> void:
 	print("LASSO STALLED")
@@ -1367,3 +1424,30 @@ func _on_lasso_lasso_stall() -> void:
 	primary_tween = create_tween()
 	primary_tween.tween_interval(3.0)
 	primary_tween.tween_callback(_lassoCancel)
+
+func _on_speed_boost_boost_off_cooldown() -> void:
+	sb_state = 0
+	if primary_queued:
+		_sbPress()
+	
+func _on_speed_boost_crystal_activated() -> void:
+	sb_state = 2
+	sb_speed_buff = sb_max_speed_buff
+	sb_synergy_buffs[basic_movement_type] = true
+	#This is placeholder. We should have a different collision area for this.
+	match basic_movement_type:
+		0:
+			var tempShape = CircleShape2D.new()
+			tempShape.radius = base_collection_radius * sb_synergy_buff
+			$CollisionShape2D.shape = tempShape
+		1:
+			_frogCancel()
+
+func _on_speed_boost_crystal_canceled(decay_rate: float) -> void:
+	sb_speed_buff = 1.0
+	sb_synergy_buffs[basic_movement_type] = false
+	#This is placeholder. We should have a different collision area for this. 
+	if basic_movement_type == 0:
+		var tempShape = CircleShape2D.new()
+		tempShape.radius = base_collection_radius
+		$CollisionShape2D.shape = tempShape

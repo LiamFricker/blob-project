@@ -1,9 +1,9 @@
-[gd_scene load_steps=17 format=3 uid="uid://bgxasyew2kt8g"]
+[gd_scene load_steps=18 format=3 uid="uid://bgxasyew2kt8g"]
 
 [ext_resource type="Texture2D" uid="uid://bylbuif25qne5" path="res://Art/Cell/Evolutions/SpeedBoostCrystal.png" id="1_kb6kg"]
 [ext_resource type="Script" uid="uid://cki36xfetuasj" path="res://Blob/Evolutions/speed_boost.gd" id="1_mng4l"]
 [ext_resource type="Texture2D" uid="uid://dyvqo58cjm5eh" path="res://Art/Cell/Evolutions/SpeedBoostCharge.png" id="2_mng4l"]
-[ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="3_gl3ta"]
+[ext_resource type="PackedScene" uid="uid://bvgqb24xjnkke" path="res://Blob/Evolutions/trail_effect.tscn" id="3_gl3ta"]
 [ext_resource type="Texture2D" uid="uid://5v1ls4dy4gnt" path="res://Art/Cell/Evolutions/SpeedBoostSpark0.png" id="3_iwu8j"]
 [ext_resource type="Texture2D" uid="uid://8cmuyxugc0g8" path="res://Art/Cell/Evolutions/SpeedBoostSpark1.png" id="4_gl3ta"]
 [ext_resource type="Texture2D" uid="uid://2ae5a80m0ca1" path="res://Art/Cell/Evolutions/SpeedBoostSpark2.png" id="5_tswh1"]
@@ -139,7 +139,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(0, 0)]
+"values": [Vector2(-22, 16)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -151,7 +151,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [false]
+"values": [true]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -187,7 +187,7 @@ tracks/5/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [false]
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_gl3ta"]
@@ -330,19 +330,21 @@ _data = {
 &"RegurgitateBig": SubResource("Animation_tswh1")
 }
 
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_mng4l"]
+b = Vector2(12, 47)
+
 [node name="SpeedBoost" type="Node2D"]
 script = ExtResource("1_mng4l")
 
 [node name="Crystal" type="Sprite2D" parent="."]
-visible = false
 modulate = Color(0.85, 0.85, 0.85, 1)
+position = Vector2(-22, 16)
 rotation = -0.606131
 texture = ExtResource("1_kb6kg")
 
-[node name="Blob-Swim" parent="." instance=ExtResource("3_gl3ta")]
+[node name="TrailEffect" parent="." instance=ExtResource("3_gl3ta")]
 
 [node name="ChargeBar" type="Node2D" parent="."]
-visible = false
 position = Vector2(100, 0)
 scale = Vector2(1.5, 2)
 
@@ -373,5 +375,18 @@ libraries = {
 [node name="DurationTimer" type="Timer" parent="."]
 one_shot = true
 
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("SegmentShape2D_mng4l")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
+polygon = PackedVector2Array(2, -3, 26, 28, 65, 18, 219, -39, 217, -45, 65, 12, 31, 21, 8, -6)
+
+[node name="TrailTimer" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
 [connection signal="timeout" from="DurationTimer" to="." method="_on_duration_timer_timeout"]
+[connection signal="timeout" from="TrailTimer" to="." method="_on_trail_timer_timeout"]

@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://bvgqb24xjnkke"]
+
+[ext_resource type="Texture2D" uid="uid://dr28h5khq6m2y" path="res://Art/Cell/TestTexture.png" id="1_7qj7e"]
+[ext_resource type="Script" uid="uid://c83xljim2brwp" path="res://Blob/Evolutions/trail_effect.gd" id="2_r7aej"]
+
+[sub_resource type="Curve" id="Curve_cidtu"]
+_limits = [0.0, 3.0, 0.0, 1.0]
+_data = [Vector2(0, 3), 0.0, 0.0, 0, 0, Vector2(0.702128, 1.11236), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_eq30m"]
+offsets = PackedFloat32Array(0, 0.253333, 0.713333, 1)
+colors = PackedColorArray(0.6, 0, 1, 1, 1, 0.6, 0, 0.72549, 0.592157, 1, 0.592157, 0.611765, 0.592157, 1, 0.592157, 0.298039)
+
+[node name="TrailEffect" type="Line2D"]
+points = PackedVector2Array(463, 155, 417, 178, 382, 199, 316, 222)
+width_curve = SubResource("Curve_cidtu")
+gradient = SubResource("Gradient_eq30m")
+texture = ExtResource("1_7qj7e")
+texture_mode = 2
+script = ExtResource("2_r7aej")
+
+[node name="DecayTimer" type="Timer" parent="."]
+wait_time = 0.1
+one_shot = true
+
+[connection signal="timeout" from="DecayTimer" to="." method="beginDecay"]

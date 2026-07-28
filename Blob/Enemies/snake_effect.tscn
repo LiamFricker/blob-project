@@ -1,0 +1,32 @@
+[gd_scene load_steps=7 format=3 uid="uid://hf1snmavnq6c"]
+
+[ext_resource type="Texture2D" uid="uid://pnyqj8d6bkch" path="res://Art/Cell/HUD/grasstile.png" id="1_dlnf5"]
+[ext_resource type="PackedScene" uid="uid://bvgqb24xjnkke" path="res://Blob/Evolutions/trail_effect.tscn" id="2_cidtu"]
+[ext_resource type="Texture2D" uid="uid://xsp5rn4280oi" path="res://Art/Cell/UpgradeNote.png" id="3_cwcto"]
+[ext_resource type="Texture2D" uid="uid://c2rvfx1617ke8" path="res://Art/Cell/VirusMed.png" id="4_jcuyo"]
+
+[sub_resource type="Curve" id="Curve_cidtu"]
+_limits = [0.0, 10.0, 0.0, 1.0]
+_data = [Vector2(0, 10), 0.0, 0.0, 0, 0, Vector2(0.968085, 1.91011), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_eq30m"]
+offsets = PackedFloat32Array(0.206667, 0.213333, 0.433333, 0.753333)
+colors = PackedColorArray(0.603922, 0, 1, 1, 0.592157, 1, 0.592157, 1, 1, 0.6, 0, 1, 0.592157, 1, 0.592157, 1)
+
+[node name="SnakeEffect" type="Line2D"]
+points = PackedVector2Array(463, 155, 114, 278, 227, 5, 0, 0)
+width_curve = SubResource("Curve_cidtu")
+gradient = SubResource("Gradient_eq30m")
+texture = ExtResource("1_dlnf5")
+texture_mode = 2
+
+[node name="TrailEffect" parent="." instance=ExtResource("2_cidtu")]
+
+[node name="TrailEffect2" parent="." instance=ExtResource("2_cidtu")]
+position = Vector2(-139, -179)
+texture = ExtResource("3_cwcto")
+
+[node name="TrailEffect3" parent="." instance=ExtResource("2_cidtu")]
+position = Vector2(-115, 149)
+texture = ExtResource("4_jcuyo")
