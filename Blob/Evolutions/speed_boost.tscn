@@ -45,7 +45,7 @@ capture_included = true
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Crystal:scale")
+tracks/0/path = NodePath("Pivot/Crystal:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -57,19 +57,19 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Crystal:position")
+tracks/1/path = NodePath("Pivot/Crystal:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.025, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.025, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(-22, 16), Vector2(-22, 16), Vector2(-35, -17), Vector2(-32, -31), Vector2(-20, -43), Vector2(-11, -32), Vector2(-4, -21), Vector2(3, -9), Vector2(5, 2)]
+"values": [Vector2(-22, 16), Vector2(-22, 16), Vector2(-33, -37), Vector2(-31, -58), Vector2(-20, -74), Vector2(-11, -58), Vector2(-4, -43), Vector2(3, -24), Vector2(5, -12), Vector2(5, 2)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Crystal:visible")
+tracks/2/path = NodePath("Pivot/Crystal:visible")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -81,7 +81,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Crystal:z_index")
+tracks/3/path = NodePath("Pivot/Crystal:z_index")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -93,7 +93,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Crystal:rotation")
+tracks/4/path = NodePath("Pivot/Crystal:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -102,92 +102,68 @@ tracks/4/keys = {
 "update": 2,
 "values": [-0.606131, 0.53164, 1.13922, 1.48003, 1.82084, 2.16272, 2.56965, 2.85398, 3.14159]
 }
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("ChargeBar:visible")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 0.5),
-"transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [true, true]
-}
 
 [sub_resource type="Animation" id="Animation_iwu8j"]
 length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Crystal:scale")
+tracks/0/path = NodePath("Pivot/Crystal:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1, 1)]
+"values": [Vector2(-22, 16)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Crystal:position")
+tracks/1/path = NodePath("Pivot/Crystal:rotation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(-22, 16)]
+"values": [-0.606131]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Crystal:visible")
+tracks/2/path = NodePath("Pivot/Crystal:scale")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
+"update": 0,
+"values": [Vector2(1, 1)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Crystal:z_index")
+tracks/3/path = NodePath("Pivot/Crystal:visible")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0]
+"values": [true]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Crystal:rotation")
+tracks/4/path = NodePath("Pivot/Crystal:z_index")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [-0.606131]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("ChargeBar:visible")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [true]
+"values": [0]
 }
 
 [sub_resource type="Animation" id="Animation_gl3ta"]
@@ -198,7 +174,7 @@ capture_included = true
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Crystal:scale")
+tracks/0/path = NodePath("Pivot/Crystal:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -210,7 +186,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Crystal:position")
+tracks/1/path = NodePath("Pivot/Crystal:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -222,7 +198,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Crystal:visible")
+tracks/2/path = NodePath("Pivot/Crystal:visible")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -234,7 +210,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Crystal:z_index")
+tracks/3/path = NodePath("Pivot/Crystal:z_index")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -246,7 +222,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Crystal:rotation")
+tracks/4/path = NodePath("Pivot/Crystal:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -264,7 +240,7 @@ capture_included = true
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Crystal:scale")
+tracks/0/path = NodePath("Pivot/Crystal:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -276,7 +252,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Crystal:position")
+tracks/1/path = NodePath("Pivot/Crystal:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -288,7 +264,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Crystal:visible")
+tracks/2/path = NodePath("Pivot/Crystal:visible")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -300,7 +276,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Crystal:z_index")
+tracks/3/path = NodePath("Pivot/Crystal:z_index")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -312,7 +288,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Crystal:rotation")
+tracks/4/path = NodePath("Pivot/Crystal:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -335,8 +311,12 @@ b = Vector2(12, 47)
 
 [node name="SpeedBoost" type="Node2D"]
 script = ExtResource("1_mng4l")
+chargeRefundRatio = 1.5
+charge_speed = 2.0
 
-[node name="Crystal" type="Sprite2D" parent="."]
+[node name="Pivot" type="Node2D" parent="."]
+
+[node name="Crystal" type="Sprite2D" parent="Pivot"]
 modulate = Color(0.85, 0.85, 0.85, 1)
 position = Vector2(-22, 16)
 rotation = -0.606131
@@ -354,13 +334,14 @@ texture = ExtResource("2_mng4l")
 
 [node name="ChargeMeter" type="Polygon2D" parent="ChargeBar"]
 position = Vector2(0, 24)
-color = Color(1, 0, 0, 0.788235)
+color = Color(0.776471, 1, 0.360784, 0.788235)
 polygon = PackedVector2Array(-5, 0, -5, -48, 5, -48, 5, 0)
 
 [node name="Bar" type="Sprite2D" parent="ChargeBar"]
 texture = ExtResource("2_mng4l")
 
 [node name="Spark" type="AnimatedSprite2D" parent="ChargeBar"]
+visible = false
 sprite_frames = SubResource("SpriteFrames_1o42n")
 
 [node name="Slipstream" type="Sprite2D" parent="."]
@@ -376,6 +357,9 @@ libraries = {
 one_shot = true
 
 [node name="Area2D" type="Area2D" parent="."]
+visible = false
+monitoring = false
+monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("SegmentShape2D_mng4l")

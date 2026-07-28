@@ -128,7 +128,7 @@ var tempVelocity: Vector2 = Vector2.ZERO
 var charge_angle: float = 0
 @export var charge_angle_speed: float = 1
 
-@export var charge_dash: bool = true
+@export var charge_dash: bool = false
 #var chargeVelocity: Vector2 = Vector2.ZERO
 var chargeStrength: float = 0
 
@@ -370,6 +370,7 @@ func _waddleLogic(delta: float, _friction_delta : float) -> void:
 	else:
 		velocity.y += y_dir * waddle_total_speed
 	
+	
 func _boardLogic(delta: float, friction_delta : float) -> void:
 	var x_dir : float
 	var y_dir : float
@@ -422,6 +423,8 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 	
 	$Pivot.rotation = charge_angle
 	$Sprite.rotation = charge_angle
+	if primary_ability == SPEED_BOOST:
+		sb_ref.changeRot(charge_angle)
 	
 
 func _frogLogic(_delta : float, _friction_delta : float) -> void:
@@ -1375,14 +1378,7 @@ func getID(idtype = 0) -> int:
 	else:
 		return 0
 
-
 func _on_lasso_lasso_location_reached() -> void:
-	
-	#Also need to spawn stuff here if need to
-	#Spawn the damage effect as well the area of effects
-	#Also need to activate the new movement for board 
-	
-	
 	if lasso_buff:
 		var tempImpactId = lassoRef.getID(-1)
 		var lasso_type = basic_movement_type
@@ -1441,13 +1437,20 @@ func _on_speed_boost_crystal_activated() -> void:
 			tempShape.radius = base_collection_radius * sb_synergy_buff
 			$CollisionShape2D.shape = tempShape
 		1:
-			_frogCancel()
+			if frogState == 0:
+				_frogCancel()
 
-func _on_speed_boost_crystal_canceled(decay_rate: float) -> void:
+func _on_speed_boost_crystal_canceled(_decay_rate: float) -> void:
+	if sb_state == 2:
+		sb_state = 1
 	sb_speed_buff = 1.0
 	sb_synergy_buffs[basic_movement_type] = false
 	#This is placeholder. We should have a different collision area for this. 
-	if basic_movement_type == 0:
-		var tempShape = CircleShape2D.new()
-		tempShape.radius = base_collection_radius
-		$CollisionShape2D.shape = tempShape
+	match basic_movement_type:
+		0:
+			var tempShape = CircleShape2D.new()
+			tempShape.radius = base_collection_radius
+			$CollisionShape2D.shape = tempShape
+		1:
+			if frogState == 0:	
+				_frogCancel()

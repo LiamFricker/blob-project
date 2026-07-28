@@ -56,7 +56,8 @@ polygon = PackedVector2Array(-12, 0, 0, -17, 12, 0, 4, 2, 0, -7, -4, 2)
 visible = false
 playerRef = NodePath("..")
 
-[node name="SpeedBoost" parent="." instance=ExtResource("4_a16ly")]
+[node name="SpeedBoost" parent="." node_paths=PackedStringArray("playerRef") instance=ExtResource("4_a16ly")]
+playerRef = NodePath("..")
 
 [node name="Sprite" type="Node2D" parent="."]
 

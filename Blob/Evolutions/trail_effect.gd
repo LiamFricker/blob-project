@@ -23,8 +23,9 @@ func addPosition(newPos : Vector2) -> void:
 
 func beginDecay() -> void:
 	if size >= 1:
-		point_array.remove_at(max_size - 1)
+		point_array.remove_at(point_array.size() - 1)
 		points = point_array
+		size -= 1
 		$DecayTimer.start()
 	else:
 		hide()

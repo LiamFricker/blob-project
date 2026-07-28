@@ -1,8 +1,8 @@
 extends Node2D
 
 @export var duration : float = 5.0
-@onready var crysRef : Node2D = $Crystal
-@onready var anim_player : Node2D = $AnimationPlayer
+@onready var crysRef : Node2D = $Pivot/Crystal
+@onready var anim_player : AnimationPlayer = $AnimationPlayer
 @onready var meterRef : Node2D = $ChargeBar/ChargeMeter
 var chargeRefund : float = 0.0
 
@@ -29,6 +29,9 @@ signal boost_off_cooldown()
 
 func addPos(newpos) -> void:
 	posOffset += newpos
+
+func changeRot(newangle : float) -> void:
+	$Pivot.rotation = newangle
 
 func setParams(new_duration : float = 5.0, new_speed : float = 1.0, new_ratio : float = 0.2, tp : int = 0) -> void:
 	duration = new_duration
@@ -57,16 +60,41 @@ func activate(speed = 1.0) -> void:
 	anim_player.play("Activate", -1, speed)
 	if waddle_tween:
 		waddle_tween.kill()
+	waddle_tween = create_tween()
+	waddle_tween.tween_property($ChargeBar, "modulate:a", 1.0, 0.49 / speed)
 	
 func spitOutCrystal(speed = 1.0) -> void:
 	chargeRefund = chargeRefundRatio * $DurationTimer.time_left / duration
 	$DurationTimer.stop()
+	$ChargeBar/Spark.hide()
 	_activateTrailEffect()
 	if buff_type == 1:
 		$Slipstream.deactivate()
 	
-	if waddle_tween:
-		waddle_tween.kill()
+	if crystal_tween:
+		crystal_tween.kill()
+	
+	if chargeRefund < 1.0:	
+	
+		var newColor = Color(0.78, 1.0, 0.36, 0.79).lerp(Color(1.0, 0.0, 0.0, 0.79), 1.0-chargeRefund)
+		var newPos = 22.5 - 45 * chargeRefund
+		
+		if waddle_tween:
+			waddle_tween.kill()
+		waddle_tween = create_tween().set_loops()
+		waddle_tween.tween_property($ChargeBar, "rotation", 0, 0.1)
+		waddle_tween.parallel().tween_property(meterRef, "scale:y", chargeRefund, 0.49 / speed)
+		waddle_tween.parallel().tween_property(meterRef, "color", newColor, 0.49 / speed)
+		waddle_tween.parallel().tween_property($ChargeBar/Spark, "position:y", newPos, 0.49 / speed)
+	else:
+		if waddle_tween:
+			waddle_tween.kill()
+		waddle_tween = create_tween().set_loops()
+		waddle_tween.tween_property($ChargeBar, "rotation", 0, 0.1)
+		waddle_tween.parallel().tween_property(meterRef, "scale:y", 1.0, 0.49 / speed)
+		waddle_tween.parallel().tween_property(meterRef, "color", Color(0.78, 1.0, 0.36, 0.79), 0.49 / speed)
+		waddle_tween.parallel().tween_property($ChargeBar/Spark, "position:y", -22.5, 0.49 / speed)
+	
 	if chargeRefund < 0.9:	
 		anim_player.play("Regurgitate", -1, speed)
 	else:
@@ -93,16 +121,18 @@ func _chargeBarActivate() -> void:
 	if buff_type == 1:
 		$Slipstream.activate()
 	
-	$DurationTimer.start()
+	$DurationTimer.start(duration)
 	$ChargeBar/Spark.show()
 	$ChargeBar/Spark.play()
 	$TrailEffect.start()
+	#meterRef.modulate = Color("c6ff5cc9")
+	
 	if crystal_tween:
 		crystal_tween.kill()
 	crystal_tween = create_tween()
 	crystal_tween.tween_property(meterRef, "scale:y", 0.0, duration).from(1.0)
-	crystal_tween.parallel().tween_property(meterRef, "modulate", Color("ff0000c9"), duration).from(Color("c6ff5cc9"))
-	crystal_tween.parallel().tween_property($ChargeBar/Spark, "position:y", 22.5, duration).from(22.5)
+	crystal_tween.parallel().tween_property(meterRef, "color", Color(1.0, 0.0, 0.0, 0.79), duration).from(Color(0.78, 1.0, 0.36, 0.79))
+	crystal_tween.parallel().tween_property($ChargeBar/Spark, "position:y", 22.5, duration).from(-22.5)
 	
 	if waddle_tween:
 		waddle_tween.kill()
@@ -111,13 +141,13 @@ func _chargeBarActivate() -> void:
 	waddle_tween.tween_property($ChargeBar, "rotation", 0.02, 0.1)
 
 func _on_duration_timer_timeout() -> void:
+	chargeRefund = 0.0
 	$ChargeBar/Spark.hide()
 	$ChargeBar/Spark.stop()
 	_activateTrailEffect()
 	if buff_type == 1:
 		$Slipstream.deactivate()
 	crysRef.position = Vector2(-18, 19)
-	crysRef.rotation = -0.3 * PI
 	crysRef.scale = Vector2(0.5, 0.5)
 	crysRef.show()
 	crystal_canceled.emit(1.0)
@@ -128,8 +158,13 @@ func _on_duration_timer_timeout() -> void:
 	
 	_regrowRainbows()
 	
-func _regrowRainbows(chargeRefund = 0.0) -> void:
-	var remaining_cooldown = BASE_COOLDOWN - chargeRefund
+func _regrowRainbows() -> void:
+	if waddle_tween:
+		waddle_tween.kill()
+	$ChargeBar.rotation = 0
+	crysRef.rotation = -0.3 * PI
+	
+	var remaining_cooldown = BASE_COOLDOWN * (1.0 - chargeRefund)
 	
 	if crystal_tween:
 		crystal_tween.kill()
@@ -138,20 +173,36 @@ func _regrowRainbows(chargeRefund = 0.0) -> void:
 	crystal_tween.parallel().tween_property(crysRef, "scale", Vector2(1, 1), remaining_cooldown / charge_speed)
 	crystal_tween.parallel().tween_property(crysRef, "rotation", -0.19 * PI, remaining_cooldown / charge_speed)
 	crystal_tween.parallel().tween_property(meterRef, "scale:y", 1.0, remaining_cooldown / charge_speed)
-	crystal_tween.parallel().tween_property(meterRef, "modulate", Color("c6ff5cc9"), remaining_cooldown / charge_speed)
+	crystal_tween.parallel().tween_property(meterRef, "color", Color("c6ff5cc9"), remaining_cooldown / charge_speed)
 	crystal_tween.finished.connect(_chargeOffCD)
 	
-func _regrowBigRainbows(chargeRefund = 0.0) -> void:
-	var remaining_cooldown = BASE_COOLDOWN - chargeRefund
-	if crystal_tween:
-		crystal_tween.kill()
-	crystal_tween = create_tween()
-	crystal_tween.tween_property(meterRef, "scale:y", 1.0, remaining_cooldown / charge_speed)
-	crystal_tween.parallel().tween_property(meterRef, "modulate", Color("c6ff5cc9"), remaining_cooldown / charge_speed)
-	crystal_tween.finished.connect(_chargeOffCD)
+func _regrowBigRainbows() -> void:
+	if waddle_tween:
+		waddle_tween.kill()
+	$ChargeBar.rotation = 0
+	crysRef.rotation = -0.3 * PI
+	
+	if chargeRefund < 1.0:
+		var remaining_cooldown = BASE_COOLDOWN * (1.0 - chargeRefund)
+		if crystal_tween:
+			crystal_tween.kill()
+		crystal_tween = create_tween()
+		crystal_tween.tween_property(meterRef, "scale:y", 1.0, remaining_cooldown / charge_speed)
+		crystal_tween.parallel().tween_property(meterRef, "color", Color("c6ff5cc9"), remaining_cooldown / charge_speed)
+		crystal_tween.finished.connect(_chargeOffCD)
+	else:
+		_chargeOffCD()
 	
 func _chargeOffCD() -> void:
 	boost_off_cooldown.emit()
+	
+	if crystal_tween:
+		crystal_tween.kill()
+	crystal_tween = create_tween()
+	crystal_tween.tween_property(meterRef, "color", Color("f7ff00c9"), 0.2)
+	crystal_tween.tween_property(meterRef, "color", Color("c6ff5cc9"), 0.25)
+	crystal_tween.tween_property($ChargeBar, "modulate:a", 0.0, 1.0)
+	
 
 func _chargeFinished() -> void:
 	boost_off_cooldown.emit()
