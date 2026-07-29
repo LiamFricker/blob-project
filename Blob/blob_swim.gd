@@ -67,6 +67,11 @@ var down_input = false
 
 var move_abil_mod = 1
 
+#BASIC stuff
+var x_dir : float = 0.0
+var y_dir : float = 0.0
+var idling : bool = false
+
 #You should attach these to a resource
 #WADDLE VARS
 #var waddle = false
@@ -92,6 +97,7 @@ var board_speed: float = 0
 var frog_charge : float = 0.0
 var frogState : int = 0 
 var frogDirection : Vector2 = Vector2.ZERO
+var frogIdleAllowed : bool = false
 
 @export var friction: float = 0.25
 
@@ -143,6 +149,8 @@ var sb_state = 0
 @export var sb_anim_speed : float = 1.0
 const base_collection_radius : float = 18.0
 @export var base_sb_decay_rate : float = 1.0
+signal createAfterImage(trail_decay : float, trail_int : float, trail_color : int, trail_count : int)
+signal endAfterImage()
 
 #Lasso Variables
 const lasso_base_range = 240
@@ -334,26 +342,8 @@ func _movementLogic(delta: float, friction_delta:float) -> void:
 			_frogLogic(delta, friction_delta)
 
 func _waddleLogic(delta: float, _friction_delta : float) -> void:
-	var x_dir : float
-	var y_dir : float
-	if mouseMovement:
-		var absMPX = abs(mousePos.x)
-		if absMPX < 15:
-			x_dir = 0
-		elif absMPX < 100:
-			x_dir = mousePos.x/100
-		else:
-			x_dir = sign(mousePos.x)
-		var absMPY = abs(mousePos.y)
-		if absMPY < 15:
-			y_dir = 0
-		elif absMPY < 100:
-			y_dir = mousePos.y/100
-		else:
-			y_dir = sign(mousePos.y)
-	else:
-		x_dir = int(right_input) - int(left_input)
-		y_dir = int(down_input) - int(up_input)
+	#var x_dir : float
+	#var y_dir : float
 	#print("Right: ", Input.is_action_pressed("Right"))
 	#print(velocity.length()/100)
 	#$Sprite/Node2D/Inside.material.set_shader_parameter("frequency", 2.5 + ceil(velocity.length())/100 * size)
@@ -372,25 +362,11 @@ func _waddleLogic(delta: float, _friction_delta : float) -> void:
 	
 	
 func _boardLogic(delta: float, friction_delta : float) -> void:
-	var x_dir : float
-	var y_dir : float
+	#var x_dir : float
+	#var y_dir : float
 	if mouseMovement:
 		#This is inefficient but I know doing this manually is a pain in the ass to bug fix so I cba
-		var tempAng = mousePos.angle_to(Vector2.from_angle(charge_angle+PI/2))
-	
-		x_dir = sign(tempAng)
-		var mousePosLen = mousePos.length()
-		if abs(tempAng) > PI/2:
-			y_dir = -1
-		elif mousePosLen < 15:
-			y_dir = 0
-		elif mousePosLen < 100:
-			y_dir = mousePos.y/100
-		else:
-			y_dir = 1
-	else:
-		x_dir = int(right_input) - int(left_input)
-		y_dir = int(down_input) - int(up_input)
+		x_dir = sign(mousePos.angle_to(Vector2.from_angle(charge_angle+PI/2)))
 	
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 			
@@ -472,10 +448,10 @@ func _lassoLogic(delta: float, friction_delta : float) -> void:
 	if mouseMovement:
 		crosshairRef.position = mousePos
 	else:
-		var x_dir : float
-		var y_dir : float
-		x_dir = int(right_input) - int(left_input)
-		y_dir = int(down_input) - int(up_input)
+		#var x_dir : float
+		#var y_dir : float
+		#x_dir = int(right_input) - int(left_input)
+		#y_dir = int(down_input) - int(up_input)
 		crosshairRef.position += 250 * delta * lasso_cursor_speed * Vector2(x_dir, y_dir)
 	
 	var crossLen = crosshairRef.position.length()
@@ -513,6 +489,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		elif event.is_action_released("Left"):
 			left_input = false
+			_basicOnRelease()
 			return
 			
 		if event.is_action_pressed("Right"):
@@ -521,6 +498,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		elif event.is_action_released("Right"):
 			right_input = false
+			_basicOnRelease()
 			return
 		
 		if event.is_action_pressed("Up"):
@@ -529,6 +507,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		elif event.is_action_released("Up"):
 			up_input = false
+			_basicOnRelease()
 			return
 		
 		if event.is_action_pressed("Down"):
@@ -537,19 +516,95 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		elif event.is_action_released("Down"):
 			down_input = false
+			_basicOnRelease()
 			return
 
 func _basicOnPress() -> void:
 	match basic_movement_type:
+		WADDLE:
+			if _getWaddleDirection():
+				_idlingCancel()
+			else:
+				_idlingTrigger()
+		BOARD:
+			if _getBoardDirection():
+				_idlingCancel()
+			else:
+				_idlingTrigger()
 		FROG:
 			if frogState == 0 and frog_charge >= 0:
 				_frogReset()
-		_:
-			pass
+
+func _basicOnRelease() -> void:
+	match basic_movement_type:
+		WADDLE:
+			if _getWaddleDirection():
+				_idlingCancel()
+			else:
+				_idlingTrigger()
+		BOARD:
+			if _getBoardDirection():
+				_idlingCancel()
+			else:
+				_idlingTrigger()
+
+func _idlingTrigger() -> void:
+	if not idling:
+		if primary_ability == SPEED_BOOST:
+			sb_ref.endWaddle()
+		idling = true
+
+func _idlingCancel() -> void:
+	if idling:
+		if primary_ability == SPEED_BOOST:	
+			sb_ref.beginWaddle()
+		idling = false
+
+func _getWaddleDirection() -> bool:
+	if mouseMovement:
+		var absMPX = abs(mousePos.x)
+		if absMPX < 15:
+			x_dir = 0
+		elif absMPX < 100:
+			x_dir = mousePos.x/100
+		else:
+			x_dir = sign(mousePos.x)
+		var absMPY = abs(mousePos.y)
+		if absMPY < 15:
+			y_dir = 0
+		elif absMPY < 100:
+			y_dir = mousePos.y/100
+		else:
+			y_dir = sign(mousePos.y)
+	else:
+		x_dir = int(right_input) - int(left_input)
+		y_dir = int(down_input) - int(up_input)
+	return x_dir or y_dir
+
+func _getBoardDirection() -> bool:
+	if mouseMovement:
+		#This is inefficient but I know doing this manually is a pain in the ass to bug fix so I cba
+		var tempAng = mousePos.angle_to(Vector2.from_angle(charge_angle+PI/2))
+	
+		x_dir = sign(tempAng)
+		var mousePosLen = mousePos.length()
+		if abs(tempAng) < PI/2:
+			y_dir = 1
+		elif mousePosLen < 15:
+			y_dir = 0
+		elif mousePosLen < 100:
+			y_dir = -mousePos.y/100
+		else:
+			y_dir = -1
+	else:
+		x_dir = int(right_input) - int(left_input)
+		y_dir = int(down_input) - int(up_input)
+	print("yo ", y_dir > 0)
+	return y_dir < 0
 
 func _getFrogDirection() -> bool:
-	var x_dir : float
-	var y_dir : float
+	#var x_dir : float
+	#var y_dir : float
 	if mouseMovement:
 		var absMPX = abs(mousePos.x)
 		if absMPX < 75:
@@ -568,6 +623,9 @@ func _getFrogDirection() -> bool:
 	return x_dir or y_dir
 
 func _frogPressStart() -> void:
+	#There should be a special case with frog not to cancel idling when having the upgrade
+	if not frogIdleAllowed:
+		_idlingCancel()
 	if frog_charge >= 1.0:
 		if frog_charge >= frog_max_charges:
 			frog_charge = frog_max_charges
@@ -660,6 +718,8 @@ func _frogPress() -> void:
 		_frogCancel()
 
 func _frogCancel() -> void:
+	_idlingTrigger()
+	
 	frogState = 0
 	if basic_tween:
 		basic_tween.kill()
@@ -1242,7 +1302,7 @@ func pulseCancel(pulseNum : int) -> void:
 		3:
 			if pulseTween3:
 				pulseTween3.kill()
-func changePosition(newpos : Vector2, dims : Vector2) -> void:
+func changePosition(newpos : Vector2, dims : Vector2) -> Vector2:
 	var oldPos = position
 	
 	var modPos = (position - dims/2).posmodv(dims)
@@ -1261,7 +1321,10 @@ func changePosition(newpos : Vector2, dims : Vector2) -> void:
 		#	pass
 	
 	call_deferred("changeCamera")
-	#return position
+	return position - oldPos
+
+func getSpriteDuplicate() -> Node2D:
+	return $Sprite/Node2D
 	
 func removeChild(childRef : Node2D) -> void:
 	var temppos = children_list.find(childRef)
@@ -1338,6 +1401,12 @@ func increaseVirusLevel(_type : int, intensity : float, _duration = 2.0) -> void
 
 func getPosition() -> Vector2:
 	return position
+
+func getRotation() -> float:
+	return charge_angle
+	
+func getScale() -> Vector2:
+	return $Sprite/Node2D.scale
 
 func _death() -> void:
 	pass
@@ -1427,6 +1496,7 @@ func _on_speed_boost_boost_off_cooldown() -> void:
 		_sbPress()
 	
 func _on_speed_boost_crystal_activated() -> void:
+	createAfterImage.emit(3.5, 0.1, basic_movement_type, 999)
 	sb_state = 2
 	sb_speed_buff = sb_max_speed_buff
 	sb_synergy_buffs[basic_movement_type] = true
@@ -1436,11 +1506,12 @@ func _on_speed_boost_crystal_activated() -> void:
 			var tempShape = CircleShape2D.new()
 			tempShape.radius = base_collection_radius * sb_synergy_buff
 			$CollisionShape2D.shape = tempShape
-		1:
+		2:
 			if frogState == 0:
 				_frogCancel()
 
 func _on_speed_boost_crystal_canceled(_decay_rate: float) -> void:
+	endAfterImage.emit()
 	if sb_state == 2:
 		sb_state = 1
 	sb_speed_buff = 1.0
@@ -1451,6 +1522,6 @@ func _on_speed_boost_crystal_canceled(_decay_rate: float) -> void:
 			var tempShape = CircleShape2D.new()
 			tempShape.radius = base_collection_radius
 			$CollisionShape2D.shape = tempShape
-		1:
+		2:
 			if frogState == 0:	
 				_frogCancel()

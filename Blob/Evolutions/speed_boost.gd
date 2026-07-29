@@ -22,16 +22,28 @@ var posOffset : Vector2 = Vector2.ZERO
 
 var crystal_tween
 var waddle_tween
+var waddle_state = 0
+
+@export var is_charge : bool = false
 
 signal crystal_activated()
 signal crystal_canceled(decay_rate : float)
 signal boost_off_cooldown()
+
+func _ready() -> void:
+	if is_charge:
+		$Pivot.position = Vector2(6, -6)
+	else:
+		$Pivot.position = Vector2(0, 0)
 
 func addPos(newpos) -> void:
 	posOffset += newpos
 
 func changeRot(newangle : float) -> void:
 	$Pivot.rotation = newangle
+
+func changeScale(newscale : Vector2) -> void:
+	$Pivot.scale = newscale
 
 func setParams(new_duration : float = 5.0, new_speed : float = 1.0, new_ratio : float = 0.2, tp : int = 0) -> void:
 	duration = new_duration
@@ -41,22 +53,28 @@ func setParams(new_duration : float = 5.0, new_speed : float = 1.0, new_ratio : 
 
 #Remember to reset waddle check once the anim is done or the duration is up
 func beginWaddle() -> void:
-	if crysRef.visible == true and not anim_player.is_playing():
+	if waddle_state == 0:#crysRef.visible == true and not anim_player.is_playing() and :
+		waddle_state = 1
 		if waddle_tween:
 			waddle_tween.kill()
 		waddle_tween = create_tween().set_loops()
-		waddle_tween.tween_property(crysRef, "rotation", -0.1, 0.1).as_relative()
-		waddle_tween.tween_property(crysRef, "rotation", 0.1, 0.1).as_relative()
-		waddle_tween.tween_property(crysRef, "rotation", 0.1, 0.1).as_relative()
-		waddle_tween.tween_property(crysRef, "rotation", -0.1, 0.1).as_relative()
+		waddle_tween.tween_property(crysRef, "rotation", -0.15, 0.15).as_relative()
+		waddle_tween.tween_property(crysRef, "rotation", 0.15, 0.15).as_relative()
+		waddle_tween.tween_property(crysRef, "rotation", 0.15, 0.15).as_relative()
+		waddle_tween.tween_property(crysRef, "rotation", -0.15, 0.15).as_relative()
 
 func endWaddle() -> void:
-	if waddle_tween:
-		waddle_tween.kill()
-	waddle_tween = create_tween()
-	waddle_tween.tween_property(crysRef, "rotation", -0.19 * PI, 0.2)
+	if waddle_state == 1:#crysRef.visible == true and not anim_player.is_playing() and 
+		waddle_state = 0
+		if waddle_tween:
+			waddle_tween.kill()
+		waddle_tween = create_tween()
+		if crysRef.rotation >= 2 * PI:
+			crysRef.rotation -= 4 * PI
+		waddle_tween.tween_property(crysRef, "rotation", -0.19 * PI, 0.3)
 
 func activate(speed = 1.0) -> void:
+	waddle_state = 2
 	anim_player.play("Activate", -1, speed)
 	if waddle_tween:
 		waddle_tween.kill()
@@ -124,7 +142,9 @@ func _chargeBarActivate() -> void:
 	$DurationTimer.start(duration)
 	$ChargeBar/Spark.show()
 	$ChargeBar/Spark.play()
-	$TrailEffect.start()
+	$ChargeBar.modulate.a = 1.0
+	#$TrailEffect.start()
+	$TrailTimer.start()
 	#meterRef.modulate = Color("c6ff5cc9")
 	
 	if crystal_tween:
@@ -195,6 +215,7 @@ func _regrowBigRainbows() -> void:
 	
 func _chargeOffCD() -> void:
 	boost_off_cooldown.emit()
+	waddle_state = 0
 	
 	if crystal_tween:
 		crystal_tween.kill()
@@ -214,9 +235,9 @@ func _chargeFinished() -> void:
 
 func _on_trail_timer_timeout() -> void:
 	var newPos = playerRef.getPosition()
-	$TrailEffect.addPosition(newPos-lastPoint)
+	#$TrailEffect.addPosition(lastPoint-newPos)
 	lastPoint = newPos
-	$TrailTimer.start()
+	#$TrailTimer.start()
 	
 	trail_count += 1
 	#Should probably also drop the bombs here too. 
@@ -230,7 +251,7 @@ func _on_trail_timer_timeout() -> void:
 #this means the hitbox and the collection	
 func _activateTrailEffect() -> void:
 	$TrailTimer.stop()
-	$TrailEffect.beginDecay()
+	#$TrailEffect.beginDecay()
 	
 	#Placeholder
 	trail_points = []

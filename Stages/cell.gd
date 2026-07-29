@@ -688,7 +688,8 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> Vec
 	print(playerStartPos, " ", playerEndPos)
 	if playerStartPos.distance_squared_to(playerEndPos) > 2:	
 		print("this trigger")
-		playerReference.changePosition(_calculateZonePosition(int(playerEndPos.x), int(playerEndPos.y)), Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
+		var retpos = playerReference.changePosition(_calculateZonePosition(int(playerEndPos.x), int(playerEndPos.y)), Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
+		$PlayerParticleManager.addPosition(retpos)
 		orbReference.changePosition(Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map])* (playerEndPos-tempPEP))
 		set_deferred("currentZone", playerEndPos)
 	
@@ -1295,7 +1296,7 @@ func backgroundGenerateMap() -> void:
 
 #Need to call this a bit earlier I think but it's good now
 func _on_orb_timer_timeout() -> void:
-	orbReference.distCheck($"Blob-Swim".position)
+	orbReference.distCheck($"Blob_Swim".position)
 
 
 func _on_update_zone_timer_timeout():
@@ -1489,3 +1490,9 @@ func _on_resolution_change() -> void:
 
 func _spawnOrbs(orb_amt : int, pos : Vector2) -> void:
 	orbReference.spawnOrbs(orb_amt, pos)
+
+func _on_blob_swim_create_after_image(trail_decay: float, trail_int: float, trail_color: int, trail_count: int) -> void:
+	$PlayerParticleManager.createAfterImage(trail_decay, trail_int, trail_color, trail_count)
+
+func _on_blob_swim_end_after_image() -> void:
+	$PlayerParticleManager.endAfterImage()

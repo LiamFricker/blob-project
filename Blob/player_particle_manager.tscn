@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8ownn03h8lgf"]
+
+[ext_resource type="Script" uid="uid://dklhjcko6ub0q" path="res://Blob/player_particle_manager.gd" id="1_cueov"]
+[ext_resource type="PackedScene" uid="uid://brvo3yuv038c3" path="res://Blob/Effects/player_after_image.tscn" id="2_0vmey"]
+
+[node name="PlayerParticleManager" type="Node2D"]
+script = ExtResource("1_cueov")
+
+[node name="PlayerAfterImage" parent="." instance=ExtResource("2_0vmey")]
