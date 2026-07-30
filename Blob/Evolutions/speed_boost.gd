@@ -29,7 +29,7 @@ var spawnRef : Node2D
 var trail_points : PackedVector2Array = []
 var trail_count = 0
 var lastPoint : Vector2  
-var detonation_size : float = 10
+@export var detonation_size : float = 50
 
 signal crystal_activated()
 signal crystal_canceled(decay_rate : float, detonate : bool, sz : float, posArr : PackedVector2Array)
@@ -94,7 +94,7 @@ func spitOutCrystal(speed = 1.0) -> void:
 	$ChargeBar/Spark.hide()
 	if detonate:	
 		$TrailTimer.stop()
-		#trail_points = [Vector2.ZERO, Vector2(100, 100), Vector2(200, 200)]
+		#trail_points = [Vector2.ZERO, Vector2(100, 0), Vector2(200, 0)]
 		crystal_canceled.emit(1.0 - chargeRefund, true, detonation_size, trail_points)
 	else:
 		crystal_canceled.emit(1.0 - chargeRefund, false, 0.0, [])

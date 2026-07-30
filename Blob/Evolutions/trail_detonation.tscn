@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cgke62hex0guj"]
+[gd_scene load_steps=4 format=3 uid="uid://cgke62hex0guj"]
 
 [ext_resource type="PackedScene" uid="uid://c1a8a2g5anmiw" path="res://Blob/base_player_attack.tscn" id="1_63kk0"]
 [ext_resource type="Script" uid="uid://4317ty2j2x57" path="res://Blob/Evolutions/trail_detonation.gd" id="2_g5pw8"]
+[ext_resource type="Texture2D" uid="uid://dinagfoa4edya" path="res://Art/Cell/Roll.png" id="3_2obqc"]
 
 [node name="TrailDetonation" instance=ExtResource("1_63kk0")]
 collision_layer = 9
@@ -12,5 +13,11 @@ damage = 10.0
 [node name="ChangeTimer" type="Timer" parent="." index="0"]
 wait_time = 2.5
 autostart = true
+
+[node name="Meshes" type="Node2D" parent="." index="1"]
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="Meshes" index="0"]
+modulate = Color(0, 1, 1, 0.364706)
+texture = ExtResource("3_2obqc")
 
 [connection signal="timeout" from="ChangeTimer" to="." method="_on_change_timer_timeout"]
