@@ -1511,13 +1511,13 @@ func _on_speed_boost_crystal_activated() -> void:
 				_frogCancel()
 
 func _on_speed_boost_crystal_canceled(_decay_rate: float, detonate : bool, sz : float, posArr : PackedVector2Array) -> void:
-	"""
+	
 	if detonate:
 		var temp_td = spawnerReference.spawnFriend(sb_ref.getID(true), Vector2.ZERO)
 		temp_td.setParams(10, 0, self, sz)
 		temp_td.initLines(posArr)
 		children_list.append(temp_td)
-	"""
+	
 	
 	endAfterImage.emit()
 	if sb_state == 2:

@@ -12,7 +12,10 @@ func setParams(dmg : float, kb : float, pR : Node2D, sz = 0.0) -> void:
 
 func initLines(positions : PackedVector2Array) -> void:
 	lineArray = positions
-	createShape()
+	if lineArray.size() > 1:
+		createShape()
+	else:
+		print("trail too smol")
 
 func createShape() -> void:
 	var points : int = lineArray.size()
@@ -23,30 +26,38 @@ func createShape() -> void:
 	var angleL = lineArray[0].angle_to_point(lineArray[1])
 	var angleR = angleL
 	var angleAvg = lerp_angle(angleL, angleR, 0.5)
-	var pointUp = size * Vector2.from_angle(angleAvg + PI/2)
-	var pointDown = size * Vector2.from_angle(angleAvg - PI/2)
+	var pointUp = lineArray[0] + size * Vector2.from_angle(angleAvg + PI/2)
+	var pointDown = lineArray[0] + size * Vector2.from_angle(angleAvg - PI/2)
 	pointArr[0] = pointUp
 	pointArr[points_max] = pointDown
+	print(angleAvg)
 	
 	for i in range(1, points - 1, 1):
 		angleL = lineArray[i].angle_to_point(lineArray[i+1])
-		angleR = -lineArray[i].angle_to_point(lineArray[i-1])
+		angleR = lineArray[i].angle_to_point(lineArray[i-1]) + PI
 		angleAvg = lerp_angle(angleL, angleR, 0.5)
-		pointUp = size * Vector2.from_angle(angleAvg + PI/2)
-		pointDown = size * Vector2.from_angle(angleAvg - PI/2)
+		pointUp = lineArray[i] + size * Vector2.from_angle(angleAvg + PI/2)
+		pointDown = lineArray[i] + size * Vector2.from_angle(angleAvg - PI/2)
 		pointArr[i] = pointUp
 		pointArr[points_max-i] = pointDown
+		print(angleL)
+		print(angleR)
+		print(angleAvg)
 	
-	angleR = -lineArray[points-1].angle_to_point(lineArray[points-2])
-	angleL = angleR
-	angleAvg = lerp_angle(angleL, angleR, 0.5)
-	pointUp = size * Vector2.from_angle(angleAvg + PI/2)
-	pointDown = size * Vector2.from_angle(angleAvg - PI/2)
+	angleR = lineArray[points-1].angle_to_point(lineArray[points-2]) + PI
+	#angleL = angleR
+	#angleAvg = lerp_angle(angleL, angleR, 0.5)
+	print(angleR)
+	pointUp = lineArray[points - 1] + size * Vector2.from_angle(angleR + PI/2)
+	pointDown = lineArray[points - 1] + size * Vector2.from_angle(angleR - PI/2)
 	pointArr[points - 1] = pointUp
 	pointArr[points] = pointDown
 	
-	var tempShape = Polygon2D.new()
+	var tempShape = CollisionPolygon2D.new()
 	tempShape.set_deferred("polygon", pointArr)	
+	print("og ", lineArray)
+	print(pointArr)
+	add_child(tempShape)
 
 func _delete() -> void:
 	parentRef.removeChild(self)
@@ -57,6 +68,7 @@ func _on_change_timer_timeout() -> void:
 	if state == 0:
 		state = 1
 		size *= 1.5
+		get_child(1).call_deferred("queue_free")
 		call_deferred("set_collision_layer_value", 4, false)
 		createShape()
 	else:

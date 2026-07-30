@@ -94,6 +94,7 @@ func spitOutCrystal(speed = 1.0) -> void:
 	$ChargeBar/Spark.hide()
 	if detonate:	
 		$TrailTimer.stop()
+		#trail_points = [Vector2.ZERO, Vector2(100, 100), Vector2(200, 200)]
 		crystal_canceled.emit(1.0 - chargeRefund, true, detonation_size, trail_points)
 	else:
 		crystal_canceled.emit(1.0 - chargeRefund, false, 0.0, [])
@@ -176,6 +177,7 @@ func _on_duration_timer_timeout() -> void:
 	$ChargeBar/Spark.stop()
 	if detonate:	
 		$TrailTimer.stop()
+		#trail_points = [Vector2.ZERO, Vector2(100, 100), Vector2(200, 200)]
 		crystal_canceled.emit(1.0, true, detonation_size, trail_points)
 	else:
 		crystal_canceled.emit(1.0, false, 0.0, [])
