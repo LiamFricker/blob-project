@@ -15,9 +15,6 @@ const BASE_COOLDOWN : float = 8.0
 
 #Trail variables
 @export var playerRef : Node2D
-var trail_points : PackedVector2Array = []
-var trail_count = 0
-var lastPoint : Vector2  
 var posOffset : Vector2 = Vector2.ZERO 
 
 var crystal_tween
@@ -25,12 +22,22 @@ var waddle_tween
 var waddle_state = 0
 
 @export var is_charge : bool = false
+var spawnRef : Node2D 
+
+#detonate vars
+@export var detonate : bool = true
+var trail_points : PackedVector2Array = []
+var trail_count = 0
+var lastPoint : Vector2  
+var detonation_size : float = 10
 
 signal crystal_activated()
-signal crystal_canceled(decay_rate : float)
+signal crystal_canceled(decay_rate : float, detonate : bool, sz : float, posArr : PackedVector2Array)
 signal boost_off_cooldown()
 
 func _ready() -> void:
+	if playerRef:
+		spawnRef = playerRef.spawnerReference
 	if is_charge:
 		$Pivot.position = Vector2(6, -6)
 	else:
@@ -85,7 +92,11 @@ func spitOutCrystal(speed = 1.0) -> void:
 	chargeRefund = chargeRefundRatio * $DurationTimer.time_left / duration
 	$DurationTimer.stop()
 	$ChargeBar/Spark.hide()
-	_activateTrailEffect()
+	if detonate:	
+		$TrailTimer.stop()
+		crystal_canceled.emit(1.0 - chargeRefund, true, detonation_size, trail_points)
+	else:
+		crystal_canceled.emit(1.0 - chargeRefund, false, 0.0, [])
 	if buff_type == 1:
 		$Slipstream.deactivate()
 	
@@ -126,16 +137,11 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 			crystal_activated.emit()
 			_chargeBarActivate()
 		"Regurgitate":
-			crystal_canceled.emit(1.0 / (1.0 - chargeRefund))
 			_regrowRainbows()
 		"RegurgitateBig":
-			crystal_canceled.emit(1.0 / (1.0 - chargeRefund))
 			_regrowBigRainbows()
 
 func _chargeBarActivate() -> void:
-	lastPoint = playerRef.getPosition()
-	trail_points.append(lastPoint)
-	
 	if buff_type == 1:
 		$Slipstream.activate()
 	
@@ -144,7 +150,11 @@ func _chargeBarActivate() -> void:
 	$ChargeBar/Spark.play()
 	$ChargeBar.modulate.a = 1.0
 	#$TrailEffect.start()
-	$TrailTimer.start()
+	if detonate:
+		#lastPoint = playerRef.getPosition()
+		trail_points.clear()	
+		trail_points.append(playerRef.getPosition())
+		$TrailTimer.start()
 	#meterRef.modulate = Color("c6ff5cc9")
 	
 	if crystal_tween:
@@ -164,13 +174,17 @@ func _on_duration_timer_timeout() -> void:
 	chargeRefund = 0.0
 	$ChargeBar/Spark.hide()
 	$ChargeBar/Spark.stop()
-	_activateTrailEffect()
+	if detonate:	
+		$TrailTimer.stop()
+		crystal_canceled.emit(1.0, true, detonation_size, trail_points)
+	else:
+		crystal_canceled.emit(1.0, false, 0.0, [])
+	
 	if buff_type == 1:
 		$Slipstream.deactivate()
 	crysRef.position = Vector2(-18, 19)
 	crysRef.scale = Vector2(0.5, 0.5)
 	crysRef.show()
-	crystal_canceled.emit(1.0)
 	if waddle_tween:
 		waddle_tween.kill()
 	waddle_tween = create_tween().set_loops()
@@ -225,33 +239,21 @@ func _chargeOffCD() -> void:
 	crystal_tween.tween_property($ChargeBar, "modulate:a", 0.0, 1.0)
 	
 
-func _chargeFinished() -> void:
-	boost_off_cooldown.emit()
-	if crystal_tween:
-		crystal_tween.kill()
-	crystal_tween = create_tween()
-	crystal_tween.tween_property(crysRef, "modulate", Color("ffffff"), 0.1)
-	crystal_tween.tween_property(crysRef, "modulate", Color("d9d9d9"), 0.1)
-
 func _on_trail_timer_timeout() -> void:
 	var newPos = playerRef.getPosition()
-	#$TrailEffect.addPosition(lastPoint-newPos)
-	lastPoint = newPos
-	#$TrailTimer.start()
+	trail_points.append(newPos)
+	
 	
 	trail_count += 1
 	#Should probably also drop the bombs here too. 
 	if trail_count % 2 == 0:
 		#trail_count = 0
-		trail_points.append(newPos)
 		#Spawn bomb
 		if trail_count % 4 == 0:
 			pass
-	
-#this means the hitbox and the collection	
-func _activateTrailEffect() -> void:
-	$TrailTimer.stop()
-	#$TrailEffect.beginDecay()
-	
-	#Placeholder
-	trail_points = []
+
+func getID(isDeto : bool) -> int:
+	if isDeto:
+		return 1011
+	else:
+		return 1012

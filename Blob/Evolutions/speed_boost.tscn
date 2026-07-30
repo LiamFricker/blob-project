@@ -354,7 +354,7 @@ libraries = {
 }
 
 [node name="DurationTimer" type="Timer" parent="."]
-one_shot = true
+wait_time = 0.25
 
 [node name="Area2D" type="Area2D" parent="."]
 visible = false

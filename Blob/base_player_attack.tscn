@@ -3,4 +3,6 @@
 [ext_resource type="Script" uid="uid://oec33u4piltn" path="res://Blob/base_player_attack.gd" id="1_qfffv"]
 
 [node name="base_player_attack" type="Area2D"]
+collision_layer = 8
+collision_mask = 0
 script = ExtResource("1_qfffv")

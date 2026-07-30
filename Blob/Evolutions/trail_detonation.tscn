@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cgke62hex0guj"]
+
+[ext_resource type="PackedScene" uid="uid://c1a8a2g5anmiw" path="res://Blob/base_player_attack.tscn" id="1_63kk0"]
+[ext_resource type="Script" uid="uid://4317ty2j2x57" path="res://Blob/Evolutions/trail_detonation.gd" id="2_g5pw8"]
+
+[node name="TrailDetonation" instance=ExtResource("1_63kk0")]
+collision_layer = 9
+script = ExtResource("2_g5pw8")
+knockback = 0.0
+damage = 10.0
+
+[node name="ChangeTimer" type="Timer" parent="." index="0"]
+wait_time = 2.5
+autostart = true
+
+[connection signal="timeout" from="ChangeTimer" to="." method="_on_change_timer_timeout"]

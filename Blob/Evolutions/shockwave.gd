@@ -17,5 +17,5 @@ func _delete() -> void:
 	parentRef.removeChild(self)
 	call_deferred("queue_free")
 
-func addPosition(newpos) -> void:
-	position += newpos
+#func addPosition(newpos) -> void:
+#	position += newpos
