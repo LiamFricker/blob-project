@@ -5,6 +5,7 @@ extends Node2D
 var shockwave = preload("res://Blob/Evolutions/shockwave.tscn")
 var effect_pool = preload("res://Blob/Evolutions/effect_pool.tscn")
 var trail_deto = preload("res://Blob/Evolutions/trail_detonation.tscn")
+var trail_bomb = preload("res://Blob/Evolutions/trail_bombs.tscn")
 
 var stageLevel = 0
 var sizeLevel = 0
@@ -219,6 +220,8 @@ func spawnFriend(ID : int, pos : Vector2, kwargs : Array = []) -> Node2D:
 		
 		1011:
 			tempEntity = trail_deto.instantiate()
+		1012:
+			tempEntity = trail_bomb.instantiate()
 	tempEntity.position = pos
 	
 	call_deferred("add_child", tempEntity)

@@ -148,6 +148,7 @@ var sb_state = 0
 @onready var sb_ref = $SpeedBoost
 @export var sb_anim_speed : float = 1.0
 const base_collection_radius : float = 18.0
+@export var sb_decay : bool = true 
 @export var base_sb_decay_rate : float = 1.0
 signal createAfterImage(trail_decay : float, trail_int : float, trail_color : int, trail_count : int)
 signal endAfterImage()
@@ -281,6 +282,7 @@ func _ready() -> void:
 #Move some of this stuff to _process()
 #Physics process runs at 60fps constant
 func _physics_process(delta: float) -> void:
+	print(sb_speed_buff)
 	$Test.position = mousePos
 	
 	var friction_delta = pow(friction, delta)
@@ -1498,7 +1500,13 @@ func _on_speed_boost_boost_off_cooldown() -> void:
 func _on_speed_boost_crystal_activated() -> void:
 	createAfterImage.emit(3.5, 0.1, basic_movement_type, 999)
 	sb_state = 2
-	sb_speed_buff = sb_max_speed_buff
+	if primary_tween:
+		primary_tween.kill()
+		
+	if sb_decay:
+		sb_speed_buff += (sb_max_speed_buff-1.0)
+	else:	
+		sb_speed_buff = sb_max_speed_buff
 	sb_synergy_buffs[basic_movement_type] = true
 	#This is placeholder. We should have a different collision area for this.
 	match basic_movement_type:
@@ -1510,7 +1518,7 @@ func _on_speed_boost_crystal_activated() -> void:
 			if frogState == 0:
 				_frogCancel()
 
-func _on_speed_boost_crystal_canceled(_decay_rate: float, detonate : bool, sz : float, posArr : PackedVector2Array) -> void:
+func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : float, posArr : PackedVector2Array) -> void:
 	
 	if detonate:
 		var temp_td = spawnerReference.spawnFriend(sb_ref.getID(true), Vector2.ZERO)
@@ -1522,7 +1530,13 @@ func _on_speed_boost_crystal_canceled(_decay_rate: float, detonate : bool, sz : 
 	endAfterImage.emit()
 	if sb_state == 2:
 		sb_state = 1
-	sb_speed_buff = 1.0
+	if sb_decay:
+		if primary_tween:
+			primary_tween.kill()
+		primary_tween = create_tween()
+		primary_tween.tween_property(self, "sb_speed_buff", 1.0, 2.5 * base_sb_decay_rate * decay_rate)
+	else:
+		sb_speed_buff = 1.0
 	sb_synergy_buffs[basic_movement_type] = false
 	#This is placeholder. We should have a different collision area for this. 
 	match basic_movement_type:
@@ -1533,3 +1547,9 @@ func _on_speed_boost_crystal_canceled(_decay_rate: float, detonate : bool, sz : 
 		2:
 			if frogState == 0:	
 				_frogCancel()
+
+func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int) -> void:
+	var temp_td = spawnerReference.spawnFriend(sb_ref.getID(false), getPosition())
+	temp_td.setParams(dmg, kb, self, sz)
+	temp_td.initExplosion(basic_movement_type, ticks)
+	children_list.append(temp_td)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dalfy2bp2pyxg"]
+[gd_scene load_steps=12 format=3 uid="uid://dalfy2bp2pyxg"]
 
 [ext_resource type="PackedScene" uid="uid://c1a8a2g5anmiw" path="res://Blob/base_player_attack.tscn" id="1_poyfi"]
 [ext_resource type="Script" uid="uid://ccsrluj1tar3a" path="res://Blob/Evolutions/shockwave.gd" id="2_1ed2i"]
@@ -9,7 +9,6 @@
 [ext_resource type="Texture2D" uid="uid://b57uxi1vt7v2" path="res://Art/Cell/Evolutions/shockwave_1.png" id="7_styyt"]
 [ext_resource type="Texture2D" uid="uid://dgex8b2ajxhlh" path="res://Art/Cell/Evolutions/shockwave_0.png" id="8_uhi5r"]
 [ext_resource type="Texture2D" uid="uid://cjmfqx02qloie" path="res://Art/Cell/Evolutions/shockwave.png" id="9_67y8v"]
-[ext_resource type="Texture2D" uid="uid://p3tcjdlt8k7j" path="res://Art/Cell/Evolutions/shockwave_6png.png" id="10_7lrpj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1ed2i"]
 radius = 60.208
@@ -39,7 +38,7 @@ animations = [{
 "texture": ExtResource("9_67y8v")
 }, {
 "duration": 5.0,
-"texture": ExtResource("10_7lrpj")
+"texture": null
 }],
 "loop": true,
 "name": &"default",

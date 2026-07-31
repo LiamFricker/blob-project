@@ -8,6 +8,8 @@ var rectState = 0
 var storedLen = 0
 var storedWid = 0
 
+var deto_tween
+
 #Remove the functionality of ready
 func _ready() -> void:
 	pass
@@ -115,98 +117,123 @@ func createMesh() -> void:
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = pointArr
 	arrays[Mesh.ARRAY_TEX_UV] = uvArr
-	
+	#"00ffff5d"
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLE_STRIP, arrays)
 	
 	$Meshes/MeshInstance2D.mesh = arr_mesh
+	if deto_tween:
+		deto_tween.kill()
+	deto_tween = create_tween()
+	deto_tween.tween_property($Meshes, "modulate", Color("ffffff"), 1.0).from(Color("54545400"))
+	deto_tween.tween_property($Meshes, "modulate", Color("ffffff00"), 4.0)
 
+#This can be optimized and the code for optimization is here
+#It's just fucking buggy
+#Nvm I fixed it.
+#There's one really rare bug where the collision gets fucked up. I'm pretty sure it's to do with state 1
+#Oh well let's hope it doesn't matter
 func _createCollisionShape(disLen : float, angleBef : float, angleAft : float, currPos : Vector2):
+	var det_size = size*2.2
 	match rectState:
 		0:
 			#IF the diff is too small for a new collision shape
 			if disLen < min:
-				min -= size * 0.5
+				min -= disLen * 0.5
+				storedLen += disLen
+				storedWid += disLen * 0.5
+				print("min")
 			#If the diff is too long for a circle to be affordable	
-			elif disLen > 2.25 * size:
-				min = size
+			elif disLen > 0.75 * det_size:
+				min = det_size*0.6
 				var angleDiff = abs(angle_difference(angleBef, angleAft))
-				var minAngle = 0.1*(2.25 * size) / disLen
-				var offset = disLen
+				var minAngle = 0.1*(1.5 * det_size) / disLen
+				var offset = disLen + storedLen
 				#If the angle is small enough to use one big rect
 				#Skip this one and make a big rect next time.
 				if angleDiff < minAngle:
+					
 					rectState = 1
 					storedLen += disLen
-					storedWid += size * 0.1 * angleDiff / minAngle 
+					storedWid += det_size * 0.2 * angleDiff / minAngle 
 					return
 				#If the path retreads over itself
 				#Make this rect and skip over the next one.
 				elif angleDiff > PI - minAngle:
 					rectState = 2
-					storedLen += disLen
+					storedLen = offset
 				#Adjusting the size to account for extra collision space	
 				else:
-					offset += 0.5 * size * angleDiff / PI
+					pass
+				offset += 0.8 * det_size * angleDiff / PI
 					
 				var tempCol = CollisionShape2D.new()
 				var tempShape = RectangleShape2D.new()
-				tempShape.size = Vector2(offset, size+storedWid)
+				tempShape.size = Vector2(offset*1.1, det_size+storedWid)
 				tempCol.shape = tempShape
 				#Place at the midpoint
-				tempCol.position = currPos - disLen * 0.5 * Vector2.from_angle(angleBef)
+				tempCol.position = currPos - offset * 0.5 * Vector2.from_angle(angleBef)
+				tempCol.rotation = angleBef
 				call_deferred("add_child", tempCol)
 				storedWid = 0
+				storedLen = 0
 			#If the diff is too small for a rectangle to be affordable. Max sep with mins is ~2.75*size
+			
 			else:
-				min = size * 1.5 + storedWid
+				min = 0.6*det_size# * 1.5 + storedWid
 				var tempCol = CollisionShape2D.new()
 				var tempShape = CircleShape2D.new()
-				tempShape.radius = 1.5 * size + storedWid
+				tempShape.radius = 0.8 * det_size + storedWid
 				tempCol.shape = tempShape
 				tempCol.position = currPos
 				call_deferred("add_child", tempCol)
 				storedWid = 0
+				storedLen = 0
+			
 					
 		1:
 			var angleDiff = abs(angle_difference(angleBef, angleAft))
-			var minAngle = 0.1*(2.25 * size) / disLen
+			var minAngle = 0.1*(1.5 * det_size) / disLen
 			var offset = disLen + storedLen
 			if angleDiff < minAngle:
 				rectState = 1
 				storedLen += disLen
-				storedWid += size * 0.1 * angleDiff / minAngle 
+				storedWid += det_size * 0.2 * angleDiff / minAngle 
 				return
 			#If the path retreads over itself
 			#Make this rect and skip over the next one.
 			elif angleDiff > PI - minAngle:
+				storedLen = offset
 				rectState = 2
 			#Adjusting the size to account for extra collision space	
 			else:
-				offset += 0.5 * size * angleDiff / PI
+				offset += 0.8 * det_size * angleDiff / PI
+				
 				rectState = 0
 				storedLen = 0
 				
 			var tempCol = CollisionShape2D.new()
 			var tempShape = RectangleShape2D.new()
-			tempShape.size = Vector2(offset, size+storedWid)
+			tempShape.size = Vector2(1.1*offset, det_size+storedWid)
 			tempCol.shape = tempShape
 			#Place at the midpoint
-			tempCol.position = currPos - disLen * 0.5 * Vector2.from_angle(angleBef)
+			tempCol.position = currPos - offset * 0.5 * Vector2.from_angle(angleBef)
+			tempCol.rotation = angleBef
 			call_deferred("add_child", tempCol)
 			storedWid = 0
 		2:
 			var angleDiff = abs(angle_difference(angleBef, angleAft))
-			var minAngle = 0.1*(2.25 * size) / disLen
+			var minAngle = 0.1*(1.5 * det_size) / disLen
 			
 			#If currentLen longer than the previous rectangle, make a tiny rect
 			if disLen > storedLen:
 				var tempCol = CollisionShape2D.new()
 				var tempShape = RectangleShape2D.new()
 				#Make a tiny rect with the length of the difference
-				tempShape.size = Vector2(disLen-storedLen, size+storedWid)
+				tempShape.size = Vector2(1.1 * (disLen-storedLen), det_size+storedWid)
 				tempCol.shape = tempShape
 				#Place at just behind the previous rect
 				tempCol.position = currPos - (disLen+storedLen) * 0.5 * Vector2.from_angle(angleBef)
+				tempCol.rotation = angleBef
 				call_deferred("add_child", tempCol)
 				storedWid = 0
 				storedLen = 0
@@ -215,45 +242,52 @@ func _createCollisionShape(disLen : float, angleBef : float, angleAft : float, c
 			elif angleDiff < minAngle:
 				rectState = 2
 				storedLen -= disLen
-				storedWid += size * 0.1 * angleDiff / minAngle 
+				storedWid += det_size * 0.2 * angleDiff / minAngle 
 			#If the path retreads over itself again, set the storedlen to this rect's len
 			elif angleDiff > PI - minAngle:
 				storedLen = disLen
 				rectState = 2
-				storedWid += size * 0.1 * angleDiff / minAngle 
+				storedWid += det_size * 0.2 * angleDiff / minAngle 
 			#Let the next shape be normal
 			else:
 				storedLen = 0
 				rectState = 0
 
 func _createFinalShape(disLen : float, angleBef : float, currPos : Vector2):
+	var det_size = size*2.2
 	match rectState:
 		0:
 			#If the diff is too long for a circle to be affordable	
-			if disLen > 2.25 * size:					
+			if disLen >= 0.75 * det_size:					
+				var offset = disLen + storedLen
 				var tempCol = CollisionShape2D.new()
 				var tempShape = RectangleShape2D.new()
-				tempShape.size = Vector2(disLen, size+storedWid)
+				tempShape.size = Vector2(1.1*offset, det_size+storedWid)
 				tempCol.shape = tempShape
 				#Place at the midpoint
-				tempCol.position = currPos - disLen * 0.5 * Vector2.from_angle(angleBef)
+				tempCol.position = currPos - offset * 0.5 * Vector2.from_angle(angleBef)
+				tempCol.rotation = angleBef
 				call_deferred("add_child", tempCol)
 			#If the diff is too small for a rectangle to be affordable. Max sep with mins is ~2.75*size
-			elif disLen >= min:
+			else:
+			#elif disLen >= min:
 				var tempCol = CollisionShape2D.new()
 				var tempShape = CircleShape2D.new()
-				tempShape.radius = 1.5 * size + storedWid
+				tempShape.radius = 0.8 * det_size + storedWid
 				tempCol.shape = tempShape
 				tempCol.position = currPos
 				call_deferred("add_child", tempCol)
+			storedLen = 0
 			storedWid = 0
 		1:	
 			var tempCol = CollisionShape2D.new()
 			var tempShape = RectangleShape2D.new()
-			tempShape.size = Vector2(disLen + storedLen, size+storedWid)
+			var offset = disLen + storedLen
+			tempShape.size = Vector2(1.1*offset, det_size+storedWid)
 			tempCol.shape = tempShape
 			#Place at the midpoint
-			tempCol.position = currPos - disLen * 0.5 * Vector2.from_angle(angleBef)
+			tempCol.position = currPos - offset * 0.5 * Vector2.from_angle(angleBef)
+			tempCol.rotation = angleBef
 			call_deferred("add_child", tempCol)
 			storedWid = 0
 			rectState = 0
@@ -263,10 +297,11 @@ func _createFinalShape(disLen : float, angleBef : float, currPos : Vector2):
 				var tempCol = CollisionShape2D.new()
 				var tempShape = RectangleShape2D.new()
 				#Make a tiny rect with the length of the difference
-				tempShape.size = Vector2(disLen-storedLen, size+storedWid)
+				tempShape.size = Vector2(1.1*(disLen-storedLen), det_size+storedWid)
 				tempCol.shape = tempShape
 				#Place at just behind the previous rect
 				tempCol.position = currPos - (disLen+storedLen) * 0.5 * Vector2.from_angle(angleBef)
+				tempCol.rotation = angleBef
 				call_deferred("add_child", tempCol)
 			storedWid = 0
 			storedLen = 0

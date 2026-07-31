@@ -1,0 +1,58 @@
+[gd_scene load_steps=13 format=3 uid="uid://cop2q8ilmrs2p"]
+
+[ext_resource type="PackedScene" uid="uid://c1a8a2g5anmiw" path="res://Blob/base_player_attack.tscn" id="1_3ge2i"]
+[ext_resource type="Script" uid="uid://dy3c1n2fotsuj" path="res://Blob/Evolutions/trail_bombs.gd" id="2_qpvw4"]
+[ext_resource type="PackedScene" uid="uid://brocidewj4q5p" path="res://Blob/Effects/empty_player_test.tscn" id="3_3rmju"]
+[ext_resource type="Texture2D" uid="uid://sy7p5usw45h1" path="res://Art/Cell/Evolutions/Explosion/explosion.png" id="4_6euy5"]
+[ext_resource type="Texture2D" uid="uid://c0fhypfxh5lpa" path="res://Art/Cell/Evolutions/Explosion/explosion(0).png" id="5_pra7k"]
+[ext_resource type="Texture2D" uid="uid://rl8x0s5lukjg" path="res://Art/Cell/Evolutions/Explosion/explosion(1).png" id="6_ntkmk"]
+[ext_resource type="Texture2D" uid="uid://dfx1nr0c2otvf" path="res://Art/Cell/Evolutions/Explosion/explosion(2).png" id="7_eo24n"]
+[ext_resource type="Texture2D" uid="uid://breq4xra1vsfo" path="res://Art/Cell/Evolutions/Explosion/explosion(3).png" id="8_s0dqh"]
+[ext_resource type="Texture2D" uid="uid://cu5gkc33qaff7" path="res://Art/Cell/Evolutions/Explosion/explosion(4).png" id="9_vj5q7"]
+[ext_resource type="Texture2D" uid="uid://b8hv4vw4cgfkw" path="res://Art/Cell/Evolutions/Explosion/explosion(5).png" id="10_eyoff"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_q68mh"]
+radius = 62.3
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_4l1x0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_6euy5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_pra7k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_ntkmk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_eo24n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_s0dqh")
+}, {
+"duration": 30.0,
+"texture": ExtResource("9_vj5q7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_eyoff")
+}],
+"loop": false,
+"name": &"default",
+"speed": 8.0
+}]
+
+[node name="trail_bombs" instance=ExtResource("1_3ge2i")]
+monitorable = false
+script = ExtResource("2_qpvw4")
+
+[node name="EmptyPlayerTest" parent="." index="0" instance=ExtResource("3_3rmju")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="1"]
+shape = SubResource("CircleShape2D_q68mh")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="2"]
+visible = false
+sprite_frames = SubResource("SpriteFrames_4l1x0")
+frame = 2

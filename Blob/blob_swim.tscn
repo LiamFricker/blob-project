@@ -174,4 +174,5 @@ polygon = PackedVector2Array(-19, -51, -39, -2, -7, 28, 37, 31, 29, -9, 3, -49, 
 [connection signal="boost_off_cooldown" from="SpeedBoost" to="." method="_on_speed_boost_boost_off_cooldown"]
 [connection signal="crystal_activated" from="SpeedBoost" to="." method="_on_speed_boost_crystal_activated"]
 [connection signal="crystal_canceled" from="SpeedBoost" to="." method="_on_speed_boost_crystal_canceled"]
+[connection signal="spawn_bomb" from="SpeedBoost" to="." method="_on_speed_boost_spawn_bomb"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]

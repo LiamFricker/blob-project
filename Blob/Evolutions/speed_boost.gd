@@ -31,9 +31,16 @@ var trail_count = 0
 var lastPoint : Vector2  
 @export var detonation_size : float = 50
 
+#bomb vars
+const bomb_dmg = 5.0
+const bomb_kb = 0.5
+@export var bomb_ticks : int = 10
+@export var bomb_cd : int = 4
+
 signal crystal_activated()
 signal crystal_canceled(decay_rate : float, detonate : bool, sz : float, posArr : PackedVector2Array)
 signal boost_off_cooldown()
+signal spawn_bomb(dmg : float, kb : float, sz : float, ticks : int)
 
 func _ready() -> void:
 	if playerRef:
@@ -90,14 +97,15 @@ func activate(speed = 1.0) -> void:
 	
 func spitOutCrystal(speed = 1.0) -> void:
 	chargeRefund = chargeRefundRatio * $DurationTimer.time_left / duration
+	var minDecayRate = max(0.1, 1.0 - chargeRefund)
 	$DurationTimer.stop()
 	$ChargeBar/Spark.hide()
 	if detonate:	
 		$TrailTimer.stop()
 		#trail_points = [Vector2.ZERO, Vector2(100, 0), Vector2(200, 0)]
-		crystal_canceled.emit(1.0 - chargeRefund, true, detonation_size, trail_points)
+		crystal_canceled.emit(minDecayRate, true, detonation_size, trail_points)
 	else:
-		crystal_canceled.emit(1.0 - chargeRefund, false, 0.0, [])
+		crystal_canceled.emit(minDecayRate, false, 0.0, [])
 	if buff_type == 1:
 		$Slipstream.deactivate()
 	
@@ -248,11 +256,10 @@ func _on_trail_timer_timeout() -> void:
 	
 	trail_count += 1
 	#Should probably also drop the bombs here too. 
-	if trail_count % 2 == 0:
+	if trail_count % bomb_cd == 0:
 		#trail_count = 0
 		#Spawn bomb
-		if trail_count % 4 == 0:
-			pass
+		spawn_bomb.emit(bomb_dmg, bomb_kb, 62.3, bomb_ticks)
 
 func getID(isDeto : bool) -> int:
 	if isDeto:
