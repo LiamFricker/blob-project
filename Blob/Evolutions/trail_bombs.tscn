@@ -46,6 +46,7 @@ animations = [{
 [node name="trail_bombs" instance=ExtResource("1_3ge2i")]
 monitorable = false
 script = ExtResource("2_qpvw4")
+attack_mods = [false, true, false, false, false]
 
 [node name="EmptyPlayerTest" parent="." index="0" instance=ExtResource("3_3rmju")]
 

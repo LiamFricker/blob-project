@@ -1457,6 +1457,9 @@ func getID(idtype = 0) -> int:
 	else:
 		return 0
 
+func getAttackMod(num : int) -> bool:
+	return attack_mods[num]
+
 func _on_lasso_lasso_location_reached() -> void:
 	if lasso_buff:
 		var tempImpactId = lassoRef.getID(-1)

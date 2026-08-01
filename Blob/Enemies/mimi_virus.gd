@@ -4,11 +4,13 @@ var targetRef : Node2D
 var targetFound : bool = false
 @export var detection_range : float = 200 
 
-const bullet_id = 1000
+const bullet_id = 9
 
 var mimi_tween
+var shield_tween
 @onready var mimi_rng = RandomNumberGenerator.new()
-@export var shoot_cooldown = 5.0
+@export var shoot_cooldown : float = 1.0
+var min_delay = 0.75
 
 @export var test_bullet : PackedScene
 
@@ -22,7 +24,8 @@ func _on_detection_range_area_entered(area: Area2D) -> void:
 	pass # Replace with function body.
 
 func _on_detection_range_body_entered(body: Node2D) -> void:
-	if kb_moving:
+	print("TARGET FOUND")
+	if not kb_moving:
 		targetRef = body
 		_startShoot()
 
@@ -38,6 +41,7 @@ func _detectionCheck() -> void:
 			_startShoot()
 			return
 		targetRef = null
+	min_delay = 0.75
 	var detectNode = $InnerNode/DetectionRange
 	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
 		var localAreas = detectNode.get_overlapping_areas()
@@ -54,42 +58,52 @@ func _startShoot() -> void:
 	
 	if getPosition().distance_squared_to(targetPos) > detection_range * detection_range * 2.25:
 		targetRef = null
+		min_delay = 0.75
 		if mimi_tween:
 			mimi_tween.kill()
 		return
 	
+	var angle_diff = -angle_difference(targetAngle, Inner.rotation + PI/2)
+	var delay = max(1.5 * abs(angle_diff) / PI, min_delay) 
+	print(delay)
 	Sprite.position.y = 0
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative().set_delay(0.75)
+	movement_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative().set_delay(delay)
+	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
+	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
+	movement_tween.tween_property(Sprite, "position:y", 3, 0.1).as_relative()
+	movement_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", 3, 0.1).as_relative()
 	
-	var angle_diff = angle_difference(targetAngle, Inner.rotation + PI/4)
+	
 	
 	if mimi_tween:
 		mimi_tween.kill()
 	mimi_tween = create_tween()
-	mimi_tween.tween_property(Inner, "rotation", angle_diff, 1.0).as_relative()
-	mimi_tween.parallel().tween_callback(_shootProj).set_delay(0.75)
+	mimi_tween.tween_property(Inner, "rotation", angle_diff, delay).as_relative()
+	mimi_tween.parallel().tween_callback(_shootProj).set_delay(delay)
 	for i in range(5):
-		mimi_tween.tween_callback(_shootProj).set_delay(0.1)
-	mimi_tween.tween_interval(shoot_cooldown)
-	mimi_tween.finished.connect(_startShoot)
+		mimi_tween.tween_callback(_shootProj).set_delay(0.2)
+	$AnimationPlayer.play("reload", -1, shoot_cooldown)
 
 func _shootProj() -> void:
 	var rand_angle = mimi_rng.randf_range(-0.1, 0.1)
+	var offset = 20 * Vector2.from_angle(Inner.rotation+PI/2)
 	if spawnerRef:
-		var bullet = spawnerRef.spawnEntity(bullet_id, -1, getPosition())
-		bullet.setParams(Inner.rotation + rand_angle, self, base_damage, size)
-		_addConnectChild(bullet)
+		var bullet = spawnerRef.spawnEntity(bullet_id, -1, getPosition()+offset)
+		bullet.setParams(base_damage, self, size, ID)
+		bullet.initBullet(Inner.rotation + rand_angle + PI/2, 5.0)
+		_addConnectBullet(bullet)
 	else:
 		var bullet = test_bullet.instantiate()
-		bullet.position = getPosition()
-		bullet.setParams(Inner.rotation + rand_angle, self, base_damage, size)
-		_addConnectChild(bullet)
+		bullet.position = getPosition()+offset 
+		bullet.setParams(base_damage, self, size, ID)
+		bullet.initBullet(Inner.rotation + rand_angle + PI/2, 5.0)
+		_addConnectBullet(bullet)
 	
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var areaID = area.getID()
@@ -97,7 +111,7 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 		return
 	
 	var shieldBox = $InnerNode/ShieldBox
-	if (shieldBox.has_overlapping_areas() or shieldBox.has_overlapping_bodies()):
+	if not area.getAttackMod(0) and (shieldBox.has_overlapping_areas() or shieldBox.has_overlapping_bodies()):
 		var ID_list = []
 		var localAreas = shieldBox.get_overlapping_areas()
 		for a in localAreas:
@@ -108,19 +122,17 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 			ID_list.append(b.getID())
 		#Play shielded animation
 		if areaID in ID_list:
-			pass
+			if shield_tween:
+				shield_tween.kill()
+			shield_tween = create_tween()
+			shield_tween.tween_property(Sprite, "modulate:r", -0.5, 0.15).as_relative()
+			shield_tween.tween_property(Sprite, "modulate:r", 0.5, 0.15).as_relative()
 		else:
-			if movement_tween:
-				movement_tween.kill()
-			if mimi_tween:
-				mimi_tween.kill()
+			_stopAnims()
 			super(area)
 			
 	else:
-		if movement_tween:
-			movement_tween.kill()
-		if mimi_tween:
-			mimi_tween.kill()
+		_stopAnims()
 		super(area)
 		
 
@@ -130,7 +142,7 @@ func _on_hurtbox_body_entered(body: Node2D) -> void:
 		return
 	
 	var shieldBox = $InnerNode/ShieldBox
-	if (shieldBox.has_overlapping_areas() or shieldBox.has_overlapping_bodies()):
+	if not body.getAttackMod(0) and (shieldBox.has_overlapping_areas() or shieldBox.has_overlapping_bodies()):
 		var ID_list = []
 		var localAreas = shieldBox.get_overlapping_areas()
 		for a in localAreas:
@@ -141,17 +153,32 @@ func _on_hurtbox_body_entered(body: Node2D) -> void:
 			ID_list.append(b.getID())
 		#Play shielded animation
 		if bodyID in ID_list:
-			pass
+			if shield_tween:
+				shield_tween.kill()
+			shield_tween = create_tween()
+			shield_tween.tween_property(Sprite, "modulate:r", -0.5, 0.15).as_relative()
+			shield_tween.tween_property(Sprite, "modulate:r", 0.5, 0.15).as_relative()
 		else:
-			if movement_tween:
-				movement_tween.kill()
-			if mimi_tween:
-				mimi_tween.kill()
+			_stopAnims()
 			super(body)
 			
 	else:
-		if movement_tween:
-			movement_tween.kill()
-		if mimi_tween:
-			mimi_tween.kill()
+		_stopAnims()
 		super(body)
+
+func _stopAnims() -> void:
+	if movement_tween:
+		movement_tween.kill()
+	if mimi_tween:
+		mimi_tween.kill()
+	if $AnimationPlayer.is_playing():
+		$AnimationPlayer.play("RESET", 0.5)
+
+func _on_animation_player_animation_finished(anim_name: StringName) -> void:
+	if anim_name == "reload":
+		min_delay = 0.5
+		_startShoot()
+	
+func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
+	$InnerNode/DetectionRange.set_deferred("monitoring", false)
+	super(pos, kb, _kwargs)

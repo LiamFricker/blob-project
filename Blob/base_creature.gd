@@ -168,7 +168,7 @@ func directedKnockback(pos: Vector2, dmg : float, kb = 1.0, speed = 0) -> void:
 		_handleRedFlash()
 		movement_tween.tween_callback(_knockbackEnd)	
 	
-func knockback(pos: Vector2, dmg : float, kb = 1.0, speed = 0) -> void:
+func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
 	var power = 4.0 * kb * dmg / (health_max * weight)
 	var dir : Vector2 = getPosition() - pos
 	var dir_len : float = dir.length()
@@ -294,6 +294,15 @@ func _addConnectChild(childRef : Node2D) -> void:
 		parentZone = get_parent()
 	childRef.parentRef = self
 	childRef.spawnOrbs.connect(parentZone._spawnOrbs)
+	parentZone.call_deferred("add_child", childRef)
+
+func _addConnectBullet(childRef : Node2D) -> void:
+	children_list.append(childRef)
+	var parentZone
+	if zoneReference:
+		parentZone = zoneReference
+	else:
+		parentZone = get_parent()
 	parentZone.call_deferred("add_child", childRef)
 
 """
@@ -436,14 +445,14 @@ func _dot_end(death : bool, type : int = 0) -> void: #ID : int,
 				tempC.explode(size, v * angle + angle * vRNG.randf_range(-0.5, 0.5), getPosition())
 		_OnDeath()		
 		
-func takeDamage(amt : float, pos : Vector2, kb = 1.0, _kwargs = []) -> void:
+func takeDamage(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) -> void:
 	health -= amt
 	if health <= 0:
 		_OnDeath(pos, kb)		
 	else:
-		_damagedEffect(amt, pos, knockback, _kwargs)
+		_damagedEffect(amt, pos, kb, _kwargs)
 
-func _damagedEffect(amt : float, pos : Vector2, kb = 1.0, _kwargs = []) -> void:
+func _damagedEffect(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) -> void:
 	knockback(pos, amt, kb)
 		
 func _on_roam_timer_timeout():
