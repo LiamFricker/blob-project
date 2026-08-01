@@ -1,0 +1,52 @@
+[gd_scene load_steps=7 format=3 uid="uid://p5aydk2googa"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_rru13"]
+[ext_resource type="Script" uid="uid://krjm6mym0skm" path="res://Blob/Enemies/mimi_virus.gd" id="2_ogdrp"]
+[ext_resource type="Texture2D" uid="uid://cp5ggcynpb1x8" path="res://Art/Cell/MimiVirus.png" id="3_814up"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_814up"]
+radius = 11.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_y2qds"]
+radius = 17.0294
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ogdrp"]
+radius = 180.025
+
+[node name="MimiVirus" instance=ExtResource("1_rru13")]
+script = ExtResource("2_ogdrp")
+detection_range = 200.0
+shoot_cooldown = 5.0
+test_bullet = null
+weight = 0.35
+
+[node name="Hurtbox" type="Area2D" parent="InnerNode" index="0"]
+collision_layer = 0
+collision_mask = 9
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
+position = Vector2(1, -17)
+shape = SubResource("CircleShape2D_814up")
+
+[node name="ShieldBox" type="Area2D" parent="InnerNode" index="1"]
+collision_layer = 0
+collision_mask = 9
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/ShieldBox" index="0"]
+position = Vector2(1, 4)
+shape = SubResource("CircleShape2D_y2qds")
+
+[node name="DetectionRange" type="Area2D" parent="InnerNode" index="2"]
+collision_layer = 0
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/DetectionRange" index="0"]
+shape = SubResource("CircleShape2D_ogdrp")
+
+[node name="MimiVirus" type="Sprite2D" parent="InnerNode" index="4"]
+texture = ExtResource("3_814up")
+
+[connection signal="area_entered" from="InnerNode/DetectionRange" to="." method="_on_detection_range_area_entered"]
+[connection signal="body_entered" from="InnerNode/DetectionRange" to="." method="_on_detection_range_body_entered"]

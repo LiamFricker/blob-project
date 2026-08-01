@@ -206,7 +206,7 @@ func _loadEntity(path : String, weight : int, weightTotal : int, biome = 4, isRe
 #Weight = -1 if you don't want to go through a random weight system
 #Thanks for not explaining it idiot. 
 
-func spawnFriend(ID : int, pos : Vector2, kwargs : Array = []) -> Node2D:
+func spawnFriend(ID : int, pos : Vector2, _kwargs : Array = []) -> Node2D:
 	var tempEntity = Node2D
 	
 	#This is for testing cause I cba:	
@@ -239,7 +239,7 @@ func spawnFriend(ID : int, pos : Vector2, kwargs : Array = []) -> Node2D:
 #Anyways idk what the fuck this shit is, it's way too fucking messy.
 #Binary search this shit. We have upper and lower bound so use upper to check for > upper
 #and < to check for less than lower.
-func spawnEntity(biomeOrID : int, weight : float, pos : Vector2, kwargs : Array = []) -> Node2D:
+func spawnEntity(biomeOrID : int, weight : float, pos : Vector2, _kwargs : Array = []) -> Node2D:
 	var tempEntity = Node2D
 	
 	#Huh I just learnt you can do a ton of stuff with switch cases in Godot

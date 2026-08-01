@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://pa3ykex38v5s"]
+
+[ext_resource type="Script" uid="uid://yrf6yt047b1j" path="res://Blob/base_spawned_attack.gd" id="1_3ol0w"]
+
+[node name="base_spawned_attack" type="Area2D"]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_3ol0w")

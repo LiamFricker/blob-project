@@ -268,9 +268,9 @@ func toggleHurtbox(toggle : bool) -> void:
 		#hurtboxReference.set_deferred("monitorable", toggle)
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
-	var temp_enemy = area.getParent()
+	#var temp_enemy = area.getParent()
 	var dmg = area.getDamage()
-	if temp_enemy.getID() != ID and dmg > 0:
+	if area.getID() != ID and dmg > 0: #temp_enemy.getID()
 		takeDamage(dmg, area.getPosition(), area.getKnockback())
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:

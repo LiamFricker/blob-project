@@ -1,27 +1,21 @@
-extends Node2D
+extends Area2D
 
 @export var parentRef : Node2D
 @export var knockback : float = 2.0
 @export var damage : float = 3.0
 var size = 0.0
-@export var dependent : bool = true
 @export var attack_mods : Array = [false, false, false, false, false]
 var ID : int = 0.0
-
-func setID(newID : int) -> void:
-	ID = newID
 	
 func getID() -> int:
-	if dependent:
-		return parentRef.getID()
-	else:
-		return ID
+	return ID
 
-func setParams(dmg : float, kb : float, pR : Node2D, sz = 0.0) -> void:
+func setParams(dmg : float, kb : float, pR : Node2D, sz : float, newID : int) -> void:
 	damage = dmg
 	knockback = kb
 	parentRef = pR
 	size = sz
+	ID = newID
 
 func _ready() -> void:
 	if size > 0:
@@ -37,16 +31,12 @@ func getDamage() -> float:
 	return damage
 
 func addPosition(newpos) -> void:
-	if not dependent:
-		position += newpos
+	position += newpos
 
 #Change this to the position of the tip.
 #Or the movement object
 func getPosition() -> Vector2:
-	if dependent:
-		return position + parentRef.getPosition() 
-	else:
-		return position
+	return position
 
 #I want to make the knockback particular but we can just ignore it for now.
 func getKnockback() -> float:
@@ -54,4 +44,8 @@ func getKnockback() -> float:
 	
 func toggle(on = true) -> void:
 	set_deferred("monitorable", on)
+
+func _delete() -> void:
+	parentRef.removeChild(self)
+	call_deferred("queue_free")
 	

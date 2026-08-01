@@ -17,10 +17,12 @@ var mousePos : Vector2 = Vector2.ZERO
 @export var camReference : Camera2D
 @export var spawnerReference : Node2D
 var children_list : Array = []
+var children_count : int = 0
 
 #Offensive variables
 var damage : float = 1.0
 var base_knockback : float = 1.0
+var attack_mods : Array = [false, false, false, false, false]
 
 var energy = 0
 signal currencyUpdate(index : int, value : float)
@@ -80,6 +82,7 @@ var waddle_speed_bonus : float = 1.0
 @export var orb_speed_gain : float = 0.2
 var accel: float = 50
 var turning_accel_ratio: float = 1.25
+var waddle_attack_speed_bonus : float = 1.0
 
 #BOARD VARS
 @export var board_accel: float = 0.5
@@ -282,7 +285,6 @@ func _ready() -> void:
 #Move some of this stuff to _process()
 #Physics process runs at 60fps constant
 func _physics_process(delta: float) -> void:
-	print(sb_speed_buff)
 	$Test.position = mousePos
 	
 	var friction_delta = pow(friction, delta)
@@ -352,6 +354,8 @@ func _waddleLogic(delta: float, _friction_delta : float) -> void:
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 	
 	var waddle_total_speed = accel * delta * waddle_speed * move_abil_mod * waddle_speed_bonus * sb_speed_buff
+	#Attack speed calc for now. Make sure to realize this is (+)  here
+	waddle_attack_speed_bonus = (waddle_speed_bonus + (0.5*(sb_speed_buff - 1.0)) * sb_synergy_buff)
 	
 	if x_dir == sign(velocity.x) * -1:
 		velocity.x += x_dir * waddle_total_speed * turning_accel_ratio
@@ -555,6 +559,10 @@ func _idlingTrigger() -> void:
 		if primary_ability == SPEED_BOOST:
 			sb_ref.endWaddle()
 		idling = true
+		#Have a check that boosts idle gains if frog_charge >= max_charge
+		#Also boost idle gains under the effect of the lasso buff
+		#* (1 + int(lasso_buffs[2]) * 0.5)
+		
 
 func _idlingCancel() -> void:
 	if idling:
@@ -768,7 +776,7 @@ func _frogRelease() -> void:
 		posVec = frogDirection * 3.6 * temp
 	
 	if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0:
-		var tempVec = 0.1 * (scaleVec - Vector2(1.0, 1.0))
+		#var tempVec = 0.1 * (scaleVec - Vector2(1.0, 1.0))
 		#basic_tween.tween_property($Sprite/Node2D, "scale", tempVec, 0.1 / frog_travel_speed).as_relative()	
 		basic_tween.parallel().tween_property($Sprite/Node2D, "position", posVec, 0.1 / frog_travel_speed)#.as_relative()
 		#basic_tween.tween_property($Sprite/Node2D, "scale", -tempVec, 0.2 / frog_travel_speed).as_relative()
@@ -1472,6 +1480,8 @@ func _on_lasso_lasso_location_reached() -> void:
 			shock.setParams(3.0, 2.0, self, 60 * lasso_progress, 2.0)
 		else:
 			shock.setParams(3.0, 2.0, self, 60 * (fmod(lasso_progress, 100.0)), 2.0)
+		shock.setID(tempImpactId + children_count * 10000)
+		children_count += 1
 		children_list.append(shock)
 	if primary_tween:
 		primary_tween.kill()		
@@ -1521,10 +1531,13 @@ func _on_speed_boost_crystal_activated() -> void:
 func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : float, posArr : PackedVector2Array) -> void:
 	
 	if detonate:
-		var temp_td = spawnerReference.spawnFriend(sb_ref.getID(true), Vector2.ZERO)
+		var temp_ID = sb_ref.getID(true)
+		var temp_td = spawnerReference.spawnFriend(temp_ID, Vector2.ZERO)
 		temp_td.setParams(10, 0, self, sz)
 		temp_td.initLines(posArr)
 		children_list.append(temp_td)
+		temp_td.setID(temp_ID + children_count * 10000)
+		children_count += 1
 	
 	
 	endAfterImage.emit()
@@ -1549,7 +1562,10 @@ func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : f
 				_frogCancel()
 
 func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int) -> void:
-	var temp_td = spawnerReference.spawnFriend(sb_ref.getID(false), getPosition())
+	var temp_ID = sb_ref.getID(false)
+	var temp_td = spawnerReference.spawnFriend(temp_ID, getPosition())
 	temp_td.setParams(dmg, kb, self, sz)
 	temp_td.initExplosion(basic_movement_type, ticks)
 	children_list.append(temp_td)
+	temp_td.setID(temp_ID + children_count * 10000)
+	children_count += 1
