@@ -230,7 +230,7 @@ ID = 8
 weight = 0.5
 
 [node name="Hurtbox" type="Area2D" parent="InnerNode" index="0"]
-collision_layer = 0
+collision_layer = 2
 collision_mask = 9
 monitorable = false
 
@@ -249,6 +249,7 @@ shape = SubResource("CircleShape2D_y2qds")
 
 [node name="DetectionRange" type="Area2D" parent="InnerNode" index="2"]
 collision_layer = 0
+collision_mask = 16
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/DetectionRange" index="0"]

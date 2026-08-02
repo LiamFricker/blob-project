@@ -26,8 +26,9 @@ func _on_detection_range_area_entered(area: Area2D) -> void:
 func _on_detection_range_body_entered(body: Node2D) -> void:
 	print("TARGET FOUND")
 	if not kb_moving:
-		targetRef = body
-		_startShoot()
+		if not targetRef:
+			targetRef = body
+			_startShoot()
 
 func _knockbackEnd() -> void:
 	kb_moving = false

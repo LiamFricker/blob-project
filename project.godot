@@ -74,6 +74,11 @@ Special={
 [layer_names]
 
 2d_physics/layer_1="PlayerCollection"
+2d_physics/layer_2="EnemyHurtboxAndDetection"
+2d_physics/layer_3="EnemyDamageEffect"
+2d_physics/layer_4="PlayerDamagingEffect"
+2d_physics/layer_5="PlayerCollisionAndDetection"
+2d_physics/layer_6="SolidCollision"
 
 [rendering]
 

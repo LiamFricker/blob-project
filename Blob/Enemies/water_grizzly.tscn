@@ -2230,6 +2230,16 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/BroadDetectionRadius"]
 shape = SubResource("CircleShape2D_7ya08")
 
+[node name="Hitbox" type="Area2D" parent="InnerNode"]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+
+[node name="Hurtbox" type="Area2D" parent="InnerNode"]
+collision_layer = 2
+collision_mask = 13
+monitorable = false
+
 [node name="Polygon2D" type="Polygon2D" parent="InnerNode"]
 visible = false
 position = Vector2(-21, 17)

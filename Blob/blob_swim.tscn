@@ -17,6 +17,7 @@ viewport_path = NodePath("SubViewport")
 radius = 18.0
 
 [node name="Blob_Swim" type="CharacterBody2D" node_paths=PackedStringArray("camReference")]
+collision_layer = 17
 collision_mask = 0
 script = ExtResource("1_560oe")
 mouseMovement = false
