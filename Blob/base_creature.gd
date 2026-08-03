@@ -29,6 +29,7 @@ var zoneReference : Node2D
 
 @export var ID: int = -1
 
+var deathQueued = false
 #@export var white_flash : bool = false
 
 #State:
@@ -98,6 +99,8 @@ func removeChild(childRef : Node2D) -> void:
 		print("CHILD NOT FOUND CHANGE THIS FUNC")
 	else:
 		children_list.remove_at(temppos)
+	if children_list.is_empty():
+		deathActivate()
 
 func _shake(direction: Vector2, power : float) -> void:
 	if oscillate_tween:
@@ -335,7 +338,6 @@ func addPosition(addpos : Vector2) -> void:#, dims : Vector2) -> void:
 func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
 	print("DEATH: ", self)
 	state = DEAD
-	
 	for c in children_list:
 		c.orphan(pos)
 	toggleHitbox(false)
@@ -344,10 +346,10 @@ func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
 		_spawnOrbs()
 		visible = false
 		set_process(false)
-		if isChild:
-			if parentRef:
-				parentRef.removeChild(self)
-			call_deferred("queue_free")
+		if children_list.is_empty():
+			deathActivate()
+		else:
+			deathQueued = true
 	else:
 		_deathKnockback(pos, kb)
 
@@ -385,13 +387,19 @@ func _handleRedDeath() -> void:
 	dot_tween.tween_property(self, "modulate", Color(1.0, 0, 0, 0), 1.0)
 
 func _FullDeath() -> void:
+	if children_list.is_empty():
+		deathActivate()
+	else:
+		deathQueued = true
+	_spawnOrbs()
+	visible = false
+	set_process(false)
+
+func deathActivate() -> void:
 	if isChild:
 		if parentRef:	
 			parentRef.removeChild(self)
 		call_deferred("queue_free")
-	_spawnOrbs()
-	visible = false
-	set_process(false)
 	
 
 func increaseVirusLevel(type : int, intensity : float, duration = 2.0) -> void: #ID : int, 
