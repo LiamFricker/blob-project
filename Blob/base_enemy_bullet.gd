@@ -6,7 +6,7 @@ extends Area2D
 @export var damage : float = 1.0
 var size = 0.0
 @export var attack_mods : Array = [false, false, false, false, false]
-@export var ID : int = 0.0
+@export var ID : int = 0
 
 var movement_tween
 var oscillate_tween

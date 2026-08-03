@@ -96,7 +96,7 @@ func _startShoot() -> void:
 	mimi_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	mimi_tween.tween_property(Sprite, "position:y", -10, 0.2).as_relative()
 	mimi_tween.set_trans(Tween.TRANS_LINEAR)
-	mimi_tween.tween_property(Sprite, "position:y", 0, 1.0).as_relative()
+	mimi_tween.tween_property(Sprite, "position:y", 0, 1.0)
 	
 
 func _unshieldWeakpoint(toggle : bool = false) -> void:

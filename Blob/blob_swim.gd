@@ -320,7 +320,7 @@ func _physics_process(delta: float) -> void:
 			if pulseCount > 2:
 				#print("Pulse Amp 3: ", pulseAmp3)
 				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", pulseAmp3)
-	
+
 	if charge_dash:# and chargeStrength > 2:
 		_primaryLogic(delta, friction_delta)
 	else:
@@ -421,7 +421,7 @@ func _frogLogic(_delta : float, _friction_delta : float) -> void:
 
 func _primaryLogic(delta : float, friction_delta : float) -> void:
 	match primary_ability:
-		CHARGE:
+		CHARGE_DASH:
 			_chargeDash(delta, friction_delta)
 		LASSO:
 			_lassoLogic(delta, friction_delta)
@@ -456,10 +456,9 @@ func _lassoLogic(delta: float, friction_delta : float) -> void:
 	else:
 		#var x_dir : float
 		#var y_dir : float
-		#x_dir = int(right_input) - int(left_input)
-		#y_dir = int(down_input) - int(up_input)
-		crosshairRef.position += 250 * delta * lasso_cursor_speed * Vector2(x_dir, y_dir)
-	
+		var temp_x_dir = int(right_input) - int(left_input)
+		var temp_y_dir = int(down_input) - int(up_input)
+		crosshairRef.position += 250 * delta * lasso_cursor_speed * Vector2(temp_x_dir, temp_y_dir)
 	var crossLen = crosshairRef.position.length()
 	if crossLen > lasso_base_range * lasso_progress:
 		crosshairRef.position = lasso_base_range * lasso_progress * crosshairRef.position / (crossLen+1) #No divide by 0
@@ -1021,7 +1020,7 @@ func _lassoCancel() -> void:
 		buffRef = null
 		lasso_buffs = [false, false, false, false]
 	
-	if primary_queued:
+	if primary_queued and Input.is_action_pressed("Primary"):
 		_lassoPress()
 
 func _onFullCharge() -> void:
@@ -1572,3 +1571,9 @@ func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int
 	children_list.append(temp_td)
 	temp_td.setID(temp_ID + children_count * 10000)
 	children_count += 1
+
+func _on_hurtbox_area_entered(area: Area2D) -> void:
+	pass # Replace with function body.
+
+func _on_hurtbox_body_entered(body: Node2D) -> void:
+	pass # Replace with function body.

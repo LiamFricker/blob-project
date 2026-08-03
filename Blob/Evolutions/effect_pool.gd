@@ -8,7 +8,7 @@ var size : float = 1.0
 var playerRef : Node2D
 
 func setParams(type : int, sz : float, pR : Node2D) -> void:
-	poolType = 0
+	poolType = type
 	size = sz * 1.25
 	playerRef = pR
 
@@ -16,7 +16,7 @@ func _ready() -> void:
 	match poolType:
 		0:
 			modulate = Color("d9ff0083")
-		1:
+		2:
 			modulate = Color("37ff0063")
 			
 	tween = create_tween()

@@ -326,6 +326,7 @@ texture = ExtResource("1_kb6kg")
 [node name="TrailEffect" parent="." instance=ExtResource("3_gl3ta")]
 
 [node name="ChargeBar" type="Node2D" parent="."]
+modulate = Color(1, 1, 1, 0)
 position = Vector2(100, 0)
 scale = Vector2(1.5, 2)
 

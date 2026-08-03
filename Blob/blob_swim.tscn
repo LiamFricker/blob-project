@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://blvad8r1y76gf"]
+[gd_scene load_steps=13 format=3 uid="uid://blvad8r1y76gf"]
 
 [ext_resource type="Script" uid="uid://4u6uw0h6fqhw" path="res://Blob/blob_swim.gd" id="1_560oe"]
 [ext_resource type="Texture2D" uid="uid://6r00aigasy26" path="res://Art/Cell/Glimmer.png" id="2_02q5b"]
@@ -16,16 +16,20 @@ viewport_path = NodePath("SubViewport")
 [sub_resource type="CircleShape2D" id="CircleShape2D_8tadd"]
 radius = 18.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_a16ly"]
+radius = 16.1245
+
 [node name="Blob_Swim" type="CharacterBody2D" node_paths=PackedStringArray("camReference")]
 collision_layer = 17
-collision_mask = 0
+collision_mask = 32
 script = ExtResource("1_560oe")
 mouseMovement = false
 camReference = NodePath("Camera2D")
+basic_movement_type = 2
 waddle_speed = 10
 frog_speed = 1.25
 frog_travel_speed = 1.25
-primary_ability = 1
+primary_ability = 2
 charge_speed = 10.0
 lasso_cursor_speed = 2.0
 
@@ -158,15 +162,19 @@ size = Vector2i(64, 64)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_8tadd")
 
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_a16ly")
+
 [node name="Attachments" type="Node2D" parent="."]
 
 [node name="WaddleOrbTimer" type="Timer" parent="."]
 wait_time = 2.5
 one_shot = true
-
-[node name="Test" type="Polygon2D" parent="."]
-visible = false
-polygon = PackedVector2Array(-19, -51, -39, -2, -7, 28, 37, 31, 29, -9, 3, -49, -14, -57)
 
 [connection signal="lassoBuffToggle" from="lasso" to="." method="_on_lasso_lasso_buff_toggle"]
 [connection signal="lassoLocationReached" from="lasso" to="." method="_on_lasso_lasso_location_reached"]
@@ -176,4 +184,6 @@ polygon = PackedVector2Array(-19, -51, -39, -2, -7, 28, 37, 31, 29, -9, 3, -49, 
 [connection signal="crystal_activated" from="SpeedBoost" to="." method="_on_speed_boost_crystal_activated"]
 [connection signal="crystal_canceled" from="SpeedBoost" to="." method="_on_speed_boost_crystal_canceled"]
 [connection signal="spawn_bomb" from="SpeedBoost" to="." method="_on_speed_boost_spawn_bomb"]
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]
