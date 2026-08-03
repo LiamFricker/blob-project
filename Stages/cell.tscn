@@ -82,3 +82,8 @@ position = Vector2(1064, -23)
 [connection signal="timeout" from="UpdateZoneTimer" to="." method="_on_update_zone_timer_timeout"]
 [connection signal="timeout" from="UpdateTick" to="." method="_on_update_tick_timeout"]
 [connection signal="timeout" from="TestTimer" to="." method="_on_test_timer_timeout"]
+[connection signal="spawnOrbs" from="MimiVirus2" to="." method="_spawnOrbs"]
+[connection signal="spawnOrbs" from="MimiVirus3" to="." method="_spawnOrbs"]
+[connection signal="spawnOrbs" from="mama_virus" to="." method="_spawnOrbs"]
+[connection signal="draw" from="mama_virus2" to="." method="_on_mama_virus_2_draw"]
+[connection signal="spawnOrbs" from="mama_virus2" to="." method="_spawnOrbs"]

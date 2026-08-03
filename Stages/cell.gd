@@ -1488,11 +1488,11 @@ func _on_hud_swim_upgrade_tab_toggled(_state: bool) -> void:
 func _on_resolution_change() -> void:
 	pass
 
-func _spawnOrbs(orb_amt : int, pos : Vector2) -> void:
-	orbReference.spawnOrbs(orb_amt, pos)
-
 func _on_blob_swim_create_after_image(trail_decay: float, trail_int: float, trail_color: int, trail_count: int) -> void:
 	$PlayerParticleManager.createAfterImage(trail_decay, trail_int, trail_color, trail_count)
 
 func _on_blob_swim_end_after_image() -> void:
 	$PlayerParticleManager.endAfterImage()
+
+func _spawnOrbs(amt : int, pos : Vector2) -> void:
+	orbReference.spawnOrbs(amt, pos)

@@ -285,7 +285,6 @@ func _ready() -> void:
 #Move some of this stuff to _process()
 #Physics process runs at 60fps constant
 func _physics_process(delta: float) -> void:
-	$Test.position = mousePos
 	
 	var friction_delta = pow(friction, delta)
 	

@@ -36,11 +36,13 @@ func _knockbackEnd() -> void:
 	kb_moving = false
 	_collisionCheck()
 	_detectionCheck()
+	"""
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
 	movement_tween.tween_property($InnerNode/Sprite/MamaVirusCap, "rotation", 0, 0.2)
 	movement_tween.tween_callback(_unshieldWeakpoint.bind(true))
+	"""
 
 func _detectionCheck() -> void:
 	if targetRef:	
@@ -120,7 +122,15 @@ func _shootProj() -> void:
 	
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var areaID = area.getID()
-	if areaID == ID or weakpoint_shielded:
+	if areaID == ID:
+		return
+	
+	if weakpoint_shielded:
+		if shield_tween:
+			shield_tween.kill()
+		shield_tween = create_tween()
+		shield_tween.tween_property(Sprite, "modulate:r", -0.5, 0.15).as_relative()
+		shield_tween.tween_property(Sprite, "modulate:r", 0.5, 0.15).as_relative()
 		return
 	
 	var shieldBox = $InnerNode/ShieldBox
@@ -151,7 +161,15 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var bodyID = body.getID()
-	if bodyID == ID or weakpoint_shielded:
+	if bodyID == ID:
+		return
+	
+	if weakpoint_shielded:
+		if shield_tween:
+			shield_tween.kill()
+		shield_tween = create_tween()
+		shield_tween.tween_property(Sprite, "modulate:r", -0.5, 0.15).as_relative()
+		shield_tween.tween_property(Sprite, "modulate:r", 0.5, 0.15).as_relative()
 		return
 	
 	var shieldBox = $InnerNode/ShieldBox
@@ -192,7 +210,7 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 		if movement_tween:
 			movement_tween.kill()
 		movement_tween = create_tween()
-		movement_tween.tween_property($InnerNode/Sprite/MamaVirusCap, "rotation", 0, 1.0)
+		movement_tween.tween_property($InnerNode/Sprite/MamaVirusCap, "rotation", 0, 1.5)
 		movement_tween.tween_callback(_unshieldWeakpoint.bind(true))
 		$AnimationPlayer.play("reload", -1, shoot_cooldown)
 	elif anim_name == "reload":
