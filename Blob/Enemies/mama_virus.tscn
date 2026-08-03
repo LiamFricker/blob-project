@@ -1,9 +1,10 @@
-[gd_scene load_steps=12 format=3 uid="uid://bgn4tt12w6lxk"]
+[gd_scene load_steps=15 format=3 uid="uid://bgn4tt12w6lxk"]
 
 [ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_pb00x"]
 [ext_resource type="Script" uid="uid://ce5ndyckob5fg" path="res://Blob/Enemies/mama_virus.gd" id="2_768pg"]
 [ext_resource type="Texture2D" uid="uid://bstnj3yx76y5d" path="res://Art/Cell/MamaVirus_Blade.png" id="2_bg5yb"]
 [ext_resource type="Texture2D" uid="uid://txrhscadye7w" path="res://Art/Cell/MamaVirus.png" id="3_768pg"]
+[ext_resource type="PackedScene" uid="uid://cnpy0smwc1mb6" path="res://Blob/Enemies/basic_rocket.tscn" id="3_tj7hx"]
 [ext_resource type="Texture2D" uid="uid://bb6m8mwk5dxij" path="res://Art/Cell/MamaVirus_Weak.png" id="4_tj7hx"]
 [ext_resource type="Texture2D" uid="uid://b76yhufthof8t" path="res://Art/Cell/MamaVirus_Cap.png" id="5_hsxki"]
 
@@ -14,21 +15,212 @@ radius = 11.0
 radius = 20.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hsxki"]
-radius = 200.0
+radius = 300.0
 
 [sub_resource type="Animation" id="Animation_768pg"]
 resource_name = "reload"
+length = 10.0
+step = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("InnerNode/FakeRocket:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 5.5, 6.25, 7, 10),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, -8), Vector2(0, -8), Vector2(0, 5), Vector2(0, 5), Vector2(-1.13687e-13, 35)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("InnerNode/FakeRocket:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 5.5, 6.25, 7, 8, 10),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(1.75, 1), Vector2(1.75, 1), Vector2(1.75, 1), Vector2(1.75, 1), Vector2(1.75, 1.75), Vector2(1.75, 1.75)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("InnerNode/FakeRocket:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 5.5, 6.25),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("InnerNode/Sprite/MamaVirusBlade:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4, 0.8, 1.2, 1.6, 2, 2.4, 2.8, 3.2, 3.6, 4, 4.5, 4.75, 5, 5.25, 5.5, 7, 10),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.460873, -0.63125, -0.349066, -0.460873, -0.349066, -0.460873, -0.460873, -0.63125, -0.349066, -0.460873, -0.460873, -1.15192, -1.25664, -1.0472, -1.20428, -1.15192, -0.642976, -0.138286]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("InnerNode/Sprite/MamaVirusBlade2:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4, 0.8, 1.2, 1.6, 2, 2.4, 2.8, 4, 4.5, 4.75, 5, 5.25, 5.5, 7, 10),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.435978, 0.435978, 0.261799, 0.523599, 0.435978, 0.435978, 0.261799, 0.523599, 0.435978, 1.15192, 1.25664, 1.0472, 1.20428, 1.15192, 0.602622, 0.146787]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("InnerNode/Sprite/MamaVirusBlade:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-20, 0), Vector2(-20, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("InnerNode/Sprite/MamaVirusBlade2:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(20, 0), Vector2(20, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_tj7hx"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("InnerNode/FakeRocket:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-1.13687e-13, 35)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("InnerNode/FakeRocket:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1.75, 1.75)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("InnerNode/FakeRocket:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("InnerNode/Sprite/MamaVirusBlade:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [-0.137881]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("InnerNode/Sprite/MamaVirusBlade2:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.146608]
+}
+
+[sub_resource type="Animation" id="Animation_hsxki"]
+resource_name = "shoot"
+step = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("InnerNode/FakeRocket:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("InnerNode/Sprite/MamaVirusBlade:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.25, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [-0.137881, 0.666721, -0.460767]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("InnerNode/Sprite/MamaVirusBlade2:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.25, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.146608, -0.766171, 0.436332]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_tj7hx"]
 _data = {
-&"reload": SubResource("Animation_768pg")
+&"RESET": SubResource("Animation_tj7hx"),
+&"reload": SubResource("Animation_768pg"),
+&"shoot": SubResource("Animation_hsxki")
 }
 
 [node name="mama_virus" node_paths=PackedStringArray("hurtboxReference") instance=ExtResource("1_pb00x")]
 script = ExtResource("2_768pg")
-detection_range = 200.0
+detection_range = 300.0
 shoot_cooldown = 1.0
-test_bullet = null
+test_bullet = ExtResource("3_tj7hx")
 orb_reward = 25
 base_damage = 3.0
 health_max = 5.0
@@ -77,13 +269,14 @@ polygon = PackedVector2Array(5, -3, 7, -3, 10, 0, 7, 3, 5, 3, 3, 1, -10, 8, -3, 
 
 [node name="MamaVirusBlade" type="Sprite2D" parent="InnerNode/Sprite" index="1"]
 position = Vector2(-20, 0)
+rotation = -0.137881
 texture = ExtResource("2_bg5yb")
 offset = Vector2(0, 15)
 
 [node name="MamaVirusBlade2" type="Sprite2D" parent="InnerNode/Sprite" index="2"]
 position = Vector2(20, 0)
-rotation = 3.14159
-scale = Vector2(1, -1)
+rotation = 0.146608
+scale = Vector2(-1, 1)
 texture = ExtResource("2_bg5yb")
 offset = Vector2(0, 15)
 
@@ -103,3 +296,9 @@ offset = Vector2(9, -9)
 libraries = {
 &"": SubResource("AnimationLibrary_tj7hx")
 }
+
+[connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
+[connection signal="area_entered" from="InnerNode/DetectionRange" to="." method="_on_detection_range_area_entered"]
+[connection signal="body_entered" from="InnerNode/DetectionRange" to="." method="_on_detection_range_body_entered"]
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]

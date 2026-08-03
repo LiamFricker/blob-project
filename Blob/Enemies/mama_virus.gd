@@ -10,7 +10,7 @@ var mimi_tween
 var shield_tween
 @onready var mimi_rng = RandomNumberGenerator.new()
 @export var shoot_cooldown : float = 1.0
-var min_delay = 0.75
+var min_delay = 1.0
 
 @export var test_bullet : PackedScene
 
@@ -49,7 +49,7 @@ func _detectionCheck() -> void:
 			_startShoot()
 			return
 		targetRef = null
-	min_delay = 0.75
+	min_delay = 1.0
 	var detectNode = $InnerNode/DetectionRange
 	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
 		var localAreas = detectNode.get_overlapping_areas()
@@ -66,13 +66,13 @@ func _startShoot() -> void:
 	
 	if getPosition().distance_squared_to(targetPos) > detection_range * detection_range * 2.25:
 		targetRef = null
-		min_delay = 0.75
+		min_delay = 1.0
 		if mimi_tween:
 			mimi_tween.kill()
 		return
 	
 	var angle_diff = -angle_difference(targetAngle, Inner.rotation + PI/2)
-	var delay = max(2.5 * abs(angle_diff) / PI, min_delay) 
+	var delay = max(3.0 * abs(angle_diff) / PI, min_delay) 
 
 	Sprite.position.y = 0
 	if movement_tween:
@@ -97,26 +97,25 @@ func _startShoot() -> void:
 	mimi_tween.tween_property(Sprite, "position:y", -10, 0.2).as_relative()
 	mimi_tween.set_trans(Tween.TRANS_LINEAR)
 	mimi_tween.tween_property(Sprite, "position:y", 0, 1.0).as_relative()
-	movement_tween.tween_property($InnerNode/Sprite/MamaVirusCap, "rotation", 0, 0.5)
-	movement_tween.tween_callback(_unshieldWeakpoint.bind(true))
-	$AnimationPlayer.play("reload", -1, shoot_cooldown)
+	
 
 func _unshieldWeakpoint(toggle : bool = false) -> void:
 	weakpoint_shielded = toggle
 
 func _shootProj() -> void:
-	#var rand_angle = mimi_rng.randf_range(-0.1, 0.1)
-	var offset = 20 * Vector2.from_angle(Inner.rotation+PI/2)
+	$AnimationPlayer.play("shoot", -1, shoot_cooldown)
+	
+	var offset = 35 * Vector2.from_angle(Inner.rotation+PI/2)
 	if spawnerRef:
 		var bullet = spawnerRef.spawnEntity(bullet_id, -1, getPosition()+offset)
 		bullet.setParams(base_damage, self, size, ID)
-		bullet.initBullet(Inner.rotation + PI/2, 5.0)
+		bullet.initBullet(Inner.rotation + PI/2, 5.0, targetRef)
 		_addConnectBullet(bullet)
 	else:
 		var bullet = test_bullet.instantiate()
 		bullet.position = getPosition()+offset 
 		bullet.setParams(base_damage, self, size, ID)
-		bullet.initBullet(Inner.rotation + PI/2, 5.0)
+		bullet.initBullet(Inner.rotation + PI/2, 5.0, targetRef)
 		_addConnectBullet(bullet)
 	
 func _on_hurtbox_area_entered(area: Area2D) -> void:
@@ -189,7 +188,14 @@ func _stopAnims() -> void:
 		$AnimationPlayer.play("RESET", 0.5)
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == "reload":
+	if anim_name == "shoot":
+		if movement_tween:
+			movement_tween.kill()
+		movement_tween = create_tween()
+		movement_tween.tween_property($InnerNode/Sprite/MamaVirusCap, "rotation", 0, 1.0)
+		movement_tween.tween_callback(_unshieldWeakpoint.bind(true))
+		$AnimationPlayer.play("reload", -1, shoot_cooldown)
+	elif anim_name == "reload":
 		min_delay = 0.5
 		_startShoot()
 	

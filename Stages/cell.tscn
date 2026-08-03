@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://40hcl2pacvut"]
+[gd_scene load_steps=11 format=3 uid="uid://40hcl2pacvut"]
 
 [ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="1_mjuci"]
 [ext_resource type="Script" uid="uid://sgaihncgtns3" path="res://Stages/cell.gd" id="1_udkfl"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://b6w38vk3c7fqh" path="res://Art/Cell/Orb_Small.png" id="3_wq666"]
 [ext_resource type="PackedScene" uid="uid://iye6rfpbns41" path="res://Blob/orb_spawner.tscn" id="6_e6ll5"]
 [ext_resource type="PackedScene" uid="uid://p5aydk2googa" path="res://Blob/Enemies/mimi_virus.tscn" id="9_foiph"]
+[ext_resource type="PackedScene" uid="uid://bgn4tt12w6lxk" path="res://Blob/Enemies/mama_virus.tscn" id="10_0cxo5"]
 [ext_resource type="PackedScene" uid="uid://c8ownn03h8lgf" path="res://Blob/player_particle_manager.tscn" id="10_3crod"]
 
 [node name="Cell" type="Node2D" node_paths=PackedStringArray("playerReference", "orbReference")]
@@ -59,10 +60,6 @@ autostart = true
 [node name="TestTimer" type="Timer" parent="."]
 wait_time = 0.05
 
-[node name="MimiVirus" parent="." instance=ExtResource("9_foiph")]
-position = Vector2(360, -44)
-health_max = 2.0
-
 [node name="MimiVirus2" parent="." instance=ExtResource("9_foiph")]
 position = Vector2(-334, 183)
 health_max = 2.0
@@ -70,6 +67,12 @@ health_max = 2.0
 [node name="MimiVirus3" parent="." instance=ExtResource("9_foiph")]
 position = Vector2(-334, -214)
 health_max = 2.0
+
+[node name="mama_virus" parent="." instance=ExtResource("10_0cxo5")]
+position = Vector2(459, -17)
+
+[node name="mama_virus2" parent="." instance=ExtResource("10_0cxo5")]
+position = Vector2(1064, -23)
 
 [connection signal="upgrade_tab_toggled" from="HUD_swim" to="." method="_on_hud_swim_upgrade_tab_toggled"]
 [connection signal="createAfterImage" from="Blob_Swim" to="." method="_on_blob_swim_create_after_image"]

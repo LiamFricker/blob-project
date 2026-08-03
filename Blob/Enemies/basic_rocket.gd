@@ -4,56 +4,58 @@ var targetRef : Node2D
 var speed : float = 1.0
 var angle_max_diff : float = 0.6
 
-# Called when the node enters the scene tree for the first time.
+var timer_tween 
+
 func _ready() -> void:
 	if size > 0:
-		var tempShape = RectangleShape2D.new()
-		tempShape.size = Vector2(size*3, size)
+		var tempShape = CircleShape2D.new()
+		tempShape.radius = size * 0.35
 		$CollisionShape2D.set_deferred("shape", tempShape)
-		
-		var biggertempShape = RectangleShape2D.new()
-		tempShape.size = Vector2(size*4, size*2)
-		$Hurtbox/CollisionShape2D.set_deferred("shape", biggertempShape)
+		tempShape = CircleShape2D.new()
+		tempShape.radius = size * 0.55
+		$CollisionShape2D.set_deferred("shape", tempShape)
+		if hurtboxRef:
+			tempShape = CircleShape2D.new()
+			tempShape.radius = size #22
+			$CollisionShape2D.set_deferred("shape", tempShape)
 
 func initBullet(rot : float, sd : float, tF : Node2D) -> void:
-	$Sprite.rotation = rot
+	rotation = rot
 	speed = sd
+	targetRef = tF
+	_turnRocket()
 	
-	var dirVect = sd * 100 * Vector2.from_angle(rot)
-	movement_tween.tween_property(self, "position", dirVect, 5).as_relative()
-	movement_tween.finished.connect(_OnDeath)
-
 func _turnRocket() -> void:
 	var targetPos = targetRef.getPosition()
 	var targetAngle = getPosition().angle_to_point(targetPos)
-	var angle_diff = -angle_difference(targetAngle, rotation + PI/2)
+	var angle_diff = -angle_difference(targetAngle, rotation)
 	
 	const max_speed_time = 0.1
 	var speed_time = max_speed_time
 	var total_diff = angle_max_diff * speed
 	
-	if abs(angle_diff) > speed_time:
-		angle_diff = sign(angle_diff) * speed_time
+	if abs(angle_diff) > total_diff:
+		angle_diff = sign(angle_diff) * total_diff
 	else:
 		speed_time = max(max_speed_time * angle_diff / total_diff, 0.1 * speed_time)
 	
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property($Sprite, "rotation", angle_diff, speed_time).as_relative()
+	movement_tween.tween_property(self, "rotation", angle_diff, speed_time).as_relative()
 	if speed_time > 0.0:
-		movement_tween.set_delay(max_speed_time-speed_time)
+		movement_tween.tween_interval(max_speed_time-speed_time)
 	movement_tween.finished.connect(_turnRocket)
 
 func _process(delta : float) -> void:
-	position += 10 * speed * delta * Vector2.from_angle($Sprite.rotation)
+	position += 10 * speed * delta * Vector2.from_angle(rotation)
 
 func _on_area_entered(area: Area2D) -> void:
-	if area.ID != ID:
+	if area.getID() != ID:
 		_explode()
 
 func _on_body_entered(body: Node2D) -> void:
-	if body.ID != ID:
+	if body.getID() != ID:
 		_explode()
 
 func _takeDamage() -> void:
@@ -76,9 +78,25 @@ func _explode() -> void:
 	speed = 0
 	$Sprite.hide()
 	$AnimatedSprite2D.show()
+	$AnimatedSprite2D.position = Vector2.ZERO
 	$AnimatedSprite2D.play("default")
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
 	movement_tween.tween_interval(0.4)
+	movement_tween.tween_property($AnimatedSprite2D, "modulate:v", 0.0, 0.75)
+	movement_tween.parallel().tween_property($AnimatedSprite2D, "modulate:a", 0.0, 0.35).set_delay(0.45)
 	movement_tween.finished.connect(_OnDeath)
+
+
+func _on_timer_timeout() -> void:
+	timer_tween = create_tween()
+	timer_tween.tween_property($Sprite/Polygon2D, "modulate:v", 0.8, 0.25).as_relative()
+	timer_tween.tween_property($Sprite/Polygon2D, "modulate:v", -0.8, 0.25).as_relative()
+	timer_tween.tween_property($Sprite/Polygon2D, "modulate:v", 0.8, 0.25).as_relative()
+	timer_tween.tween_property($Sprite/Polygon2D, "modulate:v", -0.8, 0.25).as_relative()
+	timer_tween.tween_property($Sprite/Polygon2D, "modulate:v", 0.8, 0.25).as_relative()
+	timer_tween.tween_property($Sprite/Polygon2D, "modulate:v", -0.8, 0.25).as_relative()
+	timer_tween.tween_property($Sprite/Polygon2D, "modulate:v", 0.8, 0.25).as_relative()
+	timer_tween.tween_property($Sprite/Polygon2D, "modulate:v", -0.8, 0.25).as_relative()
+	timer_tween.finished.connect(_explode)
