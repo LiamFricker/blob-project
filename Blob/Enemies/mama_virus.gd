@@ -4,7 +4,7 @@ var targetRef : Node2D
 var targetFound : bool = false
 @export var detection_range : float = 200 
 
-const bullet_id = 9
+const bullet_id = 11
 
 var mimi_tween
 var shield_tween
@@ -13,6 +13,8 @@ var shield_tween
 var min_delay = 0.75
 
 @export var test_bullet : PackedScene
+
+var weakpoint_shielded = true
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -34,6 +36,11 @@ func _knockbackEnd() -> void:
 	kb_moving = false
 	_collisionCheck()
 	_detectionCheck()
+	if movement_tween:
+		movement_tween.kill()
+	movement_tween = create_tween()
+	movement_tween.tween_property($InnerNode/Sprite/MamaVirusCap, "rotation", 0, 0.2)
+	movement_tween.tween_callback(_unshieldWeakpoint.bind(true))
 
 func _detectionCheck() -> void:
 	if targetRef:	
@@ -65,50 +72,56 @@ func _startShoot() -> void:
 		return
 	
 	var angle_diff = -angle_difference(targetAngle, Inner.rotation + PI/2)
-	var delay = max(1.5 * abs(angle_diff) / PI, min_delay) 
+	var delay = max(2.5 * abs(angle_diff) / PI, min_delay) 
 
 	Sprite.position.y = 0
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative().set_delay(delay)
-	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 3, 0.1).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 3, 0.1).as_relative()
-	
-	
+	movement_tween.tween_property($InnerNode/Sprite/MamaVirusCap, "rotation", -0.64*PI, delay * 0.5)
+	movement_tween.tween_callback(_unshieldWeakpoint)
 	
 	if mimi_tween:
 		mimi_tween.kill()
 	mimi_tween = create_tween()
+	
 	mimi_tween.tween_property(Inner, "rotation", angle_diff, delay).as_relative()
-	mimi_tween.parallel().tween_callback(_shootProj).set_delay(delay)
-	for i in range(5):
-		mimi_tween.tween_callback(_shootProj).set_delay(0.2)
+	mimi_tween.tween_property(Sprite, "position:y", -1, 0.1).as_relative()
+	mimi_tween.tween_property(Sprite, "position:y", 1, 0.1).as_relative()
+	mimi_tween.tween_property(Sprite, "position:y", -2, 0.1).as_relative()
+	mimi_tween.tween_property(Sprite, "position:y", 2, 0.1).as_relative()
+	mimi_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative()
+	mimi_tween.tween_property(Sprite, "position:y", 3, 0.1).as_relative()
+	mimi_tween.tween_callback(_shootProj)
+	mimi_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	mimi_tween.tween_property(Sprite, "position:y", -10, 0.2).as_relative()
+	mimi_tween.set_trans(Tween.TRANS_LINEAR)
+	mimi_tween.tween_property(Sprite, "position:y", 0, 1.0).as_relative()
+	movement_tween.tween_property($InnerNode/Sprite/MamaVirusCap, "rotation", 0, 0.5)
+	movement_tween.tween_callback(_unshieldWeakpoint.bind(true))
 	$AnimationPlayer.play("reload", -1, shoot_cooldown)
 
+func _unshieldWeakpoint(toggle : bool = false) -> void:
+	weakpoint_shielded = toggle
+
 func _shootProj() -> void:
-	var rand_angle = mimi_rng.randf_range(-0.1, 0.1)
+	#var rand_angle = mimi_rng.randf_range(-0.1, 0.1)
 	var offset = 20 * Vector2.from_angle(Inner.rotation+PI/2)
 	if spawnerRef:
 		var bullet = spawnerRef.spawnEntity(bullet_id, -1, getPosition()+offset)
 		bullet.setParams(base_damage, self, size, ID)
-		bullet.initBullet(Inner.rotation + rand_angle + PI/2, 5.0)
+		bullet.initBullet(Inner.rotation + PI/2, 5.0)
 		_addConnectBullet(bullet)
 	else:
 		var bullet = test_bullet.instantiate()
 		bullet.position = getPosition()+offset 
 		bullet.setParams(base_damage, self, size, ID)
-		bullet.initBullet(Inner.rotation + rand_angle + PI/2, 5.0)
+		bullet.initBullet(Inner.rotation + PI/2, 5.0)
 		_addConnectBullet(bullet)
 	
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var areaID = area.getID()
-	if areaID == ID:
+	if areaID == ID or weakpoint_shielded:
 		return
 	
 	var shieldBox = $InnerNode/ShieldBox
@@ -139,7 +152,7 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var bodyID = body.getID()
-	if bodyID == ID:
+	if bodyID == ID or weakpoint_shielded:
 		return
 	
 	var shieldBox = $InnerNode/ShieldBox

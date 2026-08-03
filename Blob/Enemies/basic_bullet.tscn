@@ -8,6 +8,7 @@ size = Vector2(6, 2)
 
 [node name="basic_bullet" instance=ExtResource("1_ew5kc")]
 script = ExtResource("2_jqw4c")
+ID = 9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" index="0"]
 shape = SubResource("RectangleShape2D_jqw4c")

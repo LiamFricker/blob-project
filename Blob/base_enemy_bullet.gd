@@ -6,7 +6,7 @@ extends Area2D
 @export var damage : float = 1.0
 var size = 0.0
 @export var attack_mods : Array = [false, false, false, false, false]
-var ID : int = 0.0
+@export var ID : int = 0.0
 
 var movement_tween
 var oscillate_tween
@@ -33,6 +33,10 @@ func _ready() -> void:
 		var tempShape = CircleShape2D.new()
 		tempShape.radius = size
 		$CollisionShape2D.set_deferred("shape", tempShape)
+		if hurtboxRef:
+			tempShape = CircleShape2D.new()
+			tempShape.radius = size * 0.8
+			$CollisionShape2D.set_deferred("shape", tempShape)
 
 #These variables all go into the Area2D collision. 
 func getParent() -> Node2D:

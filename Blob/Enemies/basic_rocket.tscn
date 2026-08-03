@@ -1,0 +1,82 @@
+[gd_scene load_steps=13 format=3 uid="uid://cnpy0smwc1mb6"]
+
+[ext_resource type="PackedScene" uid="uid://hwhv51ldhw07" path="res://Blob/base_enemy_bullet.tscn" id="1_8ux05"]
+[ext_resource type="Script" uid="uid://dkhbhrsh33chq" path="res://Blob/Enemies/basic_rocket.gd" id="2_ep231"]
+[ext_resource type="Texture2D" uid="uid://sy7p5usw45h1" path="res://Art/Cell/Evolutions/Explosion/explosion.png" id="3_xr7j2"]
+[ext_resource type="Texture2D" uid="uid://c0fhypfxh5lpa" path="res://Art/Cell/Evolutions/Explosion/explosion(0).png" id="4_m8gyf"]
+[ext_resource type="Texture2D" uid="uid://rl8x0s5lukjg" path="res://Art/Cell/Evolutions/Explosion/explosion(1).png" id="5_2l0u2"]
+[ext_resource type="Texture2D" uid="uid://dfx1nr0c2otvf" path="res://Art/Cell/Evolutions/Explosion/explosion(2).png" id="6_sjayf"]
+[ext_resource type="Texture2D" uid="uid://breq4xra1vsfo" path="res://Art/Cell/Evolutions/Explosion/explosion(3).png" id="7_ad7yp"]
+[ext_resource type="Texture2D" uid="uid://cu5gkc33qaff7" path="res://Art/Cell/Evolutions/Explosion/explosion(4).png" id="8_hjm8u"]
+[ext_resource type="Texture2D" uid="uid://b8hv4vw4cgfkw" path="res://Art/Cell/Evolutions/Explosion/explosion(5).png" id="9_3nej6"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xr7j2"]
+radius = 22.0227
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_m8gyf"]
+radius = 19.0263
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_cynqv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_xr7j2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_m8gyf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_2l0u2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_sjayf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ad7yp")
+}, {
+"duration": 30.0,
+"texture": ExtResource("8_hjm8u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_3nej6")
+}],
+"loop": false,
+"name": &"default",
+"speed": 8.0
+}]
+
+[node name="basic_rocket" instance=ExtResource("1_8ux05")]
+collision_mask = 11
+script = ExtResource("2_ep231")
+health = 3
+knockback = 1.0
+damage = 3.0
+ID = 11
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" index="0"]
+shape = SubResource("CircleShape2D_xr7j2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="1"]
+shape = SubResource("CircleShape2D_m8gyf")
+
+[node name="Sprite" type="Node2D" parent="." index="2"]
+position = Vector2(3, 0)
+scale = Vector2(1.75, 1.75)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Sprite" index="0"]
+color = Color(1, 0.270588, 0.270588, 0.482353)
+polygon = PackedVector2Array(5, -4, 7, -4, 11, 0, 7, 4, 5, 4, 3, 2, -13, 10, -4, 1, -4, -1, -13, -10, 3, -2)
+
+[node name="Polygon2D" type="Polygon2D" parent="Sprite" index="1"]
+color = Color(0.16, 0.16, 0.16, 1)
+polygon = PackedVector2Array(5, -3, 7, -3, 10, 0, 7, 3, 5, 3, 3, 1, -10, 8, -3, 1, -3, -1, -10, -8, 3, -1)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="3"]
+visible = false
+scale = Vector2(0.25, 0.25)
+sprite_frames = SubResource("SpriteFrames_cynqv")
+frame = 5
+frame_progress = 0.418063
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

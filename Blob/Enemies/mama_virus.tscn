@@ -1,0 +1,105 @@
+[gd_scene load_steps=12 format=3 uid="uid://bgn4tt12w6lxk"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_pb00x"]
+[ext_resource type="Script" uid="uid://ce5ndyckob5fg" path="res://Blob/Enemies/mama_virus.gd" id="2_768pg"]
+[ext_resource type="Texture2D" uid="uid://bstnj3yx76y5d" path="res://Art/Cell/MamaVirus_Blade.png" id="2_bg5yb"]
+[ext_resource type="Texture2D" uid="uid://txrhscadye7w" path="res://Art/Cell/MamaVirus.png" id="3_768pg"]
+[ext_resource type="Texture2D" uid="uid://bb6m8mwk5dxij" path="res://Art/Cell/MamaVirus_Weak.png" id="4_tj7hx"]
+[ext_resource type="Texture2D" uid="uid://b76yhufthof8t" path="res://Art/Cell/MamaVirus_Cap.png" id="5_hsxki"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_768pg"]
+radius = 11.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tj7hx"]
+radius = 20.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hsxki"]
+radius = 200.0
+
+[sub_resource type="Animation" id="Animation_768pg"]
+resource_name = "reload"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tj7hx"]
+_data = {
+&"reload": SubResource("Animation_768pg")
+}
+
+[node name="mama_virus" node_paths=PackedStringArray("hurtboxReference") instance=ExtResource("1_pb00x")]
+script = ExtResource("2_768pg")
+detection_range = 200.0
+shoot_cooldown = 1.0
+test_bullet = null
+orb_reward = 25
+base_damage = 3.0
+health_max = 5.0
+size = 1.0
+hurtboxReference = NodePath("InnerNode/Hurtbox")
+ID = 10
+weight = 1.5
+
+[node name="Hurtbox" type="Area2D" parent="InnerNode" index="0"]
+collision_layer = 2
+collision_mask = 9
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
+position = Vector2(0, -29)
+shape = SubResource("CircleShape2D_768pg")
+
+[node name="ShieldBox" type="Area2D" parent="InnerNode" index="1"]
+collision_layer = 0
+collision_mask = 9
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/ShieldBox" index="0"]
+shape = SubResource("CircleShape2D_tj7hx")
+
+[node name="DetectionRange" type="Area2D" parent="InnerNode" index="2"]
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/DetectionRange" index="0"]
+shape = SubResource("CircleShape2D_hsxki")
+
+[node name="FakeRocket" type="Node2D" parent="InnerNode" index="3"]
+position = Vector2(-1.13687e-13, 35)
+rotation = 1.5708
+scale = Vector2(1.75, 1.75)
+
+[node name="Polygon2D2" type="Polygon2D" parent="InnerNode/FakeRocket" index="0"]
+color = Color(1, 0.270588, 0.270588, 0.482353)
+polygon = PackedVector2Array(5, -4, 7, -4, 11, 0, 7, 4, 5, 4, 3, 2, -13, 10, -4, 1, -4, -1, -13, -10, 3, -2)
+
+[node name="Polygon2D" type="Polygon2D" parent="InnerNode/FakeRocket" index="1"]
+color = Color(0.16, 0.16, 0.16, 1)
+polygon = PackedVector2Array(5, -3, 7, -3, 10, 0, 7, 3, 5, 3, 3, 1, -10, 8, -3, 1, -3, -1, -10, -8, 3, -1)
+
+[node name="MamaVirusBlade" type="Sprite2D" parent="InnerNode/Sprite" index="1"]
+position = Vector2(-20, 0)
+texture = ExtResource("2_bg5yb")
+offset = Vector2(0, 15)
+
+[node name="MamaVirusBlade2" type="Sprite2D" parent="InnerNode/Sprite" index="2"]
+position = Vector2(20, 0)
+rotation = 3.14159
+scale = Vector2(1, -1)
+texture = ExtResource("2_bg5yb")
+offset = Vector2(0, 15)
+
+[node name="MamaVirusWeak" type="Sprite2D" parent="InnerNode/Sprite" index="3"]
+position = Vector2(-1, -28)
+texture = ExtResource("4_tj7hx")
+
+[node name="MamaVirus" type="Sprite2D" parent="InnerNode/Sprite" index="4"]
+texture = ExtResource("3_768pg")
+
+[node name="MamaVirusCap" type="Sprite2D" parent="InnerNode/Sprite" index="5"]
+position = Vector2(-9, -20)
+texture = ExtResource("5_hsxki")
+offset = Vector2(9, -9)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="2"]
+libraries = {
+&"": SubResource("AnimationLibrary_tj7hx")
+}
