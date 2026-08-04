@@ -25,11 +25,10 @@ collision_mask = 32
 script = ExtResource("1_560oe")
 mouseMovement = false
 camReference = NodePath("Camera2D")
-basic_movement_type = 1
 waddle_speed = 10
 frog_speed = 1.25
 frog_travel_speed = 1.25
-primary_ability = 1
+primary_ability = 2
 charge_speed = 10.0
 lasso_cursor_speed = 2.0
 
