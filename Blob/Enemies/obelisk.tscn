@@ -37,7 +37,7 @@ base_damage = 1.0
 health_max = 2.0
 size = 1.0
 hitboxReference = NodePath("InnerNode/Hitbox")
-hurtboxReference = NodePath("InnerNode/Hurtbox")
+hurtboxReference = NodePath("")
 
 [node name="Sprite" parent="InnerNode" index="0"]
 position = Vector2(-16, -48)
@@ -94,16 +94,7 @@ position = Vector2(32, 0)
 texture = SubResource("PlaceholderTexture2D_3wasn")
 polygon = PackedVector2Array(0, 0, 12, 0, 12, 96, 0, 96)
 
-[node name="Hurtbox" type="Area2D" parent="InnerNode" index="1"]
-position = Vector2(-16, -48)
-collision_layer = 2
-collision_mask = 13
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
-position = Vector2(-5.5, 48)
-shape = SubResource("RectangleShape2D_hiuv4")
-
-[node name="Hitbox" type="Area2D" parent="InnerNode" index="2" node_paths=PackedStringArray("parentRef")]
+[node name="Hitbox" type="Area2D" parent="InnerNode" index="1" node_paths=PackedStringArray("parentRef")]
 position = Vector2(-16, -48)
 collision_layer = 4
 collision_mask = 0
@@ -114,5 +105,6 @@ parentRef = NodePath("../..")
 position = Vector2(37, 48)
 shape = SubResource("RectangleShape2D_hiuv4")
 
-[connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
-[connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
+position = Vector2(-21.5, 0)
+shape = SubResource("RectangleShape2D_hiuv4")

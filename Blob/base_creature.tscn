@@ -1,9 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://4gn7v0b6uvt4"]
+[gd_scene load_steps=3 format=3 uid="uid://4gn7v0b6uvt4"]
 
 [ext_resource type="Script" uid="uid://bdl4g4ff04vbj" path="res://Blob/base_creature.gd" id="1_bf6rk"]
+[ext_resource type="Script" uid="uid://duqmv4spg7vuo" path="res://Blob/Enemies/base_creature_hurtbox.gd" id="2_6rcqe"]
 
-[node name="base_creature" type="Node2D"]
+[node name="base_creature" type="Node2D" node_paths=PackedStringArray("hurtboxReference")]
 script = ExtResource("1_bf6rk")
+hurtboxReference = NodePath("InnerNode/Hurtbox")
 
 [node name="InnerNode" type="Node2D" parent="."]
 
@@ -11,7 +13,15 @@ script = ExtResource("1_bf6rk")
 
 [node name="Attachments" type="Node2D" parent="InnerNode/Sprite"]
 
+[node name="Hurtbox" type="Area2D" parent="InnerNode" node_paths=PackedStringArray("parentRef")]
+collision_layer = 2
+collision_mask = 13
+script = ExtResource("2_6rcqe")
+parentRef = NodePath("../..")
+
 [node name="RoamTimer" type="Timer" parent="."]
 wait_time = 5.0
 
+[connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="timeout" from="RoamTimer" to="." method="_on_roam_timer_timeout"]
