@@ -21,12 +21,15 @@ func _ready() -> void:
 	$InnerNode/DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
 
 func _on_detection_range_area_entered(area: Area2D) -> void:
-	pass # Replace with function body.
+	if not kb_moving:
+		if not targetRef and area.getID() != ID:
+			targetRef = area.getParent()
+			_startShoot()
 
 func _on_detection_range_body_entered(body: Node2D) -> void:
 	print("TARGET FOUND")
 	if not kb_moving:
-		if not targetRef:
+		if not targetRef and body.getID() != ID:
 			targetRef = body
 			_startShoot()
 
@@ -54,6 +57,11 @@ func _detectionCheck() -> void:
 			_on_detection_range_body_entered(b)
 
 func _startShoot() -> void:
+	if targetRef.isDead():
+		targetRef = null
+		_detectionCheck()
+		return
+	
 	var targetPos = targetRef.getPosition()
 	var targetAngle = getPosition().angle_to_point(targetPos)
 	

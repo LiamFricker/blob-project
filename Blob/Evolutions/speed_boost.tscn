@@ -1,14 +1,35 @@
-[gd_scene load_steps=16 format=3 uid="uid://bgxasyew2kt8g"]
+[gd_scene load_steps=22 format=3 uid="uid://bgxasyew2kt8g"]
 
 [ext_resource type="Texture2D" uid="uid://bylbuif25qne5" path="res://Art/Cell/Evolutions/SpeedBoostCrystal.png" id="1_kb6kg"]
 [ext_resource type="Script" uid="uid://cki36xfetuasj" path="res://Blob/Evolutions/speed_boost.gd" id="1_mng4l"]
 [ext_resource type="Texture2D" uid="uid://dyvqo58cjm5eh" path="res://Art/Cell/Evolutions/SpeedBoostCharge.png" id="2_mng4l"]
 [ext_resource type="Texture2D" uid="uid://5v1ls4dy4gnt" path="res://Art/Cell/Evolutions/SpeedBoostSpark0.png" id="3_iwu8j"]
+[ext_resource type="Texture2D" uid="uid://76bprsntae0n" path="res://Art/Cell/Evolutions/Slipstream/dashparticletop0.png" id="3_rc1fd"]
+[ext_resource type="Texture2D" uid="uid://r0nhix0rv7in" path="res://Art/Cell/Evolutions/Slipstream/dashparticletop1.png" id="4_1o42n"]
 [ext_resource type="Texture2D" uid="uid://8cmuyxugc0g8" path="res://Art/Cell/Evolutions/SpeedBoostSpark1.png" id="4_gl3ta"]
+[ext_resource type="Texture2D" uid="uid://bo7qx4ys3n3l5" path="res://Art/Cell/Evolutions/Slipstream/dashparticletop.png" id="5_j6bso"]
 [ext_resource type="Texture2D" uid="uid://2ae5a80m0ca1" path="res://Art/Cell/Evolutions/SpeedBoostSpark2.png" id="5_tswh1"]
 [ext_resource type="Texture2D" uid="uid://bboqx8pqps2q2" path="res://Art/Cell/Evolutions/SpeedBoostSpark3.png" id="6_lqd87"]
 [ext_resource type="Texture2D" uid="uid://bqycekmxv2d8v" path="res://Art/Cell/Evolutions/SpeedBoostSpark4.png" id="7_78fqa"]
 [ext_resource type="Texture2D" uid="uid://cyc04vwlrjkdn" path="res://Art/Cell/Evolutions/SpeedBoostSpark.png" id="8_rc1fd"]
+[ext_resource type="Script" uid="uid://oec33u4piltn" path="res://Blob/base_player_attack.gd" id="13_lqd87"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ipi00"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_rc1fd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_1o42n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_j6bso")
+}],
+"loop": true,
+"name": &"default",
+"speed": 6.0
+}]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_1o42n"]
 animations = [{
@@ -35,6 +56,9 @@ animations = [{
 "name": &"default",
 "speed": 6.0
 }]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tswh1"]
+radius = 38.0132
 
 [sub_resource type="Animation" id="Animation_mng4l"]
 resource_name = "Activate"
@@ -319,6 +343,15 @@ position = Vector2(-22, 16)
 rotation = -0.606131
 texture = ExtResource("1_kb6kg")
 
+[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="Pivot"]
+modulate = Color(1, 1, 1, 0)
+self_modulate = Color(0.180392, 1, 1, 0.462745)
+z_index = 1
+position = Vector2(2, 31)
+rotation = -1.56899
+scale = Vector2(1, 0.85)
+sprite_frames = SubResource("SpriteFrames_ipi00")
+
 [node name="ChargeBar" type="Node2D" parent="."]
 modulate = Color(1, 1, 1, 0)
 position = Vector2(100, 0)
@@ -340,7 +373,17 @@ texture = ExtResource("2_mng4l")
 visible = false
 sprite_frames = SubResource("SpriteFrames_1o42n")
 
-[node name="Slipstream" type="Sprite2D" parent="."]
+[node name="Slipstream" type="Area2D" parent="." node_paths=PackedStringArray("parentRef")]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("13_lqd87")
+parentRef = NodePath("..")
+knockback = 4.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Slipstream"]
+shape = SubResource("CircleShape2D_tswh1")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

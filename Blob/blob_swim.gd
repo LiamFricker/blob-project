@@ -1455,14 +1455,17 @@ func getID(idtype = 0) -> int:
 	else:
 		return 0
 
+func isDead() -> bool:
+	return false
+
 func getAttackMod(num : int) -> bool:
 	return attack_mods[num]
 
 func _on_lasso_lasso_location_reached() -> void:
 	if lasso_buff:
-		var tempImpactId = lassoRef.getID(-1)
+		var tempImpactId = lassoRef.getSPAWNID(-1)
 		var lasso_type = basic_movement_type
-		var tempLasId = lassoRef.getID(lasso_type)
+		var tempLasId = lassoRef.getSPAWNID(lasso_type)
 		
 		if tempLasId != -1:
 			match lasso_type:
@@ -1532,7 +1535,7 @@ func _on_speed_boost_crystal_activated() -> void:
 func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : float, posArr : PackedVector2Array) -> void:
 	
 	if detonate:
-		var temp_ID = sb_ref.getID(true)
+		var temp_ID = sb_ref.getSPAWNID(true)
 		var temp_td = spawnerReference.spawnFriend(temp_ID, Vector2.ZERO)
 		temp_td.setParams(10, 0, self, sz)
 		temp_td.initLines(posArr)
@@ -1563,7 +1566,7 @@ func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : f
 				_frogCancel()
 
 func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int) -> void:
-	var temp_ID = sb_ref.getID(false)
+	var temp_ID = sb_ref.getSPAWNID(false)
 	var temp_td = spawnerReference.spawnFriend(temp_ID, getPosition())
 	temp_td.setParams(dmg, kb, self, sz)
 	temp_td.initExplosion(basic_movement_type, ticks)

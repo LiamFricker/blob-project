@@ -52,7 +52,10 @@ const baseThrowRange = 240
 #You should probably spawn an entity at the location. The player itself can probably handle that.  
 #Have it be named "delayed shockwave or something"
 
-func getID(type : int) -> int:
+func getID() -> int:
+	return playerRef.getID()
+
+func getSPAWNID(type : int) -> int:
 	match type:
 		#0:
 		#	return impactID

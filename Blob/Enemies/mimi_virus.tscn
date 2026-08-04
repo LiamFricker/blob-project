@@ -219,7 +219,7 @@ _data = {
 &"reload": SubResource("Animation_814up")
 }
 
-[node name="MimiVirus" node_paths=PackedStringArray("hurtboxReference") instance=ExtResource("1_rru13")]
+[node name="MimiVirus" instance=ExtResource("1_rru13")]
 script = ExtResource("2_ogdrp")
 detection_range = 200.0
 shoot_cooldown = 1.0
@@ -227,7 +227,6 @@ test_bullet = ExtResource("3_y2qds")
 orb_reward = 5
 base_damage = 1.0
 health_max = 3.0
-hurtboxReference = NodePath("")
 ID = 8
 weight = 0.5
 

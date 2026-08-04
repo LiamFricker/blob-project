@@ -26,7 +26,12 @@ func initBullet(rot : float, sd : float, tF : Node2D) -> void:
 	_turnRocket()
 	
 func _turnRocket() -> void:
-	var targetPos = targetRef.getPosition()
+	var targetPos : Vector2
+	if not targetRef or targetRef.isDead():
+		targetRef = null
+		targetPos = position
+	else:
+		targetPos = targetRef.getPosition()
 	var targetAngle = getPosition().angle_to_point(targetPos)
 	var angle_diff = -angle_difference(targetAngle, rotation)
 	

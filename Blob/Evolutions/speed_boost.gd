@@ -106,8 +106,6 @@ func spitOutCrystal(speed = 1.0) -> void:
 		crystal_canceled.emit(minDecayRate, true, detonation_size, trail_points)
 	else:
 		crystal_canceled.emit(minDecayRate, false, 0.0, [])
-	if buff_type == 1:
-		$Slipstream.deactivate()
 	
 	if crystal_tween:
 		crystal_tween.kill()
@@ -124,6 +122,10 @@ func spitOutCrystal(speed = 1.0) -> void:
 		waddle_tween.parallel().tween_property(meterRef, "scale:y", chargeRefund, 0.49 / speed)
 		waddle_tween.parallel().tween_property(meterRef, "color", newColor, 0.49 / speed)
 		waddle_tween.parallel().tween_property($ChargeBar/Spark, "position:y", newPos, 0.49 / speed)
+		if buff_type == 1:
+			$Slipstream.set_deferred("monitorable", false)
+			$Pivot/AnimatedSprite2D2.stop()
+			waddle_tween.parallel().tween_property($Pivot/AnimatedSprite2D2, "modulate:a", 0.0, 0.49 / speed)
 	else:
 		if waddle_tween:
 			waddle_tween.kill()
@@ -132,6 +134,10 @@ func spitOutCrystal(speed = 1.0) -> void:
 		waddle_tween.parallel().tween_property(meterRef, "scale:y", 1.0, 0.49 / speed)
 		waddle_tween.parallel().tween_property(meterRef, "color", Color(0.78, 1.0, 0.36, 0.79), 0.49 / speed)
 		waddle_tween.parallel().tween_property($ChargeBar/Spark, "position:y", -22.5, 0.49 / speed)
+		if buff_type == 1:
+			$Slipstream.set_deferred("monitorable", false)
+			$Pivot/AnimatedSprite2D2.stop()
+			waddle_tween.parallel().tween_property($Pivot/AnimatedSprite2D2, "modulate:a", 0.0, 0.49 / speed)
 	
 	if chargeRefund < 0.9:	
 		anim_player.play("Regurgitate", -1, speed)
@@ -151,8 +157,6 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 			_regrowBigRainbows()
 
 func _chargeBarActivate() -> void:
-	if buff_type == 1:
-		$Slipstream.activate()
 	
 	$DurationTimer.start(duration)
 	$ChargeBar/Spark.show()
@@ -172,6 +176,10 @@ func _chargeBarActivate() -> void:
 	crystal_tween.tween_property(meterRef, "scale:y", 0.0, duration).from(1.0)
 	crystal_tween.parallel().tween_property(meterRef, "color", Color(1.0, 0.0, 0.0, 0.79), duration).from(Color(0.78, 1.0, 0.36, 0.79))
 	crystal_tween.parallel().tween_property($ChargeBar/Spark, "position:y", 22.5, duration).from(-22.5)
+	if buff_type == 1:
+		$Slipstream.set_deferred("monitorable", true)
+		$Pivot/AnimatedSprite2D2.play("default")
+		crystal_tween.parallel().tween_property($Pivot/AnimatedSprite2D2, "modulate:a", 1.0, 0.25)
 	
 	if waddle_tween:
 		waddle_tween.kill()
@@ -190,8 +198,6 @@ func _on_duration_timer_timeout() -> void:
 	else:
 		crystal_canceled.emit(1.0, false, 0.0, [])
 	
-	if buff_type == 1:
-		$Slipstream.deactivate()
 	crysRef.position = Vector2(-18, 19)
 	crysRef.scale = Vector2(0.5, 0.5)
 	crysRef.show()
@@ -199,12 +205,16 @@ func _on_duration_timer_timeout() -> void:
 		waddle_tween.kill()
 	waddle_tween = create_tween().set_loops()
 	waddle_tween.tween_property($ChargeBar, "rotation", 0, 0.1)
+	if buff_type == 1:
+		$Slipstream.set_deferred("monitorable", false)
+		$Pivot/AnimatedSprite2D2.stop()
+		waddle_tween.parallel().tween_property($Pivot/AnimatedSprite2D2, "modulate:a", 0.0, 0.25)
 	
 	_regrowRainbows()
 	
 func _regrowRainbows() -> void:
-	if waddle_tween:
-		waddle_tween.kill()
+	#if waddle_tween:
+	#	waddle_tween.kill()
 	$ChargeBar.rotation = 0
 	crysRef.rotation = -0.3 * PI
 	
@@ -221,8 +231,8 @@ func _regrowRainbows() -> void:
 	crystal_tween.finished.connect(_chargeOffCD)
 	
 func _regrowBigRainbows() -> void:
-	if waddle_tween:
-		waddle_tween.kill()
+	#if waddle_tween:
+	#	waddle_tween.kill()
 	$ChargeBar.rotation = 0
 	crysRef.rotation = -0.3 * PI
 	
@@ -261,8 +271,11 @@ func _on_trail_timer_timeout() -> void:
 		#Spawn bomb
 		spawn_bomb.emit(bomb_dmg, bomb_kb, 62.3, bomb_ticks)
 
-func getID(isDeto : bool) -> int:
+func getSPAWNID(isDeto : bool) -> int:
 	if isDeto:
 		return 1011
 	else:
 		return 1012
+
+func getID() -> int:
+	return playerRef.getID()

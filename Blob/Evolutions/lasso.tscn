@@ -150,9 +150,7 @@ progressGainSpeed = 2.0
 minProgress = 0.4
 
 [node name="RetractHitbox" parent="." instance=ExtResource("2_njjpe")]
-collision_layer = 8
 collision_mask = 8
-monitoring = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RetractHitbox"]

@@ -72,7 +72,7 @@ health_max = 2.0
 position = Vector2(459, -17)
 
 [node name="mama_virus2" parent="." instance=ExtResource("10_0cxo5")]
-position = Vector2(1064, -23)
+position = Vector2(406, 445)
 
 [connection signal="upgrade_tab_toggled" from="HUD_swim" to="." method="_on_hud_swim_upgrade_tab_toggled"]
 [connection signal="createAfterImage" from="Blob_Swim" to="." method="_on_blob_swim_create_after_image"]

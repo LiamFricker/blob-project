@@ -247,7 +247,7 @@ func _knockbackEnd() -> void:
 		#idle()
 
 func _collisionCheck() -> void:
-	if hurtboxReference:
+	if hurtboxReference and state != DEAD:
 		if (hurtboxReference.has_overlapping_areas() or hurtboxReference.has_overlapping_bodies()):
 			var localAreas = hurtboxReference.get_overlapping_areas()
 			for a in localAreas:
@@ -288,6 +288,9 @@ func _on_hurtbox_body_entered(body: Node2D) -> void:
 	if body.getID() != ID and dmg > 0:
 		takeDamage(dmg*damageWeakness, body.getPosition(), body.getKnockback())
 		damageWeakness = 1.0
+
+func isDead() -> bool:
+	return state == DEAD
 
 func getKnockback() -> float:
 	return 1.0
@@ -361,7 +364,7 @@ func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
 	else:
 		_deathKnockback(pos, kb)
 
-func getID(IDtype = 0) -> int:
+func getID(IDtype = true) -> int:
 	if IDtype:
 		return ID
 	else:

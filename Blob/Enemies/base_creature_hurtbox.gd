@@ -6,5 +6,8 @@ extends Area2D
 func getParent() -> Node2D:
 	return parentRef
 
+func getID() -> int:
+	return parentRef.getID()
+
 func toggle(on = true) -> void:
 	set_deferred("monitorable", on)

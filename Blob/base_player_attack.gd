@@ -8,6 +8,9 @@ var size = 0.0
 @export var attack_mods : Array = [false, false, false, false, false]
 var ID : int = 0.0
 
+func getAttackMod(num : int) -> bool:
+	return attack_mods[num]
+
 func setID(newID : int) -> void:
 	ID = newID
 	
