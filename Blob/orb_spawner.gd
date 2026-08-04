@@ -84,7 +84,7 @@ func expand(newsize : int) -> void:
 func spawnOrbs(amt : int, spawncenter : Vector2) -> void:
 	if amt <= 0:
 		return
-	var amount = ceil(amt / weight)
+	var amount : int = ceil(amt / weight)
 	var small_orbs:int = 0
 	var med_orbs:int = 0
 	var big_orbs:int = 0

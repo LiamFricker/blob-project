@@ -23,7 +23,10 @@ func _ready() -> void:
 	$InnerNode/DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
 
 func _on_detection_range_area_entered(area: Area2D) -> void:
-	pass # Replace with function body.
+	if not kb_moving:
+		if not targetRef:
+			targetRef = area.getParent()
+			_startShoot()
 
 func _on_detection_range_body_entered(body: Node2D) -> void:
 	print("TARGET FOUND")
@@ -102,7 +105,11 @@ func _startShoot() -> void:
 	
 
 func _unshieldWeakpoint(toggle : bool = false) -> void:
-	weakpoint_shielded = toggle
+	if toggle:
+		weakpoint_shielded = true
+	else:
+		weakpoint_shielded = false
+		_collisionCheck()
 
 func _shootProj() -> void:
 	$AnimationPlayer.play("shoot", -1, shoot_cooldown)
@@ -110,13 +117,13 @@ func _shootProj() -> void:
 	var offset = 35 * Vector2.from_angle(Inner.rotation+PI/2)
 	if spawnerRef:
 		var bullet = spawnerRef.spawnEntity(bullet_id, -1, getPosition()+offset)
-		bullet.setParams(base_damage, self, size, ID)
+		bullet.setParams(base_damage, self, size, bullet_id)
 		bullet.initBullet(Inner.rotation + PI/2, 5.0, targetRef)
 		_addConnectBullet(bullet)
 	else:
 		var bullet = test_bullet.instantiate()
 		bullet.position = getPosition()+offset 
-		bullet.setParams(base_damage, self, size, ID)
+		bullet.setParams(base_damage, self, size, bullet_id)
 		bullet.initBullet(Inner.rotation + PI/2, 5.0, targetRef)
 		_addConnectBullet(bullet)
 	
@@ -151,10 +158,16 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 			shield_tween.tween_property(Sprite, "modulate:r", -0.5, 0.15).as_relative()
 			shield_tween.tween_property(Sprite, "modulate:r", 0.5, 0.15).as_relative()
 		else:
+			if areaID == bullet_id:
+				damageWeakness = 1.5
+			
 			_stopAnims()
 			super(area)
 			
 	else:
+		if areaID == bullet_id:
+			damageWeakness = 1.5
+		
 		_stopAnims()
 		super(area)
 		

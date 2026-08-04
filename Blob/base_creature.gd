@@ -28,6 +28,7 @@ var zoneReference : Node2D
 @export var spawnerRef : Node2D
 
 @export var ID: int = -1
+var damageWeakness = 1.0
 
 var deathQueued = false
 #@export var white_flash : bool = false
@@ -70,6 +71,11 @@ var oldDirPower : float = 0
 var kb_moving = false
 
 var superArmor = false
+
+@export var attack_mods : Array = [false, false, false, false, false]
+
+func getAttackMod(num: int)-> bool:
+	return attack_mods[num]
 
 func reset() -> void:
 	state = IDLE
@@ -261,25 +267,27 @@ func getDamage() -> float:
 #Override this if needs be (such as multiple hitboxes)
 func toggleHitbox(toggle : bool) -> void:
 	if hitboxReference:
-		#hitboxReference.set_deferred("monitoring", toggle)
+		hitboxReference.set_deferred("monitoring", toggle)
 		hitboxReference.set_deferred("monitorable", toggle)
 	
 #Override this if needs be (such as multiple hurtboxes)
 func toggleHurtbox(toggle : bool) -> void:
 	if hurtboxReference:
 		hurtboxReference.set_deferred("monitoring", toggle)
-		#hurtboxReference.set_deferred("monitorable", toggle)
+		hurtboxReference.set_deferred("monitorable", toggle)
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	#var temp_enemy = area.getParent()
 	var dmg = area.getDamage()
 	if area.getID() != ID and dmg > 0: #temp_enemy.getID()
-		takeDamage(dmg, area.getPosition(), area.getKnockback())
+		takeDamage(dmg*damageWeakness, area.getPosition(), area.getKnockback())
+		damageWeakness = 1.0
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var dmg = body.getDamage()
 	if body.getID() != ID and dmg > 0:
-		takeDamage(dmg, body.getPosition(), body.getKnockback())
+		takeDamage(dmg*damageWeakness, body.getPosition(), body.getKnockback())
+		damageWeakness = 1.0
 
 func getKnockback() -> float:
 	return 1.0

@@ -96,13 +96,13 @@ func _shootProj() -> void:
 	var offset = 20 * Vector2.from_angle(Inner.rotation+PI/2)
 	if spawnerRef:
 		var bullet = spawnerRef.spawnEntity(bullet_id, -1, getPosition()+offset)
-		bullet.setParams(base_damage, self, size, ID)
+		bullet.setParams(base_damage, self, size, bullet_id)
 		bullet.initBullet(Inner.rotation + rand_angle + PI/2, 5.0)
 		_addConnectBullet(bullet)
 	else:
 		var bullet = test_bullet.instantiate()
 		bullet.position = getPosition()+offset 
-		bullet.setParams(base_damage, self, size, ID)
+		bullet.setParams(base_damage, self, size, bullet_id)
 		bullet.initBullet(Inner.rotation + rand_angle + PI/2, 5.0)
 		_addConnectBullet(bullet)
 	

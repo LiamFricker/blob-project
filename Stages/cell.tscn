@@ -61,7 +61,7 @@ autostart = true
 wait_time = 0.05
 
 [node name="MimiVirus2" parent="." instance=ExtResource("9_foiph")]
-position = Vector2(-334, 183)
+position = Vector2(302, 153)
 health_max = 2.0
 
 [node name="MimiVirus3" parent="." instance=ExtResource("9_foiph")]

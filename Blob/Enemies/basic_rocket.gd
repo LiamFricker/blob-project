@@ -51,6 +51,7 @@ func _process(delta : float) -> void:
 	position += 10 * speed * delta * Vector2.from_angle(rotation)
 
 func _on_area_entered(area: Area2D) -> void:
+	print("EXPLODEES??S?S")
 	if area.getID() != ID:
 		_explode()
 

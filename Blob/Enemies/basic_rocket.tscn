@@ -49,7 +49,7 @@ animations = [{
 }]
 
 [node name="basic_rocket" instance=ExtResource("1_8ux05")]
-collision_mask = 11
+collision_mask = 3
 monitoring = true
 script = ExtResource("2_ep231")
 health = 3

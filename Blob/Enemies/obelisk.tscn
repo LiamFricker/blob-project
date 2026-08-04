@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://sghfc0jsrpng"]
+[gd_scene load_steps=14 format=3 uid="uid://sghfc0jsrpng"]
 
 [ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_umwnb"]
 [ext_resource type="Script" uid="uid://by0edai1i8gio" path="res://Blob/Enemies/obelisk.gd" id="2_rgdhf"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://bm2x358p161et" path="res://Art/Cell/Enemies/obelisk_green.png" id="5_xw2e7"]
 [ext_resource type="Shader" uid="uid://b5h0ft5dnwwdk" path="res://Blob/Enemies/obelisk_gradient.gdshader" id="6_1pq4i"]
 [ext_resource type="Texture2D" uid="uid://dpa0dlb8isgia" path="res://Art/Cell/Enemies/obelisk_red.png" id="6_hiuv4"]
+[ext_resource type="Script" uid="uid://mwft55umupjt" path="res://Blob/Enemies/base_creature_hitbox.gd" id="9_p1p87"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_p1p87"]
 shader = ExtResource("6_1pq4i")
@@ -102,10 +103,12 @@ collision_mask = 13
 position = Vector2(-5.5, 48)
 shape = SubResource("RectangleShape2D_hiuv4")
 
-[node name="Hitbox" type="Area2D" parent="InnerNode" index="2"]
+[node name="Hitbox" type="Area2D" parent="InnerNode" index="2" node_paths=PackedStringArray("parentRef")]
 position = Vector2(-16, -48)
 collision_layer = 4
 collision_mask = 0
+script = ExtResource("9_p1p87")
+parentRef = NodePath("../..")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hitbox" index="0"]
 position = Vector2(37, 48)
