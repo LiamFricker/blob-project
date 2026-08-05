@@ -13,7 +13,7 @@ void fragment() {
 	float newUVx = UV.x / 12.0;
 	float pct = 1.0 - newUVx;
 	float oscillate = 0.8+(0.2*sin(TIME));
-	
+
 	vec3 gradient = mix(oscillate*start_color, end_color, newUVx + decayBot*0.25 * sin(osc_size*UV.y));
 	COLOR = vec4(gradient, pct*decayTop*decayBot*0.9);
 }
