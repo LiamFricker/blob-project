@@ -1,19 +1,19 @@
-[gd_scene load_steps=10 format=3 uid="uid://dbakm617om1l7"]
+[gd_scene load_steps=11 format=3 uid="uid://dbakm617om1l7"]
 
 [ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_sjc7q"]
 [ext_resource type="Texture2D" uid="uid://2rmbqj6c72mr" path="res://Art/Cell/MagicTinyBack.png" id="2_gm7pt"]
 [ext_resource type="Script" uid="uid://c3sjwbe1uolrc" path="res://Blob/Enemies/magic_small.gd" id="2_vtqab"]
-[ext_resource type="Texture2D" uid="uid://b4bajw83dru4a" path="res://Art/Cell/MagicTiny.png" id="3_vtqab"]
+[ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="3_h6se8"]
+[ext_resource type="Texture2D" uid="uid://cvioerskkura" path="res://Art/Cell/Enemies/MagicSmall.png" id="5_fvyly"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_h6se8"]
 
-[sub_resource type="Animation" id="Animation_td0n4"]
-resource_name = "RESETt"
+[sub_resource type="Animation" id="Animation_fvyly"]
 length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../InnerNode/Sprite:position")
+tracks/0/path = NodePath("InnerNode/Sprite:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -25,7 +25,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../InnerNode/Sprite:rotation")
+tracks/1/path = NodePath("InnerNode/Sprite:rotation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -37,7 +37,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("../InnerNode/Sprite:scale")
+tracks/2/path = NodePath("InnerNode/Sprite:scale")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -49,37 +49,37 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("../InnerNode/Sprite/Back:visible")
+tracks/3/path = NodePath("InnerNode/Sprite/Front:visible")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [false]
+"values": [true]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("../InnerNode/Sprite/Front:visible")
+tracks/4/path = NodePath("InnerNode/Sprite/Back:visible")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [true]
+"values": [false]
 }
 
-[sub_resource type="Animation" id="Animation_fvyly"]
-resource_name = "jumpp"
+[sub_resource type="Animation" id="Animation_h6se8"]
+resource_name = "jump"
 length = 1.25
 step = 0.025
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../InnerNode/Sprite:position")
-tracks/0/interp = 1
+tracks/0/path = NodePath("InnerNode/Sprite:position")
+tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.125, 0.25, 0.5, 1.05, 1.15, 1.25),
@@ -90,43 +90,43 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../InnerNode/Sprite:scale")
+tracks/1/path = NodePath("InnerNode/Sprite:scale")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.125, 0.25, 0.7, 1.05, 1.25),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1, 0.5), Vector2(1, 1.25), Vector2(1, -1), Vector2(1.25, 1), Vector2(1, 1)]
+"values": [Vector2(1, 1), Vector2(1, 0.5), Vector2(1, 1.25), Vector2(-1, 1), Vector2(1.25, 1), Vector2(1, 1)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("../InnerNode/Sprite/Back:visible")
+tracks/2/path = NodePath("InnerNode/Sprite/Front:visible")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
 "times": PackedFloat32Array(0.25, 0.45, 0.85),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [false, true, false]
+"values": [true, false, true]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("../InnerNode/Sprite/Front:visible")
+tracks/3/path = NodePath("InnerNode/Sprite/Back:visible")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
 "times": PackedFloat32Array(0.25, 0.45, 0.85),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
-"values": [true, false, true]
+"values": [false, true, false]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("../InnerNode/Sprite:rotation")
+tracks/4/path = NodePath("InnerNode/Sprite:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -136,15 +136,15 @@ tracks/4/keys = {
 "values": [0.0]
 }
 
-[sub_resource type="Animation" id="Animation_55abl"]
-resource_name = "runn"
+[sub_resource type="Animation" id="Animation_vtqab"]
+resource_name = "run"
 length = 0.8
 loop_mode = 1
 step = 0.025
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../InnerNode/Sprite:position")
+tracks/0/path = NodePath("InnerNode/Sprite:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -156,54 +156,56 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("../InnerNode/Sprite:rotation")
+tracks/1/path = NodePath("InnerNode/Sprite:scale")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [0.0, 0.0523599, -0.0872665, 0.0523599, 0.0]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("../InnerNode/Sprite:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
 "times": PackedFloat32Array(0, 0.2, 0.6, 0.8),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
 "values": [Vector2(1, 1), Vector2(1, 1.25), Vector2(1, 1), Vector2(1, 1)]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("InnerNode/Sprite:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0523599, -0.0872665, 0.0523599, 0.0]
+}
 
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_6cmyp"]
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_55abl"]
 _data = {
-&"RESETt": SubResource("Animation_td0n4"),
-&"jumpp": SubResource("Animation_fvyly"),
-&"runn": SubResource("Animation_55abl")
+&"RESET": SubResource("Animation_fvyly"),
+&"jump": SubResource("Animation_h6se8"),
+&"run": SubResource("Animation_vtqab")
 }
 
 [node name="magic_small" instance=ExtResource("1_sjc7q")]
 script = ExtResource("2_vtqab")
 speed = 10.0
 
+[node name="Blob_Swim" parent="." index="0" instance=ExtResource("3_h6se8")]
+
 [node name="Back" type="Sprite2D" parent="InnerNode/Sprite" index="1"]
 visible = false
 texture = ExtResource("2_gm7pt")
 
 [node name="Front" type="Sprite2D" parent="InnerNode/Sprite" index="2"]
-texture = ExtResource("3_vtqab")
+texture = ExtResource("5_fvyly")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
 shape = SubResource("CircleShape2D_h6se8")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="2"]
-libraries = {
-&"": SubResource("AnimationLibrary_6cmyp")
-}
-
 [node name="RunTimer" type="Timer" parent="." index="3"]
 wait_time = 3.0
 one_shot = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="4"]
+libraries = {
+&"": SubResource("AnimationLibrary_55abl")
+}
