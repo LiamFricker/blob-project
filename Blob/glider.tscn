@@ -44,7 +44,7 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_4ubj5"]
 radius = 18.0278
 
-[node name="glider" node_paths=PackedStringArray("spriteRef", "hurtboxReference") instance=ExtResource("1_pjcfb")]
+[node name="glider" node_paths=PackedStringArray("spriteRef") instance=ExtResource("1_pjcfb")]
 script = ExtResource("2_4ubj5")
 speed = 1
 spriteRef = NodePath("InnerNode/Sprite/AnimatedSprite2D")
@@ -52,11 +52,13 @@ shadMat = ExtResource("3_gyxji")
 orb_reward = 2
 health_max = 1.0
 size = 1.0
-hurtboxReference = NodePath("")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="0"]
 sprite_frames = SubResource("SpriteFrames_gua2v")
 autoplay = "default"
+
+[node name="Hurtbox" parent="InnerNode" index="1"]
+collision_mask = 13
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
 shape = SubResource("CircleShape2D_4ubj5")

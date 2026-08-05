@@ -29,7 +29,7 @@ shader_parameter/osc_size = 0.5
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hiuv4"]
 size = Vector2(29, 104)
 
-[node name="obelisk" node_paths=PackedStringArray("hitboxReference", "hurtboxReference") instance=ExtResource("1_umwnb")]
+[node name="obelisk" node_paths=PackedStringArray("hitboxReference") instance=ExtResource("1_umwnb")]
 script = ExtResource("2_rgdhf")
 rotation_speed = 1.0
 test_part = ExtResource("3_1pq4i")
@@ -37,7 +37,6 @@ base_damage = 1.0
 health_max = 2.0
 size = 1.0
 hitboxReference = NodePath("InnerNode/Hitbox")
-hurtboxReference = NodePath("")
 
 [node name="Sprite" parent="InnerNode" index="0"]
 position = Vector2(-16, -48)
@@ -104,6 +103,9 @@ parentRef = NodePath("../..")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hitbox" index="0"]
 position = Vector2(37, 48)
 shape = SubResource("RectangleShape2D_hiuv4")
+
+[node name="Hurtbox" parent="InnerNode" index="2"]
+collision_mask = 13
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
 position = Vector2(-21.5, 0)
