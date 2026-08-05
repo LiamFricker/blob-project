@@ -14,14 +14,22 @@ func _process(delta: float) -> void:
 func _on_run_timer_timeout() -> void:
 	var targetLen = Inner.position.length()
 	var targetAngle = Inner.position.angle()
+	var newAngle
 	#Angle facing towards spawn
 	if targetLen > base_range and magic_rng.randi_range(0, targetLen) > base_range:
-		var newAngle = (targetAngle + PI) - PI * (-0.5 + magic_rng.randf())
-		move_dir = Vector2.from_angle(newAngle)
+		newAngle = (targetAngle + PI) - PI * (-0.5 + magic_rng.randf())
 	#Any angle
 	else:
-		var newAngle = TAU * magic_rng.randf()
-		move_dir = Vector2.from_angle(newAngle)
+		newAngle = TAU * magic_rng.randf()
+	move_dir = Vector2.from_angle(newAngle)
+	if abs(newAngle) > PI/2 or abs(newAngle) > 1.5 * PI: 
+		$InnerNode/Sprite/Front.scale.x = -1
+		$InnerNode/Sprite/Back.scale.x = -1
+	else:
+		$InnerNode/Sprite/Front.scale.x = 1
+		$InnerNode/Sprite/Back.scale.x = 1
+	
+		
 	speed_mod = 0.5
 	$AnimationPlayer.play("jump", 0.2)
 
