@@ -25,12 +25,10 @@ func _ready() -> void:
 func _on_detection_range_area_entered(area: Area2D) -> void:
 	if not kb_moving:
 		if not targetRef and area.getID() != ID:
-			print("MY ID: ", ID, " AREA ID: ", area.getID())
 			targetRef = area.getParent()
 			_startShoot()
 
 func _on_detection_range_body_entered(body: Node2D) -> void:
-	print("TARGET FOUND")
 	if not kb_moving:
 		if not targetRef and body.getID() != ID:
 			targetRef = body

@@ -4,14 +4,136 @@ extends base_creature
 
 var move_dir : Vector2
 const base_range : int = 500
-@export var speed : float = 10
-var speed_mod = 1.0
+const speed : float = 100
+var jump_state : int = 0
+const detect_range_high = 250
+const detect_range_low = 150
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	Inner.position += speed * speed_mod * delta * move_dir
+var targetRef : Node2D
 
-func _on_run_timer_timeout() -> void:
+func _on_detection_range_area_entered(area: Area2D) -> void:
+	if not targetRef:
+		targetRef = area.getParent()
+		_jump_start()
+
+func _on_detection_range_body_entered(body: Node2D) -> void:
+	if not targetRef:
+		targetRef = body
+		_jump_start()
+
+func _detectionCheck() -> void:
+	if targetRef:	
+		var targetPos = targetRef.getPosition()
+		
+		if getPosition().distance_squared_to(targetPos) <= detect_range_low * detect_range_low:
+			_jump_start()
+			return
+		targetRef = null
+
+	var detectNode = $InnerNode/DetectionRange
+	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
+		var localAreas = detectNode.get_overlapping_areas()
+		for a in localAreas:
+			_on_detection_range_area_entered(a)
+		
+		var localBodies = detectNode.get_overlapping_bodies()
+		for b in localBodies:
+			_on_detection_range_body_entered(b)
+
+func _setNewDetectRange(isHigh : bool) -> void:
+	var tempShape = CircleShape2D.new()
+	tempShape.radius = detect_range_high if isHigh else detect_range_low
+	$InnerNode/DetectionRange/CollisionShape2D.set_deferred("shape", tempShape)
+
+func _ready() -> void:
+	_idleStart()
+
+func _jump_start() -> void:
+	if targetRef.isDead():
+		targetRef = null
+		_detectionCheck()
+		return
+	if jump_state > 4:
+		jump_state = 0
+		_setNewDetectRange(true)
+	
+	var targetPos = targetRef.getPosition()
+	var targetLen = Inner.position.distance_to(targetPos)
+	var targetAngle = Inner.position.angle_to_point(targetPos)
+	
+	"""
+	var newAngle
+	#Angle facing towards spawn
+	if targetLen > base_range and magic_rng.randi_range(0, targetLen) > base_range:
+		newAngle = (targetAngle + PI) - PI * (-0.5 + magic_rng.randf())
+	#Any angle
+	else:
+		newAngle = TAU * magic_rng.randf()
+	
+	if abs(newAngle) > PI/2 or abs(newAngle) > 1.5 * PI: 
+		$InnerNode/Sprite/Front.scale.x = -1
+		$InnerNode/Sprite/Back.scale.x = -1
+	else:
+		$InnerNode/Sprite/Front.scale.x = 1
+		$InnerNode/Sprite/Back.scale.x = 1
+	"""
+	move_dir = Vector2.from_angle(targetAngle + PI)
+	
+	match jump_state:
+		0:
+			if movement_tween:
+				movement_tween.kill()
+			movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.0, 1.25)
+			movement_tween.finished.connect(_jump_start)
+			$AnimationPlayer.play("jump1", 0.2)
+			_spawnOrbs(1)
+		1:
+			if movement_tween:
+				movement_tween.kill()
+			movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.0, 1.25)
+			movement_tween.finished.connect(_jump_start)
+			$AnimationPlayer.play("jump2", 0.2)
+			_spawnOrbs(1)
+		2:
+			if movement_tween:
+				movement_tween.kill()
+			movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.0, 1.25)
+			movement_tween.finished.connect(_jump_start)
+			$AnimationPlayer.play("jump", 0.2)
+			_spawnOrbs(1)
+		3:
+			if movement_tween:
+				movement_tween.kill()
+			movement_tween = create_tween()
+			movement_tween.tween_property(Inner, "position", move_dir * speed * 3.0, 5.0)
+			movement_tween.finished.connect(_breathStart)
+			$AnimationPlayer.play("run", 0.2)	
+			_spawnOrbs(1)
+	jump_state += 1
+	
+
+func _breathStart() -> void:
+	_setNewDetectRange(false)
+	$AnimationPlayer.play("recovery", 0.2)	
+	if movement_tween:
+		movement_tween.kill()
+	movement_tween = create_tween()
+	movement_tween.tween_interval(3.0)
+	movement_tween.finished.connect(_idleStart)
+	
+	if targetRef.isDead():
+		targetRef = null
+	_detectionCheck()
+
+func _idleStart() -> void:
+	if jump_state == 4:
+		_setNewDetectRange(true)
+		jump_state = 0
+		_spawnOrbs(5)
+	
 	var targetLen = Inner.position.length()
 	var targetAngle = Inner.position.angle()
 	var newAngle
@@ -29,30 +151,50 @@ func _on_run_timer_timeout() -> void:
 		$InnerNode/Sprite/Front.scale.x = 1
 		$InnerNode/Sprite/Back.scale.x = 1
 	
-		
-	speed_mod = 0.5
-	$AnimationPlayer.play("jump", 0.2)
+	if movement_tween:
+		movement_tween.kill()
+	movement_tween = create_tween()
+	movement_tween.tween_property(Inner, "position", move_dir * speed * 3.0, 3.0)
+	movement_tween.finished.connect(_idleStart)
+	$AnimationPlayer.play("run", 0.2, 0.5)	
+	
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "jump":
-		speed_mod = 1.0
+		if movement_tween:
+			movement_tween.kill()
+		movement_tween = create_tween()
+		movement_tween.tween_property(Inner, "position", move_dir * speed * 3.0, 3.0)
+		movement_tween.finished.connect(_jump_start)
 		$AnimationPlayer.play("run")
-		$RunTimer.start()
-		_spawnOrbs(1)
+		#$RunTimer.start()
 
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	area.getParent().collect(orb_reward, getPosition(), true, 0)
-	area.getParent().collect(1, getPosition(), true, 1)
+	#area.getParent().collect(1, getPosition(), true, 1)
 	_deathAnim()
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	body.collect(orb_reward, getPosition(), true, 0)
-	body.collect(1, getPosition(), true, 1)
+	#body.collect(1, getPosition(), true, 1)
 	_deathAnim()
 
 func _deathAnim() -> void:
 	toggleHurtbox(false)
+	$InnerNode/DetectionRange.set_deferred("monitoring", false)
+	
+	$InnerNode/Sprite/Eye/MagicSmallEyeClose.show()
+	$InnerNode/Sprite/Eye/MagicSmallEye.hide()
+	
+	if movement_tween:
+		movement_tween.kill()
+	if $AnimationPlayer.current_animation != "recovery":
+		movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+		movement_tween.tween_property(Inner, "position", move_dir*speed*0.5, 0.4)
+	
+	$AnimationPlayer.play("RESET", 0.4)
+	
 	if oscillate_tween:
 		oscillate_tween.kill()
 	oscillate_tween = create_tween()

@@ -4,12 +4,10 @@ extends base_creature
 
 var move_dir : Vector2
 const base_range : int = 500
-@export var speed : float = 10
-var speed_mod = 1.0
+const speed : float = 100
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	Inner.position += speed * speed_mod * delta * move_dir
+func _ready() -> void:
+	_on_run_timer_timeout()
 
 func _on_run_timer_timeout() -> void:
 	var targetLen = Inner.position.length()
@@ -30,29 +28,45 @@ func _on_run_timer_timeout() -> void:
 		$InnerNode/Sprite/Back.scale.x = 1
 	
 		
-	speed_mod = 0.5
+	if movement_tween:
+		movement_tween.kill()
+	movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	movement_tween.tween_property(Inner, "position", move_dir * speed * 1.25, 1.25)
 	$AnimationPlayer.play("jump", 0.2)
+	$InnerNode/Hurtbox.set_deferred("monitorable", false)
+	_spawnOrbs(1)
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "jump":
-		speed_mod = 1.0
+		if movement_tween:
+			movement_tween.kill()
+		movement_tween = create_tween()
+		movement_tween.tween_property(Inner, "position", move_dir * speed * 3.0, 3.0)
+		movement_tween.finished.connect(_on_run_timer_timeout)
 		$AnimationPlayer.play("run")
-		$RunTimer.start()
-		_spawnOrbs(1)
+		#$RunTimer.start()
+		$InnerNode/Hurtbox.set_deferred("monitorable", true)
 
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	area.getParent().collect(orb_reward, getPosition(), true, 0)
-	area.getParent().collect(1, getPosition(), true, 1)
+	#area.getParent().collect(1, getPosition(), true, 1)
 	_deathAnim()
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	body.collect(orb_reward, getPosition(), true, 0)
-	body.collect(1, getPosition(), true, 1)
+	#body.collect(1, getPosition(), true, 1)
 	_deathAnim()
 
 func _deathAnim() -> void:
 	toggleHurtbox(false)
+	
+	$AnimationPlayer.play("RESET", 0.4)
+	
+	if movement_tween:
+		movement_tween.kill()
+	movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+	movement_tween.tween_property(Inner, "position", move_dir*speed*0.5, 0.4)
 	if oscillate_tween:
 		oscillate_tween.kill()
 	oscillate_tween = create_tween()
