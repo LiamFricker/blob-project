@@ -53,7 +53,8 @@ func _jump_start() -> void:
 		targetRef = null
 		_detectionCheck()
 		return
-	if jump_state > 4:
+	if jump_state >= 4:
+		print("JUMP CANCEL")
 		jump_state = 0
 		_setNewDetectRange(true)
 	
@@ -77,38 +78,49 @@ func _jump_start() -> void:
 		$InnerNode/Sprite/Front.scale.x = 1
 		$InnerNode/Sprite/Back.scale.x = 1
 	"""
+	if abs(targetAngle) < PI/2 or abs(targetAngle) > 1.5 * PI: 
+		$InnerNode/Sprite/Front.scale.x = 1
+		$InnerNode/Sprite/Eye.scale.x = 1
+	else:
+		$InnerNode/Sprite/Front.scale.x = -1
+		$InnerNode/Sprite/Eye.scale.x = -1
+	
 	move_dir = Vector2.from_angle(targetAngle + PI)
+	
+	const jump_speed = 1.25
+	const jump_offset = 0.25
+	var jump_time = (1.25-jump_offset)/jump_speed
 	
 	match jump_state:
 		0:
 			if movement_tween:
 				movement_tween.kill()
-			movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
-			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.0, 1.25)
+			movement_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.25, jump_time).as_relative().set_delay(jump_offset)
 			movement_tween.finished.connect(_jump_start)
-			$AnimationPlayer.play("jump1", 0.2)
+			$AnimationPlayer.play("jump1", 0.2, jump_speed)
 			_spawnOrbs(1)
 		1:
 			if movement_tween:
 				movement_tween.kill()
-			movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
-			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.0, 1.25)
+			movement_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.25, jump_time).as_relative().set_delay(jump_offset)
 			movement_tween.finished.connect(_jump_start)
-			$AnimationPlayer.play("jump2", 0.2)
+			$AnimationPlayer.play("jump2", -1, jump_speed)
 			_spawnOrbs(1)
 		2:
 			if movement_tween:
 				movement_tween.kill()
-			movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
-			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.0, 1.25)
+			movement_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+			movement_tween.tween_property(Inner, "position", move_dir * speed * 2.25, jump_time).as_relative().set_delay(jump_offset)
 			movement_tween.finished.connect(_jump_start)
-			$AnimationPlayer.play("jump", 0.2)
+			$AnimationPlayer.play("jump", -1, jump_speed)
 			_spawnOrbs(1)
 		3:
 			if movement_tween:
 				movement_tween.kill()
 			movement_tween = create_tween()
-			movement_tween.tween_property(Inner, "position", move_dir * speed * 3.0, 5.0)
+			movement_tween.tween_property(Inner, "position", move_dir * speed * 7.5, 5.0).as_relative()
 			movement_tween.finished.connect(_breathStart)
 			$AnimationPlayer.play("run", 0.2)	
 			_spawnOrbs(1)
@@ -129,7 +141,8 @@ func _breathStart() -> void:
 	_detectionCheck()
 
 func _idleStart() -> void:
-	if jump_state == 4:
+	print("JS_", jump_state)
+	if jump_state >= 4:
 		_setNewDetectRange(true)
 		jump_state = 0
 		_spawnOrbs(5)
@@ -144,31 +157,19 @@ func _idleStart() -> void:
 	else:
 		newAngle = TAU * magic_rng.randf()
 	move_dir = Vector2.from_angle(newAngle)
-	if abs(newAngle) > PI/2 or abs(newAngle) > 1.5 * PI: 
+	if abs(newAngle) < PI/2 or abs(newAngle) > 1.5 * PI: 
 		$InnerNode/Sprite/Front.scale.x = -1
-		$InnerNode/Sprite/Back.scale.x = -1
+		$InnerNode/Sprite/Eye.scale.x = -1
 	else:
 		$InnerNode/Sprite/Front.scale.x = 1
-		$InnerNode/Sprite/Back.scale.x = 1
+		$InnerNode/Sprite/Eye.scale.x = 1
 	
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property(Inner, "position", move_dir * speed * 3.0, 3.0)
+	movement_tween.tween_property(Inner, "position", move_dir * speed * 3.0, 3.0).as_relative()
 	movement_tween.finished.connect(_idleStart)
 	$AnimationPlayer.play("run", 0.2, 0.5)	
-	
-
-func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == "jump":
-		if movement_tween:
-			movement_tween.kill()
-		movement_tween = create_tween()
-		movement_tween.tween_property(Inner, "position", move_dir * speed * 3.0, 3.0)
-		movement_tween.finished.connect(_jump_start)
-		$AnimationPlayer.play("run")
-		#$RunTimer.start()
-
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	area.getParent().collect(orb_reward, getPosition(), true, 0)
@@ -190,8 +191,8 @@ func _deathAnim() -> void:
 	if movement_tween:
 		movement_tween.kill()
 	if $AnimationPlayer.current_animation != "recovery":
-		movement_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
-		movement_tween.tween_property(Inner, "position", move_dir*speed*0.5, 0.4)
+		movement_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		movement_tween.tween_property(Inner, "position", move_dir*speed*0.5, 0.4).as_relative()
 	
 	$AnimationPlayer.play("RESET", 0.4)
 	

@@ -50,6 +50,9 @@ func _ready() -> void:
 	else:
 		$Pivot.position = Vector2(0, 0)
 
+func getPosition() -> Vector2:
+	return playerRef.getPosition()
+
 func addPos(newpos) -> void:
 	posOffset += newpos
 
