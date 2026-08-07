@@ -4,7 +4,7 @@ extends base_creature
 
 var move_dir : Vector2
 const base_range : int = 500
-const speed : float = 100
+@export var speed : float = 100
 
 func _ready() -> void:
 	_on_run_timer_timeout()

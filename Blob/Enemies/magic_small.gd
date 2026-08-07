@@ -4,7 +4,7 @@ extends base_creature
 
 var move_dir : Vector2
 const base_range : int = 500
-const speed : float = 100
+@export var speed : float = 100
 var jump_state : int = 0
 const detect_range_high = 250
 const detect_range_low = 150
@@ -59,31 +59,17 @@ func _jump_start() -> void:
 		_setNewDetectRange(true)
 	
 	var targetPos = targetRef.getPosition()
-	var targetLen = Inner.position.distance_to(targetPos)
-	var targetAngle = Inner.position.angle_to_point(targetPos)
+	#var targetLen = getPosition().distance_to(targetPos)
+	var targetAngle = getPosition().angle_to_point(targetPos)
 	
-	"""
-	var newAngle
-	#Angle facing towards spawn
-	if targetLen > base_range and magic_rng.randi_range(0, targetLen) > base_range:
-		newAngle = (targetAngle + PI) - PI * (-0.5 + magic_rng.randf())
-	#Any angle
-	else:
-		newAngle = TAU * magic_rng.randf()
-	
-	if abs(newAngle) > PI/2 or abs(newAngle) > 1.5 * PI: 
-		$InnerNode/Sprite/Front.scale.x = -1
-		$InnerNode/Sprite/Back.scale.x = -1
-	else:
-		$InnerNode/Sprite/Front.scale.x = 1
-		$InnerNode/Sprite/Back.scale.x = 1
-	"""
 	if abs(targetAngle) < PI/2 or abs(targetAngle) > 1.5 * PI: 
 		$InnerNode/Sprite/Front.scale.x = 1
 		$InnerNode/Sprite/Eye.scale.x = 1
 	else:
 		$InnerNode/Sprite/Front.scale.x = -1
 		$InnerNode/Sprite/Eye.scale.x = -1
+	
+	print("TARG ANGLE: ", rad_to_deg(targetAngle))
 	
 	move_dir = Vector2.from_angle(targetAngle + PI)
 	
@@ -133,7 +119,7 @@ func _breathStart() -> void:
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_interval(3.0)
+	movement_tween.tween_interval(4.5)
 	movement_tween.finished.connect(_idleStart)
 	
 	if targetRef.isDead():
