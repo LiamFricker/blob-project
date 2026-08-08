@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8k554v4kd4sk"]
+
+[ext_resource type="Script" uid="uid://cg2abqxh0qsch" path="res://Blob/base_enemy_attachment.gd" id="1_pw4e6"]
+
+[node name="base_enemy_attachment" type="Node2D" node_paths=PackedStringArray("SpriteRef")]
+script = ExtResource("1_pw4e6")
+health = null
+knockback = null
+damage = null
+attack_mods = null
+ID = 14
+SpriteRef = NodePath("Sprite")
+
+[node name="Sprite" type="Node2D" parent="."]
