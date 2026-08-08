@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://r7tdnmibwjci"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_5t5y1"]
+[ext_resource type="Script" uid="uid://djc75h0i27nsj" path="res://Blob/Enemies/yaai_virus.gd" id="2_ucgo5"]
+[ext_resource type="Texture2D" uid="uid://cuhm5lv8e0q8c" path="res://Art/Cell/Enemies/YAAI_Virus_Main.png" id="3_dpdbd"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_dpdbd"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_dpdbd")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_dpdbd"]
+radius = 21.0
+
+[node name="YAAI_virus" instance=ExtResource("1_5t5y1")]
+script = ExtResource("2_ucgo5")
+detection_range = 200.0
+shoot_cooldown = 1.0
+test_bullet = null
+ID = 14
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="1"]
+sprite_frames = SubResource("SpriteFrames_dpdbd")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
+shape = SubResource("CircleShape2D_dpdbd")
