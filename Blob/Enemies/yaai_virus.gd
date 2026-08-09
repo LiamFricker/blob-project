@@ -28,7 +28,28 @@ func _returnOrbitalRef(orb_id : int) -> Node2D:
 
 
 #Make sure to check for orbitals == 0 beforehand
-func _matchAngleToOrbital(travelAng : float) -> void:
+func _matchAngleToOrbital(travelAng : float) -> Node2D:
 	match orbitals_alive:
 		1:
-			pass
+			var orb_id = orbital_states.find(2)
+			return _returnOrbitalRef(orb_id)
+		2:
+			#var orb_angles = [10.0, 10.0, 10.0, 10.0]
+			
+			var orb_id = orbital_states.find(2)
+			const orb_path = "InnerNode/Sprite/Orbit"
+			var orb_node : Node2D = get_node(orb_path + str(orb_id))
+			var orb_angle : float = orb_node.position.angle()
+			var old_orb_angle = orb_angle
+			var old_orb_id = orb_id
+			
+			orb_id = orbital_states.find(2, orb_id)
+			orb_node = get_node(orb_path + str(orb_id))
+			orb_angle = orb_node.position.angle()
+			#orb_angles[orb_id] = orb_angle
+			
+			if abs(angle_difference(orb_angle, travelAng)) > abs(angle_difference(old_orb_angle, travelAng)):
+				orb_id = old_orb_id
+			
+			return _returnOrbitalRef(orb_id)
+	return _returnOrbitalRef(0)
