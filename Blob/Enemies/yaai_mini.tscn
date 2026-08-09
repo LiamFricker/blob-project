@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://chgk4shlf1yvq"]
+[gd_scene load_steps=15 format=3 uid="uid://chgk4shlf1yvq"]
 
 [ext_resource type="PackedScene" uid="uid://c8k554v4kd4sk" path="res://Blob/base_enemy_attachment.tscn" id="1_t2r6f"]
 [ext_resource type="Script" uid="uid://c84cuk72m0k82" path="res://Blob/Enemies/yaai_mini.gd" id="2_bloi3"]
@@ -6,6 +6,9 @@
 [ext_resource type="Texture2D" uid="uid://c6rjjeuewkagk" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Tiny_White.png" id="4_6w8ak"]
 [ext_resource type="Texture2D" uid="uid://sjqbjwdl08aj" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Full_Black_Comp.png" id="5_58585"]
 [ext_resource type="Texture2D" uid="uid://cq3bmas74cwf7" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Full_White_Comp.png" id="6_3uuoa"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bloi3"]
+size = Vector2(141, 124)
 
 [sub_resource type="Animation" id="Animation_178t6"]
 length = 0.001
@@ -116,6 +119,47 @@ tracks/8/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Color(1, 1, 1, 1)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Sprite/Tiny:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_3uuoa"]
+resource_name = "death"
+length = 2.0
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite/Tiny:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.7, 1.4, 1.6, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.2, 1), Vector2(0.2, 1), Vector2(0.2, 0.2), Vector2(0.2, 0.2), Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite/Full:scale")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.7, 1.4, 1.6, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.2, 1), Vector2(0.2, 1), Vector2(0.2, 0.2), Vector2(0.2, 0.2), Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_bloi3"]
@@ -231,10 +275,8 @@ tracks/3/keys = {
 "values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
 }
 
-[sub_resource type="Animation" id="Animation_3uuoa"]
-resource_name = "death"
-length = 2.0
-step = 0.05
+[sub_resource type="Animation" id="Animation_f5mpx"]
+resource_name = "create"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -242,27 +284,28 @@ tracks/0/path = NodePath("Sprite/Tiny:scale")
 tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.5, 0.7, 1.4, 1.6, 2),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(0.2, 1), Vector2(0.2, 1), Vector2(0.2, 0.2), Vector2(0.2, 0.2), Vector2(0, 0)]
+"values": [Vector2(0, 0), Vector2(1, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite/Full:scale")
-tracks/1/interp = 2
+tracks/1/path = NodePath("Sprite/Tiny:rotation")
+tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.5, 0.7, 1.4, 1.6, 2),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(0.2, 1), Vector2(0.2, 1), Vector2(0.2, 0.2), Vector2(0.2, 0.2), Vector2(0, 0)]
+"values": [-6.28319, 0.0]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_6w8ak"]
 _data = {
 &"RESET": SubResource("Animation_178t6"),
+&"create": SubResource("Animation_f5mpx"),
 &"death": SubResource("Animation_3uuoa"),
 &"oscillate_test": SubResource("Animation_bloi3"),
 &"oscillate_test2": SubResource("Animation_6w8ak"),
@@ -271,10 +314,6 @@ _data = {
 
 [node name="yaai_mini" instance=ExtResource("1_t2r6f")]
 script = ExtResource("2_bloi3")
-health = 1
-knockback = 0.0
-damage = 1.0
-attack_mods = [false, false, false, false, false]
 
 [node name="Tiny" type="Node2D" parent="Sprite" index="0"]
 
@@ -292,7 +331,26 @@ texture = ExtResource("5_58585")
 [node name="White" type="Sprite2D" parent="Sprite/Full" index="1"]
 texture = ExtResource("6_3uuoa")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="1"]
+[node name="Hitbox" type="Area2D" parent="." index="1"]
+collision_layer = 0
+collision_mask = 16
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" index="0"]
+position = Vector2(0.5, 0)
+shape = SubResource("RectangleShape2D_bloi3")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="2"]
 libraries = {
 &"": SubResource("AnimationLibrary_6w8ak")
 }
+autoplay = "create"
+
+[node name="Lifetime" type="Timer" parent="." index="3"]
+one_shot = true
+
+[connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]
+[connection signal="body_entered" from="Hitbox" to="." method="_on_hitbox_body_entered"]
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
+[connection signal="timeout" from="Lifetime" to="." method="_on_lifetime_timeout"]

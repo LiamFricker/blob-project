@@ -1574,6 +1574,9 @@ func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int
 	temp_td.setID(temp_ID + children_count * 10000)
 	children_count += 1
 
+func getAttachNode() -> Node2D:
+	return attach
+
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	pass # Replace with function body.
 

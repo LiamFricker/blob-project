@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://blvad8r1y76gf"]
+[gd_scene load_steps=14 format=3 uid="uid://blvad8r1y76gf"]
 
 [ext_resource type="Script" uid="uid://4u6uw0h6fqhw" path="res://Blob/blob_swim.gd" id="1_560oe"]
 [ext_resource type="Texture2D" uid="uid://6r00aigasy26" path="res://Art/Cell/Glimmer.png" id="2_02q5b"]
@@ -9,6 +9,7 @@
 [ext_resource type="Material" uid="uid://cnn885v4juwuw" path="res://Blob/Materials/blob_swim.tres" id="5_8tadd"]
 [ext_resource type="Texture2D" uid="uid://nkptmcawvx1e" path="res://Art/Cell/Evolutions/X_indicator.png" id="6_fcc0v"]
 [ext_resource type="PackedScene" uid="uid://dg88vj8yfbw4t" path="res://Blob/organelles.tscn" id="7_fcc0v"]
+[ext_resource type="Script" uid="uid://cekx7gkpetryd" path="res://Blob/player_attachments.gd" id="10_5yg2x"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_8tadd"]
 viewport_path = NodePath("SubViewport")
@@ -171,6 +172,7 @@ monitorable = false
 shape = SubResource("CircleShape2D_a16ly")
 
 [node name="Attachments" type="Node2D" parent="."]
+script = ExtResource("10_5yg2x")
 
 [node name="WaddleOrbTimer" type="Timer" parent="."]
 wait_time = 2.5

@@ -4,10 +4,6 @@
 
 [node name="base_enemy_attachment" type="Node2D" node_paths=PackedStringArray("SpriteRef")]
 script = ExtResource("1_pw4e6")
-health = null
-knockback = null
-damage = null
-attack_mods = null
 ID = 14
 SpriteRef = NodePath("Sprite")
 
