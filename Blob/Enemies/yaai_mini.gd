@@ -73,8 +73,8 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 		$Lifetime.start(10)
 
 func orphan(_pos : Vector2) -> void:
-	
 	_on_lifetime_timeout()
+	
 
 func _on_lifetime_timeout() -> void:
 	#if attachRef:

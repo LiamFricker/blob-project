@@ -100,6 +100,9 @@ func updateOrbID(orb_id : int) -> void:
 	orbitals_alive += 1
 		
 func _throwOrbital(distance : int) -> void:
+	if state == DEAD:
+		$UpdateTimer.stop()
+		return
 	print("throw orbital ", distance)
 	orbitals_dead += 1
 	orbitals_alive -= 1
@@ -120,3 +123,6 @@ func _throwOrbital(distance : int) -> void:
 	
 	previous_angles[distance] = travelAng
 	_matchAngleToOrbital(travelAng, travelPos)
+
+func _handleRedDeath() -> void:
+	dot_tween.tween_property(Sprite, "modulate", Color(1.0, 0, 0, 0), 1.0).set_delay(2.0)
