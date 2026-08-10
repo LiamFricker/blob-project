@@ -105,7 +105,7 @@ func removeChild(childRef : Node2D) -> void:
 		print("CHILD NOT FOUND CHANGE THIS FUNC")
 	else:
 		children_list.remove_at(temppos)
-	if children_list.is_empty():
+	if state == DEAD and children_list.is_empty():
 		deathActivate()
 
 func _shake(direction: Vector2, power : float) -> void:

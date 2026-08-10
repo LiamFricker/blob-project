@@ -306,6 +306,7 @@ _data = {
 
 [node name="magic_small" instance=ExtResource("1_sjc7q")]
 script = ExtResource("2_vtqab")
+speed = 100.0
 orb_reward = 25
 health_max = 1.0
 ID = 13

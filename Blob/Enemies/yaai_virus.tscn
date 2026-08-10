@@ -1,8 +1,9 @@
-[gd_scene load_steps=35 format=3 uid="uid://r7tdnmibwjci"]
+[gd_scene load_steps=36 format=3 uid="uid://r7tdnmibwjci"]
 
 [ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_5t5y1"]
 [ext_resource type="Script" uid="uid://djc75h0i27nsj" path="res://Blob/Enemies/yaai_virus.gd" id="2_ucgo5"]
 [ext_resource type="Texture2D" uid="uid://cuhm5lv8e0q8c" path="res://Art/Cell/Enemies/YAAI_Virus_Main.png" id="3_dpdbd"]
+[ext_resource type="PackedScene" uid="uid://chgk4shlf1yvq" path="res://Blob/Enemies/yaai_mini.tscn" id="3_mit3d"]
 [ext_resource type="Texture2D" uid="uid://nupg6fooma2" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Main_Body.png" id="4_cplt7"]
 [ext_resource type="Texture2D" uid="uid://blmvkcs0kg63v" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Main_Body1.png" id="5_ugwgu"]
 [ext_resource type="Texture2D" uid="uid://bkb0tj48frq0c" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Main_Body2.png" id="6_as63f"]
@@ -445,6 +446,10 @@ _data = {
 
 [node name="YAAI_virus" instance=ExtResource("1_5t5y1")]
 script = ExtResource("2_ucgo5")
+yaai_orbital = ExtResource("3_mit3d")
+orb_reward = 10
+base_damage = 3.0
+health_max = 1.0
 ID = 14
 
 [node name="Sprite2D" type="Sprite2D" parent="InnerNode/Sprite" index="1"]
@@ -507,3 +512,9 @@ libraries = {
 &"": SubResource("AnimationLibrary_jlmoc")
 }
 speed_scale = 1.5
+
+[node name="UpdateTimer" type="Timer" parent="." index="3"]
+wait_time = 0.5
+autostart = true
+
+[connection signal="timeout" from="UpdateTimer" to="." method="_on_update_timer_timeout"]

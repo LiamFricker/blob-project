@@ -1,4 +1,4 @@
-extends Area2D
+extends Node2D
 
 @export var health : int = 1
 @export var attachRef : Node2D
@@ -22,7 +22,7 @@ func getAttackMod(num: int)-> bool:
 func getID() -> int:
 	return ID
 
-func setParams(dmg : float, pR : Node2D, kb : float, sz : float, hp = 1) -> void:
+func setParams(dmg : float, pR : Node2D, kb = 0.0, sz = 0.0, hp = 1) -> void:
 	damage = dmg
 	knockback = kb
 	attachRef = pR

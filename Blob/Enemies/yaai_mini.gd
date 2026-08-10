@@ -1,7 +1,8 @@
 extends "res://Blob/base_enemy_attachment.gd"
 
+signal creation_complete(orb_id)
+
 var orbit_id
-var parentRef : Node2D
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -21,10 +22,9 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-func setParams(dmg : float, pR : Node2D, kb : float, sz : float, orb_id = 1) -> void:
+func setParams(dmg : float, pR : Node2D, kb = 0.0, sz = 0.0, orb_id = 1) -> void:
 	orbit_id = orb_id
 	super(dmg, pR, kb, sz)
-	parentRef = pR
 
 func initSelf(currPos : Vector2, finalPos : Vector2, currRot : float, currIndex : int) -> void:
 
@@ -45,7 +45,7 @@ func endInit() -> void:
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	match anim_name:
 		"create":
-			attachRef.orbReady(orbit_id)
+			creation_complete.emit(orbit_id)
 		"transform":
 			$Hitbox.set_deferred("monitoring", true)
 		"death":
@@ -70,13 +70,18 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 		$Lifetime.start()
 
 func orphan(_pos : Vector2) -> void:
+	
 	_on_lifetime_timeout()
 
 func _on_lifetime_timeout() -> void:
-	if parentRef:
-		parentRef.removeChild(self)
+	#if attachRef:
 	if attached:
 		attachRef.attachDeath(ID)
+	else:
+		attachRef.removeChild(self)
+	
+	if movement_tween:
+		movement_tween.kill()
 	
 	$Hitbox.set_deferred("monitoring", false)
 	$AnimationPlayer.play("death")
