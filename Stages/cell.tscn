@@ -84,7 +84,7 @@ position = Vector2(-2, -157)
 position = Vector2(-522, 268)
 
 [node name="YAAI_virus" parent="." instance=ExtResource("13_nwwet")]
-position = Vector2(0, 870)
+position = Vector2(-1, 459)
 
 [connection signal="upgrade_tab_toggled" from="HUD_swim" to="." method="_on_hud_swim_upgrade_tab_toggled"]
 [connection signal="createAfterImage" from="Blob_Swim" to="." method="_on_blob_swim_create_after_image"]

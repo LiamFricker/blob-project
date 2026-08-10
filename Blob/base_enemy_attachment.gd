@@ -101,9 +101,9 @@ func orphan(_pos : Vector2) -> void:
 
 func _delete() -> void:
 	if attachRef:	
-		if not attached:
-			attachRef.removeChild(self)
 		if attached:
-			attachRef.removeAttach(getID())
+			attachRef.attachDeath(ID)
+		else:
+			attachRef.removeChild(self)
 	call_deferred("queue_free")
 	

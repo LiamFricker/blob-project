@@ -1,8 +1,7 @@
-[gd_scene load_steps=36 format=3 uid="uid://r7tdnmibwjci"]
+[gd_scene load_steps=33 format=3 uid="uid://r7tdnmibwjci"]
 
 [ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_5t5y1"]
 [ext_resource type="Script" uid="uid://djc75h0i27nsj" path="res://Blob/Enemies/yaai_virus.gd" id="2_ucgo5"]
-[ext_resource type="Texture2D" uid="uid://cuhm5lv8e0q8c" path="res://Art/Cell/Enemies/YAAI_Virus_Main.png" id="3_dpdbd"]
 [ext_resource type="PackedScene" uid="uid://chgk4shlf1yvq" path="res://Blob/Enemies/yaai_mini.tscn" id="3_mit3d"]
 [ext_resource type="Texture2D" uid="uid://nupg6fooma2" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Main_Body.png" id="4_cplt7"]
 [ext_resource type="Texture2D" uid="uid://blmvkcs0kg63v" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Main_Body1.png" id="5_ugwgu"]
@@ -25,8 +24,6 @@
 [ext_resource type="Texture2D" uid="uid://bg3ka4654mds6" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Main_Mouth3.png" id="17_8nypf"]
 [ext_resource type="Texture2D" uid="uid://cudn2xomjdgsh" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Main_Mouth4.png" id="18_s8gui"]
 [ext_resource type="Texture2D" uid="uid://b14gk4elx1ohx" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Main_Eyebrow.png" id="19_vu0t3"]
-[ext_resource type="Texture2D" uid="uid://c6rjjeuewkagk" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Tiny_White.png" id="25_adkly"]
-[ext_resource type="Texture2D" uid="uid://ctrqsmftctsoi" path="res://Art/Cell/Enemies/YAAI/YAAI_Virus_Tiny_Black.png" id="26_mit3d"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_dpdbd"]
 animations = [{
@@ -452,54 +449,42 @@ base_damage = 3.0
 health_max = 1.0
 ID = 14
 
-[node name="Sprite2D" type="Sprite2D" parent="InnerNode/Sprite" index="1"]
-visible = false
-texture = ExtResource("3_dpdbd")
-
-[node name="Body" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="2"]
+[node name="Body" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="1"]
 sprite_frames = SubResource("SpriteFrames_dpdbd")
+autoplay = "default"
 frame_progress = 0.902516
 
-[node name="Eyes" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="3"]
+[node name="Eyes" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="2"]
 position = Vector2(-0.5, -3)
 sprite_frames = SubResource("SpriteFrames_4xyue")
+autoplay = "default"
 frame_progress = 0.0726211
 
-[node name="Mouth" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="4"]
+[node name="Mouth" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="3"]
 position = Vector2(0, 7.5)
 sprite_frames = SubResource("SpriteFrames_wp3qn")
+autoplay = "default"
 frame_progress = 0.51815
 
-[node name="Brow" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="5"]
+[node name="Brow" type="AnimatedSprite2D" parent="InnerNode/Sprite" index="4"]
 position = Vector2(0, -10)
 sprite_frames = SubResource("SpriteFrames_hsr0r")
+autoplay = "default"
 frame_progress = 0.0592703
 
-[node name="Orbit1" type="Node2D" parent="InnerNode/Sprite" index="6"]
+[node name="Orbit1" type="Node2D" parent="InnerNode/Sprite" index="5"]
 position = Vector2(-25, 19)
 
-[node name="White" type="Sprite2D" parent="InnerNode/Sprite/Orbit1" index="0"]
-texture = ExtResource("25_adkly")
-
-[node name="Orbit2" type="Node2D" parent="InnerNode/Sprite" index="7"]
+[node name="Orbit2" type="Node2D" parent="InnerNode/Sprite" index="6"]
 position = Vector2(25, 19)
 
-[node name="Black" type="Sprite2D" parent="InnerNode/Sprite/Orbit2" index="0"]
-texture = ExtResource("26_mit3d")
-
-[node name="Orbit3" type="Node2D" parent="InnerNode/Sprite" index="8"]
+[node name="Orbit3" type="Node2D" parent="InnerNode/Sprite" index="7"]
 z_index = -1
 position = Vector2(25, -19)
 
-[node name="White" type="Sprite2D" parent="InnerNode/Sprite/Orbit3" index="0"]
-texture = ExtResource("25_adkly")
-
-[node name="Orbit4" type="Node2D" parent="InnerNode/Sprite" index="9"]
+[node name="Orbit4" type="Node2D" parent="InnerNode/Sprite" index="8"]
 z_index = -1
 position = Vector2(-25, -19)
-
-[node name="Black" type="Sprite2D" parent="InnerNode/Sprite/Orbit4" index="0"]
-texture = ExtResource("26_mit3d")
 
 [node name="Hurtbox" parent="InnerNode" index="1"]
 visible = false
@@ -511,10 +496,11 @@ shape = SubResource("CircleShape2D_dpdbd")
 libraries = {
 &"": SubResource("AnimationLibrary_jlmoc")
 }
+autoplay = "rotate_test"
 speed_scale = 1.5
 
 [node name="UpdateTimer" type="Timer" parent="." index="3"]
-wait_time = 0.5
+wait_time = 1.2
 autostart = true
 
 [connection signal="timeout" from="UpdateTimer" to="." method="_on_update_timer_timeout"]

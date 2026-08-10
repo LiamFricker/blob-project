@@ -3,24 +3,23 @@ extends "res://Blob/base_enemy_attachment.gd"
 signal creation_complete(orb_id)
 
 var orbit_id
+var changed = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	var osc_time = 1.0 if changed else 0.6
+	
 	oscillate_tween = create_tween().set_loops()
-	oscillate_tween.tween_property($Sprite/Tiny/Black, "modulate:a", 0, 0.6)
-	oscillate_tween.parallel().tween_property($Sprite/Full/Black, "modulate:a", 0, 0.6)
-	oscillate_tween.parallel().tween_property($Sprite/Tiny/White, "modulate:a", 1, 0.6)
-	oscillate_tween.parallel().tween_property($Sprite/Full/White, "modulate:a", 1, 0.6)
-	oscillate_tween.tween_interval(0.6)
-	oscillate_tween.tween_property($Sprite/Tiny/Black, "modulate:a", 1, 0.6)
-	oscillate_tween.parallel().tween_property($Sprite/Full/Black, "modulate:a", 1, 0.6)
-	oscillate_tween.parallel().tween_property($Sprite/Tiny/White, "modulate:a", 0, 0.6)
-	oscillate_tween.parallel().tween_property($Sprite/Full/White, "modulate:a", 0, 0.6)
-	oscillate_tween.tween_interval(0.6)
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+	oscillate_tween.tween_property($Sprite/Tiny/Black, "modulate:a", 0, osc_time)
+	oscillate_tween.parallel().tween_property($Sprite/Full/Black, "modulate:a", 0, osc_time)
+	oscillate_tween.parallel().tween_property($Sprite/Tiny/White, "modulate:a", 1, osc_time)
+	oscillate_tween.parallel().tween_property($Sprite/Full/White, "modulate:a", 1, osc_time)
+	oscillate_tween.tween_interval(osc_time)
+	oscillate_tween.tween_property($Sprite/Tiny/Black, "modulate:a", 1, osc_time)
+	oscillate_tween.parallel().tween_property($Sprite/Full/Black, "modulate:a", 1, osc_time)
+	oscillate_tween.parallel().tween_property($Sprite/Tiny/White, "modulate:a", 0, osc_time)
+	oscillate_tween.parallel().tween_property($Sprite/Full/White, "modulate:a", 0, osc_time)
+	oscillate_tween.tween_interval(osc_time)
 
 func setParams(dmg : float, pR : Node2D, kb = 0.0, sz = 0.0, orb_id = 1) -> void:
 	orbit_id = orb_id
@@ -28,14 +27,14 @@ func setParams(dmg : float, pR : Node2D, kb = 0.0, sz = 0.0, orb_id = 1) -> void
 
 func initSelf(currPos : Vector2, finalPos : Vector2, currRot : float, currIndex : int) -> void:
 
-	var duration = currPos.distance_to(finalPos) / 150.0
+	var duration = currPos.distance_to(finalPos) / 100.0
 	
 	z_index = currIndex
 	
 	movement_tween = create_tween()
 	movement_tween.tween_property(self, "position", finalPos, duration).from(currPos)
-	movement_tween.parallel().tween_property($Sprite/Tiny, "position:y", -40, duration).from(currPos)
-	movement_tween.parallel().tween_property(self, "rotation", 0, duration).from(currRot)
+	movement_tween.parallel().tween_property($Sprite/Tiny, "position:y", -40, duration)
+	movement_tween.parallel().tween_property(self, "rotation", 0, duration * 0.25).from(currRot)
 	movement_tween.finished.connect(endInit)
 	
 func endInit() -> void:
@@ -48,12 +47,14 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 			creation_complete.emit(orbit_id)
 		"transform":
 			$Hitbox.set_deferred("monitoring", true)
+			$Lifetime.start()
+			changed = true
 		"death":
 			_delete()
 
 
-func _on_hitbox_area_entered(area: Area2D) -> void:
-	pass # Replace with function body.
+func _on_hitbox_area_entered(_area: Area2D) -> void:
+	print("AREA ENTERED?")
 
 func _on_hitbox_body_entered(body: Node2D) -> void:
 	var tempRef = body.getAttachNode()
@@ -62,12 +63,14 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 		$Lifetime.stop()
 		_on_lifetime_timeout()
 	else:
-		attachRef.removeChild(self, ID)
+		$Hitbox.set_deferred("monitoring", false)
+		#attachRef.remove_child(self)
+		attachRef.call_deferred("remove_child", self)
 		attachRef = tempRef
-		
-		tempRef.attachSelf(self)
+		tempRef.attachSelf(self, ID)
 		attached = true
-		$Lifetime.start()
+		position = Vector2.ZERO
+		$Lifetime.start(10)
 
 func orphan(_pos : Vector2) -> void:
 	
@@ -75,10 +78,12 @@ func orphan(_pos : Vector2) -> void:
 
 func _on_lifetime_timeout() -> void:
 	#if attachRef:
+	"""
 	if attached:
 		attachRef.attachDeath(ID)
 	else:
 		attachRef.removeChild(self)
+	"""
 	
 	if movement_tween:
 		movement_tween.kill()

@@ -55,12 +55,12 @@ func _turnRocket() -> void:
 func _process(delta : float) -> void:
 	position += 10 * speed * delta * Vector2.from_angle(rotation)
 
-func _on_area_entered(area: Area2D) -> void:
+func _on_area_entered(_area: Area2D) -> void:
 	
 	#if area.getID() != ID:
 	_explode()
 
-func _on_body_entered(body: Node2D) -> void:
+func _on_body_entered(_body: Node2D) -> void:
 	#if body.getID() != ID:
 	_explode()
 

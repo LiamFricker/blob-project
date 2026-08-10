@@ -171,8 +171,9 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
 shape = SubResource("CircleShape2D_a16ly")
 
-[node name="Attachments" type="Node2D" parent="."]
+[node name="Attachments" type="Node2D" parent="." node_paths=PackedStringArray("playerRef")]
 script = ExtResource("10_5yg2x")
+playerRef = NodePath("..")
 
 [node name="WaddleOrbTimer" type="Timer" parent="."]
 wait_time = 2.5

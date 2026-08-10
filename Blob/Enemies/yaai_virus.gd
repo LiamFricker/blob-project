@@ -39,7 +39,11 @@ func _matchAngleToOrbital(travelAng : float, travelPos : Vector2) -> void:
 			var orb_chosen = _returnOrbitalRef(orb_id)
 			
 			orbital_states[orb_id] = 0
+			
+			orb_node.remove_child(orb_chosen)
+			add_child(orb_chosen)
 			orb_chosen.initSelf(orb_node.position, travelPos, orb_node.rotation, orb_node.z_index)
+			
 		_:
 			#var orb_angles = [10.0, 10.0, 10.0, 10.0]
 			
@@ -71,11 +75,11 @@ func _matchAngleToOrbital(travelAng : float, travelPos : Vector2) -> void:
 func _on_update_timer_timeout() -> void:
 	if orbitals_alive != 0:
 		update_count += 1
-		if update_count % 8 == 0:
+		if update_count % 7 == 0:
 			_throwOrbital(2)
-		elif update_count % 5 == 0:
-			_throwOrbital(1)
 		elif update_count % 3 == 0:
+			_throwOrbital(1)
+		elif update_count % 2 == 0:
 			_throwOrbital(0)
 	
 	if orbitals_dead != 0:
@@ -93,8 +97,10 @@ func _on_update_timer_timeout() -> void:
 
 func updateOrbID(orb_id : int) -> void:
 	orbital_states[orb_id] = 2
+	orbitals_alive += 1
 		
 func _throwOrbital(distance : int) -> void:
+	print("throw orbital ", distance)
 	orbitals_dead += 1
 	orbitals_alive -= 1
 	var travelAng : float = previous_angles[distance] + 0.25 + randf_range(0, 5.783)
@@ -103,13 +109,13 @@ func _throwOrbital(distance : int) -> void:
 	match distance:
 		0:
 			#This is just to prevent them from throwing all at the same spot and making a wall
-			var travelDist = randi_range(50, 200)
+			var travelDist = randi_range(150, 300)
 			travelPos = travelDist * Vector2.from_angle(travelAng)
 		1:
-			var travelDist = randi_range(150, 500)
+			var travelDist = randi_range(250, 700)
 			travelPos = travelDist * Vector2.from_angle(travelAng)
 		2:
-			var travelDist = randi_range(400, 1000)
+			var travelDist = randi_range(600, 1300)
 			travelPos = travelDist * Vector2.from_angle(travelAng)
 	
 	previous_angles[distance] = travelAng

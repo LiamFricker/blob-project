@@ -1577,8 +1577,11 @@ func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int
 func getAttachNode() -> Node2D:
 	return attach
 
-func _on_hurtbox_area_entered(area: Area2D) -> void:
+func _on_hurtbox_area_entered(_area: Area2D) -> void:
 	pass # Replace with function body.
 
-func _on_hurtbox_body_entered(body: Node2D) -> void:
+func _on_hurtbox_body_entered(_body: Node2D) -> void:
 	pass # Replace with function body.
+
+func takeDamage(_damage : float, _kb = 1.0) -> void:
+	pass

@@ -54,7 +54,6 @@ func _jump_start() -> void:
 		_detectionCheck()
 		return
 	if jump_state >= 4:
-		print("JUMP CANCEL")
 		jump_state = 0
 		_setNewDetectRange(true)
 	
@@ -68,9 +67,7 @@ func _jump_start() -> void:
 	else:
 		$InnerNode/Sprite/Front.scale.x = -1
 		$InnerNode/Sprite/Eye.scale.x = -1
-	
-	print("TARG ANGLE: ", rad_to_deg(targetAngle))
-	
+		
 	move_dir = Vector2.from_angle(targetAngle + PI)
 	
 	const jump_speed = 1.25
@@ -127,7 +124,6 @@ func _breathStart() -> void:
 	_detectionCheck()
 
 func _idleStart() -> void:
-	print("JS_", jump_state)
 	if jump_state >= 4:
 		_setNewDetectRange(true)
 		jump_state = 0
