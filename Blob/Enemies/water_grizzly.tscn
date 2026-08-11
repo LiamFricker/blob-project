@@ -1,18 +1,30 @@
-[gd_scene load_steps=27 format=3 uid="uid://47gpk8e80fh5"]
+[gd_scene load_steps=32 format=3 uid="uid://47gpk8e80fh5"]
 
 [ext_resource type="Texture2D" uid="uid://bon3q573i5vy3" path="res://Art/Cell/WaterGrizzlyArmBack.png" id="1_61rrn"]
 [ext_resource type="Script" uid="uid://dcbavmlf1g64j" path="res://Blob/Enemies/water_grizzly.gd" id="1_df2fm"]
 [ext_resource type="Texture2D" uid="uid://ct18ve6aoy1a" path="res://Art/Cell/WaterGrizzlyArmL.png" id="1_tcgjy"]
+[ext_resource type="Script" uid="uid://duqmv4spg7vuo" path="res://Blob/Enemies/base_creature_hurtbox.gd" id="2_7ya08"]
 [ext_resource type="Texture2D" uid="uid://sk0rtnumlp0g" path="res://Art/Cell/WaterGrizzlyBody.png" id="2_61rrn"]
 [ext_resource type="Texture2D" uid="uid://bslrj4f3i6g3p" path="res://Art/Cell/WaterGrizzlyHead.png" id="3_aeagd"]
 [ext_resource type="Texture2D" uid="uid://umebwfwqv4iu" path="res://Art/Cell/WaterGrizzlyEarL.png" id="4_uc3ed"]
 [ext_resource type="Texture2D" uid="uid://vn21t2qo6xd1" path="res://Art/Cell/WaterGrizzlyEarR.png" id="5_df2fm"]
+[ext_resource type="Script" uid="uid://mwft55umupjt" path="res://Blob/Enemies/base_creature_hitbox.gd" id="9_8k5sa"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_df2fm"]
 radius = 1000.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7ya08"]
 radius = 2000.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8k5sa"]
+radius = 140.014
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_df2fm"]
+radius = 108.0
+height = 279.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_22dhy"]
+radius = 49.0918
 
 [sub_resource type="Animation" id="Animation_d0hpx"]
 resource_name = "DashCharge"
@@ -2216,28 +2228,34 @@ dash_length = 1000
 [node name="InnerNode" type="Node2D" parent="."]
 
 [node name="DetectionRadius" type="Area2D" parent="InnerNode"]
+visible = false
 collision_layer = 0
+collision_mask = 18
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/DetectionRadius"]
 shape = SubResource("CircleShape2D_df2fm")
 
 [node name="BroadDetectionRadius" type="Area2D" parent="InnerNode"]
+visible = false
 collision_layer = 0
+collision_mask = 18
 monitoring = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/BroadDetectionRadius"]
 shape = SubResource("CircleShape2D_7ya08")
 
-[node name="Hitbox" type="Area2D" parent="InnerNode"]
-collision_layer = 4
-collision_mask = 0
-monitoring = false
-
-[node name="Hurtbox" type="Area2D" parent="InnerNode"]
+[node name="Hurtbox" type="Area2D" parent="InnerNode" node_paths=PackedStringArray("parentRef")]
+visible = false
 collision_layer = 2
-collision_mask = 13
+collision_mask = 12
+script = ExtResource("2_7ya08")
+parentRef = NodePath("../..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox"]
+position = Vector2(0, 12)
+shape = SubResource("CircleShape2D_8k5sa")
 
 [node name="Polygon2D" type="Polygon2D" parent="InnerNode"]
 visible = false
@@ -2300,12 +2318,47 @@ rotation = -0.139339
 texture = ExtResource("1_tcgjy")
 offset = Vector2(-8, 48)
 
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="InnerNode/Sprite/LArm"]
+position = Vector2(-17.9224, 70.1911)
+rotation = 0.139339
+remote_path = NodePath("../../../Hitbox/CollisionShape2D2")
+update_rotation = false
+update_scale = false
+
 [node name="RArm" type="Sprite2D" parent="InnerNode/Sprite"]
 position = Vector2(83, 72)
 rotation = 0.261799
 scale = Vector2(-1, 1)
 texture = ExtResource("1_tcgjy")
 offset = Vector2(-8, 48)
+
+[node name="RemoteTransform2D2" type="RemoteTransform2D" parent="InnerNode/Sprite/RArm"]
+position = Vector2(-20.0492, 67.0972)
+rotation = -2.87979
+scale = Vector2(1, -1)
+remote_path = NodePath("../../../Hitbox/CollisionShape2D3")
+update_rotation = false
+update_scale = false
+
+[node name="Hitbox" type="Area2D" parent="InnerNode" node_paths=PackedStringArray("parentRef")]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+script = ExtResource("9_8k5sa")
+parentRef = NodePath("../..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hitbox"]
+position = Vector2(0, -2)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_df2fm")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="InnerNode/Hitbox"]
+position = Vector2(-90, 137)
+shape = SubResource("CircleShape2D_22dhy")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="InnerNode/Hitbox"]
+position = Vector2(85, 142)
+shape = SubResource("CircleShape2D_22dhy")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
@@ -2316,12 +2369,15 @@ libraries = {
 wait_time = 2.5
 
 [node name="DamageTestTimer" type="Timer" parent="."]
-autostart = true
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
+visible = false
 polygon = PackedVector2Array(-3, 18, 421, -72, 631, 4, 407, 72)
 
+[connection signal="area_entered" from="InnerNode/DetectionRadius" to="." method="_on_detection_radius_area_entered"]
 [connection signal="body_entered" from="InnerNode/DetectionRadius" to="." method="_on_detection_radius_body_entered"]
+[connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
 [connection signal="timeout" from="PlayerDistanceCheck" to="." method="_on_player_distance_check_timeout"]
 [connection signal="timeout" from="DamageTestTimer" to="." method="_on_damage_test_timer_timeout"]

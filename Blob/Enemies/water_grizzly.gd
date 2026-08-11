@@ -15,7 +15,7 @@ enum {
 }
 var state = IDLE
 
-var PlayerRef : Node2D
+#var PlayerRef : Node2D
 var TargetRef : Node2D
 var playerTarget : bool = false
 
@@ -27,7 +27,8 @@ var ID : int = -100
 @export var max_health: float = 100
 @onready var health = max_health
 var difficulty = 0
-@export var base_damage : float = 1
+@export var base_damage : float = 10.0
+@export var base_knockback : float = 1.0
 
 @export var charge_time : float = 100
 
@@ -77,6 +78,14 @@ enum{
 } 
 var dot_type = NONE
 var dot_tween
+
+@onready var hitbox_ref = $InnerNode/Hitbox
+@onready var hurtbox_ref = $InnerNode/Hurtbox
+
+#UNUSED BUT BIND THIS TO ANIMS
+@export var attack_speed : float = 1.0
+
+var attack_mods : Array = [true, false, false, false, false]
 
 func setParams(TopLeftBound : Vector2, BotRightBound : Vector2, origin = Vector2.ZERO, diff = 0, boss_count = 0) -> void:
 	MapULBound = TopLeftBound
@@ -337,8 +346,10 @@ func _phaseChange() -> void:
 			ear_tween.kill()
 			$InnerNode/Polygon2D.visible = false
 			state = STUN
+			toggleHurtbox(false)
 			_stunned()
 			AnimPlay.queue("RunBreak")
+			get_tree().create_timer(4.0 / attack_speed).timeout.connect(toggleHurtbox.bind(true))
 		2:
 			phase = 3
 
@@ -346,16 +357,21 @@ func _stunned() -> void:
 	AnimPlay.play("Stun")
 
 func _getTargetDirection() -> float:
-	var targetPos : Vector2 = TargetRef.getPosition()
-	var tempAng = getPosition().angle_to_point(targetPos)
-	return tempAng
+	if not TargetRef or TargetRef.isDead():
+		_findClosestTarget()
+		return direction_angle
+	else:	
+		var targetPos : Vector2 = TargetRef.getPosition()
+		var tempAng = getPosition().angle_to_point(targetPos)
+		return tempAng
 
-func _aggressionTrigger(playerFound : bool) -> void:
-	if playerFound:
+func _aggressionTrigger(playerFound : int) -> void:
+	if playerFound == 1:
 		state = AGGRESSION
 		_chooseNextAttack()
 	else:
-		_findClosestTarget()
+		state = AGGRESSION
+		_chooseNextAttack()
 
 #unused now
 """
@@ -446,33 +462,31 @@ func _findClosestTarget() -> void:
 		var closestNodeRef
 		for a in localAreas:
 			var mainbody = a.getParent()
-			if mainbody.ID == ID:
-				continue
-			currDist = tempPos.distance_squared_to(mainbody.getPosition()) 
-			if currDist < minDistance:
-				minDistance = currDist
-				closestNodeRef = mainbody
+			if mainbody.ID != ID:
+				currDist = tempPos.distance_squared_to(mainbody.getPosition()) 
+				if currDist < minDistance:
+					minDistance = currDist
+					closestNodeRef = mainbody
 		
 		var localBodies = DetectionNode.get_overlapping_bodies()
 		
 		for b in localBodies:
-			if b.ID == ID:
-				continue
-			currDist = tempPos.distance_squared_to(b.getPosition()) 
-			if currDist < minDistance:
-				minDistance = currDist
-				closestNodeRef = b
+			if b.ID != ID:
+				currDist = tempPos.distance_squared_to(b.getPosition()) 
+				if currDist < minDistance:
+					minDistance = currDist
+					closestNodeRef = b
 		
 		TargetRef = closestNodeRef
-		state = AGGRESSION
-		DetectionNode.monitoring = false
+		DetectionNode.set_deferred("monitoring", false)
+		_aggressionTrigger(false)
 	
 func _onPlayerDetection(PlayRef : Node2D) -> void:
 	#Disable the detection radius
 	print("Player Detected")
 	$InnerNode/DetectionRadius.set_deferred("monitoring", false)
-	PlayerRef = PlayRef
-	TargetRef = PlayerRef
+	#PlayerRef = PlayRef
+	TargetRef = PlayRef
 	playerTarget = true
 	$PlayerDistanceCheck.start()
 	_aggressionTrigger(true)
@@ -522,7 +536,7 @@ func takeDamage(amt : float, _kwargs = []) -> void:
 	health_mod_tween.tween_property($InnerNode/Sprite, "modulate", Color8(255, 255, 255), 0.1)
 	
 	if state == IDLE:
-		_aggressionTrigger(false)
+		_findClosestTarget()
 	health -= amt
 	if health <= 0:
 		_OnDeath()	
@@ -537,18 +551,14 @@ func _OnDeath() -> void:
 	set_process(false)
 
 #Override this if needs be (such as multiple hitboxes)
-func toggleHitbox(_toggle : bool) -> void:
-	pass
-	#if hitboxReference:
-	#	hitboxReference.set_deferred("monitoring", toggle)
-	#	hitboxReference.set_deferred("monitorable", toggle)
+func toggleHitbox(toggle : bool) -> void:
+	hitbox_ref.set_deferred("monitoring", toggle)
+	hitbox_ref.set_deferred("monitorable", toggle)
 	
 #Override this if needs be (such as multiple hurtboxes)
-func toggleHurtbox(_toggle : bool) -> void:
-	pass
-	#if hurtboxReference:
-	#	hurtboxReference.set_deferred("monitoring", toggle)
-	#	hitboxReference.set_deferred("monitorable", toggle)
+func toggleHurtbox(toggle : bool) -> void:
+	hurtbox_ref.set_deferred("monitoring", toggle)
+	hurtbox_ref.set_deferred("monitorable", toggle)
 
 #Use this to get the position for the creature
 func getPosition() -> Vector2:
@@ -557,11 +567,16 @@ func getPosition() -> Vector2:
 
 func _on_player_distance_check_timeout() -> void:
 	#Might need a null check here
-	var playerPos = PlayerRef.getPosition() 
-	if getPosition().distance_squared_to(playerPos) > follow_range_squared:
+	if not TargetRef or TargetRef.isDead():
 		_findClosestTarget()
 		$PlayerDistanceCheck.stop()
 		$InnerNode/DetectionRadius.set_deferred("monitoring", true)
+	else:
+		var playerPos = TargetRef.getPosition() 
+		if getPosition().distance_squared_to(playerPos) > follow_range_squared:
+			_findClosestTarget()
+			$PlayerDistanceCheck.stop()
+			$InnerNode/DetectionRadius.set_deferred("monitoring", true)
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	print(anim_name)
@@ -591,4 +606,51 @@ func _on_damage_test_timer_timeout() -> void:
 		takeDamage(2)
 
 func _on_detection_radius_body_entered(body: Node2D) -> void:
-	_onPlayerDetection(body)
+	var bID = body.getID()
+	if bID == 0:	
+		_onPlayerDetection(body)
+	elif bID == ID:
+		$InnerNode/DetectionRadius.set_deferred("monitoring", false)
+		TargetRef = body
+		playerTarget = false
+		$PlayerDistanceCheck.start()
+		_aggressionTrigger(false)
+
+func _on_detection_radius_area_entered(area: Area2D, tempPos = Vector2.ZERO) -> void:
+	if area.getID() != ID:
+		#Disable the detection radius
+		print("Area Detected")
+		$InnerNode/DetectionRadius.set_deferred("monitoring", false)
+		TargetRef = area.getParent()
+		playerTarget = false
+		$PlayerDistanceCheck.start()
+		_aggressionTrigger(false)
+
+
+func _on_hurtbox_area_entered(area: Area2D) -> void:
+	#var temp_enemy = area.getParent()
+	var dmg = area.getDamage()
+	if area.getID() != ID and dmg > 0: #temp_enemy.getID()
+		takeDamage(dmg)#, area.getPosition(), area.getKnockback())
+		#damageWeakness = 1.0
+
+func _on_hurtbox_body_entered(body: Node2D) -> void:
+	var dmg = body.getDamage()
+	if body.getID() != ID and dmg > 0:
+		takeDamage(dmg)#, body.getPosition(), body.getKnockback())
+		#damageWeakness = 1.0
+
+func getDamage() -> float:
+	return base_damage
+	
+func getKnockback() -> float:
+	return base_knockback
+
+func getID(idtype = 0) -> int:
+	return ID
+
+func isDead() -> bool:
+	return false
+
+func getAttackMod(num : int) -> bool:
+	return attack_mods[num]

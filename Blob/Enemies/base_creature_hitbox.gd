@@ -8,6 +8,9 @@ extends Area2D
 @export var attack_mods : Array = [false, false, false, false, false]
 @export var ID : int = 0
 
+func getPosition() -> Vector2:
+	return parentRef.getPosition()
+
 func getAttackMod(num: int)-> bool:
 	return attack_mods[num]
 	

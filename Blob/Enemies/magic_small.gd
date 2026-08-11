@@ -49,7 +49,7 @@ func _ready() -> void:
 	_idleStart()
 
 func _jump_start() -> void:
-	if targetRef.isDead():
+	if not targetRef or targetRef.isDead():
 		targetRef = null
 		_detectionCheck()
 		return
@@ -119,7 +119,7 @@ func _breathStart() -> void:
 	movement_tween.tween_interval(4.5)
 	movement_tween.finished.connect(_idleStart)
 	
-	if targetRef.isDead():
+	if not targetRef or targetRef.isDead():
 		targetRef = null
 	_detectionCheck()
 

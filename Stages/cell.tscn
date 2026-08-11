@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://40hcl2pacvut"]
+[gd_scene load_steps=15 format=3 uid="uid://40hcl2pacvut"]
 
 [ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="1_mjuci"]
 [ext_resource type="Script" uid="uid://sgaihncgtns3" path="res://Stages/cell.gd" id="1_udkfl"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://dp5qpucoe244y" path="res://Blob/Enemies/magic_tiny.tscn" id="11_8h1b8"]
 [ext_resource type="PackedScene" uid="uid://dbakm617om1l7" path="res://Blob/Enemies/magic_small.tscn" id="12_nwwet"]
 [ext_resource type="PackedScene" uid="uid://r7tdnmibwjci" path="res://Blob/Enemies/yaai_virus.tscn" id="13_nwwet"]
+[ext_resource type="PackedScene" uid="uid://47gpk8e80fh5" path="res://Blob/Enemies/water_grizzly.tscn" id="14_j8g7a"]
 
 [node name="Cell" type="Node2D" node_paths=PackedStringArray("playerReference", "orbReference")]
 script = ExtResource("1_udkfl")
@@ -85,6 +86,9 @@ position = Vector2(-522, 268)
 
 [node name="YAAI_virus" parent="." instance=ExtResource("13_nwwet")]
 position = Vector2(-1, 459)
+
+[node name="WaterGrizzly" parent="." instance=ExtResource("14_j8g7a")]
+position = Vector2(-717, -245)
 
 [connection signal="upgrade_tab_toggled" from="HUD_swim" to="." method="_on_hud_swim_upgrade_tab_toggled"]
 [connection signal="createAfterImage" from="Blob_Swim" to="." method="_on_blob_swim_create_after_image"]
