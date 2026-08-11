@@ -87,6 +87,9 @@ var dot_tween
 
 var attack_mods : Array = [true, false, false, false, false]
 
+func _ready() -> void:
+	_idleTrigger()
+
 func setParams(TopLeftBound : Vector2, BotRightBound : Vector2, origin = Vector2.ZERO, diff = 0, boss_count = 0) -> void:
 	MapULBound = TopLeftBound
 	MapDRBound = BotRightBound
@@ -143,7 +146,7 @@ func _chooseNextAttack() -> void:
 #Set run charge to 1.5x for first attack in phase 2. Either that or make a shorter duration version
 func _runStart() -> void:
 	state = CHARGE_RUN
-	AnimPlay.play("RunCharge", -1, run_charge_speed)
+	AnimPlay.play("RunCharge", 0.25, run_charge_speed)
 	run_charge_speed = run_charge_speed_base
 	
 	direction_angle = _getTargetDirection()
@@ -345,19 +348,28 @@ func _phaseChange() -> void:
 			move_tween.kill()
 			ear_tween.kill()
 			$InnerNode/Polygon2D.visible = false
+			$PlayerDistanceCheck.stop()
+			$DetectionRecheck.stop()
 			state = STUN
 			toggleHurtbox(false)
+			
 			_stunned()
 			AnimPlay.queue("RunBreak")
-			get_tree().create_timer(4.0 / attack_speed).timeout.connect(toggleHurtbox.bind(true))
+			get_tree().create_timer(4.0 / attack_speed).timeout.connect(_unstun)
+			
 		2:
 			phase = 3
+
+func _unstun() -> void:
+	toggleHurtbox(true)
+	$PlayerDistanceCheck.start()
 
 func _stunned() -> void:
 	AnimPlay.play("Stun")
 
 func _getTargetDirection() -> float:
 	if not TargetRef or TargetRef.isDead():
+		TargetRef = null
 		_findClosestTarget()
 		return direction_angle
 	else:	
@@ -439,20 +451,62 @@ func _walkToPlayer(count : int) -> void:
 	move_tween = create_tween()
 	move_tween.tween_property(Inner, "position", walkEndPos, 0.8)
 	move_tween.tween_callback(_walkToPlayer.bind(count-1))
+
+#Just incase I need to do more stuff with this later.
+func _idleTrigger() -> void:
+	AnimPlay.play("Walk", 0.5)
+	_walkAimlessly()
+
+func _walkAimlessly() -> void:
+	var walkAng = swipe_rng.randf() * TAU
+	var walkEndPos = swipe_rng.randi_range(60, 140) * Vector2.from_angle(walkAng)
+	var move_count = swipe_rng.randi_range(0, 3)
+	
+	
+	if move_tween:
+		move_tween.kill()
+	move_tween = create_tween()
+	move_tween.tween_property(Inner, "position", walkEndPos, 1.6).as_relative()
+	for i in range(move_count):
+		walkAng = swipe_rng.randf() * TAU
+		walkEndPos = swipe_rng.randi_range(80, 120) * Vector2.from_angle(walkAng)
+		move_tween.tween_property(Inner, "position", walkEndPos, 1.6).as_relative().set_delay(0.1)
+	move_tween.finished.connect(_walkBreak)
+
+func _walkBreak() -> void:
+	AnimPlay.play("RunBreak", 0.5)
+	var break_time = snapped(swipe_rng.randf_range(0.5, 3.0), 0.01)
+	
+	if move_tween:
+		move_tween.kill()
+	move_tween = create_tween()
+	move_tween.tween_callback(_idleTrigger).set_delay(break_time)
 	
 #Use the 
 func _findClosestTarget() -> void:
+	#var DetectionNode = $InnerNode/BroadDetectionRadius
+	if $DetectionRecheck.is_stopped():
+		$InnerNode/BroadDetectionRadius.set_deferred("monitoring", true)
+		$DetectionRecheck.start()
+	
+func _on_detection_recheck_timeout() -> void:
+	_closeCheck()
+
+func _closeCheck() -> void:
 	var DetectionNode = $InnerNode/BroadDetectionRadius
-	DetectionNode.monitoring = true
+	var playerFlag = false
 	if not (DetectionNode.has_overlapping_areas() or DetectionNode.has_overlapping_bodies()):
+		print("Sup")
 		TargetRef = null
 		state = IDLE
 		DetectionNode.set_deferred("monitoring", false)
-		if move_tween:	
-			move_tween.kill()
+		#if move_tween:	
+		#	move_tween.kill()
 		if ear_tween:
 			ear_tween.kill()
+		_idleTrigger()
 	else:	
+		print("nope")
 		var localAreas = DetectionNode.get_overlapping_areas()
 		#Could probably do a mapped lambda function here but I'm lazy
 		
@@ -462,7 +516,7 @@ func _findClosestTarget() -> void:
 		var closestNodeRef
 		for a in localAreas:
 			var mainbody = a.getParent()
-			if mainbody.ID != ID:
+			if mainbody.getID() != ID:
 				currDist = tempPos.distance_squared_to(mainbody.getPosition()) 
 				if currDist < minDistance:
 					minDistance = currDist
@@ -471,15 +525,19 @@ func _findClosestTarget() -> void:
 		var localBodies = DetectionNode.get_overlapping_bodies()
 		
 		for b in localBodies:
-			if b.ID != ID:
+			var b_id = b.getID()
+			if b_id != ID:
 				currDist = tempPos.distance_squared_to(b.getPosition()) 
 				if currDist < minDistance:
+					playerFlag = (b_id == 0)
 					minDistance = currDist
 					closestNodeRef = b
-		
-		TargetRef = closestNodeRef
-		DetectionNode.set_deferred("monitoring", false)
-		_aggressionTrigger(false)
+		if playerFlag:
+			_onPlayerDetection(closestNodeRef)
+		else:
+			TargetRef = closestNodeRef
+			DetectionNode.set_deferred("monitoring", false)
+			_aggressionTrigger(false)
 	
 func _onPlayerDetection(PlayRef : Node2D) -> void:
 	#Disable the detection radius
@@ -568,15 +626,16 @@ func getPosition() -> Vector2:
 func _on_player_distance_check_timeout() -> void:
 	#Might need a null check here
 	if not TargetRef or TargetRef.isDead():
-		_findClosestTarget()
 		$PlayerDistanceCheck.stop()
 		$InnerNode/DetectionRadius.set_deferred("monitoring", true)
+		TargetRef = null
+		_findClosestTarget()
 	else:
 		var playerPos = TargetRef.getPosition() 
 		if getPosition().distance_squared_to(playerPos) > follow_range_squared:
-			_findClosestTarget()
 			$PlayerDistanceCheck.stop()
 			$InnerNode/DetectionRadius.set_deferred("monitoring", true)
+			_findClosestTarget()
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	print(anim_name)
@@ -646,7 +705,7 @@ func getDamage() -> float:
 func getKnockback() -> float:
 	return base_knockback
 
-func getID(idtype = 0) -> int:
+func getID(_idtype = 0) -> int:
 	return ID
 
 func isDead() -> bool:

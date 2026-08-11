@@ -2240,7 +2240,6 @@ shape = SubResource("CircleShape2D_df2fm")
 visible = false
 collision_layer = 0
 collision_mask = 18
-monitoring = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/BroadDetectionRadius"]
@@ -2374,6 +2373,10 @@ wait_time = 2.5
 visible = false
 polygon = PackedVector2Array(-3, 18, 421, -72, 631, 4, 407, 72)
 
+[node name="DetectionRecheck" type="Timer" parent="."]
+wait_time = 0.05
+one_shot = true
+
 [connection signal="area_entered" from="InnerNode/DetectionRadius" to="." method="_on_detection_radius_area_entered"]
 [connection signal="body_entered" from="InnerNode/DetectionRadius" to="." method="_on_detection_radius_body_entered"]
 [connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
@@ -2381,3 +2384,4 @@ polygon = PackedVector2Array(-3, 18, 421, -72, 631, 4, 407, 72)
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
 [connection signal="timeout" from="PlayerDistanceCheck" to="." method="_on_player_distance_check_timeout"]
 [connection signal="timeout" from="DamageTestTimer" to="." method="_on_damage_test_timer_timeout"]
+[connection signal="timeout" from="DetectionRecheck" to="." method="_on_detection_recheck_timeout"]
