@@ -146,7 +146,11 @@ func _chooseNextAttack() -> void:
 #Set run charge to 1.5x for first attack in phase 2. Either that or make a shorter duration version
 func _runStart() -> void:
 	state = CHARGE_RUN
-	AnimPlay.play("RunCharge", 0.25, run_charge_speed)
+	if move_tween:
+		move_tween.kill()
+	if ear_tween:
+		ear_tween.kill()
+	AnimPlay.play("RunCharge", 0.2, run_charge_speed)
 	run_charge_speed = run_charge_speed_base
 	
 	direction_angle = _getTargetDirection()
@@ -370,6 +374,7 @@ func _stunned() -> void:
 func _getTargetDirection() -> float:
 	if not TargetRef or TargetRef.isDead():
 		TargetRef = null
+		print("OOP{S}")
 		_findClosestTarget()
 		return direction_angle
 	else:	
@@ -475,7 +480,8 @@ func _walkAimlessly() -> void:
 
 func _walkBreak() -> void:
 	AnimPlay.play("RunBreak", 0.5)
-	var break_time = snapped(swipe_rng.randf_range(0.5, 3.0), 0.01)
+	#Make sure to keep this here to prevent runbreak from completing
+	var break_time = snapped(swipe_rng.randf_range(0.5, 3.0) / attack_speed, 0.01)
 	
 	if move_tween:
 		move_tween.kill()
@@ -625,6 +631,7 @@ func getPosition() -> Vector2:
 
 func _on_player_distance_check_timeout() -> void:
 	#Might need a null check here
+	
 	if not TargetRef or TargetRef.isDead():
 		$PlayerDistanceCheck.stop()
 		$InnerNode/DetectionRadius.set_deferred("monitoring", true)
