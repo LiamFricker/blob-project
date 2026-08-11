@@ -26,6 +26,7 @@ var attack_mods : Array = [false, false, false, false, false]
 
 var energy = 0
 signal currencyUpdate(index : int, value : float)
+signal spawnOrbs(amt : int, pos : Vector2)
 #Upgrades and bonuses count
 var staticBonuses = []
 var upgradeTab1 = [0, 0, 0]
@@ -1577,11 +1578,86 @@ func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int
 func getAttachNode() -> Node2D:
 	return attach
 
-func _on_hurtbox_area_entered(_area: Area2D) -> void:
-	pass # Replace with function body.
+func _on_hurtbox_area_entered(area: Area2D) -> void:
+	#var temp_enemy = area.getParent()
+	var dmg = area.getDamage()
+	if area.getID() != 0 and dmg > 0: #temp_enemy.getID()
+		takeDamage(dmg, area.getPosition(), area.getKnockback())
 
-func _on_hurtbox_body_entered(_body: Node2D) -> void:
-	pass # Replace with function body.
+func _on_hurtbox_body_entered(body: Node2D) -> void:
+	var dmg = body.getDamage()
+	if body.getID() != 0 and dmg > 0:
+		takeDamage(dmg, body.getPosition(), body.getKnockback())
 
-func takeDamage(_damage : float, _kb = 1.0) -> void:
-	pass
+func takeDamage(damage : float, dmgDir = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
+	_damagedEffect(damage, dmgDir, kb, _kwargs)
+	spawnOrbs.emit(1, getPosition())
+
+func _damagedEffect(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) -> void:
+	knockback(pos, amt, kb)
+
+#player cannot get multiple knocback effects. If they somehow get a new one, just cancel the old one.
+#Player shouldn't be able to do things while knockbacked. Make sure to cancel abilities and such.
+func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
+	"""
+	var power = 4.0 * kb * dmg / (health_max * weight)
+	var dir : Vector2 = getPosition() - pos
+	var dir_len : float = dir.length()
+	if dir_len < 20:
+		dir_len = 20
+	var dir_norm : Vector2 = dir.normalized() #Could also do dir / dir_len
+	
+	oldDirPower = 5000.0 * power / dir_len 
+	var end_dir = oldDirPower*dir_norm
+	if power <= 0.5 or superArmor:
+		_shake(end_dir, power)
+	else:
+		var rot_speed = 0.1 * power * dir_len if dir.x > 0 else -0.1 * power * dir_len
+		
+		if kb_moving:
+			var oldDirection = (getPosition() - startPosition)
+			var oldLen = oldDirection.length()
+			var percentDist = 1 - oldLen/(oldDirPower+1)
+			if percentDist <= 0:
+				kb_moving = false
+				knockback(pos, dmg, kb, speed)
+			else:
+				end_dir += oldDirPower * percentDist * oldDirection.normalized()
+				oldDirPower = end_dir.length()
+				power += percentDist
+				
+				if movement_tween:
+					movement_tween.kill()
+				movement_tween = create_tween()
+				match speed:
+					0:
+						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+					1:
+						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+					2:
+						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+				startPosition = getPosition()
+				var timeSpeed = snapped(log(power+1.25), 0.01)
+				movement_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
+				movement_tween.parallel().tween_property(Inner, "rotation", rot_speed, timeSpeed)
+				_handleRedFlash()
+				movement_tween.tween_callback(_knockbackEnd)
+		else:
+			if movement_tween:
+				movement_tween.kill()
+			movement_tween = create_tween()
+			match speed:
+				0:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+				1:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+				2:
+					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+			kb_moving = true
+			startPosition = getPosition()
+			var timeSpeed = snapped(log(power+1.25), 0.01)
+			movement_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
+			movement_tween.parallel().tween_property(Inner, "rotation", rot_speed, timeSpeed)
+			_handleRedFlash()
+			movement_tween.tween_callback(_knockbackEnd)
+	"""
