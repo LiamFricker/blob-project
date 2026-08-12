@@ -11,11 +11,11 @@
 [ext_resource type="PackedScene" uid="uid://dg88vj8yfbw4t" path="res://Blob/organelles.tscn" id="7_fcc0v"]
 [ext_resource type="Script" uid="uid://cekx7gkpetryd" path="res://Blob/player_attachments.gd" id="10_5yg2x"]
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_8tadd"]
-viewport_path = NodePath("SubViewport")
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_8tadd"]
 radius = 18.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_8tadd"]
+viewport_path = NodePath("SubViewport")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_a16ly"]
 radius = 16.1245
@@ -25,7 +25,7 @@ collision_layer = 17
 collision_mask = 32
 script = ExtResource("1_560oe")
 mouseMovement = false
-camReference = NodePath("Camera2D")
+camReference = NodePath("InnerNode/Camera2D")
 waddle_speed = 10
 frog_speed = 1.25
 frog_travel_speed = 1.25
@@ -34,22 +34,27 @@ charge_speed = 10.0
 lasso_cursor_speed = 2.0
 base_invul_time = 1.0
 
-[node name="Pivot" type="Node2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_8tadd")
+
+[node name="InnerNode" type="Node2D" parent="."]
+
+[node name="Pivot" type="Node2D" parent="InnerNode"]
 scale = Vector2(1, 1.5)
 
-[node name="Node2D" type="Node2D" parent="Pivot"]
+[node name="Node2D" type="Node2D" parent="InnerNode/Pivot"]
 
-[node name="Polygon2D2" type="Polygon2D" parent="Pivot/Node2D"]
+[node name="Polygon2D2" type="Polygon2D" parent="InnerNode/Pivot/Node2D"]
 position = Vector2(0, -44)
 scale = Vector2(1, 1.16702)
 color = Color(0.81, 0.81, 0.81, 1)
 polygon = PackedVector2Array(-12, 0, 0, -17, 12, 0, 4, 2, 0, -7, -4, 2)
 
-[node name="Polygon2D" type="Polygon2D" parent="Pivot/Node2D"]
+[node name="Polygon2D" type="Polygon2D" parent="InnerNode/Pivot/Node2D"]
 position = Vector2(0, -44)
 polygon = PackedVector2Array(-10, 0, 0, -18, 10, 0, 4, 0, 0, -10, -4, 0)
 
-[node name="Glimmer" type="Polygon2D" parent="Pivot/Node2D"]
+[node name="Glimmer" type="Polygon2D" parent="InnerNode/Pivot/Node2D"]
 position = Vector2(0, -44)
 scale = Vector2(1, 1.16702)
 texture = ExtResource("2_02q5b")
@@ -57,62 +62,62 @@ texture_offset = Vector2(24, 7)
 texture_scale = Vector2(4, 4)
 polygon = PackedVector2Array(-12, 0, 0, -17, 12, 0, 4, 2, 0, -7, -4, 2)
 
-[node name="lasso" parent="." node_paths=PackedStringArray("playerRef") instance=ExtResource("3_xsdnl")]
+[node name="lasso" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("3_xsdnl")]
 visible = false
-playerRef = NodePath("..")
+playerRef = NodePath("../..")
 
-[node name="SpeedBoost" parent="." node_paths=PackedStringArray("playerRef") instance=ExtResource("4_a16ly")]
+[node name="SpeedBoost" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("4_a16ly")]
 buff_type = 1
-playerRef = NodePath("..")
+playerRef = NodePath("../..")
 
-[node name="Sprite" type="Node2D" parent="."]
+[node name="Sprite" type="Node2D" parent="InnerNode"]
 
-[node name="Tentacle0" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle0" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(4, -4)
 rotation = -0.785398
 
-[node name="Tentacle1" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle1" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(8, 0)
 tentacle_number = 1
 
-[node name="Tentacle2" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle2" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(4, 4)
 rotation = 0.785398
 tentacle_number = 2
 
-[node name="Tentacle3" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle3" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(2, 6)
 rotation = 1.1781
 tentacle_number = 3
 
-[node name="Tentacle4" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle4" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(0, 8)
 rotation = 1.5708
 tentacle_number = 4
 
-[node name="Tentacle5" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle5" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(-2, 6)
 rotation = 1.9635
 tentacle_number = 5
 
-[node name="Tentacle6" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle6" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(-4, 4)
 rotation = 2.35619
 tentacle_number = 6
 
-[node name="Tentacle7" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle7" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(-8, 0)
 rotation = 3.14159
 tentacle_number = 7
 
-[node name="Tentacle8" parent="Sprite" instance=ExtResource("3_8tadd")]
+[node name="Tentacle8" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
 position = Vector2(-4, -4)
 rotation = -2.35619
 tentacle_number = 8
 
-[node name="Node2D" type="Node2D" parent="Sprite"]
+[node name="Node2D" type="Node2D" parent="InnerNode/Sprite"]
 
-[node name="Wall" type="Polygon2D" parent="Sprite/Node2D"]
+[node name="Wall" type="Polygon2D" parent="InnerNode/Sprite/Node2D"]
 texture_repeat = 2
 material = ExtResource("5_8tadd")
 position = Vector2(-18, -18)
@@ -122,7 +127,7 @@ texture_scale = Vector2(0.5, 0.5)
 polygon = PackedVector2Array(0.248546, 5.17523, 0.894822, 3.50852, 1.99477, 2.07727, 3.44531, 0.960938, 5.16406, 0.242188, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0, 16, 0, 17, 0, 18, 0, 19, 0, 20, 0, 21, 0, 22, 0, 23, 0, 24, 0, 25, 0, 26.8203, 0.242188, 28.5234, 0.945313, 29.9609, 2.03906, 31.111, 3.50489, 31.7916, 5.24791, 32, 7, 32, 8, 32, 9, 32, 10, 32, 11, 32, 12, 32, 13, 32, 14, 32, 15, 32, 16, 32, 17, 32, 18, 32, 19, 32, 20, 32, 21, 32, 22, 32, 23, 32, 24, 32, 25, 31.7327, 26.9496, 31.1178, 28.5002, 29.9545, 29.948, 28.5234, 31.064, 26.8282, 31.7625, 25, 32, 24, 32, 23, 32, 22, 32, 21, 32, 20, 32, 19, 32, 18, 32, 17, 32, 16, 32, 15, 32, 14, 32, 13, 32, 12, 32, 11, 32, 10, 32, 9, 32, 8, 32, 7, 32, 5.15548, 31.7836, 3.45475, 31.024, 2.0715, 29.9809, 0.949017, 28.5182, 0.223373, 26.8175, 0, 25, 0, 24, 0, 23, 0, 22, 0, 21, 0, 20, 0, 19, 0, 18, 0, 17, 0, 16, 0, 15, 0, 14, 0, 13, 0, 12, 0, 11, 0, 10, 0, 9, 0, 8, 0, 7)
 uv = PackedVector2Array(11.3698, 13.7535, 12.3394, 11.253, 13.9897, 9.1057, 16.1659, 7.43088, 18.7445, 6.35256, 21.4989, 5.98921, 22.9992, 5.98921, 24.4995, 5.98921, 25.9998, 5.98921, 27.5, 5.98921, 29.0003, 5.98921, 30.5006, 5.98921, 32.0009, 5.98921, 33.5012, 5.98921, 35.0014, 5.98921, 36.5017, 5.98921, 38.002, 5.98921, 39.5023, 5.98921, 41.0026, 5.98921, 42.5029, 5.98921, 44.0031, 5.98921, 45.5034, 5.98921, 47.0037, 5.98921, 48.504, 5.98921, 51.2349, 6.35256, 53.7901, 7.40744, 55.9467, 9.04837, 57.6722, 11.2475, 58.6933, 13.8626, 59.006, 16.4912, 59.006, 17.9915, 59.006, 19.4917, 59.006, 20.992, 59.006, 22.4923, 59.006, 23.9926, 59.006, 25.4929, 59.006, 26.9931, 59.006, 28.4934, 59.006, 29.9937, 59.006, 31.494, 59.006, 32.9943, 59.006, 34.4946, 59.006, 35.9948, 59.006, 37.4951, 59.006, 38.9954, 59.006, 40.4957, 59.006, 41.996, 59.006, 43.4963, 58.6049, 46.4212, 57.6824, 48.7475, 55.9371, 50.9196, 53.7901, 52.594, 51.2468, 53.6419, 48.504, 53.9982, 47.0037, 53.9982, 45.5034, 53.9982, 44.0031, 53.9982, 42.5029, 53.9982, 41.0026, 53.9982, 39.5023, 53.9982, 38.002, 53.9982, 36.5017, 53.9982, 35.0014, 53.9982, 33.5012, 53.9982, 32.0009, 53.9982, 30.5006, 53.9982, 29.0003, 53.9982, 27.5, 53.9982, 25.9998, 53.9982, 24.4995, 53.9982, 22.9992, 53.9982, 21.4989, 53.9982, 18.7316, 53.6736, 16.18, 52.534, 14.1048, 50.969, 12.4207, 48.7745, 11.3321, 46.223, 10.9969, 43.4963, 10.9969, 41.996, 10.9969, 40.4957, 10.9969, 38.9954, 10.9969, 37.4951, 10.9969, 35.9948, 10.9969, 34.4946, 10.9969, 32.9943, 10.9969, 31.494, 10.9969, 29.9937, 10.9969, 28.4934, 10.9969, 26.9931, 10.9969, 25.4929, 10.9969, 23.9926, 10.9969, 22.4923, 10.9969, 20.992, 10.9969, 19.4917, 10.9969, 17.9915, 10.9969, 16.4912)
 
-[node name="Inside" type="Polygon2D" parent="Sprite/Node2D"]
+[node name="Inside" type="Polygon2D" parent="InnerNode/Sprite/Node2D"]
 texture_repeat = 2
 material = ExtResource("5_8tadd")
 position = Vector2(-16, -16)
@@ -130,51 +135,51 @@ texture = SubResource("ViewportTexture_8tadd")
 polygon = PackedVector2Array(0.248546, 5.17523, 0.894822, 3.50852, 1.99477, 2.07727, 3.44531, 0.960938, 5.16406, 0.242188, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15, 0, 16, 0, 17, 0, 18, 0, 19, 0, 20, 0, 21, 0, 22, 0, 23, 0, 24, 0, 25, 0, 26.8203, 0.242188, 28.5234, 0.945313, 29.9609, 2.03906, 31.111, 3.50489, 31.7916, 5.24791, 32, 7, 32, 8, 32, 9, 32, 10, 32, 11, 32, 12, 32, 13, 32, 14, 32, 15, 32, 16, 32, 17, 32, 18, 32, 19, 32, 20, 32, 21, 32, 22, 32, 23, 32, 24, 32, 25, 31.7327, 26.9496, 31.1178, 28.5002, 29.9545, 29.948, 28.5234, 31.064, 26.8282, 31.7625, 25, 32, 24, 32, 23, 32, 22, 32, 21, 32, 20, 32, 19, 32, 18, 32, 17, 32, 16, 32, 15, 32, 14, 32, 13, 32, 12, 32, 11, 32, 10, 32, 9, 32, 8, 32, 7, 32, 5.15548, 31.7836, 3.45475, 31.024, 2.0715, 29.9809, 0.949017, 28.5182, 0.223373, 26.8175, 0, 25, 0, 24, 0, 23, 0, 22, 0, 21, 0, 20, 0, 19, 0, 18, 0, 17, 0, 16, 0, 15, 0, 14, 0, 13, 0, 12, 0, 11, 0, 10, 0, 9, 0, 8, 0, 7)
 uv = PackedVector2Array(14.7958, 18.7478, 15.5081, 16.9107, 16.7205, 15.3331, 18.3194, 14.1026, 20.2139, 13.3104, 22.2376, 13.0434, 23.3398, 13.0434, 24.4421, 13.0434, 25.5443, 13.0434, 26.6466, 13.0434, 27.7488, 13.0434, 28.8511, 13.0434, 29.9533, 13.0434, 31.0556, 13.0434, 32.1578, 13.0434, 33.2601, 13.0434, 34.3623, 13.0434, 35.4646, 13.0434, 36.5668, 13.0434, 37.6691, 13.0434, 38.7713, 13.0434, 39.8736, 13.0434, 40.9758, 13.0434, 42.0781, 13.0434, 44.0845, 13.3104, 45.9617, 14.0854, 47.5462, 15.291, 48.8139, 16.9067, 49.5641, 18.8279, 49.7938, 20.7592, 49.7938, 21.8614, 49.7938, 22.9637, 49.7938, 24.0659, 49.7938, 25.1682, 49.7938, 26.2704, 49.7938, 27.3727, 49.7938, 28.4749, 49.7938, 29.5772, 49.7938, 30.6794, 49.7938, 31.7817, 49.7938, 32.8839, 49.7938, 33.9862, 49.7938, 35.0884, 49.7938, 36.1907, 49.7938, 37.2929, 49.7938, 38.3952, 49.7938, 39.4974, 49.7938, 40.5997, 49.4992, 42.7486, 48.8214, 44.4577, 47.5392, 46.0536, 45.9617, 47.2837, 44.0932, 48.0536, 42.0781, 48.3154, 40.9758, 48.3154, 39.8736, 48.3154, 38.7713, 48.3154, 37.6691, 48.3154, 36.5668, 48.3154, 35.4646, 48.3154, 34.3623, 48.3154, 33.2601, 48.3154, 32.1578, 48.3154, 31.0556, 48.3154, 29.9533, 48.3154, 28.8511, 48.3154, 27.7488, 48.3154, 26.6466, 48.3154, 25.5443, 48.3154, 24.4421, 48.3154, 23.3398, 48.3154, 22.2376, 48.3154, 20.2044, 48.0769, 18.3298, 47.2396, 16.8051, 46.0899, 15.5679, 44.4776, 14.768, 42.603, 14.5218, 40.5997, 14.5218, 39.4974, 14.5218, 38.3952, 14.5218, 37.2929, 14.5218, 36.1907, 14.5218, 35.0884, 14.5218, 33.9862, 14.5218, 32.8839, 14.5218, 31.7817, 14.5218, 30.6794, 14.5218, 29.5772, 14.5218, 28.4749, 14.5218, 27.3727, 14.5218, 26.2704, 14.5218, 25.1682, 14.5218, 24.0659, 14.5218, 22.9637, 14.5218, 21.8614, 14.5218, 20.7592)
 
-[node name="Eye" type="Node2D" parent="Sprite/Node2D"]
+[node name="Eye" type="Node2D" parent="InnerNode/Sprite/Node2D"]
 
-[node name="Eye" type="Polygon2D" parent="Sprite/Node2D/Eye"]
+[node name="Eye" type="Polygon2D" parent="InnerNode/Sprite/Node2D/Eye"]
 position = Vector2(-20, -16)
 color = Color(0, 0, 0, 1)
 polygon = PackedVector2Array(16, 12, 24, 12, 24, 20, 16, 20)
 
-[node name="Eye2" type="Polygon2D" parent="Sprite/Node2D/Eye"]
+[node name="Eye2" type="Polygon2D" parent="InnerNode/Sprite/Node2D/Eye"]
 position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
-[node name="Crosshair" type="Sprite2D" parent="."]
+[node name="Crosshair" type="Sprite2D" parent="InnerNode"]
 visible = false
 texture = ExtResource("6_fcc0v")
 offset = Vector2(0, 1)
 
-[node name="Camera2D2" type="Camera2D" parent="."]
+[node name="Camera2D2" type="Camera2D" parent="InnerNode"]
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="InnerNode"]
 offset = Vector2(115, 0)
 enabled = false
 zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 
-[node name="LazyNode" type="Node2D" parent="."]
+[node name="Hurtbox" type="Area2D" parent="InnerNode"]
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox"]
+shape = SubResource("CircleShape2D_a16ly")
+
+[node name="Attachments" type="Node2D" parent="InnerNode" node_paths=PackedStringArray("playerRef")]
+script = ExtResource("10_5yg2x")
+playerRef = NodePath("../..")
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="InnerNode"]
+remote_path = NodePath("../../CollisionShape2D")
+update_rotation = false
+update_scale = false
 
 [node name="SubViewport" type="SubViewport" parent="."]
 size = Vector2i(64, 64)
 
 [node name="Organelles" parent="SubViewport" instance=ExtResource("7_fcc0v")]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_8tadd")
-
-[node name="Hurtbox" type="Area2D" parent="."]
-collision_layer = 0
-collision_mask = 4
-monitorable = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
-shape = SubResource("CircleShape2D_a16ly")
-
-[node name="Attachments" type="Node2D" parent="." node_paths=PackedStringArray("playerRef")]
-script = ExtResource("10_5yg2x")
-playerRef = NodePath("..")
 
 [node name="WaddleOrbTimer" type="Timer" parent="."]
 wait_time = 2.5
@@ -187,16 +192,16 @@ one_shot = true
 wait_time = 0.25
 one_shot = true
 
-[connection signal="lassoBuffToggle" from="lasso" to="." method="_on_lasso_lasso_buff_toggle"]
-[connection signal="lassoLocationReached" from="lasso" to="." method="_on_lasso_lasso_location_reached"]
-[connection signal="lassoStall" from="lasso" to="." method="_on_lasso_lasso_stall"]
-[connection signal="lassoThrowCancel" from="lasso" to="." method="_on_lasso_lasso_throw_cancel"]
-[connection signal="boost_off_cooldown" from="SpeedBoost" to="." method="_on_speed_boost_boost_off_cooldown"]
-[connection signal="crystal_activated" from="SpeedBoost" to="." method="_on_speed_boost_crystal_activated"]
-[connection signal="crystal_canceled" from="SpeedBoost" to="." method="_on_speed_boost_crystal_canceled"]
-[connection signal="spawn_bomb" from="SpeedBoost" to="." method="_on_speed_boost_spawn_bomb"]
-[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
-[connection signal="body_entered" from="Hurtbox" to="." method="_on_hurtbox_body_entered"]
+[connection signal="lassoBuffToggle" from="InnerNode/lasso" to="." method="_on_lasso_lasso_buff_toggle"]
+[connection signal="lassoLocationReached" from="InnerNode/lasso" to="." method="_on_lasso_lasso_location_reached"]
+[connection signal="lassoStall" from="InnerNode/lasso" to="." method="_on_lasso_lasso_stall"]
+[connection signal="lassoThrowCancel" from="InnerNode/lasso" to="." method="_on_lasso_lasso_throw_cancel"]
+[connection signal="boost_off_cooldown" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_boost_off_cooldown"]
+[connection signal="crystal_activated" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_crystal_activated"]
+[connection signal="crystal_canceled" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_crystal_canceled"]
+[connection signal="spawn_bomb" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_spawn_bomb"]
+[connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
+[connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]
 [connection signal="timeout" from="InvulTimer" to="." method="_on_invul_timer_timeout"]
 [connection signal="timeout" from="InvulLeeWay" to="." method="_on_invul_lee_way_timeout"]

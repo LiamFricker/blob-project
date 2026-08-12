@@ -70,7 +70,7 @@ var up_input = false
 var down_input = false
 
 var move_abil_mod = 1
-@onready var sprite_ref = $Sprite
+@onready var sprite_ref = $InnerNode/Sprite
 
 #BASIC stuff
 var x_dir : float = 0.0
@@ -151,7 +151,7 @@ var sb_synergy_buffs : Array = [false, false, false]
 var sb_speed_buff : float = 1.0
 @export var sb_synergy_buff : float = 1.5
 var sb_state = 0
-@onready var sb_ref = $SpeedBoost
+@onready var sb_ref = $InnerNode/SpeedBoost
 @export var sb_anim_speed : float = 1.0
 const base_collection_radius : float = 18.0
 @export var sb_decay : bool = true 
@@ -167,8 +167,8 @@ const lasso_base_range = 240
 @export var lasso_gain_speed : float = 1.0
 @export var max_lasso_range : float = 1.0
 var lasso_progress : float = 0.0
-@onready var lassoRef = $lasso
-@onready var crosshairRef = $Crosshair
+@onready var lassoRef = $InnerNode/lasso
+@onready var crosshairRef = $InnerNode/Crosshair
 var lasso_buff : bool = true
 #@export var lasso_type : int = 0
 var buffRef : Node2D
@@ -185,8 +185,10 @@ var move_kb_mod = 1.0
 @export var base_invul_time = 0.25
 @export var orb_refund_ratio = 0.25
 var invul_leeway_count = 2
+#If this doesn't work, change to using an InnerNode.
 
-@onready var attach = $Attachments
+@onready var attach = $InnerNode/Attachments
+@onready var Inner = $InnerNode
 
 #A couple things here:
 #The OrbTimer in cell needs to be changed based on how fast we can travel
@@ -257,13 +259,13 @@ func _input(event: InputEvent) -> void:
 		position = Vector2.ZERO
 		velocity = Vector2.ZERO
 		activateRipple(Vector2(0.5, 0.866), 1.0)
-		$Sprite/Tentacle1.whip(-1)
+		$InnerNode/Sprite/Tentacle1.whip(-1)
 
 func activateRipple(origin: Vector2, amplitude: float) -> void:
-	$Sprite/Node2D/Inside.material.set_shader_parameter("rippleSource", origin)
-	$Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmp", amplitude)
-	$Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmpMax", -amplitude)
-	$Sprite/Node2D/Inside.material.set_shader_parameter("rippleOn", true)
+	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleSource", origin)
+	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmp", amplitude)
+	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmpMax", -amplitude)
+	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleOn", true)
 	rippleAmp = amplitude
 	rippleMax = -amplitude
 	oscilator = 0
@@ -313,26 +315,25 @@ func _physics_process(delta: float) -> void:
 	if rippleOn:
 		oscilator += delta * 1.25
 		var rippleAmpCurrent = rippleAmp/2.5 * sin(2.5 * oscilator)/oscilator
-		$Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmp", rippleAmpCurrent)
+		$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmp", rippleAmpCurrent)
 		if oscilator > 17.5:
 			rippleOn = false
-			$Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmp", 0)
+			$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmp", 0)
 		elif oscilator > rippleTime:
 			rippleMax *= -0.6
-			$Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmpMax", rippleMax)
+			$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleAmpMax", rippleMax)
 			rippleTime += 1.2
 	
 	if pulseCount > 0:
 		#print("PulseCount: ", pulseCount)
-		$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", pulseAmp1)
+		$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", pulseAmp1)
 		#print("Pulse Amp 1: ", pulseAmp1)
 		if pulseCount > 1:
 			#print("Pulse Amp 2: ", pulseAmp2)
-			$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp2)
+			$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp2)
 			if pulseCount > 2:
 				#print("Pulse Amp 3: ", pulseAmp3)
-				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", pulseAmp3)
-
+				$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", pulseAmp3)
 	if charge_dash:# and chargeStrength > 2:
 		_primaryLogic(delta, friction_delta)
 	else:
@@ -362,8 +363,8 @@ func _waddleLogic(delta: float, _friction_delta : float) -> void:
 	#var y_dir : float
 	#print("Right: ", Input.is_action_pressed("Right"))
 	#print(velocity.length()/100)
-	#$Sprite/Node2D/Inside.material.set_shader_parameter("frequency", 2.5 + ceil(velocity.length())/100 * size)
-	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
+	#$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("frequency", 2.5 + ceil(velocity.length())/100 * size)
+	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 	
 	var waddle_total_speed = accel * delta * waddle_speed * move_abil_mod * move_kb_mod * waddle_speed_bonus * sb_speed_buff
 	#Attack speed calc for now. Make sure to realize this is (+)  here
@@ -386,7 +387,7 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 		#This is inefficient but I know doing this manually is a pain in the ass to bug fix so I cba
 		x_dir = sign(mousePos.angle_to(Vector2.from_angle(charge_angle+PI/2)))
 	
-	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
+	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 			
 	#board_speed += board_accel
 	
@@ -415,7 +416,7 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 		charge_angle += board_turning_speed * x_dir * delta * move_abil_mod * move_kb_mod
 		velocity = board_speed * move_abil_mod * move_kb_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
 	
-	$Pivot.rotation = charge_angle
+	$InnerNode/Pivot.rotation = charge_angle
 	sprite_ref.rotation = charge_angle
 	if primary_ability == SPEED_BOOST:
 		sb_ref.changeRot(charge_angle)
@@ -445,7 +446,7 @@ func _chargeDash(delta: float, friction_delta : float)-> void:
 	else:
 		temp = int(right_input) - int(left_input)
 	charge_angle += charge_angle_speed * temp * delta * chargeStrength * 0.005
-	$Pivot.rotation = charge_angle
+	$InnerNode/Pivot.rotation = charge_angle
 	sprite_ref.rotation = charge_angle
 	
 	var chargeVelocity = Vector2(chargeStrength * cos(charge_angle - PI/2), chargeStrength * sin(charge_angle - PI/2))
@@ -676,19 +677,19 @@ func _frogPressStart() -> void:
 		if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0: 
 			basic_tween.tween_property(self, "frog_charge", frogLowerBound, frog_charge_rate).as_relative()
 			#var tempVec = 0.25 * (scaleVec - Vector2(1.0, 1.0))
-			#basic_tween.tween_property($Sprite/Node2D, "scale", tempVec, frogLowerBound / frog_charge_gain).as_relative()
+			#basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", tempVec, frogLowerBound / frog_charge_gain).as_relative()
 		else:
-			basic_tween.tween_property($Sprite/Node2D, "scale", scaleVec, frog_charge_rate)
+			basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", scaleVec, frog_charge_rate)
 			basic_tween.parallel().tween_property(self, "frog_charge", frogLowerBound, frog_charge_rate).as_relative()
 			
 		"""
 		if frogDirection.y:
 			if frogDirection.x:
-				basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.7, 0.7), frogLowerBound / frog_charge_gain)
+				basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(0.7, 0.7), frogLowerBound / frog_charge_gain)
 			else:
-				basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 0.7), frogLowerBound / frog_charge_gain)
+				basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1, 0.7), frogLowerBound / frog_charge_gain)
 		elif frogDirection.x:
-			basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.7, 1), frogLowerBound / frog_charge_gain)
+			basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(0.7, 1), frogLowerBound / frog_charge_gain)
 		"""
 		
 		basic_tween.finished.connect(_frogPress)
@@ -719,19 +720,19 @@ func _frogPress() -> void:
 		
 		if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0: 
 			#var tempVec = 0.1 * (scaleVec - Vector2(1.0, 1.0))
-			#basic_tween.tween_property($Sprite/Node2D, "scale", tempVec, frogLowerBound / frog_charge_gain).as_relative()
+			#basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", tempVec, frogLowerBound / frog_charge_gain).as_relative()
 			basic_tween.tween_property(self, "frog_charge", frogLowerBound, frog_charge_rate).as_relative()
 		else:
-			basic_tween.tween_property($Sprite/Node2D, "scale", scaleVec, frog_charge_rate)
+			basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", scaleVec, frog_charge_rate)
 			basic_tween.parallel().tween_property(self, "frog_charge", frogLowerBound, frog_charge_rate).as_relative()
 			"""
 			if frogDirection.y:
 				if frogDirection.x:
-					basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.4, 0.4), frogLowerBound / frog_charge_gain)
+					basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(0.4, 0.4), frogLowerBound / frog_charge_gain)
 				else:
-					basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 0.4), frogLowerBound / frog_charge_gain)
+					basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1, 0.4), frogLowerBound / frog_charge_gain)
 			elif frogDirection.x:
-				basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(0.4, 1), frogLowerBound / frog_charge_gain)
+				basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(0.4, 1), frogLowerBound / frog_charge_gain)
 			"""
 		
 		basic_tween.finished.connect(_frogRelease)
@@ -752,10 +753,10 @@ func _frogCancel() -> void:
 	var frog_charge_rate = frog_max_charges * 2.0 / (frog_charge_gain * synergy_gain)
 	if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0:
 		basic_tween.tween_property(self, "frog_charge", frog_max_charges, frog_charge_rate).as_relative() 
-		basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0.0, 0.0), 0.25)
+		basic_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "position", Vector2(0.0, 0.0), 0.25)
 	else:
-		basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1.0, 1.0), 0.25)
-		basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0.0, 0.0), 0.25)
+		basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1.0, 1.0), 0.25)
+		basic_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "position", Vector2(0.0, 0.0), 0.25)
 		basic_tween.parallel().tween_property(self, "frog_charge", frog_max_charges, frog_charge_rate).as_relative()
 
 func _frogReset() -> void:
@@ -788,15 +789,15 @@ func _frogRelease() -> void:
 	
 	if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0:
 		#var tempVec = 0.1 * (scaleVec - Vector2(1.0, 1.0))
-		#basic_tween.tween_property($Sprite/Node2D, "scale", tempVec, 0.1 / frog_travel_speed).as_relative()	
-		basic_tween.parallel().tween_property($Sprite/Node2D, "position", posVec, 0.1 / frog_travel_speed)#.as_relative()
-		#basic_tween.tween_property($Sprite/Node2D, "scale", -tempVec, 0.2 / frog_travel_speed).as_relative()
-		basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.4 / frog_travel_speed)#.as_relative()
+		#basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", tempVec, 0.1 / frog_travel_speed).as_relative()	
+		basic_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "position", posVec, 0.1 / frog_travel_speed)#.as_relative()
+		#basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", -tempVec, 0.2 / frog_travel_speed).as_relative()
+		basic_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "position", Vector2(0, 0), 0.4 / frog_travel_speed)#.as_relative()
 	else:	
-		basic_tween.tween_property($Sprite/Node2D, "scale", scaleVec, 0.1 / frog_travel_speed)	
-		basic_tween.parallel().tween_property($Sprite/Node2D, "position", posVec, 0.1 / frog_travel_speed)
-		basic_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.4 / frog_travel_speed)
-		basic_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.4 / frog_travel_speed) 
+		basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", scaleVec, 0.1 / frog_travel_speed)	
+		basic_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "position", posVec, 0.1 / frog_travel_speed)
+		basic_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1, 1), 0.4 / frog_travel_speed)
+		basic_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "position", Vector2(0, 0), 0.4 / frog_travel_speed) 
 	
 	basic_tween.parallel().tween_property(self, "frog_charge", -1.0, 0.4 / frog_travel_speed).as_relative()
 	basic_tween.finished.connect(_frogReset)
@@ -832,13 +833,13 @@ func _chargePress() -> void:
 	if primary_tween:
 		primary_tween.kill()
 	primary_tween = create_tween()
-	if $Sprite/Node2D.position.y != 0:
+	if $InnerNode/Sprite/Node2D.position.y != 0:
 		resetCharge(true)
-	$Pivot.modulate = Color(1,1,1,1)
+	$InnerNode/Pivot.modulate = Color(1,1,1,1)
 	if frogState == 0:	
-		primary_tween.tween_property($Pivot, "scale", Vector2(-2, 0.6), charge_max)
+		primary_tween.tween_property($InnerNode/Pivot, "scale", Vector2(-2, 0.6), charge_max)
 	#if frog_charge <= 0:	
-	primary_tween.parallel().tween_property($Sprite/Node2D, "scale", Vector2(1, 0.25), charge_max)
+	primary_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1, 0.25), charge_max)
 	primary_tween.finished.connect(_onFullCharge)
 	handleTentacleSqueeze()	
 	move_abil_mod = 0.25
@@ -860,25 +861,25 @@ func _chargeRelease() -> void:
 	if primary_tween:
 		primary_tween.kill()
 	primary_tween = create_tween()
-	primary_tween.tween_property($Pivot, "scale", Vector2(1, 1.5), 0.1 * charge_cooldown)
-	$Pivot/Node2D/Glimmer.texture_offset = Vector2(3, 25)
-	$Pivot/Node2D/Polygon2D2.color = Color(0.8, 0.8, 0.8)
+	primary_tween.tween_property($InnerNode/Pivot, "scale", Vector2(1, 1.5), 0.1 * charge_cooldown)
+	$InnerNode/Pivot/Node2D/Glimmer.texture_offset = Vector2(3, 25)
+	$InnerNode/Pivot/Node2D/Polygon2D2.color = Color(0.8, 0.8, 0.8)
 	charge_time = min(charge_time, charge_max)
 	charge_time = max(charge_time, charge_floor)  
 	var temp = ceil(10 * charge_time/charge_max) * charge_length# if charge_time < charge_floor else ceil(10 * charge_time/charge_max) * charge_length
 	
 	#print("Temp ", temp / charge_length)
 	#Temp/20 doesn't make sense to me here
-	primary_tween.tween_property($Sprite/Node2D, "scale", Vector2(temp/20, 1 + 0.1 * temp), 0.08 * charge_cooldown)
-	primary_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+	primary_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(temp/20, 1 + 0.1 * temp), 0.08 * charge_cooldown)
+	primary_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
 	primary_tween.parallel().tween_property(self, "reverseTentacleSpin", 1.0, 0.08 * charge_cooldown)
 	handleTentacleStretch(temp)
 
 	primary_tween.tween_callback(self.setTempVelocity.bind(temp))
 	primary_tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10))
-	primary_tween.tween_property($Sprite/Node2D, "scale", Vector2(1, 1), 0.3 * charge_cooldown/charge_pull_speed)
+	primary_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1, 1), 0.3 * charge_cooldown/charge_pull_speed)
 	primary_tween.parallel().tween_property(self, "reverseTentacleSpin", 0.0, 0.3 * charge_cooldown)
-	primary_tween.parallel().tween_property($Sprite/Node2D, "position", Vector2(0, 0), 0.3 * charge_cooldown /charge_pull_speed) #-4.8 * temp
+	primary_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "position", Vector2(0, 0), 0.3 * charge_cooldown /charge_pull_speed) #-4.8 * temp
 	handleTentacleReturn()
 	
 	primary_tween.tween_callback(self.resetCharge.bind(false))#.bind(4.8*temp, charge_angle - PI/2))
@@ -951,7 +952,7 @@ func _chargeLogic(delta: float) -> void:
 		charge_angle += charge_angle_speed * temp
 		
 	handleTentacleShader()	
-	$Pivot.rotation = charge_angle
+	$InnerNode/Pivot.rotation = charge_angle
 	sprite_ref.rotation = charge_angle
 
 func _sbPress() -> void:
@@ -1004,14 +1005,14 @@ func _lassoGo() -> void:
 			if kb_moving:
 				_knockbackCancel()
 			move_abil_mod = 0
-			$CollisionShape2D.set_deferred("disabled", true)
+			$InnerNode/CollisionShape2D.set_deferred("disabled", true)
 			if primary_tween:
 				primary_tween.kill()
 			primary_tween = create_tween() 
 			
 			var normEndPos = endPos - getPosition()
 			var crossLen = normEndPos.length()
-			primary_tween.tween_property(self, "position", normEndPos, crossLen / (2.0*lasso_base_range*lasso_retract_speed)).as_relative()
+			primary_tween.tween_property(Inner, "position", normEndPos, crossLen / (2.0*lasso_base_range*lasso_retract_speed)).as_relative()
 			primary_tween.finished.connect(_lassoEnd)
 		else:
 			lassoRef.cancelLasso(true)
@@ -1025,7 +1026,7 @@ func _lassoCollisionCheck(checkPos : Vector2) -> bool:
 func _lassoEnd() -> void:
 	move_abil_mod = 1.0
 	_lassoCancel()
-	$CollisionShape2D.set_deferred("disabled", false)
+	$InnerNode/CollisionShape2D.set_deferred("disabled", false)
 	
 #Placeholder incase I need to do stuff with this
 func _lassoCancel() -> void:
@@ -1045,9 +1046,9 @@ func _onFullCharge() -> void:
 	if tween2:
 		tween2.kill()
 	tween2 = create_tween()
-	tween2.tween_property($Pivot/Node2D/Glimmer, "texture_offset", Vector2(24, 7), 0.4)
-	tween2.parallel().tween_property($Pivot/Node2D/Polygon2D2, "color", Color(1, 1, 0), 0.2)
-	tween2.tween_property($Pivot/Node2D/Polygon2D2, "color", Color(0.8, 0.8, 0.8), 0.2) 
+	tween2.tween_property($InnerNode/Pivot/Node2D/Glimmer, "texture_offset", Vector2(24, 7), 0.4)
+	tween2.parallel().tween_property($InnerNode/Pivot/Node2D/Polygon2D2, "color", Color(1, 1, 0), 0.2)
+	tween2.tween_property($InnerNode/Pivot/Node2D/Polygon2D2, "color", Color(0.8, 0.8, 0.8), 0.2) 
 
 #Just so idiot ol' me doesn't forget what this does again:
 #It's meant to align the animation dumbass. 
@@ -1057,46 +1058,46 @@ func setTempVelocity(temp:float) -> void:
 func resetCharge(cutoff : bool) -> void:#distance:float, angle:float) -> void:
 	#position += Vector2(cos(angle), sin(angle))*distance
 	tempVelocity = Vector2.ZERO
-	#$CollisionShape2D.position = Vector2(0,0)
+	#$InnerNode/CollisionShape2D.position = Vector2(0,0)
 	if cutoff:
-		$Sprite/Node2D.position = Vector2(0,0)
-		$Sprite/Tentacle0.position = Vector2(4,-4)
-		$Sprite/Tentacle1.position = Vector2(8,0)
-		$Sprite/Tentacle2.position = Vector2(4,4)
-		$Sprite/Tentacle3.position = Vector2(2,6)
-		$Sprite/Tentacle4.position = Vector2(0,8)
-		$Sprite/Tentacle5.position = Vector2(-2,6)
-		$Sprite/Tentacle6.position = Vector2(-4,4)
-		$Sprite/Tentacle7.position = Vector2(-8,0)
-		$Sprite/Tentacle8.position = Vector2(-4,-4)
+		$InnerNode/Sprite/Node2D.position = Vector2(0,0)
+		$InnerNode/Sprite/Tentacle0.position = Vector2(4,-4)
+		$InnerNode/Sprite/Tentacle1.position = Vector2(8,0)
+		$InnerNode/Sprite/Tentacle2.position = Vector2(4,4)
+		$InnerNode/Sprite/Tentacle3.position = Vector2(2,6)
+		$InnerNode/Sprite/Tentacle4.position = Vector2(0,8)
+		$InnerNode/Sprite/Tentacle5.position = Vector2(-2,6)
+		$InnerNode/Sprite/Tentacle6.position = Vector2(-4,4)
+		$InnerNode/Sprite/Tentacle7.position = Vector2(-8,0)
+		$InnerNode/Sprite/Tentacle8.position = Vector2(-4,-4)
 
 	
 	
-	#$Camera2D.position = Vector2(0,0)
+	#$InnerNode/Camera2D.position = Vector2(0,0)
 
 func handleTentacleShader():
 	match tentacleAmount:
 		1:
-			$Sprite/Tentacle1/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
+			$InnerNode/Sprite/Tentacle1/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
 		2:
-			$Sprite/Tentacle1/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
-			$Sprite/Tentacle7/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
+			$InnerNode/Sprite/Tentacle1/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
+			$InnerNode/Sprite/Tentacle7/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
 		3:
-			$Sprite/Tentacle1/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin)
-			$Sprite/Tentacle7/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin)
-			$Sprite/Tentacle4/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
+			$InnerNode/Sprite/Tentacle1/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin)
+			$InnerNode/Sprite/Tentacle7/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin)
+			$InnerNode/Sprite/Tentacle4/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
 		9:
-			$Sprite/Tentacle0/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin)
-			$Sprite/Tentacle1/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin*2)
-			$Sprite/Tentacle2/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin*3)
-			$Sprite/Tentacle3/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin*4)
+			$InnerNode/Sprite/Tentacle0/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin)
+			$InnerNode/Sprite/Tentacle1/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin*2)
+			$InnerNode/Sprite/Tentacle2/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin*3)
+			$InnerNode/Sprite/Tentacle3/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin+reverseTentacleSpin*4)
 			
-			$Sprite/Tentacle5/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin*4)
-			$Sprite/Tentacle6/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin*3)
-			$Sprite/Tentacle7/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin*2)
-			$Sprite/Tentacle8/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin)
+			$InnerNode/Sprite/Tentacle5/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin*4)
+			$InnerNode/Sprite/Tentacle6/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin*3)
+			$InnerNode/Sprite/Tentacle7/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin*2)
+			$InnerNode/Sprite/Tentacle8/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin-reverseTentacleSpin)
 			
-			$Sprite/Tentacle4/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
+			$InnerNode/Sprite/Tentacle4/Node2D/Line2D.material.set_shader_parameter("direction", chargeTentacleSpin)
 	
 
 func handleTentacleSqueeze():
@@ -1104,58 +1105,58 @@ func handleTentacleSqueeze():
 		0:
 			pass
 		9:
-			primary_tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -2), charge_max)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle0, "position", Vector2(4, -2), charge_max)
 			
-			primary_tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 2), charge_max)
-			primary_tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 2), charge_max)
-			primary_tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 2), charge_max)
-			primary_tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 2), charge_max)
-			primary_tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 2), charge_max)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle2, "position", Vector2(4, 2), charge_max)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle3, "position", Vector2(2, 2), charge_max)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle4, "position", Vector2(0, 2), charge_max)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle5, "position", Vector2(-2, 2), charge_max)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle6, "position", Vector2(-4, 2), charge_max)
 			
-			primary_tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -2), charge_max)
-			#tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)		
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle8, "position", Vector2(-4, -2), charge_max)
+			#tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)		
 
 func handleTentacleStretch(temp:float):
 	match tentacleAmount:
 		0:
 			pass
 		1:
-			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
 		2:
-			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
 		3:
-			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)
 			
 			if tween3:
 				tween3.kill()
 			tween3 = create_tween()
-			tween3.tween_property($Sprite/Tentacle1, "rotation", PI/2, 0.3 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle7, "rotation", -3*PI/2, 0.3 * charge_cooldown)
+			tween3.tween_property($InnerNode/Sprite/Tentacle1, "rotation", PI/2, 0.3 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle7, "rotation", -3*PI/2, 0.3 * charge_cooldown)
 		4:
-			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)	
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(0, -3.6 * temp), 0.08 * charge_cooldown)	
 		9:
-			primary_tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -4-3.6*temp), 0.08 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(6, -3.6*temp), 0.08 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 4-3.6*temp), 0.08 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 6-3.6*temp), 0.08 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 8-3.6*temp), 0.08 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 6-3.6*temp), 0.08 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 4-3.6*temp), 0.08 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle7, "position", Vector2(-6, -3.6*temp), 0.08 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -4-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle0, "position", Vector2(4, -4-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(6, -3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle2, "position", Vector2(4, 4-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle3, "position", Vector2(2, 6-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle4, "position", Vector2(0, 8-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle5, "position", Vector2(-2, 6-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle6, "position", Vector2(-4, 4-3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle7, "position", Vector2(-6, -3.6*temp), 0.08 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle8, "position", Vector2(-4, -4-3.6*temp), 0.08 * charge_cooldown)
 			
 			if tween3:
 				tween3.kill()
 			tween3 = create_tween()
-			tween3.tween_property($Sprite/Tentacle7, "rotation", PI/2, 0.3 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle1, "rotation", PI/2, 0.3 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle2, "rotation", PI/2, 0.3 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle3, "rotation", PI/2, 0.3 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle5, "rotation", PI/2, 0.3 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle6, "rotation", PI/2, 0.3 * charge_cooldown)
+			tween3.tween_property($InnerNode/Sprite/Tentacle7, "rotation", PI/2, 0.3 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle1, "rotation", PI/2, 0.3 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle2, "rotation", PI/2, 0.3 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle3, "rotation", PI/2, 0.3 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle5, "rotation", PI/2, 0.3 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle6, "rotation", PI/2, 0.3 * charge_cooldown)
 			
-			tween3.parallel().tween_property($Sprite/Tentacle0, "rotation", PI/2, 0.3 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle8, "rotation", -3*PI/2, 0.3 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle0, "rotation", PI/2, 0.3 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle8, "rotation", -3*PI/2, 0.3 * charge_cooldown)
 			
 			
 func handleTentacleReturn():
@@ -1163,32 +1164,32 @@ func handleTentacleReturn():
 		0:
 			pass
 		1:
-			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
 		3:
-			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
-			tween3.tween_property($Sprite/Tentacle1, "rotation", 0, 0.6 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle7, "rotation", PI, 0.6 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
+			tween3.tween_property($InnerNode/Sprite/Tentacle1, "rotation", 0, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle7, "rotation", PI, 0.6 * charge_cooldown)
 		9:
-			primary_tween.parallel().tween_property($Sprite/Tentacle0, "position", Vector2(4, -4), 0.3 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle2, "position", Vector2(4, 4), 0.3 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle3, "position", Vector2(2, 6), 0.3 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle4, "position", Vector2(0, 8), 0.3 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle5, "position", Vector2(-2, 6), 0.3 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle6, "position", Vector2(-4, 4), 0.3 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle7, "position", Vector2(-8, 0), 0.3 * charge_cooldown)
-			primary_tween.parallel().tween_property($Sprite/Tentacle8, "position", Vector2(-4, -4), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle0, "position", Vector2(4, -4), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle1, "position", Vector2(8, 0), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle2, "position", Vector2(4, 4), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle3, "position", Vector2(2, 6), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle4, "position", Vector2(0, 8), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle5, "position", Vector2(-2, 6), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle6, "position", Vector2(-4, 4), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle7, "position", Vector2(-8, 0), 0.3 * charge_cooldown)
+			primary_tween.parallel().tween_property($InnerNode/Sprite/Tentacle8, "position", Vector2(-4, -4), 0.3 * charge_cooldown)
 			
-			tween3.tween_property($Sprite/Tentacle1, "rotation", 0, 0.6 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle7, "rotation", PI, 0.6 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle2, "rotation", PI/4, 0.6 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle3, "rotation", 3*PI/8, 0.6 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle4, "rotation", PI/2, 0.6 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle5, "rotation", 5*PI/8, 0.6 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle6, "rotation", 3*PI/4, 0.6 * charge_cooldown)
+			tween3.tween_property($InnerNode/Sprite/Tentacle1, "rotation", 0, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle7, "rotation", PI, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle2, "rotation", PI/4, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle3, "rotation", 3*PI/8, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle4, "rotation", PI/2, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle5, "rotation", 5*PI/8, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle6, "rotation", 3*PI/4, 0.6 * charge_cooldown)
 			
-			tween3.parallel().tween_property($Sprite/Tentacle8, "rotation", -3*PI/4, 0.6 * charge_cooldown)
-			tween3.parallel().tween_property($Sprite/Tentacle0, "rotation", -PI/4, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle8, "rotation", -3*PI/4, 0.6 * charge_cooldown)
+			tween3.parallel().tween_property($InnerNode/Sprite/Tentacle0, "rotation", -PI/4, 0.6 * charge_cooldown)
 			
 	#Cool useless line of code
 	#for i in range(tentacleAmount):	
@@ -1242,7 +1243,7 @@ func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0
 	#print(newpos)
 	pulseCount += 1
 	
-	$Sprite/Node2D/Inside.material.set_shader_parameter("pulses", pulseCount)
+	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulses", pulseCount)
 	match pulseCount:
 		1:
 			if pulseTween1:
@@ -1252,8 +1253,8 @@ func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0
 			pulseAmp1 = 0
 			pulseTween1.tween_callback(pulseCancel.bind(1))
 			pulseSource1 = newpos
-			$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource1", newpos)
-			#$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", 0.0)
+			$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource1", newpos)
+			#$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", 0.0)
 	
 		2:
 			if pulseTween2:
@@ -1263,8 +1264,8 @@ func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0
 			pulseAmp2 = 0
 			pulseTween2.tween_callback(pulseCancel.bind(2))
 			pulseSource2 = newpos
-			$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", newpos)
-			#$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", 0.0)
+			$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", newpos)
+			#$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", 0.0)
 		3:
 			if pulseTween3:
 				pulseTween3.kill()
@@ -1273,13 +1274,13 @@ func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0
 			pulseAmp3 = 0
 			pulseTween3.tween_callback(pulseCancel.bind(3))
 			pulseSource3 = newpos
-			$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource3", newpos)
-			#$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", 0.0)
+			$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource3", newpos)
+			#$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp3", 0.0)
 
 func pulseCancel(pulseNum : int) -> void:
 	pulseCount -= 1
-	#$Sprite/Node2D/Inside.material.call_deferred("set_shader_parameter", "pulses", pulseCount)
-	$Sprite/Node2D/Inside.material.set_shader_parameter("pulses", pulseCount)
+	#$InnerNode/Sprite/Node2D/Inside.material.call_deferred("set_shader_parameter", "pulses", pulseCount)
+	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulses", pulseCount)
 	#print("Cancel: ",  pulseNum)
 	match pulseNum:
 		1:
@@ -1294,8 +1295,8 @@ func pulseCancel(pulseNum : int) -> void:
 				pulseAmp1 = pulseAmp2
 				pulseTween1.tween_callback(pulseCancel.bind(1))
 				pulseSource1 = pulseSource2
-				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource1", pulseSource1)
-				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", pulseAmp2)
+				$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource1", pulseSource1)
+				$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp1", pulseAmp2)
 				#pulseAmp2 = 0
 				if pulseCount > 1:
 					if pulseTween3:
@@ -1306,8 +1307,8 @@ func pulseCancel(pulseNum : int) -> void:
 					pulseAmp2 = pulseAmp3
 					pulseTween2.tween_callback(pulseCancel.bind(2))
 					pulseSource2 = pulseSource3
-					$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", pulseSource2)
-					$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp3)
+					$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", pulseSource2)
+					$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp3)
 					#pulseAmp3 = 0
 			#else:
 				#print("1 done")
@@ -1323,8 +1324,8 @@ func pulseCancel(pulseNum : int) -> void:
 				pulseAmp2 = pulseAmp3
 				pulseTween2.tween_callback(pulseCancel.bind(2))
 				pulseSource2 = pulseSource3
-				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", pulseSource2)
-				$Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp3)
+				$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseSource2", pulseSource2)
+				$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("pulseAmp2", pulseAmp3)
 				#pulseAmp3 = 0
 		3:
 			if pulseTween3:
@@ -1351,7 +1352,7 @@ func changePosition(newpos : Vector2, dims : Vector2) -> Vector2:
 	return position - oldPos
 
 func getSpriteDuplicate() -> Node2D:
-	return $Sprite/Node2D
+	return $InnerNode/Sprite/Node2D
 	
 func removeChild(childRef : Node2D) -> void:
 	var temppos = children_list.find(childRef)
@@ -1389,8 +1390,8 @@ func changeCamera() -> void:
 	print("CAMERA CHANGED")
 	
 	"""
-	$Camera2D2.enabled = true
-	#$Camera2D.enabled = false
+	$InnerNode/Camera2D2.enabled = true
+	#$InnerNode/Camera2D.enabled = false
 	camReference.enabled = false
 	
 	
@@ -1411,10 +1412,10 @@ func _fixCamera(i : int) -> void:
 		1:
 			camReference.position_smoothing_enabled = true
 		2:
-			$Camera2D2.enabled = false
+			$InnerNode/Camera2D2.enabled = false
 			camReference.enabled = true
 	
-	#$Camera2D2.enabled = false
+	#$InnerNode/Camera2D2.enabled = false
 	
 	#camReference.enabled = true
 
@@ -1427,13 +1428,13 @@ func increaseVirusLevel(_type : int, intensity : float, _duration = 2.0) -> void
 		_death()
 
 func getPosition() -> Vector2:
-	return position
+	return position + Inner.position
 
 func getRotation() -> float:
 	return charge_angle
 	
 func getScale() -> Vector2:
-	return $Sprite/Node2D.scale
+	return $InnerNode/Sprite/Node2D.scale
 
 func _death() -> void:
 	pass
@@ -1548,7 +1549,7 @@ func _on_speed_boost_crystal_activated() -> void:
 		0:
 			var tempShape = CircleShape2D.new()
 			tempShape.radius = base_collection_radius * sb_synergy_buff
-			$CollisionShape2D.shape = tempShape
+			$InnerNode/CollisionShape2D.shape = tempShape
 		2:
 			if frogState == 0:
 				_frogCancel()
@@ -1581,7 +1582,7 @@ func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : f
 		0:
 			var tempShape = CircleShape2D.new()
 			tempShape.radius = base_collection_radius
-			$CollisionShape2D.shape = tempShape
+			$InnerNode/CollisionShape2D.shape = tempShape
 		2:
 			if frogState == 0:	
 				_frogCancel()
@@ -1633,7 +1634,7 @@ func takeDamage(damage : float, dmgDir = Vector2.ZERO, kb = 1.0, _kwargs = []) -
 	
 	_damagedEffect(dmg_ratio, dmgDir, kb, _kwargs)
 	
-	#$Hurtbox.set_deferred("monitoring", false)
+	#$InnerNode/Hurtbox.set_deferred("monitoring", false)
 	$InvulTimer.start(invul_time)
 	
 	spawnOrbs.emit(ceil(energy_lost * orb_refund_ratio), getPosition())
@@ -1650,7 +1651,7 @@ func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
 	if primary_ability == SPEED_BOOST and sb_state == 2:
 		_sbPress()
 	
-	var power = kb * dmg * max(1.0-knockback_resist, 0.0)
+	var power = 2.0 * kb * dmg * max(1.0-knockback_resist, 0.0)
 	var dir : Vector2 = getPosition() - pos
 	var dir_len : float = dir.length()
 	if dir_len < 20:
@@ -1678,7 +1679,7 @@ func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
 		kb_moving = true
 		var timeSpeed = snapped(log(dmg+1.25), 0.01)
 		print("TIME SPED ", timeSpeed)
-		#knockback_tween.tween_property(self, "position", end_dir, timeSpeed).as_relative()
+		knockback_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
 		knockback_tween.parallel().tween_property(sprite_ref, "rotation", rot_speed, timeSpeed).as_relative()
 		knockback_tween.parallel().tween_property(self, "charge_angle", rot_speed, timeSpeed).as_relative()
 		knockback_tween.set_ease(Tween.EASE_IN)
@@ -1696,11 +1697,11 @@ func _knockbackCancel() -> void:
 	knockback_tween = create_tween()	
 	knockback_tween.tween_property(sprite_ref, "position", Vector2.ZERO, 0.25)
 	knockback_tween.parallel().tween_property(sprite_ref, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
-	#move_kb_mod = 1.0
+	move_kb_mod = 1.0
 	
 func _knockbackEnd() -> void:
 	kb_moving = false
-	#move_kb_mod = 1.0
+	move_kb_mod = 1.0
 
 func _shake(direction: Vector2, power : float) -> void:
 	if knockback_tween:
@@ -1716,7 +1717,7 @@ func _shake(direction: Vector2, power : float) -> void:
 func _on_invul_timer_timeout() -> void:
 	#Extend timer if player is still colliding
 	if invul_leeway_count == 0:
-		$Hurtbox.set_deferred("monitoring", true)
+		$InnerNode/Hurtbox.set_deferred("monitoring", true)
 		invul_leeway_count = 2
 	elif _collisionCheck():
 		invul_leeway_count = 2
@@ -1727,14 +1728,14 @@ func _on_invul_timer_timeout() -> void:
 func _on_invul_lee_way_timeout() -> void:
 	invul_leeway_count -= 1
 	if invul_leeway_count == 0 or not _collisionCheck():
-		$Hurtbox.set_deferred("monitoring", false)
+		$InnerNode/Hurtbox.set_deferred("monitoring", false)
 		$InvulTimer.start(0.05)
 		invul_leeway_count = 0
 	else:
 		$InvulLeeWay.start()
 
 func _collisionCheck() -> bool:
-	var hurtboxReference = $Hurtbox
+	var hurtboxReference = $InnerNode/Hurtbox
 	if (hurtboxReference.has_overlapping_areas() or hurtboxReference.has_overlapping_bodies()):
 		var localAreas = hurtboxReference.get_overlapping_areas()
 		for a in localAreas:

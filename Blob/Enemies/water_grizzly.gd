@@ -261,6 +261,9 @@ func _walkTransition() -> void:
 	_earMove(swipe_array[4])
 	
 func _swipeStart() -> void:
+	if TargetRef == null:
+		_findClosestTarget()
+		return
 	
 	#Maybe in Phase 3 have a mechanic where the ear wags do actually matter with larger dirctional hitbox.
 	#Maybe in Phase 3 also add in feints too. You can reverse the animation to do so.
@@ -374,8 +377,8 @@ func _stunned() -> void:
 func _getTargetDirection() -> float:
 	if not TargetRef or TargetRef.isDead():
 		TargetRef = null
-		print("OOP{S}")
-		_findClosestTarget()
+		#print("OOP{S}")
+		#_findClosestTarget()
 		return direction_angle
 	else:	
 		var targetPos : Vector2 = TargetRef.getPosition()
@@ -540,9 +543,12 @@ func _closeCheck() -> void:
 		if playerFlag:
 			_onPlayerDetection(closestNodeRef)
 		else:
-			TargetRef = closestNodeRef
-			DetectionNode.set_deferred("monitoring", false)
-			_aggressionTrigger(false)
+			if TargetRef == null:
+				TargetRef = closestNodeRef
+				DetectionNode.set_deferred("monitoring", false)
+				_aggressionTrigger(false)
+			else:
+				TargetRef = closestNodeRef
 	
 func _onPlayerDetection(PlayRef : Node2D) -> void:
 	#Disable the detection radius
