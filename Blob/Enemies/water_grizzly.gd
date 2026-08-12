@@ -122,7 +122,7 @@ func _process(delta: float) -> void:
 		velocity *= friction_delta
 		#direction_angle += turning_speed * delta * sign(turning_direction)
 		
-		var end_angle = log(direction_angle+1) if direction_angle >= 0 else -log(-direction_angle+1)
+		#var end_angle = log(direction_angle+1) if direction_angle >= 0 else -log(-direction_angle+1)
 		#Inner.rotation = end_angle
 	#Inner.rotation = 0
 	$Polygon2D.rotation = direction_angle
@@ -502,7 +502,6 @@ func _closeCheck() -> void:
 	var DetectionNode = $InnerNode/BroadDetectionRadius
 	var playerFlag = false
 	if not (DetectionNode.has_overlapping_areas() or DetectionNode.has_overlapping_bodies()):
-		print("Sup")
 		TargetRef = null
 		state = IDLE
 		DetectionNode.set_deferred("monitoring", false)
@@ -512,7 +511,7 @@ func _closeCheck() -> void:
 			ear_tween.kill()
 		_idleTrigger()
 	else:	
-		print("nope")
+
 		var localAreas = DetectionNode.get_overlapping_areas()
 		#Could probably do a mapped lambda function here but I'm lazy
 		
@@ -547,7 +546,6 @@ func _closeCheck() -> void:
 	
 func _onPlayerDetection(PlayRef : Node2D) -> void:
 	#Disable the detection radius
-	print("Player Detected")
 	$InnerNode/DetectionRadius.set_deferred("monitoring", false)
 	#PlayerRef = PlayRef
 	TargetRef = PlayRef
@@ -645,7 +643,6 @@ func _on_player_distance_check_timeout() -> void:
 			_findClosestTarget()
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	print(anim_name)
 	match anim_name:
 		"LeftSwingStart":
 			_swipeRelease(true)
@@ -682,7 +679,7 @@ func _on_detection_radius_body_entered(body: Node2D) -> void:
 		$PlayerDistanceCheck.start()
 		_aggressionTrigger(false)
 
-func _on_detection_radius_area_entered(area: Area2D, tempPos = Vector2.ZERO) -> void:
+func _on_detection_radius_area_entered(area: Area2D) -> void:
 	if area.getID() != ID:
 		#Disable the detection radius
 		print("Area Detected")

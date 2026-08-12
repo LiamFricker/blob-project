@@ -24,7 +24,8 @@ var damage : float = 1.0
 var base_knockback : float = 1.0
 var attack_mods : Array = [false, false, false, false, false]
 
-var energy = 0
+var energy = 100
+var max_energy = 100
 signal currencyUpdate(index : int, value : float)
 signal spawnOrbs(amt : int, pos : Vector2)
 #Upgrades and bonuses count
@@ -69,6 +70,7 @@ var up_input = false
 var down_input = false
 
 var move_abil_mod = 1
+@onready var sprite_ref = $Sprite
 
 #BASIC stuff
 var x_dir : float = 0.0
@@ -173,6 +175,16 @@ var buffRef : Node2D
 #var boardClockwise : int = 1
 
 var lasso_buffs : Array = [false, false, false, false]
+
+#Knockback vars
+var knockback_tween
+var kb_moving : bool = false
+var super_armor : bool = false
+@export var knockback_resist = 0.0
+var move_kb_mod = 1.0
+@export var base_invul_time = 0.25
+@export var orb_refund_ratio = 0.25
+var invul_leeway_count = 2
 
 @onready var attach = $Attachments
 
@@ -353,7 +365,7 @@ func _waddleLogic(delta: float, _friction_delta : float) -> void:
 	#$Sprite/Node2D/Inside.material.set_shader_parameter("frequency", 2.5 + ceil(velocity.length())/100 * size)
 	$Sprite/Node2D/Inside.material.set_shader_parameter("amplitude", 0.5 + ceil(velocity.length())/20 * size)
 	
-	var waddle_total_speed = accel * delta * waddle_speed * move_abil_mod * waddle_speed_bonus * sb_speed_buff
+	var waddle_total_speed = accel * delta * waddle_speed * move_abil_mod * move_kb_mod * waddle_speed_bonus * sb_speed_buff
 	#Attack speed calc for now. Make sure to realize this is (+)  here
 	waddle_attack_speed_bonus = (waddle_speed_bonus + (0.5*(sb_speed_buff - 1.0)) * sb_synergy_buff)
 	
@@ -379,10 +391,10 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 	#board_speed += board_accel
 	
 	if y_dir == -1:
-		board_speed += board_accel * move_abil_mod * sb_speed_buff
+		board_speed += board_accel * move_abil_mod * move_kb_mod * sb_speed_buff
 		#velocity.y += y_dir * accel * turning_accel_ratio * delta * waddle_speed * move_abil_mod	
 	elif y_dir == 0:
-		board_speed += board_accel * 0.25 * move_abil_mod * sb_speed_buff
+		board_speed += board_accel * 0.25 * move_abil_mod * move_kb_mod * sb_speed_buff
 		board_speed *= sqrt(friction_delta)
 	else:
 		board_speed *= friction_delta
@@ -398,13 +410,13 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 		if y_dir == 0:
 			velocity = Vector2.ZERO
 		else:
-			velocity = 1.5 * board_speed_cap * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2)) * sb_speed_buff
+			velocity = 1.5 * board_speed_cap * move_abil_mod * move_kb_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2)) * sb_speed_buff
 	else:
-		charge_angle += board_turning_speed * x_dir * delta * move_abil_mod
-		velocity = board_speed * move_abil_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
+		charge_angle += board_turning_speed * x_dir * delta * move_abil_mod * move_kb_mod
+		velocity = board_speed * move_abil_mod * move_kb_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
 	
 	$Pivot.rotation = charge_angle
-	$Sprite.rotation = charge_angle
+	sprite_ref.rotation = charge_angle
 	if primary_ability == SPEED_BOOST:
 		sb_ref.changeRot(charge_angle)
 	
@@ -434,7 +446,7 @@ func _chargeDash(delta: float, friction_delta : float)-> void:
 		temp = int(right_input) - int(left_input)
 	charge_angle += charge_angle_speed * temp * delta * chargeStrength * 0.005
 	$Pivot.rotation = charge_angle
-	$Sprite.rotation = charge_angle
+	sprite_ref.rotation = charge_angle
 	
 	var chargeVelocity = Vector2(chargeStrength * cos(charge_angle - PI/2), chargeStrength * sin(charge_angle - PI/2))
 	
@@ -757,7 +769,7 @@ func _frogRelease() -> void:
 	if state == CHARGING:
 		velocity += frogDirection * frog_speed * 100 * frog_travel_speed * sb_speed_buff
 	else:
-		velocity += frogDirection * frog_speed * 100 * frog_travel_speed * move_abil_mod * sb_speed_buff
+		velocity += frogDirection * frog_speed * 100 * frog_travel_speed * move_abil_mod * move_kb_mod * sb_speed_buff
 	if frog_charge <= (frogState - frog_max_charges):
 		frogState = 0
 	if basic_tween:
@@ -839,6 +851,8 @@ func _chargeOffCD() -> void:
 func _chargeRelease() -> void:
 	if basic_tween and basic_movement_type == FROG:
 		basic_tween.kill()
+	if kb_moving:
+		_knockbackCancel()
 	primary_queued = false
 	charge_cool = charge_cooldown 
 	state = IDLE
@@ -938,11 +952,13 @@ func _chargeLogic(delta: float) -> void:
 		
 	handleTentacleShader()	
 	$Pivot.rotation = charge_angle
-	$Sprite.rotation = charge_angle
+	sprite_ref.rotation = charge_angle
 
 func _sbPress() -> void:
 	match sb_state:
 		0:
+			if kb_moving:
+				_knockbackCancel()
 			sb_ref.activate(sb_anim_speed)
 			sb_state = 1 
 		1:
@@ -985,6 +1001,8 @@ func _lassoGo() -> void:
 	var endPos = lassoRef.getPos()
 	if lasso_progress >= 1000:
 		if _lassoCollisionCheck(endPos):
+			if kb_moving:
+				_knockbackCancel()
 			move_abil_mod = 0
 			$CollisionShape2D.set_deferred("disabled", true)
 			if primary_tween:
@@ -1199,9 +1217,9 @@ func energyGainFormula(value : int, enemy_drop : bool) -> float:
 	else:
 		return value * (1 + int(lasso_buffs[1]) * 0.5)
 
-func collect(_value : int, orbpos : Vector2, enemy_drop : bool, _currency_type = 0) -> void:
-	#if currency_type == 0:
-	#	set_energy(energyGainFormula(value, enemy_drop))
+func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
+	if currency_type == 0:
+		set_energy(energyGainFormula(value, enemy_drop))
 	#else: 
 		#set_currency(value, currency_type)
 	
@@ -1422,8 +1440,10 @@ func _death() -> void:
 
 #For all events, collectables, abilities, and monsters to use
 func set_energy(amount : float) -> void:
+	if amount < 0 and energy > max_energy:
+		max_energy = energy
 	energy += amount
-	currencyUpdate.emit(amount, 0)
+	#currencyUpdate.emit(amount, 0)
 
 #For all events, collectables, abilities, and monsters to use
 func set_currency(amount : float, type = 1) -> void:
@@ -1588,10 +1608,35 @@ func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var dmg = body.getDamage()
 	if body.getID() != 0 and dmg > 0:
 		takeDamage(dmg, body.getPosition(), body.getKnockback())
+#Damage after damage reduction reset shields as well 
+func _damageTakenFormula(damage : float) -> float:
+	return damage
 
 func takeDamage(damage : float, dmgDir = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
-	_damagedEffect(damage, dmgDir, kb, _kwargs)
-	spawnOrbs.emit(1, getPosition())
+	if not $InvulTimer.is_stopped():
+		return
+	
+	print("dmg taken")
+	
+	#Damage after damage reduction reset shields as well 
+	var damage_taken = _damageTakenFormula(damage) #_damageTakenFormula()
+	
+	#If energy is 0, need to trigger some sort of death punishment. Let the player survive 1 hit at 0 first.
+	var energy_lost = min(damage_taken, energy)
+	
+	var dmg_ratio = clampf(10 * energy_lost/(max_energy+1.0), 1.0, 3.0)
+	print("dmg ratio this should be min 0.5", dmg_ratio)
+	var invul_time = base_invul_time * dmg_ratio
+	print("INVUL TIMMEEEE ", invul_time)
+	
+	set_energy(-energy_lost)
+	
+	_damagedEffect(dmg_ratio, dmgDir, kb, _kwargs)
+	
+	#$Hurtbox.set_deferred("monitoring", false)
+	$InvulTimer.start(invul_time)
+	
+	spawnOrbs.emit(ceil(energy_lost * orb_refund_ratio), getPosition())
 
 func _damagedEffect(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) -> void:
 	knockback(pos, amt, kb)
@@ -1599,65 +1644,105 @@ func _damagedEffect(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) 
 #player cannot get multiple knocback effects. If they somehow get a new one, just cancel the old one.
 #Player shouldn't be able to do things while knockbacked. Make sure to cancel abilities and such.
 func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
-	"""
-	var power = 4.0 * kb * dmg / (health_max * weight)
+	move_kb_mod = 0
+	
+	#Regurgitate Crystal
+	if primary_ability == SPEED_BOOST and sb_state == 2:
+		_sbPress()
+	
+	var power = kb * dmg * max(1.0-knockback_resist, 0.0)
 	var dir : Vector2 = getPosition() - pos
 	var dir_len : float = dir.length()
 	if dir_len < 20:
 		dir_len = 20
 	var dir_norm : Vector2 = dir.normalized() #Could also do dir / dir_len
 	
-	oldDirPower = 5000.0 * power / dir_len 
-	var end_dir = oldDirPower*dir_norm
-	if power <= 0.5 or superArmor:
+	var dirPower = 5000.0 * power / dir_len 
+	var end_dir = dirPower*dir_norm
+	print("enddidr: ", dir, " dirpow ", dirPower, " POWER ", power, " pow ", dmg, " ", kb)
+	kb_moving = true
+	if power <= 0.5 or super_armor:
 		_shake(end_dir, power)
 	else:
-		var rot_speed = 0.1 * power * dir_len if dir.x > 0 else -0.1 * power * dir_len
+		var rot_speed = log(power+1.25) if dir.x > 0 else -1.0 * log(power+1.25)
+		if knockback_tween:
+			knockback_tween.kill()
+		knockback_tween = create_tween()
+		match speed:
+			0:
+				knockback_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+			1:
+				knockback_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+			2:
+				knockback_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+		kb_moving = true
+		var timeSpeed = snapped(log(dmg+1.25), 0.01)
+		print("TIME SPED ", timeSpeed)
+		#knockback_tween.tween_property(self, "position", end_dir, timeSpeed).as_relative()
+		knockback_tween.parallel().tween_property(sprite_ref, "rotation", rot_speed, timeSpeed).as_relative()
+		knockback_tween.parallel().tween_property(self, "charge_angle", rot_speed, timeSpeed).as_relative()
+		knockback_tween.set_ease(Tween.EASE_IN)
+		knockback_tween.parallel().tween_property(self, "move_kb_mod", 1.0, 0.1)
+		knockback_tween.set_trans(Tween.TRANS_LINEAR)
+		knockback_tween.parallel().tween_property(sprite_ref, "modulate", Color(0.8, 0.4, 0.4, 1.0), 0.25)
+		knockback_tween.tween_property(sprite_ref, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
+		knockback_tween.tween_callback(_knockbackEnd)
+	
+
+func _knockbackCancel() -> void:
+	kb_moving = false
+	if knockback_tween:
+		knockback_tween.kill()
+	knockback_tween = create_tween()	
+	knockback_tween.tween_property(sprite_ref, "position", Vector2.ZERO, 0.25)
+	knockback_tween.parallel().tween_property(sprite_ref, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
+	#move_kb_mod = 1.0
+	
+func _knockbackEnd() -> void:
+	kb_moving = false
+	#move_kb_mod = 1.0
+
+func _shake(direction: Vector2, power : float) -> void:
+	if knockback_tween:
+		knockback_tween.kill()
+	knockback_tween = create_tween()
+	knockback_tween.tween_property(sprite_ref, "position", direction * 0.75, power / 4).as_relative()
+	knockback_tween.tween_property(sprite_ref, "position", direction * -1.25, power / 2).as_relative()
+	knockback_tween.tween_property(sprite_ref, "position", direction * 0.75, power / 2).as_relative()
+	knockback_tween.tween_property(sprite_ref, "position", Vector2.ZERO, power / 4).as_relative()
+	knockback_tween.parallel().tween_property(sprite_ref, "modulate", Color(0.8, 0.4, 0.4, 1.0), 0.25)
+	knockback_tween.tween_property(sprite_ref, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
+	
+func _on_invul_timer_timeout() -> void:
+	#Extend timer if player is still colliding
+	if invul_leeway_count == 0:
+		$Hurtbox.set_deferred("monitoring", true)
+		invul_leeway_count = 2
+	elif _collisionCheck():
+		invul_leeway_count = 2
+		$InvulTimer.start(10.0)
+		$InvulLeeWay.start()
+	
+
+func _on_invul_lee_way_timeout() -> void:
+	invul_leeway_count -= 1
+	if invul_leeway_count == 0 or not _collisionCheck():
+		$Hurtbox.set_deferred("monitoring", false)
+		$InvulTimer.start(0.05)
+		invul_leeway_count = 0
+	else:
+		$InvulLeeWay.start()
+
+func _collisionCheck() -> bool:
+	var hurtboxReference = $Hurtbox
+	if (hurtboxReference.has_overlapping_areas() or hurtboxReference.has_overlapping_bodies()):
+		var localAreas = hurtboxReference.get_overlapping_areas()
+		for a in localAreas:
+			if a.getID() != 0 and a.getDamage() > 0:
+				return true
 		
-		if kb_moving:
-			var oldDirection = (getPosition() - startPosition)
-			var oldLen = oldDirection.length()
-			var percentDist = 1 - oldLen/(oldDirPower+1)
-			if percentDist <= 0:
-				kb_moving = false
-				knockback(pos, dmg, kb, speed)
-			else:
-				end_dir += oldDirPower * percentDist * oldDirection.normalized()
-				oldDirPower = end_dir.length()
-				power += percentDist
-				
-				if movement_tween:
-					movement_tween.kill()
-				movement_tween = create_tween()
-				match speed:
-					0:
-						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-					1:
-						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-					2:
-						movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
-				startPosition = getPosition()
-				var timeSpeed = snapped(log(power+1.25), 0.01)
-				movement_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
-				movement_tween.parallel().tween_property(Inner, "rotation", rot_speed, timeSpeed)
-				_handleRedFlash()
-				movement_tween.tween_callback(_knockbackEnd)
-		else:
-			if movement_tween:
-				movement_tween.kill()
-			movement_tween = create_tween()
-			match speed:
-				0:
-					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-				1:
-					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-				2:
-					movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
-			kb_moving = true
-			startPosition = getPosition()
-			var timeSpeed = snapped(log(power+1.25), 0.01)
-			movement_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
-			movement_tween.parallel().tween_property(Inner, "rotation", rot_speed, timeSpeed)
-			_handleRedFlash()
-			movement_tween.tween_callback(_knockbackEnd)
-	"""
+		var localBodies = hurtboxReference.get_overlapping_bodies()
+		for b in localBodies:
+			if b.getID() != 0 and b.getDamage() > 0:
+				return true
+	return false

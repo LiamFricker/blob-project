@@ -2534,6 +2534,7 @@ _data = {
 
 [node name="WaterGrizzly" type="Node2D"]
 script = ExtResource("1_df2fm")
+base_knockback = 5.0
 swipe_length = 400.0
 turning_speed = 2.0
 acceleration = 750.0

@@ -32,6 +32,7 @@ frog_travel_speed = 1.25
 primary_ability = 1
 charge_speed = 10.0
 lasso_cursor_speed = 2.0
+base_invul_time = 1.0
 
 [node name="Pivot" type="Node2D" parent="."]
 scale = Vector2(1, 1.5)
@@ -179,6 +180,13 @@ playerRef = NodePath("..")
 wait_time = 2.5
 one_shot = true
 
+[node name="InvulTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="InvulLeeWay" type="Timer" parent="."]
+wait_time = 0.25
+one_shot = true
+
 [connection signal="lassoBuffToggle" from="lasso" to="." method="_on_lasso_lasso_buff_toggle"]
 [connection signal="lassoLocationReached" from="lasso" to="." method="_on_lasso_lasso_location_reached"]
 [connection signal="lassoStall" from="lasso" to="." method="_on_lasso_lasso_stall"]
@@ -190,3 +198,5 @@ one_shot = true
 [connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="body_entered" from="Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]
+[connection signal="timeout" from="InvulTimer" to="." method="_on_invul_timer_timeout"]
+[connection signal="timeout" from="InvulLeeWay" to="." method="_on_invul_lee_way_timeout"]

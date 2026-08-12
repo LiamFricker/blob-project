@@ -103,7 +103,6 @@ func _throwOrbital(distance : int) -> void:
 	if state == DEAD:
 		$UpdateTimer.stop()
 		return
-	print("throw orbital ", distance)
 	orbitals_dead += 1
 	orbitals_alive -= 1
 	var travelAng : float = previous_angles[distance] + 0.25 + randf_range(0, 5.783)
