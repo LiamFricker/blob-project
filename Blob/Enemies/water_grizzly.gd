@@ -88,6 +88,7 @@ var dot_tween
 var attack_mods : Array = [true, false, false, false, false]
 
 func _ready() -> void:
+	AnimPlay.speed_scale = attack_speed
 	_idleTrigger()
 
 func setParams(TopLeftBound : Vector2, BotRightBound : Vector2, origin = Vector2.ZERO, diff = 0, boss_count = 0) -> void:
@@ -150,7 +151,7 @@ func _runStart() -> void:
 		move_tween.kill()
 	if ear_tween:
 		ear_tween.kill()
-	AnimPlay.play("RunCharge", 0.2, run_charge_speed)
+	AnimPlay.play("RunCharge", 0.2, run_charge_speed*attack_speed)
 	run_charge_speed = run_charge_speed_base
 	
 	direction_angle = _getTargetDirection()

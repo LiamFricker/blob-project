@@ -9,6 +9,7 @@ signal lassoLocationReached()
 signal lassoThrowCancel()
 signal lassoStall()
 signal lassoBuffToggle(on : bool)
+signal damagedEnemy(amt : float)
 
 #var currentPos : Vector2 = Vector2.ZERO
 var finalLocation : Vector2 = Vector2.ZERO
@@ -75,6 +76,7 @@ func getParent() -> Node2D:
 	return playerRef
 	
 func getDamage() -> float:
+	damagedEnemy.emit(damage)
 	return damage
 
 #Change this to the position of the tip.

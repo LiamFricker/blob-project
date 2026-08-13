@@ -192,6 +192,7 @@ one_shot = true
 wait_time = 0.25
 one_shot = true
 
+[connection signal="damagedEnemy" from="InnerNode/lasso" to="." method="damagedEnemy"]
 [connection signal="lassoBuffToggle" from="InnerNode/lasso" to="." method="_on_lasso_lasso_buff_toggle"]
 [connection signal="lassoLocationReached" from="InnerNode/lasso" to="." method="_on_lasso_lasso_location_reached"]
 [connection signal="lassoStall" from="InnerNode/lasso" to="." method="_on_lasso_lasso_stall"]
@@ -199,6 +200,7 @@ one_shot = true
 [connection signal="boost_off_cooldown" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_boost_off_cooldown"]
 [connection signal="crystal_activated" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_crystal_activated"]
 [connection signal="crystal_canceled" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_crystal_canceled"]
+[connection signal="damagedEnemy" from="InnerNode/SpeedBoost" to="." method="damagedEnemy"]
 [connection signal="spawn_bomb" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_spawn_bomb"]
 [connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]

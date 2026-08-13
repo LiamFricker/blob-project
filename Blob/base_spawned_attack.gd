@@ -7,6 +7,8 @@ var size = 0.0
 @export var attack_mods : Array = [false, false, false, false, false]
 var ID : int = 0.0
 
+signal damagedEnemy(amt : float)
+
 func getAttackMod(num: int)-> bool:
 	return attack_mods[num]
 	
@@ -31,7 +33,11 @@ func getParent() -> Node2D:
 	return parentRef
 	
 func getDamage() -> float:
+	damagedEnemy.emit(damage)
 	return damage
+
+func connectDMG(call : Callable) -> void:
+	damagedEnemy.connect(call)
 
 func addPosition(newpos) -> void:
 	position += newpos

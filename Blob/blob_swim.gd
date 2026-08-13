@@ -24,6 +24,9 @@ var damage : float = 1.0
 var base_knockback : float = 1.0
 var attack_mods : Array = [false, false, false, false, false]
 
+var damage_dealt : float = 0.0
+var damage_dealt_check : float = 0.0
+
 var energy = 100
 var max_energy = 100
 signal currencyUpdate(index : int, value : float)
@@ -1466,7 +1469,12 @@ func updateAllUpgrades(saveBonuses : Array) -> void:
 	staticBonuses = saveBonuses[0]
 	upgradeBonuses = saveBonuses.slice(1)
 
+func damagedEnemy(amt : float) -> void:
+	damage_dealt += amt
+
+#This doesn't account for bonus dmg and weakenesses but idgaf
 func getDamage() -> float:
+	damage_dealt += damage
 	return damage
 	
 func getKnockback() -> float:
@@ -1508,6 +1516,7 @@ func _on_lasso_lasso_location_reached() -> void:
 		else:
 			shock.setParams(3.0, 2.0, self, 60 * (fmod(lasso_progress, 100.0)), 2.0)
 		shock.setID(tempImpactId + children_count * 10000)
+		shock.connectDMG(damagedEnemy)
 		children_count += 1
 		children_list.append(shock)
 	if primary_tween:

@@ -41,6 +41,10 @@ signal crystal_activated()
 signal crystal_canceled(decay_rate : float, detonate : bool, sz : float, posArr : PackedVector2Array)
 signal boost_off_cooldown()
 signal spawn_bomb(dmg : float, kb : float, sz : float, ticks : int)
+signal damagedEnemy(amt : float)
+
+func _damagedEnemy(amt : float) -> void:
+	damagedEnemy.emit(amt)
 
 func _ready() -> void:
 	if playerRef:
