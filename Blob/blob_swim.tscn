@@ -32,7 +32,6 @@ frog_travel_speed = 1.25
 primary_ability = 2
 charge_speed = 10.0
 lasso_cursor_speed = 2.0
-knockback_resist = 1.0
 base_invul_time = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
