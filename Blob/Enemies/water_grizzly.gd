@@ -541,7 +541,11 @@ func _closeCheck() -> void:
 					minDistance = currDist
 					closestNodeRef = b
 		if playerFlag:
-			_onPlayerDetection(closestNodeRef)
+			if TargetRef == null:
+				_onPlayerDetection(closestNodeRef)
+			else:
+				TargetRef = closestNodeRef
+				playerTarget = true
 		else:
 			if TargetRef == null:
 				TargetRef = closestNodeRef

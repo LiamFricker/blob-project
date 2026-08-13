@@ -81,6 +81,7 @@ func _takeDamage() -> void:
 		_explode()
 
 func _explode() -> void:
+	$CollisionShape2D3.set_deferred("disabled", false)
 	speed = 0
 	$Sprite.hide()
 	$AnimatedSprite2D.show()

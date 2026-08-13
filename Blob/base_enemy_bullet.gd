@@ -23,7 +23,8 @@ func getID() -> int:
 func setParams(dmg : float, pR : Node2D, sz : float, newID : int, hp = 1, kb = 0.0) -> void:
 	health = hp
 	damage = dmg
-	knockback = kb
+	if kb != 0.0:	
+		knockback = kb
 	parentRef = pR
 	size = sz
 	ID = newID

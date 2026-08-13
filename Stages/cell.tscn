@@ -88,6 +88,7 @@ position = Vector2(-522, 268)
 position = Vector2(-1, 459)
 
 [node name="WaterGrizzly" parent="." instance=ExtResource("14_j8g7a")]
+process_mode = 4
 position = Vector2(-717, -245)
 
 [connection signal="upgrade_tab_toggled" from="HUD_swim" to="." method="_on_hud_swim_upgrade_tab_toggled"]

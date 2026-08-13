@@ -1005,7 +1005,7 @@ func _lassoGo() -> void:
 			if kb_moving:
 				_knockbackCancel()
 			move_abil_mod = 0
-			$InnerNode/CollisionShape2D.set_deferred("disabled", true)
+			$CollisionShape2D.set_deferred("disabled", true)
 			if primary_tween:
 				primary_tween.kill()
 			primary_tween = create_tween() 
@@ -1019,14 +1019,14 @@ func _lassoGo() -> void:
 			move_abil_mod = 1.0
 
 #Check for solid objects and if it's out of bounds.
-func _lassoCollisionCheck(checkPos : Vector2) -> bool:
+func _lassoCollisionCheck(_checkPos : Vector2) -> bool:
 	
 	return true
 
 func _lassoEnd() -> void:
 	move_abil_mod = 1.0
 	_lassoCancel()
-	$InnerNode/CollisionShape2D.set_deferred("disabled", false)
+	$CollisionShape2D.set_deferred("disabled", false)
 	
 #Placeholder incase I need to do stuff with this
 func _lassoCancel() -> void:
@@ -1058,7 +1058,7 @@ func setTempVelocity(temp:float) -> void:
 func resetCharge(cutoff : bool) -> void:#distance:float, angle:float) -> void:
 	#position += Vector2(cos(angle), sin(angle))*distance
 	tempVelocity = Vector2.ZERO
-	#$InnerNode/CollisionShape2D.position = Vector2(0,0)
+	#$CollisionShape2D.position = Vector2(0,0)
 	if cutoff:
 		$InnerNode/Sprite/Node2D.position = Vector2(0,0)
 		$InnerNode/Sprite/Tentacle0.position = Vector2(4,-4)
@@ -1331,25 +1331,26 @@ func pulseCancel(pulseNum : int) -> void:
 			if pulseTween3:
 				pulseTween3.kill()
 func changePosition(newpos : Vector2, dims : Vector2) -> Vector2:
-	var oldPos = position
+	var oldPos = getPosition()
 	
-	var modPos = (position - dims/2).posmodv(dims)
-	
+	var modPos = (getPosition() - dims/2).posmodv(dims)
+	#var innerMod = (Inner.position - dims/2).posmodv(dims)
 	#changeCamera()
 	
-	position = newpos + (modPos-dims/2)  	
+	position = newpos + (modPos-dims/2) - Inner.position  
+	#Inner.position = Vector2.ZERO 	
 	#CHANGE LASSO COORD
 	if primary_ability == LASSO:
-		lassoRef.updateLocation(position - oldPos)
+		lassoRef.updateLocation(getPosition() - oldPos)
 	
 	for c in children_list:
-		c.addPosition(position - oldPos)
+		c.addPosition(getPosition() - oldPos)
 		#Since we're relative this shouldn't be needed
 		#if move_abil_mod == 0: 
 		#	pass
 	
 	call_deferred("changeCamera")
-	return position - oldPos
+	return getPosition() - oldPos
 
 func getSpriteDuplicate() -> Node2D:
 	return $InnerNode/Sprite/Node2D
@@ -1549,7 +1550,7 @@ func _on_speed_boost_crystal_activated() -> void:
 		0:
 			var tempShape = CircleShape2D.new()
 			tempShape.radius = base_collection_radius * sb_synergy_buff
-			$InnerNode/CollisionShape2D.shape = tempShape
+			$CollisionShape2D.set_deferred("shape", tempShape)
 		2:
 			if frogState == 0:
 				_frogCancel()
@@ -1582,7 +1583,7 @@ func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : f
 		0:
 			var tempShape = CircleShape2D.new()
 			tempShape.radius = base_collection_radius
-			$InnerNode/CollisionShape2D.shape = tempShape
+			$CollisionShape2D.set_deferred("shape", tempShape)
 		2:
 			if frogState == 0:	
 				_frogCancel()
@@ -1610,24 +1611,24 @@ func _on_hurtbox_body_entered(body: Node2D) -> void:
 	if body.getID() != 0 and dmg > 0:
 		takeDamage(dmg, body.getPosition(), body.getKnockback())
 #Damage after damage reduction reset shields as well 
-func _damageTakenFormula(damage : float) -> float:
-	return damage
+func _damageTakenFormula(damageTaken : float) -> float:
+	return damageTaken
 
-func takeDamage(damage : float, dmgDir = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
+func takeDamage(dmg : float, dmgDir = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
 	if not $InvulTimer.is_stopped():
 		return
 	
 	print("dmg taken")
 	
 	#Damage after damage reduction reset shields as well 
-	var damage_taken = _damageTakenFormula(damage) #_damageTakenFormula()
+	var damage_taken = _damageTakenFormula(dmg) #_damageTakenFormula()
 	
 	#If energy is 0, need to trigger some sort of death punishment. Let the player survive 1 hit at 0 first.
 	var energy_lost = min(damage_taken, energy)
 	
-	var dmg_ratio = clampf(10 * energy_lost/(max_energy+1.0), 1.0, 3.0)
+	var dmg_ratio = clampf(10 * energy_lost/(max_energy+1.0), 0.5, 3.0)
 	print("dmg ratio this should be min 0.5", dmg_ratio)
-	var invul_time = base_invul_time * dmg_ratio
+	var invul_time = base_invul_time * dmg_ratio + 0.25 * kb
 	print("INVUL TIMMEEEE ", invul_time)
 	
 	set_energy(-energy_lost)
@@ -1645,27 +1646,28 @@ func _damagedEffect(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) 
 #player cannot get multiple knocback effects. If they somehow get a new one, just cancel the old one.
 #Player shouldn't be able to do things while knockbacked. Make sure to cancel abilities and such.
 func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
-	move_kb_mod = 0
 	
 	#Regurgitate Crystal
 	if primary_ability == SPEED_BOOST and sb_state == 2:
 		_sbPress()
 	
-	var power = 2.0 * kb * dmg * max(1.0-knockback_resist, 0.0)
+	var power = kb * dmg * max(1.0-knockback_resist, 0.0)
 	var dir : Vector2 = getPosition() - pos
-	var dir_len : float = dir.length()
-	if dir_len < 20:
-		dir_len = 20
+	#var dir_len : float = dir.length()
+	#if dir_len < 20:
+	#	dir_len = 20
 	var dir_norm : Vector2 = dir.normalized() #Could also do dir / dir_len
 	
-	var dirPower = 5000.0 * power / dir_len 
-	var end_dir = dirPower*dir_norm
-	print("enddidr: ", dir, " dirpow ", dirPower, " POWER ", power, " pow ", dmg, " ", kb)
+	#var dirPower = 5000.0 * power / dir_len 
+	var end_dir = 180.0 * power*dir_norm
+	print("enddidr: ", end_dir, " dirpow ", dir_norm, " POWER ", power, " pow ", dmg, " ", kb)
 	kb_moving = true
 	if power <= 0.5 or super_armor:
-		_shake(end_dir, power)
+		var shakePow = min(power, 0.5)
+		_shake(shakePow * dir_norm, shakePow)
 	else:
-		var rot_speed = log(power+1.25) if dir.x > 0 else -1.0 * log(power+1.25)
+		move_kb_mod = 0
+		var rot_speed = 2.0 * log(power+1.25) if dir.x > 0 else -2.0 * log(power+1.25)
 		if knockback_tween:
 			knockback_tween.kill()
 		knockback_tween = create_tween()
@@ -1677,8 +1679,7 @@ func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
 			2:
 				knockback_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
 		kb_moving = true
-		var timeSpeed = snapped(log(dmg+1.25), 0.01)
-		print("TIME SPED ", timeSpeed)
+		var timeSpeed = snapped(log(0.5*kb + dmg+1.0), 0.01)
 		knockback_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
 		knockback_tween.parallel().tween_property(sprite_ref, "rotation", rot_speed, timeSpeed).as_relative()
 		knockback_tween.parallel().tween_property(self, "charge_angle", rot_speed, timeSpeed).as_relative()
@@ -1707,10 +1708,10 @@ func _shake(direction: Vector2, power : float) -> void:
 	if knockback_tween:
 		knockback_tween.kill()
 	knockback_tween = create_tween()
-	knockback_tween.tween_property(sprite_ref, "position", direction * 0.75, power / 4).as_relative()
-	knockback_tween.tween_property(sprite_ref, "position", direction * -1.25, power / 2).as_relative()
-	knockback_tween.tween_property(sprite_ref, "position", direction * 0.75, power / 2).as_relative()
-	knockback_tween.tween_property(sprite_ref, "position", Vector2.ZERO, power / 4).as_relative()
+	knockback_tween.tween_property(sprite_ref, "position", direction * 30.0, power / 4).as_relative()
+	knockback_tween.tween_property(sprite_ref, "position", direction * -45.0, power / 2).as_relative()
+	knockback_tween.tween_property(sprite_ref, "position", direction * 30.0, power / 2).as_relative()
+	knockback_tween.tween_property(sprite_ref, "position", Vector2.ZERO, power / 4)
 	knockback_tween.parallel().tween_property(sprite_ref, "modulate", Color(0.8, 0.4, 0.4, 1.0), 0.25)
 	knockback_tween.tween_property(sprite_ref, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
 	

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cnpy0smwc1mb6"]
+[gd_scene load_steps=15 format=3 uid="uid://cnpy0smwc1mb6"]
 
 [ext_resource type="PackedScene" uid="uid://hwhv51ldhw07" path="res://Blob/base_enemy_bullet.tscn" id="1_8ux05"]
 [ext_resource type="Script" uid="uid://dkhbhrsh33chq" path="res://Blob/Enemies/basic_rocket.gd" id="2_ep231"]
@@ -18,6 +18,9 @@ radius = 8.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_2l0u2"]
 radius = 12.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_sjayf"]
+radius = 20.0
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_cynqv"]
 animations = [{
@@ -53,7 +56,7 @@ collision_mask = 3
 monitoring = true
 script = ExtResource("2_ep231")
 health = 3
-knockback = 1.0
+knockback = 2.0
 damage = 3.0
 ID = 11
 
@@ -68,7 +71,11 @@ shape = SubResource("CircleShape2D_m8gyf")
 position = Vector2(-6, 0)
 shape = SubResource("CircleShape2D_2l0u2")
 
-[node name="Sprite" type="Node2D" parent="." index="3"]
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="." index="3"]
+shape = SubResource("CircleShape2D_sjayf")
+disabled = true
+
+[node name="Sprite" type="Node2D" parent="." index="4"]
 position = Vector2(3, 0)
 scale = Vector2(1.75, 1.75)
 
@@ -80,12 +87,12 @@ polygon = PackedVector2Array(5, -4, 7, -4, 11, 0, 7, 4, 5, 4, 3, 2, -13, 10, -4,
 color = Color(0.16, 0.16, 0.16, 1)
 polygon = PackedVector2Array(5, -3, 7, -3, 10, 0, 7, 3, 5, 3, 3, 1, -10, 8, -3, 1, -3, -1, -10, -8, 3, -1)
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="4"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="5"]
 position = Vector2(-4, 0)
 scale = Vector2(0.25, 0.25)
 sprite_frames = SubResource("SpriteFrames_cynqv")
 
-[node name="Timer" type="Timer" parent="." index="5"]
+[node name="Timer" type="Timer" parent="." index="6"]
 wait_time = 14.0
 one_shot = true
 autostart = true

@@ -59,8 +59,8 @@ var zone_list = [[]]
 var next_zone_list = [[]]
 
 const MAP_DIMS = [3,6,10,20,10,10,10] #Dimensions of the map
-const ZONE_WIDTH = [2000,200,200,200,200,200,200] #Width of each zone
-const ZONE_HEIGHT = [1000,100,100,100,100,100,100] #Width of each zone
+const ZONE_WIDTH = [200,200,200,200,200,200,200] #Width of each zone
+const ZONE_HEIGHT = [100,100,100,100,100,100,100] #Width of each zone
 
 #Number of each environment generated in a map. Final map is larger fyi. Maybe penultimate will be too.
 const ENV_MAX = [0,2,3,4,2,2,2] 
@@ -1296,11 +1296,11 @@ func backgroundGenerateMap() -> void:
 
 #Need to call this a bit earlier I think but it's good now
 func _on_orb_timer_timeout() -> void:
-	orbReference.distCheck($"Blob_Swim".position)
+	orbReference.distCheck($"Blob_Swim".getPosition())
 
 
 func _on_update_zone_timer_timeout():
-	var playerPos = playerReference.position
+	var playerPos = playerReference.getPosition()
 	var currentZonePosition = _calculateZonePosition(currentZone.x, currentZone.y)
 	var zoneBarrierX = ZONE_WIDTH[current_map]/2
 	var zoneBarrierY = ZONE_HEIGHT[current_map]/2
