@@ -1064,15 +1064,15 @@ func resetCharge(cutoff : bool) -> void:#distance:float, angle:float) -> void:
 	#$CollisionShape2D.position = Vector2(0,0)
 	if cutoff:
 		$InnerNode/Sprite/Node2D.position = Vector2(0,0)
-		$InnerNode/Sprite/Tentacle0.position = Vector2(4,-4)
-		$InnerNode/Sprite/Tentacle1.position = Vector2(8,0)
-		$InnerNode/Sprite/Tentacle2.position = Vector2(4,4)
-		$InnerNode/Sprite/Tentacle3.position = Vector2(2,6)
-		$InnerNode/Sprite/Tentacle4.position = Vector2(0,8)
-		$InnerNode/Sprite/Tentacle5.position = Vector2(-2,6)
-		$InnerNode/Sprite/Tentacle6.position = Vector2(-4,4)
-		$InnerNode/Sprite/Tentacle7.position = Vector2(-8,0)
-		$InnerNode/Sprite/Tentacle8.position = Vector2(-4,-4)
+		#$InnerNode/Sprite/Tentacle0.position = Vector2(4,-4)
+		#$InnerNode/Sprite/Tentacle1.position = Vector2(8,0)
+		#$InnerNode/Sprite/Tentacle2.position = Vector2(4,4)
+		#$InnerNode/Sprite/Tentacle3.position = Vector2(2,6)
+		#$InnerNode/Sprite/Tentacle4.position = Vector2(0,8)
+		#$InnerNode/Sprite/Tentacle5.position = Vector2(-2,6)
+		#$InnerNode/Sprite/Tentacle6.position = Vector2(-4,4)
+		#$InnerNode/Sprite/Tentacle7.position = Vector2(-8,0)
+		#$InnerNode/Sprite/Tentacle8.position = Vector2(-4,-4)
 
 	
 	

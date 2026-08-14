@@ -18,6 +18,7 @@ var whipSpeed:float = 1.0
 #Search Vars
 var searching:bool = false
 
+@onready var line_ref = $Node2D/Line2D 
 
 """
 Tentacle Amounts:
@@ -34,6 +35,43 @@ Tentacle Amounts:
 """
 
 var busyState = false #If charging or performing an action 
+
+func enable() -> void:
+	set_deferred("process_mode", PROCESS_MODE_INHERIT)
+	show()
+	
+
+func disable() -> void:
+	set_deferred("process_mode", PROCESS_MODE_DISABLED)
+	hide()
+
+func setDirection(newDir : float) -> void:
+	line_ref.material.set_shader_parameter("direction", newDir)
+
+func reset() -> void:
+	if process_mode != PROCESS_MODE_DISABLED:
+		match tentacle_number:
+			0:
+				position = Vector2(4,-4)
+			1:
+				position = Vector2(8,0)
+			2:
+				position = Vector2(4,4)
+			3:
+				position = Vector2(2,6)
+			4:
+				position = Vector2(0,8)
+			5:
+				position = Vector2(-2,6)
+			6:
+				position = Vector2(-4,4)
+			7:
+				position = Vector2(-8,0)
+			8:
+				position = Vector2(-4,-4)
+
+func setTentacleNum(newNum : int) -> void:
+	tentacle_number = newNum
 
 func _process(_delta:float) -> void:
 	if whipping:
