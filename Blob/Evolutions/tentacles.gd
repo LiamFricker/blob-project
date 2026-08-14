@@ -8,7 +8,6 @@ extends Node2D
 
 @onready var tentacle_list = [$Tentacle0, $Tentacle1, $Tentacle2, $Tentacle3, $Tentacle4, $Tentacle5, $Tentacle6, $Tentacle7, $Tentacle8]
 var tentacle_tween
-var oscillate_tween
 
 var chargeTentacleSpin = 0
 var reverseTentacleSpin = 0
@@ -125,7 +124,12 @@ func resetCharge(cutoff : bool) -> void:#distance:float, angle:float) -> void:
 #Let's keep this one this way since this might be called every frame. 
 #If we find a better way of doing that (I have one in my brain)
 #We can change it to the more visually pleasing way
+
+#I think let's just screw efficiency
+#At the end of the day, if 9 tentacles is causing a notable issue, you already have a big issue.
+#Just tween all of them at all times, so that it looks consistent when you buy new ones.
 func handleTentacleShader():
+	"""
 	match tentacle_total:
 		1:
 			tentacle_list[4].setDirection(chargeTentacleSpin)
@@ -178,17 +182,18 @@ func handleTentacleShader():
 			tentacle_list[7].setDirection(chargeTentacleSpin-reverseTentacleSpin*2)
 			tentacle_list[8].setDirection(chargeTentacleSpin-reverseTentacleSpin)
 		9:
-			tentacle_list[0].setDirection(chargeTentacleSpin+reverseTentacleSpin)
-			tentacle_list[1].setDirection(chargeTentacleSpin+reverseTentacleSpin*2)
-			tentacle_list[2].setDirection(chargeTentacleSpin+reverseTentacleSpin*3)
-			tentacle_list[3].setDirection(chargeTentacleSpin+reverseTentacleSpin*4)
-			
-			tentacle_list[4].setDirection(chargeTentacleSpin)
-			
-			tentacle_list[5].setDirection(chargeTentacleSpin-reverseTentacleSpin*4)
-			tentacle_list[6].setDirection(chargeTentacleSpin-reverseTentacleSpin*3)
-			tentacle_list[7].setDirection(chargeTentacleSpin-reverseTentacleSpin*2)
-			tentacle_list[8].setDirection(chargeTentacleSpin-reverseTentacleSpin)
+	"""
+	tentacle_list[0].setDirection(chargeTentacleSpin+reverseTentacleSpin)
+	tentacle_list[1].setDirection(chargeTentacleSpin+reverseTentacleSpin*2)
+	tentacle_list[2].setDirection(chargeTentacleSpin+reverseTentacleSpin*3)
+	tentacle_list[3].setDirection(chargeTentacleSpin+reverseTentacleSpin*4)
+	
+	tentacle_list[4].setDirection(chargeTentacleSpin)
+	
+	tentacle_list[5].setDirection(chargeTentacleSpin-reverseTentacleSpin*4)
+	tentacle_list[6].setDirection(chargeTentacleSpin-reverseTentacleSpin*3)
+	tentacle_list[7].setDirection(chargeTentacleSpin-reverseTentacleSpin*2)
+	tentacle_list[8].setDirection(chargeTentacleSpin-reverseTentacleSpin)
 
 """
 	Tentacle Amounts:
@@ -214,83 +219,83 @@ func handleTentacleSqueeze():
 		tentacle_tween.kill()
 	tentacle_tween = create_tween().set_parallel()
 	#Don't bother making this efficient, just make it readable please.
-	if tentacle_total >= 6: 
-		tentacle_tween.tween_property(tentacle_list[0], "position", Vector2(4, -2), charge_max)
-		tentacle_tween.tween_property(tentacle_list[8], "position", Vector2(-4, -2), charge_max)
+	#if tentacle_total >= 6: 
+	tentacle_tween.tween_property(tentacle_list[0], "position", Vector2(4, -2), charge_max)
+	tentacle_tween.tween_property(tentacle_list[8], "position", Vector2(-4, -2), charge_max)
 		
-	if tentacle_total >= 7 or tentacle_total == 2 or tentacle_total == 5:
-		tentacle_tween.tween_property(tentacle_list[2], "position", Vector2(4, 2), charge_max)
-		tentacle_tween.tween_property(tentacle_list[6], "position", Vector2(-4, 2), charge_max)
+	#if tentacle_total >= 7 or tentacle_total == 2 or tentacle_total == 5:
+	tentacle_tween.tween_property(tentacle_list[2], "position", Vector2(4, 2), charge_max)
+	tentacle_tween.tween_property(tentacle_list[6], "position", Vector2(-4, 2), charge_max)
 	
-	if tentacle_total >= 8 or tentacle_total == 4 or tentacle_total == 9:
-		tentacle_tween.tween_property(tentacle_list[3], "position", Vector2(2, 2), charge_max)
-		tentacle_tween.tween_property(tentacle_list[5], "position", Vector2(-2, 2), charge_max)
+	#if tentacle_total >= 8 or tentacle_total == 4 or tentacle_total == 9:
+	tentacle_tween.tween_property(tentacle_list[3], "position", Vector2(2, 2), charge_max)
+	tentacle_tween.tween_property(tentacle_list[5], "position", Vector2(-2, 2), charge_max)
 	
-	if tentacle_total % 2 == 1 and tentacle_total != 5:
-		tentacle_tween.tween_property(tentacle_list[4], "position", Vector2(0, 2), charge_max)
+	#if tentacle_total % 2 == 1 and tentacle_total != 5:
+	tentacle_tween.tween_property(tentacle_list[4], "position", Vector2(0, 2), charge_max)
 
 func handleTentacleChargeSwipe(temp : float, charge_cd : float) -> void:
+	var swipePos : float = min(0.08 * charge_cd, 0.2)
+	var retPos : float = min(0.3 * charge_cd, 0.4)
+	var retRot : float = min(0.6 * charge_cd, 0.8)
+	
 	if tentacle_tween:
 		tentacle_tween.kill()
 	tentacle_tween = create_tween().set_parallel()
 	
-	if oscillate_tween:
-		oscillate_tween.kill()
-	oscillate_tween = create_tween().set_parallel()
+	#if tentacle_total >= 6: 
+	tentacle_tween.tween_property(tentacle_list[0], "position", Vector2(4, -4-3.6*temp), swipePos)
+	tentacle_tween.tween_property(tentacle_list[8], "position", Vector2(-4, -4-3.6*temp), swipePos)
 	
-	if tentacle_total >= 6: 
-		tentacle_tween.parallel().tween_property(tentacle_list[0], "position", Vector2(4, -4-3.6*temp), 0.08 * charge_cd)
-		tentacle_tween.parallel().tween_property(tentacle_list[8], "position", Vector2(-4, -4-3.6*temp), 0.08 * charge_cd)
-		
-		oscillate_tween.parallel().tween_property(tentacle_list[0], "rotation", PI/2, 0.3 * charge_cd)
-		oscillate_tween.parallel().tween_property(tentacle_list[8], "rotation", -3*PI/2, 0.3 * charge_cd)
-		
-		tentacle_tween.parallel().tween_property(tentacle_list[0], "position", Vector2(4, -4), 0.3 * charge_cooldown)
-		tentacle_tween.parallel().tween_property(tentacle_list[8], "position", Vector2(-4, -4), 0.3 * charge_cooldown)
-		
-		oscillate_tween.parallel().tween_property(tentacle_list[0], "rotation", -PI/4, 0.6 * charge_cooldown)
-		oscillate_tween.parallel().tween_property(tentacle_list[8], "rotation", -3*PI/4, 0.6 * charge_cooldown)
+	tentacle_tween.tween_property(tentacle_list[0], "rotation", PI/2, retPos)
+	tentacle_tween.tween_property(tentacle_list[8], "rotation", -3*PI/2, retPos)
 	
-	if tentacle_total >= 3:
-		tentacle_tween.parallel().tween_property(tentacle_list[1], "position", Vector2(6, -3.6*temp), 0.08 * charge_cd)
-		tentacle_tween.parallel().tween_property(tentacle_list[7], "position", Vector2(-6, -3.6*temp), 0.08 * charge_cd)
-		
-		oscillate_tween.parallel().tween_property(tentacle_list[1], "rotation", PI/2, 0.3 * charge_cd)
-		oscillate_tween.tween_property(tentacle_list[7], "rotation", PI/2, 0.3 * charge_cooldown)
-		
-		tentacle_tween.parallel().tween_property(tentacle_list[1], "position", Vector2(8, 0), 0.3 * charge_cooldown)
-		tentacle_tween.parallel().tween_property(tentacle_list[7], "position", Vector2(-8, 0), 0.3 * charge_cooldown)
-		
-		oscillate_tween.tween_property(tentacle_list[1], "rotation", 0, 0.6 * charge_cooldown)
-		oscillate_tween.parallel().tween_property(tentacle_list[7], "rotation", PI, 0.6 * charge_cooldown)
-		
-	if tentacle_total >= 7 or tentacle_total == 2 or tentacle_total == 5:
-		tentacle_tween.parallel().tween_property(tentacle_list[2], "position", Vector2(4, 4-3.6*temp), 0.08 * charge_cd)
-		tentacle_tween.parallel().tween_property(tentacle_list[6], "position", Vector2(-4, 4-3.6*temp), 0.08 * charge_cd)
-		
-		oscillate_tween.parallel().tween_property(tentacle_list[2], "rotation", PI/2, 0.3 * charge_cd)
-		oscillate_tween.parallel().tween_property(tentacle_list[6], "rotation", PI/2, 0.3 * charge_cd)
-		
-		tentacle_tween.parallel().tween_property(tentacle_list[2], "position", Vector2(4, 4), 0.3 * charge_cooldown)
-		tentacle_tween.parallel().tween_property(tentacle_list[6], "position", Vector2(-4, 4), 0.3 * charge_cooldown)
-		
-		oscillate_tween.parallel().tween_property(tentacle_list[2], "rotation", PI/4, 0.6 * charge_cooldown)
-		oscillate_tween.parallel().tween_property(tentacle_list[6], "rotation", 3*PI/4, 0.6 * charge_cooldown)
-		
-	if tentacle_total >= 8 or tentacle_total == 4 or tentacle_total == 9:
-		tentacle_tween.parallel().tween_property(tentacle_list[3], "position", Vector2(2, 6-3.6*temp), 0.08 * charge_cd)
-		tentacle_tween.parallel().tween_property(tentacle_list[5], "position", Vector2(-2, 6-3.6*temp), 0.08 * charge_cd)
-		
-		oscillate_tween.parallel().tween_property(tentacle_list[3], "rotation", PI/2, 0.3 * charge_cd)
-		oscillate_tween.parallel().tween_property(tentacle_list[5], "rotation", PI/2, 0.3 * charge_cd)
-		
-		tentacle_tween.parallel().tween_property(tentacle_list[3], "position", Vector2(2, 6), 0.3 * charge_cooldown)
-		tentacle_tween.parallel().tween_property(tentacle_list[5], "position", Vector2(-2, 6), 0.3 * charge_cooldown)
-		
-		oscillate_tween.parallel().tween_property(tentacle_list[3], "rotation", 3*PI/8, 0.6 * charge_cooldown)
-		oscillate_tween.parallel().tween_property(tentacle_list[5], "rotation", 5*PI/8, 0.6 * charge_cooldown)
+	tentacle_tween.tween_property(tentacle_list[0], "position", Vector2(4, -4), retPos).set_delay(swipePos)
+	tentacle_tween.tween_property(tentacle_list[8], "position", Vector2(-4, -4), retPos).set_delay(swipePos)
 	
-	if tentacle_total % 2 == 1 and tentacle_total != 5:
-		tentacle_tween.parallel().tween_property(tentacle_list[4], "position", Vector2(0, 8-3.6*temp), 0.08 * charge_cd)
+	tentacle_tween.tween_property(tentacle_list[0], "rotation", -PI/4, retRot).set_delay(retPos)
+	tentacle_tween.tween_property(tentacle_list[8], "rotation", -3*PI/4, retRot).set_delay(retPos)
+	
+	#if tentacle_total >= 3:
+	tentacle_tween.tween_property(tentacle_list[1], "position", Vector2(6, -3.6*temp), swipePos)
+	tentacle_tween.tween_property(tentacle_list[7], "position", Vector2(-6, -3.6*temp), swipePos)
+	
+	tentacle_tween.tween_property(tentacle_list[1], "rotation", PI/2, retPos)
+	tentacle_tween.tween_property(tentacle_list[7], "rotation", PI/2, retPos)
+	
+	tentacle_tween.tween_property(tentacle_list[1], "position", Vector2(8, 0), retPos).set_delay(swipePos)
+	tentacle_tween.tween_property(tentacle_list[7], "position", Vector2(-8, 0), retPos).set_delay(swipePos)
+	
+	tentacle_tween.tween_property(tentacle_list[1], "rotation", 0, retRot).set_delay(retPos)
+	tentacle_tween.tween_property(tentacle_list[7], "rotation", PI, retRot).set_delay(retPos)
 		
-		tentacle_tween.parallel().tween_property(tentacle_list[4], "position", Vector2(0, 8), 0.3 * charge_cooldown)
+	#if tentacle_total >= 7 or tentacle_total == 2 or tentacle_total == 5:
+	tentacle_tween.tween_property(tentacle_list[2], "position", Vector2(4, 4-3.6*temp), swipePos)
+	tentacle_tween.tween_property(tentacle_list[6], "position", Vector2(-4, 4-3.6*temp), swipePos)
+	
+	tentacle_tween.tween_property(tentacle_list[2], "rotation", PI/2, retPos)
+	tentacle_tween.tween_property(tentacle_list[6], "rotation", PI/2, retPos)
+	
+	tentacle_tween.tween_property(tentacle_list[2], "position", Vector2(4, 4), retPos).set_delay(swipePos)
+	tentacle_tween.tween_property(tentacle_list[6], "position", Vector2(-4, 4), retPos).set_delay(swipePos)
+	
+	tentacle_tween.tween_property(tentacle_list[2], "rotation", PI/4, retRot).set_delay(retPos)
+	tentacle_tween.tween_property(tentacle_list[6], "rotation", 3*PI/4, retRot).set_delay(retPos)
+		
+	#if tentacle_total >= 8 or tentacle_total == 4 or tentacle_total == 9:
+	tentacle_tween.tween_property(tentacle_list[3], "position", Vector2(2, 6-3.6*temp), swipePos)
+	tentacle_tween.tween_property(tentacle_list[5], "position", Vector2(-2, 6-3.6*temp), swipePos)
+	
+	tentacle_tween.tween_property(tentacle_list[3], "rotation", PI/2, retPos)
+	tentacle_tween.tween_property(tentacle_list[5], "rotation", PI/2, retPos)
+	
+	tentacle_tween.tween_property(tentacle_list[3], "position", Vector2(2, 6), retPos).set_delay(swipePos)
+	tentacle_tween.tween_property(tentacle_list[5], "position", Vector2(-2, 6), retPos).set_delay(swipePos)
+	
+	tentacle_tween.tween_property(tentacle_list[3], "rotation", 3*PI/8, retRot).set_delay(retPos)
+	tentacle_tween.tween_property(tentacle_list[5], "rotation", 5*PI/8, retRot).set_delay(retPos)
+	
+	#if tentacle_total % 2 == 1 and tentacle_total != 5:
+	tentacle_tween.tween_property(tentacle_list[4], "position", Vector2(0, 8-3.6*temp), swipePos)	
+	
+	tentacle_tween.tween_property(tentacle_list[4], "position", Vector2(0, 8), retPos).set_delay(swipePos).set_delay(retPos)
