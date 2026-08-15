@@ -15,7 +15,6 @@ position = Vector2(8, 0)
 tentacle_number = 1
 
 [node name="Tentacle2" parent="." instance=ExtResource("2_bn4uf")]
-visible = false
 position = Vector2(4, 4)
 rotation = 0.785398
 tentacle_number = 2
@@ -26,7 +25,6 @@ rotation = 1.1781
 tentacle_number = 3
 
 [node name="Tentacle4" parent="." instance=ExtResource("2_bn4uf")]
-visible = false
 position = Vector2(0, 8)
 rotation = 1.5708
 tentacle_number = 4
@@ -37,7 +35,6 @@ rotation = 1.9635
 tentacle_number = 5
 
 [node name="Tentacle6" parent="." instance=ExtResource("2_bn4uf")]
-visible = false
 position = Vector2(-4, 4)
 rotation = 2.35619
 tentacle_number = 6

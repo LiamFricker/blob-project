@@ -6,7 +6,7 @@ extends Node2D
 var size = 0.0
 @export var dependent : bool = true
 @export var attack_mods : Array = [false, false, false, false, false]
-var ID : int = 0.0
+var ID : int = 0
 
 signal damagedEnemy(amt : float)
 
@@ -42,8 +42,8 @@ func getDamage() -> float:
 	damagedEnemy.emit(damage)
 	return damage
 
-func connectDMG(call : Callable) -> void:
-	damagedEnemy.connect(call)
+func connectDMG(calla : Callable) -> void:
+	damagedEnemy.connect(calla)
 
 func addPosition(newpos) -> void:
 	if not dependent:

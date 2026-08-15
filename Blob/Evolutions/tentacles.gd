@@ -4,23 +4,30 @@ extends Node2D
 #Let's just disable the ones we don't need and call it a day
 
 @export var tentacle_total = 9
+@export var tentacleLength:int = 8
+#I have no idea what this means but I'm keeping it for now ig...
+@export var tentacleAlphaAmount:int = 0
 #@export var tentacle_scene : PackedScene
 
 @onready var tentacle_list = [$Tentacle0, $Tentacle1, $Tentacle2, $Tentacle3, $Tentacle4, $Tentacle5, $Tentacle6, $Tentacle7, $Tentacle8]
 var tentacle_tween
+var shader_update : bool = false #_tween 
+var shader_update_tween 
 
-var chargeTentacleSpin = 0
-var reverseTentacleSpin = 0
-var charge_max = 0
-var charge_cooldown = 0
+var chargeTentacleSpin : float = 0.0
+var reverseTentacleSpin : float = 0.0
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func _process(_delta: float) -> void:
+	if shader_update:
+		print("true")
+		updateTentacleShader()
+	
 	
 """
 func createTentacle(count : int) -> void:
@@ -28,6 +35,24 @@ func createTentacle(count : int) -> void:
 	tentacle_list.append(tempTentacle)
 	add_child(tempTentacle)
 """
+
+func shaderNewDirection(new_dir : int) -> void:
+	if new_dir == 0 and shader_update:
+		if shader_update_tween:
+			shader_update_tween.kill()
+		shader_update_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_LINEAR)
+		shader_update_tween.tween_property(self, "chargeTentacleSpin", 0.0, 0.5)
+		shader_update_tween.finished.connect(_cancelShaderTween)
+	else:
+		shader_update = true
+		if shader_update_tween:
+			shader_update_tween.kill()
+		if abs(chargeTentacleSpin) > 0:
+			shader_update_tween = create_tween().set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_LINEAR)
+			shader_update_tween.tween_property(self, "chargeTentacleSpin", -0.8 * new_dir, 0.4)
+		else:
+			shader_update_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_LINEAR)
+			shader_update_tween.tween_property(self, "chargeTentacleSpin", -0.8 * new_dir, 0.25)
 
 func updateTentacles(upgraded = false) -> void:
 	match tentacle_total:
@@ -112,10 +137,8 @@ func updateTentacles(upgraded = false) -> void:
 			$Tentacle4.enable()
 
 func resetCharge(cutoff : bool) -> void:#distance:float, angle:float) -> void:
-	if cutoff:
-		$InnerNode/Sprite/Node2D.position = Vector2(0,0)
-		for t in tentacle_list:
-			t.reset()
+	for t in tentacle_list:
+		t.reset()
 	
 
 #I HATE THIS I WANT THIS TO LOOK BETTER THIS IS DISGUSTING DISGUSTING 
@@ -125,10 +148,18 @@ func resetCharge(cutoff : bool) -> void:#distance:float, angle:float) -> void:
 #If we find a better way of doing that (I have one in my brain)
 #We can change it to the more visually pleasing way
 
+func startTentacleShader() -> void:
+	shader_update = true
+	#if not shader_update_tween:
+	#	shader_update_tween = create_tween().set_loops()
+	#	shader_update_tween.tween_callback(updateTentacleShader).set_delay(0.02)
+
 #I think let's just screw efficiency
 #At the end of the day, if 9 tentacles is causing a notable issue, you already have a big issue.
 #Just tween all of them at all times, so that it looks consistent when you buy new ones.
-func handleTentacleShader():
+func handleTentacleShader(cTS : float) -> void:
+	chargeTentacleSpin = cTS
+	
 	"""
 	match tentacle_total:
 		1:
@@ -183,6 +214,8 @@ func handleTentacleShader():
 			tentacle_list[8].setDirection(chargeTentacleSpin-reverseTentacleSpin)
 		9:
 	"""
+
+func updateTentacleShader() -> void:
 	tentacle_list[0].setDirection(chargeTentacleSpin+reverseTentacleSpin)
 	tentacle_list[1].setDirection(chargeTentacleSpin+reverseTentacleSpin*2)
 	tentacle_list[2].setDirection(chargeTentacleSpin+reverseTentacleSpin*3)
@@ -213,8 +246,16 @@ func handleTentacleShader():
 	17: 3+
 	08: 6+
 """
+
+func _cancelShaderTween() -> void:
+	#if shader_update_tween:	
+	#	shader_update_tween.kill()
+	shader_update = false
+	reverseTentacleSpin = 0.0
+	chargeTentacleSpin = 0.0
+	updateTentacleShader()
 	
-func handleTentacleSqueeze():
+func handleTentacleSqueeze(charge_max : float):
 	if tentacle_tween:
 		tentacle_tween.kill()
 	tentacle_tween = create_tween().set_parallel()
@@ -242,6 +283,17 @@ func handleTentacleChargeSwipe(temp : float, charge_cd : float) -> void:
 	if tentacle_tween:
 		tentacle_tween.kill()
 	tentacle_tween = create_tween().set_parallel()
+	
+	#Shader tweens
+	tentacle_tween.tween_property(self, "reverseTentacleSpin", 1.0, swipePos)
+	tentacle_tween.tween_property(self, "chargeTentacleSpin", 0.0, 2 * swipePos)
+	tentacle_tween.tween_property(self, "reverseTentacleSpin", 0.0, retPos).set_delay(swipePos)
+	tentacle_tween.tween_callback(_cancelShaderTween).set_delay(swipePos+retPos)
+	
+	#if not shader_update_tween:
+	#	shader_update_tween = create_tween().set_loops()
+	#	shader_update_tween.tween_callback(updateTentacleShader).set_delay(0.02)
+	shader_update = true
 	
 	#if tentacle_total >= 6: 
 	tentacle_tween.tween_property(tentacle_list[0], "position", Vector2(4, -4-3.6*temp), swipePos)

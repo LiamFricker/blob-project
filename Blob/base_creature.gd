@@ -392,7 +392,7 @@ func _deathKnockback(pos : Vector2, kb = 1.0) -> void:
 
 func _handleRedFlash(tweener : Tween = movement_tween) -> void:
 	tweener.parallel().tween_property(self, "modulate", Color(0.8, 0.4, 0.4, 1.0), 0.25)
-	tweener.tween_property(self, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25)
+	tweener.parallel().tween_property(self, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.25).set_delay(0.35)
 
 func _handleRedDeath() -> void:
 	dot_tween.tween_property(self, "modulate", Color(1.0, 0, 0, 0), 1.0)

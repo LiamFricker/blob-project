@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" uid="uid://4u6uw0h6fqhw" path="res://Blob/blob_swim.gd" id="1_560oe"]
 [ext_resource type="Texture2D" uid="uid://6r00aigasy26" path="res://Art/Cell/Glimmer.png" id="2_02q5b"]
-[ext_resource type="PackedScene" uid="uid://dg5dmmg4xvh2b" path="res://Blob/tentacle.tscn" id="3_8tadd"]
 [ext_resource type="PackedScene" uid="uid://5o87u003agn6" path="res://Blob/Evolutions/lasso.tscn" id="3_xsdnl"]
 [ext_resource type="PackedScene" uid="uid://bgxasyew2kt8g" path="res://Blob/Evolutions/speed_boost.tscn" id="4_a16ly"]
 [ext_resource type="Texture2D" uid="uid://c43vreo7c407m" path="res://Art/Cell/TestTexture2.png" id="4_cws7r"]
 [ext_resource type="Material" uid="uid://cnn885v4juwuw" path="res://Blob/Materials/blob_swim.tres" id="5_8tadd"]
+[ext_resource type="PackedScene" uid="uid://177vwvphes8i" path="res://Blob/Evolutions/tentacles.tscn" id="5_rs8qj"]
 [ext_resource type="Texture2D" uid="uid://nkptmcawvx1e" path="res://Art/Cell/Evolutions/X_indicator.png" id="6_fcc0v"]
 [ext_resource type="PackedScene" uid="uid://dg88vj8yfbw4t" path="res://Blob/organelles.tscn" id="7_fcc0v"]
 [ext_resource type="Script" uid="uid://cekx7gkpetryd" path="res://Blob/player_attachments.gd" id="10_5yg2x"]
@@ -26,6 +26,7 @@ collision_mask = 32
 script = ExtResource("1_560oe")
 mouseMovement = false
 camReference = NodePath("InnerNode/Camera2D")
+basic_movement_type = 1
 waddle_speed = 10
 frog_speed = 1.25
 frog_travel_speed = 1.25
@@ -71,48 +72,7 @@ playerRef = NodePath("../..")
 
 [node name="Sprite" type="Node2D" parent="InnerNode"]
 
-[node name="Tentacle0" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(4, -4)
-rotation = -0.785398
-
-[node name="Tentacle1" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(8, 0)
-tentacle_number = 1
-
-[node name="Tentacle2" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(4, 4)
-rotation = 0.785398
-tentacle_number = 2
-
-[node name="Tentacle3" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(2, 6)
-rotation = 1.1781
-tentacle_number = 3
-
-[node name="Tentacle4" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(0, 8)
-rotation = 1.5708
-tentacle_number = 4
-
-[node name="Tentacle5" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(-2, 6)
-rotation = 1.9635
-tentacle_number = 5
-
-[node name="Tentacle6" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(-4, 4)
-rotation = 2.35619
-tentacle_number = 6
-
-[node name="Tentacle7" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(-8, 0)
-rotation = 3.14159
-tentacle_number = 7
-
-[node name="Tentacle8" parent="InnerNode/Sprite" instance=ExtResource("3_8tadd")]
-position = Vector2(-4, -4)
-rotation = -2.35619
-tentacle_number = 8
+[node name="Tentacles" parent="InnerNode/Sprite" instance=ExtResource("5_rs8qj")]
 
 [node name="Node2D" type="Node2D" parent="InnerNode/Sprite"]
 

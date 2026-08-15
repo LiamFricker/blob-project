@@ -13,7 +13,7 @@ func _handleRedFlash(tweener : Tween = movement_tween) -> void:
 	spriteRef.material.set_shader_parameter("end_color", Color(1,0,0))
 	var tempMod = spriteRef.material.get_shader_parameter("progress")
 	tweener.parallel().tween_method(_updateSpriteModulate, tempMod, 0.5, 0.2)
-	tweener.tween_method(_updateSpriteModulate, 0.5, 0.0, 0.2)
+	tweener.parallel().tween_method(_updateSpriteModulate, 0.5, 0.0, 0.2).set_delay(0.3)
 
 func _handleRedDeath() -> void:
 	#print("this triggered")
