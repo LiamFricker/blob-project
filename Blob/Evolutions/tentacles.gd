@@ -25,7 +25,6 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	if shader_update:
-		print("true")
 		updateTentacleShader()
 	
 	
@@ -136,7 +135,7 @@ func updateTentacles(upgraded = false) -> void:
 				$Tentacle5.enable()
 			$Tentacle4.enable()
 
-func resetCharge(cutoff : bool) -> void:#distance:float, angle:float) -> void:
+func resetCharge() -> void:#distance:float, angle:float) -> void:
 	for t in tentacle_list:
 		t.reset()
 	
@@ -300,13 +299,13 @@ func handleTentacleChargeSwipe(temp : float, charge_cd : float) -> void:
 	tentacle_tween.tween_property(tentacle_list[8], "position", Vector2(-4, -4-3.6*temp), swipePos)
 	
 	tentacle_tween.tween_property(tentacle_list[0], "rotation", PI/2, retPos)
-	tentacle_tween.tween_property(tentacle_list[8], "rotation", -3*PI/2, retPos)
+	tentacle_tween.tween_property(tentacle_list[8], "rotation", PI/2, retPos)
 	
 	tentacle_tween.tween_property(tentacle_list[0], "position", Vector2(4, -4), retPos).set_delay(swipePos)
 	tentacle_tween.tween_property(tentacle_list[8], "position", Vector2(-4, -4), retPos).set_delay(swipePos)
 	
 	tentacle_tween.tween_property(tentacle_list[0], "rotation", -PI/4, retRot).set_delay(retPos)
-	tentacle_tween.tween_property(tentacle_list[8], "rotation", -3*PI/4, retRot).set_delay(retPos)
+	tentacle_tween.tween_property(tentacle_list[8], "rotation", 5*PI/4, retRot).set_delay(retPos)
 	
 	#if tentacle_total >= 3:
 	tentacle_tween.tween_property(tentacle_list[1], "position", Vector2(6, -3.6*temp), swipePos)
@@ -351,3 +350,110 @@ func handleTentacleChargeSwipe(temp : float, charge_cd : float) -> void:
 	tentacle_tween.tween_property(tentacle_list[4], "position", Vector2(0, 8-3.6*temp), swipePos)	
 	
 	tentacle_tween.tween_property(tentacle_list[4], "position", Vector2(0, 8), retPos).set_delay(swipePos).set_delay(retPos)
+
+func tentacleFastMovement(angle : float, move_duration : float) -> void:
+	
+	print(angle)
+	
+	if angle > PI:
+		angle -= 2 * PI
+	
+	#Animation looks good ~move_dur >0.35. Looks bad else. Fix this
+	print("MOVE DUR: " , move_duration)
+	var move_amount = min(move_duration / 0.4, 1.0)
+	#move_duration *= 4
+	
+	shader_update = true
+	
+	
+	
+	var swipePos : float = max(move_duration * 0.3, 0.1)
+	var retPos : float = max(move_duration * 0.6, 0.05)
+	var retRot : float = 0.5
+	
+	if tentacle_tween:
+		tentacle_tween.kill()
+	tentacle_tween = create_tween().set_parallel()#.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	
+	#tentacle_tween.tween_property(self, "reverseTentacleSpin", 1.0, swipePos)
+	
+	#var posAng : float = PI/2
+	#var negAng : float
+	#Doesn't solve it but it does proc true
+	"""
+	if angle >= PI and angle <= 3*PI/2:
+		print("TRUE")
+		#negAng = angle + PI /2 
+		posAng = angle - 3* PI / 2
+	else:
+		posAng = angle + PI /2 
+		#negAng = angle - 3* PI / 2
+	print(posAng)
+	"""
+	
+	"""
+	PI/2, 
+	move_amount *  3*PI/4,
+	move_amount * -3*PI/4
+	move_amount *    PI/2
+	move_amount *   -PI/2
+	move_amount *    PI/4
+	move_amount *   -PI/4
+	move_amount *    PI/8
+	move_amount *   -PI/8
+	"""
+	
+	
+	tentacle_tween.tween_property(self, "rotation", angle, move_amount * 0.5*swipePos)
+	#tentacle_tween.tween_property(tentacle_list[4], "rotation", 0, swipePos)
+	tentacle_tween.tween_property(tentacle_list[0], "rotation", move_amount *  3*PI/4, swipePos).as_relative()
+	tentacle_tween.tween_property(tentacle_list[8], "rotation", move_amount * -3*PI/4, swipePos).as_relative()
+	tentacle_tween.tween_property(tentacle_list[1], "rotation", move_amount *    PI/2, swipePos).as_relative()
+	tentacle_tween.tween_property(tentacle_list[7], "rotation", move_amount *   -PI/2, swipePos).as_relative()
+	tentacle_tween.tween_property(tentacle_list[2], "rotation", move_amount *    PI/4, swipePos).as_relative()
+	tentacle_tween.tween_property(tentacle_list[6], "rotation", move_amount *   -PI/4, swipePos).as_relative()
+	tentacle_tween.tween_property(tentacle_list[3], "rotation", move_amount *    PI/8, swipePos).as_relative()
+	tentacle_tween.tween_property(tentacle_list[5], "rotation", move_amount *   -PI/8, swipePos).as_relative()
+	
+	tentacle_tween.set_parallel(false)
+	
+	#tentacle_tween.tween_property(self, "reverseTentacleSpin", -1.0, swipePos).set_delay(retPos)
+	
+	if move_amount >= 0.8:
+		tentacle_tween.tween_property(tentacle_list[4], "rotation", move_amount * -PI, swipePos).as_relative().set_delay(retPos)
+		tentacle_tween.parallel().tween_property(tentacle_list[0], "rotation", move_amount *   -PI/4, swipePos).as_relative().set_delay(retPos)
+		tentacle_tween.parallel().tween_property(tentacle_list[8], "rotation", move_amount *    PI/4, swipePos).as_relative().set_delay(retPos)
+		tentacle_tween.parallel().tween_property(tentacle_list[1], "rotation", move_amount *   -PI/2, swipePos).as_relative().set_delay(retPos)
+		tentacle_tween.parallel().tween_property(tentacle_list[7], "rotation", move_amount *    PI/2, swipePos).as_relative().set_delay(retPos)
+		tentacle_tween.parallel().tween_property(tentacle_list[2], "rotation", move_amount * -3*PI/4, swipePos).as_relative().set_delay(retPos)
+		tentacle_tween.parallel().tween_property(tentacle_list[6], "rotation", move_amount *  3*PI/4, swipePos).as_relative().set_delay(retPos)
+		tentacle_tween.parallel().tween_property(tentacle_list[3], "rotation", move_amount * -7*PI/8, swipePos).as_relative().set_delay(retPos)
+		tentacle_tween.parallel().tween_property(tentacle_list[5], "rotation", move_amount *  7*PI/8, swipePos).as_relative().set_delay(retPos)
+	
+		#tentacle_tween.tween_property(self, "reverseTentacleSpin", 0.0, retRot)
+	
+		tentacle_tween.tween_property(self, "rotation", 0, swipePos)#.set_delay(swipePos * 0.5)
+		tentacle_tween.parallel().tween_property(tentacle_list[4], "rotation", move_amount *      PI, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[0], "rotation", move_amount *    PI/4, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[8], "rotation", move_amount *   -PI/4, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[1], "rotation", move_amount *    PI/2, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[7], "rotation", move_amount *   -PI/2, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[2], "rotation", move_amount *  3*PI/4, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[6], "rotation", move_amount * -3*PI/4, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[3], "rotation", move_amount *  7*PI/8, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[5], "rotation", move_amount * -7*PI/8, retRot).as_relative()
+	
+	else:
+		tentacle_tween.tween_property(self, "rotation", 0, retRot * 0.5)#.set_delay(swipePos * 0.5)
+		tentacle_tween.parallel().tween_property(tentacle_list[0], "rotation", move_amount * -3*PI/4, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[8], "rotation", move_amount *  3*PI/4, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[1], "rotation", move_amount *   -PI/2, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[7], "rotation", move_amount *    PI/2, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[2], "rotation", move_amount *   -PI/4, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[6], "rotation", move_amount *    PI/4, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[3], "rotation", move_amount *   -PI/8, retRot).as_relative()
+		tentacle_tween.parallel().tween_property(tentacle_list[5], "rotation", move_amount *    PI/8, retRot).as_relative()
+	
+	#tentacle_tween.parallel().tween_property(self, "rotation", 0, swipePos*0.5).set_delay(swipePos * 0.5)
+	
+	tentacle_tween.finished.connect(_cancelShaderTween)

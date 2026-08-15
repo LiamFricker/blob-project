@@ -46,5 +46,5 @@ tentacle_number = 7
 
 [node name="Tentacle8" parent="." instance=ExtResource("2_bn4uf")]
 position = Vector2(-4, -4)
-rotation = -2.35619
+rotation = 3.92699
 tentacle_number = 8

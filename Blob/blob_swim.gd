@@ -1023,19 +1023,24 @@ func _lassoRelease() -> void:
 func _lassoGo() -> void:
 	primary_queued = true
 	var endPos = lassoRef.getPos()
-	if lasso_progress >= 1000:
+	if lasso_progress >= 1000 and lasso_progress < 2000:
 		if _lassoCollisionCheck(endPos):
 			if kb_moving:
 				_knockbackCancel()
 			move_abil_mod = 0
+			lasso_progress = 2000
 			$CollisionShape2D.set_deferred("disabled", true)
 			if primary_tween:
 				primary_tween.kill()
 			primary_tween = create_tween() 
 			
 			var normEndPos = endPos - getPosition()
+			var normEndAng = normEndPos.angle() + PI/2 - charge_angle
 			var crossLen = normEndPos.length()
-			primary_tween.tween_property(Inner, "position", normEndPos, crossLen / (2.0*lasso_base_range*lasso_retract_speed)).as_relative()
+			var lasso_tot_ret_speed = crossLen / (2.0*lasso_base_range*lasso_retract_speed)
+			primary_tween.tween_property(Inner, "position", normEndPos, lasso_tot_ret_speed).as_relative()
+			if tentacle:
+				tent_ref.tentacleFastMovement(normEndAng, lasso_tot_ret_speed)
 			primary_tween.finished.connect(_lassoEnd)
 		else:
 			lassoRef.cancelLasso(true)

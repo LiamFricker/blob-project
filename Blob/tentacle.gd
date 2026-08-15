@@ -171,5 +171,5 @@ func tentConfig() -> void:
 			rotation = PI
 		8:
 			position = Vector2(-4, -4)
-			rotation = -3*PI/4
+			rotation = 5*PI/4
 		
