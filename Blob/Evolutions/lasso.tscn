@@ -150,6 +150,7 @@ progressGainSpeed = 2.0
 minProgress = 0.4
 
 [node name="RetractHitbox" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_njjpe")]
+visible = false
 collision_mask = 8
 monitorable = false
 parentRef = NodePath("..")

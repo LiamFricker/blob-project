@@ -374,6 +374,7 @@ visible = false
 sprite_frames = SubResource("SpriteFrames_1o42n")
 
 [node name="Slipstream" type="Area2D" parent="." node_paths=PackedStringArray("parentRef")]
+visible = false
 collision_layer = 8
 collision_mask = 0
 monitoring = false

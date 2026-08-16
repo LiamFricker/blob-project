@@ -206,6 +206,8 @@ func endLasso(relativePos : Vector2, lasBuf : int = 0) -> bool:
 
 func cancelLasso(_emitSig : bool) -> void:
 	$RetractHitbox.set_deferred("monitorable", false)
+	#$RetractHitbox/CollisionShape2D.hide()
+	
 	if lasso_tween:
 		lasso_tween.kill()
 	lasso_tween = create_tween()
@@ -226,9 +228,15 @@ func beginThrow() -> void:
 	
 func enableHitbox() -> void:
 	$RetractHitbox.set_deferred("monitorable", true)
+	#$RetractHitbox/CollisionShape2D.show()
+
+func disableHitbox() -> void:
+	$RetractHitbox.set_deferred("monitorable", false)
+	#$RetractHitbox/CollisionShape2D.hide()
 
 func cancelThrow() -> void:
-	$RetractHitbox.set_deferred("monitorable", false)
+	#$RetractHitbox.set_deferred("monitorable", false)
+	#$RetractHitbox/CollisionShape2D.hide()
 	
 	if start:
 		start = false
@@ -252,6 +260,7 @@ func emitCancel() -> void:
 
 func deactivate() -> void:
 	$RetractHitbox.set_deferred("monitorable", false)
+	#$RetractHitbox/CollisionShape2D.hide()
 	hide()
 	set_process(false)
 

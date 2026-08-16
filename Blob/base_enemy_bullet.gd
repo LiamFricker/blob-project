@@ -61,7 +61,7 @@ func getKnockback() -> float:
 func toggle(on = true) -> void:
 	set_deferred("monitorable", on)
 	if hurtboxRef:
-		hurtboxRef.set_deferred("monitorable", on)
+		hurtboxRef.set_deferred("monitoring", on)
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if area.getID() != ID and area.getAttackMod(1): #temp_enemy.getID()

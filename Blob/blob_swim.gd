@@ -1060,6 +1060,7 @@ func _lassoCollisionCheck(_checkPos : Vector2) -> bool:
 	return true
 
 func _lassoEnd() -> void:
+	lassoRef.disableHitbox()
 	move_abil_mod = 1.0
 	_lassoCancel()
 	$CollisionShape2D.set_deferred("disabled", false)
