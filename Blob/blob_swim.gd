@@ -811,8 +811,8 @@ func _frogRelease() -> void:
 	if directional_movement:
 		dirMoveLogic(frogDirection, 1.25)
 		
-		scaleVec = Vector2(0.6, 0.6) + abs(frogDirection) * (0.4 + 0.1 * temp)
-		posVec = frogDirection * 3.6 * temp
+		scaleVec = Vector2(0.6, 0.6 + (0.4 + 0.1 * temp))
+		posVec = Vector2(0,-1) * 3.6 * temp
 		
 		if tentacle:
 			if frog_charge > 1.5:
