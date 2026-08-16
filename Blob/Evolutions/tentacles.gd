@@ -137,7 +137,7 @@ func updateTentacles(upgraded = false) -> void:
 
 func resetCharge() -> void:#distance:float, angle:float) -> void:
 	for t in tentacle_list:
-		t.reset()
+		t.tentConfig()
 	
 
 #I HATE THIS I WANT THIS TO LOOK BETTER THIS IS DISGUSTING DISGUSTING 
@@ -351,21 +351,16 @@ func handleTentacleChargeSwipe(temp : float, charge_cd : float) -> void:
 	
 	tentacle_tween.tween_property(tentacle_list[4], "position", Vector2(0, 8), retPos).set_delay(swipePos).set_delay(retPos)
 
-func tentacleFastMovement(angle : float, move_duration : float) -> void:
-	
-	print(angle)
+func tentacleFastMovement(angle : float, move_duration : float, slowRetTime : bool = false) -> void:
 	
 	if angle > PI:
 		angle -= 2 * PI
 	
 	#Animation looks good ~move_dur >0.35. Looks bad else. Fix this
-	print("MOVE DUR: " , move_duration)
 	var move_amount = min(move_duration / 0.4, 1.0)
 	#move_duration *= 4
 	
-	shader_update = true
-	
-	
+	#shader_update = true
 	
 	var swipePos : float = max(move_duration * 0.3, 0.1)
 	var retPos : float = max(move_duration * 0.6, 0.05)
@@ -403,6 +398,7 @@ func tentacleFastMovement(angle : float, move_duration : float) -> void:
 	move_amount *   -PI/8
 	"""
 	
+	resetCharge()
 	
 	tentacle_tween.tween_property(self, "rotation", angle, move_amount * 0.5*swipePos)
 	#tentacle_tween.tween_property(tentacle_list[4], "rotation", 0, swipePos)
@@ -419,6 +415,10 @@ func tentacleFastMovement(angle : float, move_duration : float) -> void:
 	
 	#tentacle_tween.tween_property(self, "reverseTentacleSpin", -1.0, swipePos).set_delay(retPos)
 	
+	var rotTime = snappedf(retRot * abs(angle / PI), 0.01)
+	if slowRetTime:
+		rotTime *= 2.5
+	
 	if move_amount >= 0.8:
 		tentacle_tween.tween_property(tentacle_list[4], "rotation", move_amount * -PI, swipePos).as_relative().set_delay(retPos)
 		tentacle_tween.parallel().tween_property(tentacle_list[0], "rotation", move_amount *   -PI/4, swipePos).as_relative().set_delay(retPos)
@@ -432,7 +432,7 @@ func tentacleFastMovement(angle : float, move_duration : float) -> void:
 	
 		#tentacle_tween.tween_property(self, "reverseTentacleSpin", 0.0, retRot)
 	
-		tentacle_tween.tween_property(self, "rotation", 0, swipePos)#.set_delay(swipePos * 0.5)
+		tentacle_tween.tween_property(self, "rotation", 0, rotTime)#.set_delay(swipePos * 0.5)
 		tentacle_tween.parallel().tween_property(tentacle_list[4], "rotation", move_amount *      PI, retRot).as_relative()
 		tentacle_tween.parallel().tween_property(tentacle_list[0], "rotation", move_amount *    PI/4, retRot).as_relative()
 		tentacle_tween.parallel().tween_property(tentacle_list[8], "rotation", move_amount *   -PI/4, retRot).as_relative()
@@ -444,7 +444,8 @@ func tentacleFastMovement(angle : float, move_duration : float) -> void:
 		tentacle_tween.parallel().tween_property(tentacle_list[5], "rotation", move_amount * -7*PI/8, retRot).as_relative()
 	
 	else:
-		tentacle_tween.tween_property(self, "rotation", 0, retRot * 0.5)#.set_delay(swipePos * 0.5)
+		
+		tentacle_tween.tween_property(self, "rotation", 0, rotTime)#.set_delay(swipePos * 0.5)
 		tentacle_tween.parallel().tween_property(tentacle_list[0], "rotation", move_amount * -3*PI/4, retRot).as_relative()
 		tentacle_tween.parallel().tween_property(tentacle_list[8], "rotation", move_amount *  3*PI/4, retRot).as_relative()
 		tentacle_tween.parallel().tween_property(tentacle_list[1], "rotation", move_amount *   -PI/2, retRot).as_relative()
@@ -456,4 +457,4 @@ func tentacleFastMovement(angle : float, move_duration : float) -> void:
 	
 	#tentacle_tween.parallel().tween_property(self, "rotation", 0, swipePos*0.5).set_delay(swipePos * 0.5)
 	
-	tentacle_tween.finished.connect(_cancelShaderTween)
+	tentacle_tween.finished.connect(resetCharge)

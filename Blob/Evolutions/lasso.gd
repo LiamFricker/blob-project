@@ -114,7 +114,6 @@ var reverse = false
 
 var tongue_timer = 0.0
 
-@export var mana_mult = 0.6
 """
 func _ready():
 	print("Alive")
@@ -161,9 +160,9 @@ func beginLasso() -> void:
 	if lasso_tween:
 		lasso_tween.kill()
 	lasso_tween = create_tween()
-	var scaleVec = Vector2(1,1) * (baseProgress + maxProgress * 1.0)  
+	var scaleVec = Vector2(1,1) * (baseProgress + maxProgress * 1.1)  
 	lasso_tween.tween_property(self, "lassoProgress", maxProgress, maxProgress * 3.0 / progressGainSpeed).from(0.0)
-	lasso_tween.parallel().tween_property($ThrowRange, "scale", scaleVec, maxProgress * 3.0 / progressGainSpeed)
+	lasso_tween.parallel().tween_property($ThrowRange, "scale", scaleVec, maxProgress * 3.0 / progressGainSpeed).from(Vector2.ZERO)
 	lasso_tween.parallel().tween_property(centerRef, "scale", Vector2(1,1), 0.2)
 
 func updateLocation(pos : Vector2) -> void:
@@ -206,6 +205,7 @@ func endLasso(relativePos : Vector2, lasBuf : int = 0) -> bool:
 		#start = true
 
 func cancelLasso(_emitSig : bool) -> void:
+	$RetractHitbox.set_deferred("monitorable", false)
 	if lasso_tween:
 		lasso_tween.kill()
 	lasso_tween = create_tween()
@@ -224,20 +224,26 @@ func beginThrow() -> void:
 	start = true	
 	throwing = true
 	
+func enableHitbox() -> void:
+	$RetractHitbox.set_deferred("monitorable", true)
 
 func cancelThrow() -> void:
+	$RetractHitbox.set_deferred("monitorable", false)
+	
 	if start:
 		start = false
 		if lasso_tween:
 			lasso_tween.kill()
 		lasso_tween = create_tween()
+		centerRef.scale = Vector2.ZERO
+		
 		 #This may not be aligned. If so, try to align it or do this in process
 		lasso_tween.tween_property(tongueRef, "scale", Vector2(0,1), lassoProgress * 0.2) 
 		lasso_tween.parallel().tween_property(endRef, "position", Vector2(0,0), lassoProgress * 0.2) 
 		lasso_tween.parallel().tween_property(centerRef, "rotation", 0.1, 0.05).as_relative()
-		lasso_tween.tween_property(centerRef, "rotation", -0.1, 0.05).as_relative()
-		lasso_tween.tween_property(centerRef, "rotation", 0.1, 0.05).as_relative()
-		lasso_tween.tween_property(centerRef, "rotation", -0.1, 0.05).as_relative()
+		lasso_tween.parallel().tween_property(centerRef, "rotation", -0.1, 0.05).as_relative().set_delay(0.05)
+		lasso_tween.parallel().tween_property(centerRef, "rotation", 0.1, 0.05).as_relative().set_delay(0.1)
+		lasso_tween.parallel().tween_property(centerRef, "rotation", -0.1, 0.05).as_relative().set_delay(0.15)
 		lasso_tween.finished.connect(emitCancel)
 		lassoStall.emit()
 
@@ -248,6 +254,8 @@ func deactivate() -> void:
 	$RetractHitbox.set_deferred("monitorable", false)
 	hide()
 	set_process(false)
+
+
 
 func startAnim() -> void:
 	$AnimationPlayer.play("SpinLasso")

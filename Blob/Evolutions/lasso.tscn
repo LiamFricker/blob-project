@@ -149,9 +149,11 @@ script = ExtResource("1_t4wgx")
 progressGainSpeed = 2.0
 minProgress = 0.4
 
-[node name="RetractHitbox" parent="." instance=ExtResource("2_njjpe")]
+[node name="RetractHitbox" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_njjpe")]
 collision_mask = 8
 monitorable = false
+parentRef = NodePath("..")
+attack_mods = [false, true, false, false, false]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RetractHitbox"]
 shape = SubResource("CircleShape2D_j1ffb")

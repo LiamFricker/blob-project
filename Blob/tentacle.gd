@@ -143,7 +143,7 @@ func endWhip() -> void:
 	whipping = false
 
 func tentConfig() -> void:
-	$Node2D/Line2D.material.set_shader_parameter("amplitude", 1.0)
+	#$Node2D/Line2D.material.set_shader_parameter("amplitude", 1.0)
 	match tentacle_number:
 		0:
 			position = Vector2(4, -4)
@@ -167,7 +167,7 @@ func tentConfig() -> void:
 			position = Vector2(-4, 4)
 			rotation = 3*PI/4
 		7:
-			position = Vector2(8, 0)
+			position = Vector2(-8, 0)
 			rotation = PI
 		8:
 			position = Vector2(-4, -4)

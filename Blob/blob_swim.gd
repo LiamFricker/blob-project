@@ -802,7 +802,13 @@ func _frogRelease() -> void:
 	basic_tween.parallel().tween_property(self, "frog_charge", -1.0, 0.4 / frog_travel_speed).as_relative()
 	basic_tween.finished.connect(_frogReset)
 	
-	#handleTentacleReturn()
+	if tentacle:
+		#Turn off slow rot_time when you add follow angle movement.
+		var normEndAng = frogDirection.angle() + PI/2 - charge_angle
+		if frog_charge > 1.5:
+			tent_ref.tentacleFastMovement(normEndAng, 0.15, true)
+		else:
+			tent_ref.tentacleFastMovement(normEndAng, 0.3, true)
 
 func _primaryOnPress() -> void:
 	match primary_ability:
@@ -992,7 +998,7 @@ func _sbPress() -> void:
 			sb_state = 1
 
 func _lassoPress() -> void:
-	print("LAS PROG, " , lasso_progress)
+	print("LAS PROG PRESS, " , lasso_progress)
 	if lasso_progress >= 1000:
 		_lassoGo()
 	elif lasso_progress < 100:
@@ -1009,7 +1015,7 @@ func _lassoPress() -> void:
 
 func _lassoRelease() -> void:
 	primary_queued = false
-	if lasso_progress < 100 and lasso_progress > 0:
+	if lasso_progress < 100 and lasso_progress >= 0:
 		charge_dash = false
 		move_abil_mod = 1.0
 		crosshairRef.hide()
@@ -1030,6 +1036,8 @@ func _lassoGo() -> void:
 			move_abil_mod = 0
 			lasso_progress = 2000
 			$CollisionShape2D.set_deferred("disabled", true)
+			lassoRef.enableHitbox()
+			
 			if primary_tween:
 				primary_tween.kill()
 			primary_tween = create_tween() 
@@ -1058,6 +1066,8 @@ func _lassoEnd() -> void:
 	
 #Placeholder incase I need to do stuff with this
 func _lassoCancel() -> void:
+	if primary_tween:
+		primary_tween.kill()
 	lasso_progress = 0
 	lassoRef.deactivate()
 	crosshairRef.position = Vector2.ZERO
@@ -1430,6 +1440,7 @@ func _on_lasso_lasso_location_reached() -> void:
 		primary_tween.kill()		
 	move_abil_mod = 1.0		
 	lasso_progress = 1000
+	
 func _on_lasso_lasso_throw_cancel() -> void:
 	_lassoCancel()
 

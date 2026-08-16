@@ -65,6 +65,7 @@ func _on_body_entered(_body: Node2D) -> void:
 	_explode()
 
 func _takeDamage() -> void:
+	print("dmg takennnn")
 	if SpriteRef:
 		if oscillate_tween:
 			oscillate_tween.kill()
@@ -76,7 +77,7 @@ func _takeDamage() -> void:
 		oscillate_tween.tween_property(SpriteRef, "position", Vector2(-1, -1), 0.1).as_relative()
 	
 	health -= 1
-	if health == 0:
+	if health <= 0:
 		toggle(false)
 		_explode()
 
