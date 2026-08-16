@@ -198,6 +198,11 @@ var invul_leeway_count = 2
 # / need to create a variable that calculates theoretical speed.
 #The distance far orbs spawn need to be changed based on our vision radius.
 
+@export var directional_movement : bool = true
+@export var directional_movement_speed : float = 1.0
+var queued_direction : float = 0.0
+var dir_move_tween #Normally I don't need this but it'll make it consistent between wad and frog
+
 #Ripple Vars
 var rippleOn = false
 var rippleAmp = 0
@@ -590,9 +595,24 @@ func _getWaddleDirection() -> void: #-> bool:
 	else:
 		x_dir = int(right_input) - int(left_input)
 		y_dir = int(down_input) - int(up_input)
+	
 	if x_dir or y_dir:
+		dirMoveLogic(Vector2(x_dir, y_dir), 2.0)
+		
 		_idlingCancel()
 	else:
+		if directional_movement and state != CHARGING:
+			if queued_direction != -10.0:
+				var dir_ang_diff = -0.5 * angle_difference(queued_direction, charge_angle - PI/2)
+				queued_direction = -10.0
+				if abs(dir_ang_diff) > 0:
+					if dir_move_tween:
+						dir_move_tween.kill()
+					dir_move_tween = create_tween()
+					var tot_dur = (2.5 / directional_movement_speed) * abs(dir_ang_diff)/PI
+					dir_move_tween.tween_property(self, "charge_angle", dir_ang_diff, tot_dur).as_relative()
+					dir_move_tween.parallel().tween_property(sprite_ref, "rotation", dir_ang_diff, tot_dur).as_relative()
+		
 		_idlingTrigger()
 
 func _getBoardDirection() -> void:# -> bool:
@@ -661,11 +681,16 @@ func _frogPressStart() -> void:
 		
 		var frogLowerBound = 0.4
 		var scaleVec
-		if abs(charge_angle) > PI / 6:#state == CHARGING or charge_cool > 0:
-			var newDir = (Vector2.from_angle(snapped(frogDirection.angle() - charge_angle, PI/4))).snappedf(1.0)
-			scaleVec = Vector2(1.0, 1.0) - 0.3 * abs(newDir)			
+		
+		if directional_movement:
+			dirMoveLogic(frogDirection, 2.0)
+			scaleVec = Vector2(1.0, 0.7)
 		else:
-			scaleVec = Vector2(1.0, 1.0) - 0.3 * abs(frogDirection)
+			if abs(charge_angle) > PI / 6:#state == CHARGING or charge_cool > 0:
+				var newDir = (Vector2.from_angle(snapped(frogDirection.angle() - charge_angle, PI/4))).snappedf(1.0)
+				scaleVec = Vector2(1.0, 1.0) - 0.3 * abs(newDir)			
+			else:
+				scaleVec = Vector2(1.0, 1.0) - 0.3 * abs(frogDirection)
 		
 		
 		var synergy_gain = 1.0
@@ -706,12 +731,15 @@ func _frogPress() -> void:
 		
 		print("CT ", charge_time)
 		
-		
-		if abs(charge_angle) > PI / 6:#state == CHARGING or charge_cool > 0:
-			var newDir = (Vector2.from_angle(snapped(frogDirection.angle() - charge_angle, PI/4))).snappedf(1.0)
-			scaleVec = Vector2(1.0, 1.0) - 0.6 * abs(newDir)
+		if directional_movement:
+			dirMoveLogic(frogDirection, 1.75)
+			scaleVec = Vector2(1.0, 0.7)
 		else:
-			scaleVec = Vector2(1.0, 1.0) - 0.6 * abs(frogDirection)
+			if abs(charge_angle) > PI / 6:#state == CHARGING or charge_cool > 0:
+				var newDir = (Vector2.from_angle(snapped(frogDirection.angle() - charge_angle, PI/4))).snappedf(1.0)
+				scaleVec = Vector2(1.0, 1.0) - 0.6 * abs(newDir)
+			else:
+				scaleVec = Vector2(1.0, 1.0) - 0.6 * abs(frogDirection)
 		
 		var synergy_gain = 1.0
 		if sb_synergy_buffs[basic_movement_type]:	
@@ -779,13 +807,34 @@ func _frogRelease() -> void:
 	var temp = 3.5
 	var scaleVec
 	var posVec
-	if abs(charge_angle) > PI / 6:#state == CHARGING or charge_cool > 0:
-		var newDir = (Vector2.from_angle(snapped(frogDirection.angle() - charge_angle, PI/4))).snappedf(1.0)
-		scaleVec = Vector2(0.6, 0.6) + abs(newDir) * (0.4 + 0.1 * temp)
-		posVec = newDir * 3.6 * temp	
-	else:
+	
+	if directional_movement:
+		dirMoveLogic(frogDirection, 1.25)
+		
 		scaleVec = Vector2(0.6, 0.6) + abs(frogDirection) * (0.4 + 0.1 * temp)
 		posVec = frogDirection * 3.6 * temp
+		
+		if tentacle:
+			if frog_charge > 1.5:
+				tent_ref.tentacleFastMovement(0, 0.15, false)
+			else:
+				tent_ref.tentacleFastMovement(0, 0.3, false)
+	else:
+		if abs(charge_angle) > PI / 6:#state == CHARGING or charge_cool > 0:
+			var newDir = (Vector2.from_angle(snapped(frogDirection.angle() - charge_angle, PI/4))).snappedf(1.0)
+			scaleVec = Vector2(0.6, 0.6) + abs(newDir) * (0.4 + 0.1 * temp)
+			posVec = newDir * 3.6 * temp	
+		else:
+			scaleVec = Vector2(0.6, 0.6) + abs(frogDirection) * (0.4 + 0.1 * temp)
+			posVec = frogDirection * 3.6 * temp
+			
+		if tentacle:
+			#Turn off slow rot_time when you add follow angle movement.
+			var normEndAng = frogDirection.angle() + PI/2 - charge_angle
+			if frog_charge > 1.5:
+				tent_ref.tentacleFastMovement(normEndAng, 0.15, true)
+			else:
+				tent_ref.tentacleFastMovement(normEndAng, 0.3, true)
 	
 	if state == CHARGING and charge_time < charge_max:#state == CHARGING or charge_cool > 0:
 		#var tempVec = 0.1 * (scaleVec - Vector2(1.0, 1.0))
@@ -802,13 +851,19 @@ func _frogRelease() -> void:
 	basic_tween.parallel().tween_property(self, "frog_charge", -1.0, 0.4 / frog_travel_speed).as_relative()
 	basic_tween.finished.connect(_frogReset)
 	
-	if tentacle:
-		#Turn off slow rot_time when you add follow angle movement.
-		var normEndAng = frogDirection.angle() + PI/2 - charge_angle
-		if frog_charge > 1.5:
-			tent_ref.tentacleFastMovement(normEndAng, 0.15, true)
-		else:
-			tent_ref.tentacleFastMovement(normEndAng, 0.3, true)
+
+func dirMoveLogic(baseVec : Vector2, base_speed : float) -> void:
+	var directionAng = baseVec.angle()
+	if queued_direction != directionAng:
+		queued_direction = directionAng
+		var dir_ang_diff = -angle_difference(directionAng, charge_angle - PI/2)
+		if abs(dir_ang_diff) > 0:
+			if dir_move_tween:
+				dir_move_tween.kill()
+			dir_move_tween = create_tween()
+			var tot_dur = (base_speed / directional_movement_speed) * abs(dir_ang_diff)/PI
+			dir_move_tween.tween_property(self, "charge_angle", dir_ang_diff, tot_dur).as_relative()
+			dir_move_tween.parallel().tween_property(sprite_ref, "rotation", dir_ang_diff, tot_dur).as_relative()
 
 func _primaryOnPress() -> void:
 	match primary_ability:
@@ -837,6 +892,10 @@ func _primaryOnRelease() -> void:
 
 func _chargePress() -> void:
 	state = CHARGING
+	if dir_move_tween:
+		dir_move_tween.kill()
+	
+	
 	if tentacle:
 		tent_ref.startTentacleShader()
 		tent_ref.handleTentacleSqueeze(charge_max)	
