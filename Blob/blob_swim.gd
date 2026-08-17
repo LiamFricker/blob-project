@@ -268,10 +268,10 @@ var virus_max : float = 100
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("Special"):
-		position = Vector2.ZERO
-		velocity = Vector2.ZERO
-		activateRipple(Vector2(0.5, 0.866), 1.0)
-		#$InnerNode/Sprite/Tentacle1.whip(-1)
+		#position = Vector2.ZERO
+		#velocity = Vector2.ZERO
+		#activateRipple(Vector2(0.5, 0.866), 1.0)
+		tent_ref.whipTentacles(-1) #$InnerNode/Sprite/Tentacle1.whip(-1)
 
 func activateRipple(origin: Vector2, amplitude: float) -> void:
 	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleSource", origin)

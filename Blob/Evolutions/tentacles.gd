@@ -477,3 +477,7 @@ func tentacleFastMovement(angle : float, move_duration : float, slowRetTime : bo
 	#tentacle_tween.parallel().tween_property(self, "rotation", 0, swipePos*0.5).set_delay(swipePos * 0.5)
 	
 	tentacle_tween.finished.connect(resetCharge)
+
+func whipTentacles(rev : int = 1) -> void:
+	for t in tentacle_list:
+		t.whip(rev)

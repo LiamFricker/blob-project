@@ -12,6 +12,9 @@ signal damagedEnemy(amt : float)
 
 func getAttackMod(num : int) -> bool:
 	return attack_mods[num]
+	
+#func setAttackMod(num:int, type : bool) -> void:
+#	attack_mods[num] = type
 
 func setID(newID : int) -> void:
 	ID = newID

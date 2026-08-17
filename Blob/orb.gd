@@ -14,6 +14,10 @@ var visible_sprite
 #	pass
 	#print("orb ready")
 
+#I don't like this but it's ok.
+func getPosition() -> Vector2:
+	return position + get_parent().position
+
 func move(endPos :  Vector2, moveTime : float) -> void:
 	if tween2:
 		tween2.kill()
@@ -44,6 +48,7 @@ func create(val : float, i_d : int, size : float, type : int, color : Color, pos
 	position = pos
 	visible = true
 	$Detection.set_deferred("monitoring", true)
+	$Detection.set_deferred("monitorable", true)
 	temp_child.modulate = color
 
 #Call this when you need to change the orb size
@@ -74,6 +79,7 @@ func disable() -> void:
 	tween.tween_property(self, "visible", false, 0)
 	#visible = false
 	$Detection.set_deferred("monitoring", false)
+	$Detection.set_deferred("monitorable", false)
 	
 func _on_detection_area_entered(area: Area2D) -> void:
 	#Call the player's collect here too as well with the value from this orb

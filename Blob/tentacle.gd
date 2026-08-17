@@ -16,12 +16,19 @@ var whipping:bool = false
 var whipAmp:float = 0.0
 var whipSpeed:float = 1.0
 
-#Search Vars
+#State Vars
+@export var search_speed = 1.0
 var searching:bool = false
-var retracted : bool = true
+var retracted : bool = false
+var queue_retract : bool = false
 @export var retract_cd_speed : float = 1.0
 
-@onready var line_ref = $Node2D/Line2D 
+@onready var pivot_ref = $Pivot
+@onready var line_ref = $Pivot/Sprite/Line2D 
+@onready var sprite_ref = $Pivot/Sprite
+@onready var detect_ref = $Detection
+@onready var hitbox_ref = $Pivot/Hitbox
+@onready var collect_ref = $Pivot/CollectionBox
 
 #signal orb_collection(value, orbpos, enemy_drop, currency_type)
 
@@ -49,6 +56,13 @@ func getParent() -> Node2D:
 	return parentRef
 
 func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
+	if searching and not whipping:
+		if tween:
+			tween.kill()
+		tween = create_tween()
+		var search_time = 0.6 / search_speed
+		tween.tween_property(pivot_ref, "rotation", 0, search_time)
+		tween.finished.connect(_endSearch)
 	#orb_collection.emit(value, orbpos, enemy_drop, currency_type)
 	parentRef.collect(value, orbpos, enemy_drop, currency_type)
 
@@ -97,95 +111,125 @@ func setTentacleNum(newNum : int) -> void:
 
 func _process(_delta:float) -> void:
 	if whipping:
-		$Node2D/Line2D.material.set_shader_parameter("whip_direction", whipAmp)  
+		line_ref.material.set_shader_parameter("whip_direction", whipAmp)  
 
 func retract() -> void:
-	toggleBoxes(false)
-	retracted = true
-	var retract_dur = 10.0 / retract_cd_speed
-	if tween:
-		tween.kill()
-	tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	tween.tween_property($Node2D, "scale", Vector2(0.1, 1.0), 0.25)
-	tween.tween_property($Node2D, "scale", Vector2(1.0, 1.0), 0.25).set_delay(retract_dur)
-	tween.finished.connect(_retractEnd)
+	if not retracted:
+		if whipping:
+			queue_retract = true
+		else:
+			toggleBoxes(false)
+			retracted = true
+			queue_retract = false
+			var retract_dur = 10.0 / retract_cd_speed
+			if tween:
+				tween.kill()
+			tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+			tween.tween_property(sprite_ref, "scale", Vector2(0.1, 1.0), 0.25)
+			if searching:
+				tween.parallel().tween_property(pivot_ref, "rotation", 0, 0.25)
+				searching = false
+			tween.tween_property(sprite_ref, "scale", Vector2(1.0, 1.0), 0.25).set_delay(retract_dur)
+			
+			tween.finished.connect(_retractEnd)
 	
 func _retractEnd() -> void:
 	toggleBoxes(true)
 	retracted = false
 
 func toggleBoxes(toggle : bool) -> void:
-	$Detection.set_deferred("monitoring", toggle)
-	$Hitbox.set_deferred("monitorable", toggle)
-	$Hitbox.set_deferred("monitoring", toggle)
-	$CollectionBox.set_deferred("monitoring", toggle)
+	detect_ref.set_deferred("monitoring", toggle)
+	hitbox_ref.set_deferred("monitorable", toggle)
+	hitbox_ref.set_deferred("monitoring", toggle)
+	collect_ref.set_deferred("monitorable", toggle)
 
 func _on_detection_area_entered(area: Area2D) -> void:
-	var c:float = Vector2(-self.global_position.y, self.global_position.x).dot(area.global_position) 
+	print("detected?")
+	detect_ref.set_deferred("monitoring", false)
+	
+	#This is kinda annoying to configure and there's lots of stuff so let's just do it this way
+	var c:float = getPosition().angle_to(area.get_parent().getPosition()) 
 	if tween:
 		tween.kill()
 	tween = create_tween()
-	$Hitbox/CollisionShape2D.set_deferred("disabled", true)
-	$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
-	if c >= PI/2.0 or c < -0.0:
-		tween.tween_property($Node2D, "rotation", PI/3, 1)
-		tween.paralle().tween_property($Hitbox, "rotation", PI/3, 1)
-		tween.tween_property($Node2D, "rotation", PI/3, 0.2)
-		tween.paralle().tween_property($Hitbox, "rotation", PI/3, 1)
+	#$Hitbox/CollisionShape2D.set_deferred("disabled", true)
+	#$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
+	searching = true
+	var search_time = 1.25 / search_speed
+	if c >= 0.0:
+		tween.tween_property(pivot_ref, "rotation", PI/3, search_time)
 	else:
-		tween.tween_property($Node2D, "rotation", -PI/3, 1)
-		tween.paralle().tween_property($Hitbox, "rotation", -PI/3, 1)
-		tween.tween_property($Node2D, "rotation", -PI/3, 0.2)
-		tween.paralle().tween_property($Hitbox, "rotation", -PI/3, 0.2)
-	tween.tween_property($Node2D, "rotation", 0, 1)
-	tween.paralle().tween_property($Hitbox, "rotation", 0, 1)
-	tween.tween_callback(self.endSearch)
+		tween.tween_property(pivot_ref, "rotation", -PI/3, search_time)
+	tween.tween_property(pivot_ref, "rotation", 0, search_time)
+	tween.finished.connect(_endSearch)
 
 func _on_hitbox_area_entered(_area: Area2D) -> void:
 	retract()
-	return 
-	if searching:
-		if tween:
-			tween.tween_property($Node2D, "rotation", 0, 1)
-			tween.paralle().tween_property($Hitbox, "rotation", 0, 1)
-		tween.tween_callback(self.endSearch)
 
-func endSearch() -> void:
+func _endSearch() -> void:
+	detect_ref.set_deferred("monitoring", true)
 	searching = false
-	$Hitbox/CollisionShape2D.set_deferred("disabled", false)
-	$Hitbox/CollisionShape2D2.set_deferred("disabled", true)
+	#$Hitbox/CollisionShape2D.set_deferred("disabled", false)
+	#$Hitbox/CollisionShape2D2.set_deferred("disabled", true)
 	
 func whip(reverse = 1) -> void:
-	if tween:
-		tween.kill()
-	tween = create_tween()
-	print("WHIP")
-	whipping = true
-	tween.tween_property(self, "whipAmp", reverse*1.0, 0.8/whipSpeed)
-	tween.parallel().tween_property($Node2D, "rotation", PI/16 *reverse, 0.8/whipSpeed)
-	tween.tween_property(self, "whipAmp", reverse*1.05, 0.1/whipSpeed)
-	tween.tween_property(self, "whipAmp", reverse*0.95, 0.1/whipSpeed)
-	tween.tween_property(self, "whipAmp", reverse*1.05, 0.1/whipSpeed)
-	tween.tween_property(self, "whipAmp", reverse*0.95, 0.1/whipSpeed)
-	tween.tween_property(self, "whipAmp", 0, 0.2 *1/whipSpeed)
-	tween.tween_callback(self.reverseWhip.bind(reverse))
+	if not retracted:
+		if tween:
+			tween.kill()
+		tween = create_tween()
+		whipping = true
+		
+		var whipTime = 0.1/whipSpeed
+		
+		tween.tween_property(self, "whipAmp", reverse*1.0, 8.0 * whipTime)
+		#if searching:
+		#	tween.parallel().tween_property(pivot_ref, "rotation", 0, 0.25)
+		if not searching:
+			detect_ref.set_deferred("monitoring", false)
+		tween.parallel().tween_property(pivot_ref, "rotation", PI/16 *reverse, 8.0 * whipTime)
+		
+		tween.tween_property(self, "whipAmp", reverse*1.05, whipTime)
+		tween.tween_property(self, "whipAmp", reverse*0.95, whipTime)
+		tween.tween_property(self, "whipAmp", reverse*1.05, whipTime)
+		tween.tween_property(self, "whipAmp", reverse*0.95, whipTime)
+		tween.tween_property(self, "whipAmp", 0, 2.0 * whipTime)
+		tween.finished.connect(reverseWhip.bind(reverse))
 
 func reverseWhip(reverse:int) -> void:
-	$Node2D/Line2D.material.set_shader_parameter("reverse_direction", true)  
+	line_ref.material.set_shader_parameter("reverse_direction", true)  
+	$Pivot/Hitbox/CollisionShape2D.set_deferred("disabled", true)
+	$Pivot/CollectionBox/CollisionShape2D.set_deferred("disabled", true)
+	$Pivot/Hitbox/CollisionShape2D2.set_deferred("disabled", false)
+	$Pivot/CollectionBox/CollisionShape2D2.set_deferred("disabled", false)
+	
+	var whipTime = 0.2/whipSpeed
+	
 	if tween:
 		tween.kill()
 	tween = create_tween()
-	tween.tween_property(self, "whipAmp", reverse*1.0, 0.2/whipSpeed)
-	tween.parallel().tween_property($Node2D, "scale", Vector2(2, 1), 0.2/whipSpeed)
-	tween.parallel().tween_property($Node2D, "rotation", -PI/1.5 *reverse, 0.2/whipSpeed)
-	tween.tween_property(self, "whipAmp", 0.0, 1.5 *1/whipSpeed)
-	tween.parallel().tween_property($Node2D, "scale", Vector2(1, 1), 1.5 *1/whipSpeed)
-	tween.parallel().tween_property($Node2D, "rotation", 0, 1.5 *1/whipSpeed)
-	tween.tween_callback(self.endWhip)
+	tween.tween_property(self, "whipAmp", reverse*1.0, whipTime)
+	tween.parallel().tween_property(sprite_ref, "scale", Vector2(2, 1), whipTime)
+	tween.parallel().tween_property(pivot_ref, "rotation", -PI/1.5 *reverse, whipTime)
+	tween.tween_property(self, "whipAmp", 0.0, 7.5 * whipTime)
+	tween.parallel().tween_property(sprite_ref, "scale", Vector2(1, 1), 7.5 * whipTime)
+	tween.parallel().tween_property(pivot_ref, "rotation", 0, 7.5 * whipTime)
+	tween.finished.connect(endWhip)
 
 func endWhip() -> void:
-	$Node2D/Line2D.material.set_shader_parameter("reverse_direction", false)  
+	line_ref.material.set_shader_parameter("reverse_direction", false)  
 	whipping = false
+	$Pivot/Hitbox/CollisionShape2D.set_deferred("disabled", false)
+	$Pivot/CollectionBox/CollisionShape2D.set_deferred("disabled", false)
+	$Pivot/Hitbox/CollisionShape2D2.set_deferred("disabled", true)
+	$Pivot/CollectionBox/CollisionShape2D2.set_deferred("disabled", true)
+	
+	
+	if searching:
+		detect_ref.set_deferred("monitoring", true)
+		searching = false
+	
+	if queue_retract:
+		retract()
 
 func tentConfig() -> void:
 	#$Node2D/Line2D.material.set_shader_parameter("amplitude", 1.0)
