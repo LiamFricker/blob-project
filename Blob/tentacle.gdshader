@@ -10,6 +10,8 @@ uniform float tentLength = 8.0;
 //Spin Variables
 uniform float direction = 0.0;
 
+//uniform float squeeze : hint_range(0.1, 2.0) = 1.0;
+
 //Whip Variables
 uniform float whip_direction: hint_range(-1.0, 1.0);
 uniform bool reverse_direction = false;
@@ -17,8 +19,9 @@ uniform bool reverse_direction = false;
 
 void vertex() {
 	//Basic Wave
-
-	VERTEX.y += sin((VERTEX.x - TIME * speed) * frequency) * amplitude * (1.0);
+	//float sq_amp = 1.0/squeeze;
+	VERTEX.y += sin((VERTEX.x - TIME * speed) * frequency) * amplitude;
+	
 	if (direction != 0.0){
 		VERTEX.y += (abs(direction) <= 1.0) ? tentLength*6.0*direction * pow(VERTEX.x/(tentLength*8.0), 2): tentLength*6.0*sign(direction) * pow(VERTEX.x/(tentLength*8.0), 2);
 

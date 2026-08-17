@@ -3,6 +3,8 @@ extends Node2D
 #Ngl I don't give a shit about optimizing this
 #Let's just disable the ones we don't need and call it a day
 
+@export var parentRef : Node2D
+
 @export var tentacle_total = 9
 @export var tentacleLength:int = 8
 #I have no idea what this means but I'm keeping it for now ig...
@@ -17,6 +19,23 @@ var shader_update_tween
 var chargeTentacleSpin : float = 0.0
 var reverseTentacleSpin : float = 0.0
 
+#signal orb_collection(value, orbpos, enemy_drop, currency_type)
+
+func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
+	#orb_collection.emit(value, orbpos, enemy_drop, currency_type)
+	parentRef.collect(value, orbpos, enemy_drop, currency_type)
+
+func getID() -> int:
+	return parentRef.getID()
+
+#These variables all go into the Area2D collision. 
+func getParent() -> Node2D:
+	return parentRef
+
+#Change this to the position of the tip.
+#Or the movement object
+func getPosition() -> Vector2:
+	return position + parentRef.getPosition() 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

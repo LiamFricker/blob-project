@@ -46,6 +46,7 @@ func _ready() -> void:
 		add_child(temp_orb)
 
 func _orb_collected(id : int) -> void:
+	#print("ORB COLLECTED: ", id)
 	#Fix this please
 	#Need to also add checking everywhere that doesn't remove from near orb is near orb list is at 0. 
 	#you know how much needs to be removed, so just remove the excess from far orb instead.

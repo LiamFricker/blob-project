@@ -133,8 +133,8 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 			if shield_tween:
 				shield_tween.kill()
 			shield_tween = create_tween()
-			shield_tween.tween_property(Sprite, "modulate:r", -0.5, 0.15).as_relative()
-			shield_tween.tween_property(Sprite, "modulate:r", 0.5, 0.15).as_relative()
+			shield_tween.tween_property(Sprite, "modulate:r", 0.5, 0.15)#.as_relative()
+			shield_tween.tween_property(Sprite, "modulate:r", 1.0, 0.15)#.as_relative()
 		else:
 			_stopAnims()
 			super(area)

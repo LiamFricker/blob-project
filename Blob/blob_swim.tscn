@@ -74,7 +74,8 @@ playerRef = NodePath("../..")
 
 [node name="Sprite" type="Node2D" parent="InnerNode"]
 
-[node name="Tentacles" parent="InnerNode/Sprite" instance=ExtResource("5_rs8qj")]
+[node name="Tentacles" parent="InnerNode/Sprite" node_paths=PackedStringArray("parentRef") instance=ExtResource("5_rs8qj")]
+parentRef = NodePath("../../..")
 
 [node name="Node2D" type="Node2D" parent="InnerNode/Sprite"]
 

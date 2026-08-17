@@ -6,45 +6,54 @@
 [node name="Tentacles" type="Node2D"]
 script = ExtResource("1_k5y5k")
 
-[node name="Tentacle0" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle0" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(4, -4)
 rotation = -0.785398
+parentRef = NodePath("..")
 
-[node name="Tentacle1" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle1" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(8, 0)
+parentRef = NodePath("..")
 tentacle_number = 1
 
-[node name="Tentacle2" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle2" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(4, 4)
 rotation = 0.785398
+parentRef = NodePath("..")
 tentacle_number = 2
 
-[node name="Tentacle3" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle3" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(2, 6)
 rotation = 1.1781
+parentRef = NodePath("..")
 tentacle_number = 3
 
-[node name="Tentacle4" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle4" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(0, 8)
 rotation = 1.5708
+parentRef = NodePath("..")
 tentacle_number = 4
 
-[node name="Tentacle5" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle5" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(-2, 6)
 rotation = 1.9635
+parentRef = NodePath("..")
 tentacle_number = 5
 
-[node name="Tentacle6" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle6" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(-4, 4)
 rotation = 2.35619
+parentRef = NodePath("..")
 tentacle_number = 6
 
-[node name="Tentacle7" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle7" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(-8, 0)
 rotation = 3.14159
+parentRef = NodePath("..")
 tentacle_number = 7
 
-[node name="Tentacle8" parent="." instance=ExtResource("2_bn4uf")]
+[node name="Tentacle8" parent="." node_paths=PackedStringArray("parentRef") instance=ExtResource("2_bn4uf")]
 position = Vector2(-4, -4)
 rotation = 3.92699
+parentRef = NodePath("..")
 tentacle_number = 8

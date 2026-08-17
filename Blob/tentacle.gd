@@ -1,5 +1,6 @@
 extends Node2D
 
+@export var parentRef : Node2D
 @export var tentacle_number: int = 0 
 #Like a clock starting from 1, 0. Since we don't add that many tentacles and it doesn't happen a lot,
 #We should reset them each time to their proper spots. 
@@ -17,8 +18,12 @@ var whipSpeed:float = 1.0
 
 #Search Vars
 var searching:bool = false
+var retracted : bool = true
+@export var retract_cd_speed : float = 1.0
 
 @onready var line_ref = $Node2D/Line2D 
+
+#signal orb_collection(value, orbpos, enemy_drop, currency_type)
 
 """
 Tentacle Amounts:
@@ -35,6 +40,23 @@ Tentacle Amounts:
 """
 
 var busyState = false #If charging or performing an action 
+
+func getID() -> int:
+	return parentRef.getID()
+
+#These variables all go into the Area2D collision. 
+func getParent() -> Node2D:
+	return parentRef
+
+func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
+	#orb_collection.emit(value, orbpos, enemy_drop, currency_type)
+	parentRef.collect(value, orbpos, enemy_drop, currency_type)
+
+#Change this to the position of the tip.
+#Or the movement object
+func getPosition() -> Vector2:
+	return position + parentRef.getPosition() + 32*Vector2.from_angle(rotation)
+
 
 func enable() -> void:
 	set_deferred("process_mode", PROCESS_MODE_INHERIT)
@@ -77,6 +99,27 @@ func _process(_delta:float) -> void:
 	if whipping:
 		$Node2D/Line2D.material.set_shader_parameter("whip_direction", whipAmp)  
 
+func retract() -> void:
+	toggleBoxes(false)
+	retracted = true
+	var retract_dur = 10.0 / retract_cd_speed
+	if tween:
+		tween.kill()
+	tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property($Node2D, "scale", Vector2(0.1, 1.0), 0.25)
+	tween.tween_property($Node2D, "scale", Vector2(1.0, 1.0), 0.25).set_delay(retract_dur)
+	tween.finished.connect(_retractEnd)
+	
+func _retractEnd() -> void:
+	toggleBoxes(true)
+	retracted = false
+
+func toggleBoxes(toggle : bool) -> void:
+	$Detection.set_deferred("monitoring", toggle)
+	$Hitbox.set_deferred("monitorable", toggle)
+	$Hitbox.set_deferred("monitoring", toggle)
+	$CollectionBox.set_deferred("monitoring", toggle)
+
 func _on_detection_area_entered(area: Area2D) -> void:
 	var c:float = Vector2(-self.global_position.y, self.global_position.x).dot(area.global_position) 
 	if tween:
@@ -99,6 +142,8 @@ func _on_detection_area_entered(area: Area2D) -> void:
 	tween.tween_callback(self.endSearch)
 
 func _on_hitbox_area_entered(_area: Area2D) -> void:
+	retract()
+	return 
 	if searching:
 		if tween:
 			tween.tween_property($Node2D, "rotation", 0, 1)

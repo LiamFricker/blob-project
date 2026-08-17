@@ -79,6 +79,7 @@ Special={
 2d_physics/layer_4="PlayerDamagingEffect"
 2d_physics/layer_5="PlayerCollisionAndDetection"
 2d_physics/layer_6="SolidCollision"
+2d_physics/layer_7="Orb Layer"
 
 [rendering]
 

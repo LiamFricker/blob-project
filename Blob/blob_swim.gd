@@ -312,9 +312,7 @@ func _ready() -> void:
 #Move some of this stuff to _process()
 #Physics process runs at 60fps constant
 func _physics_process(delta: float) -> void:
-	
-	print(move_abil_mod)
-	
+		
 	var friction_delta = pow(friction, delta)
 	
 	_movementLogic(delta,friction_delta)

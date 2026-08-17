@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://dg5dmmg4xvh2b"]
+[gd_scene load_steps=9 format=3 uid="uid://dg5dmmg4xvh2b"]
 
 [ext_resource type="Script" uid="uid://beyaisnbf3in" path="res://Blob/tentacle.gd" id="1_1hyyi"]
 [ext_resource type="Shader" uid="uid://c6arud038we6" path="res://Blob/tentacle.gdshader" id="1_lyjbf"]
+[ext_resource type="Script" uid="uid://oec33u4piltn" path="res://Blob/base_player_attack.gd" id="3_uxkvx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1hyyi"]
 resource_local_to_scene = true
@@ -25,6 +26,10 @@ radius = 33.0151
 radius = 8.0
 height = 66.0
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_30ast"]
+radius = 8.0
+height = 66.0
+
 [node name="Tentacle" type="Node2D"]
 script = ExtResource("1_1hyyi")
 
@@ -41,17 +46,20 @@ joint_mode = 2
 [node name="Detection" type="Area2D" parent="."]
 visible = false
 collision_layer = 0
-collision_mask = 0
+collision_mask = 66
+monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Detection"]
 position = Vector2(32, 0)
 shape = SubResource("CircleShape2D_1hyyi")
+disabled = true
 
-[node name="Hitbox" type="Area2D" parent="."]
-process_mode = 4
-visible = false
-collision_layer = 0
-collision_mask = 0
+[node name="Hitbox" type="Area2D" parent="." node_paths=PackedStringArray("parentRef")]
+collision_layer = 8
+collision_mask = 6
+script = ExtResource("3_uxkvx")
+parentRef = NodePath("..")
+attack_mods = [false, true, false, false, false]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2(32, 0)
@@ -62,6 +70,18 @@ shape = SubResource("CapsuleShape2D_uxkvx")
 position = Vector2(32, 0)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_uxkvx")
+disabled = true
+
+[node name="CollectionBox" type="Area2D" parent="." node_paths=PackedStringArray("parentRef")]
+collision_mask = 0
+monitorable = false
+script = ExtResource("3_uxkvx")
+parentRef = NodePath("..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollectionBox"]
+position = Vector2(32, 0)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_30ast")
 
 [connection signal="area_entered" from="Detection" to="." method="_on_detection_area_entered"]
 [connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]
