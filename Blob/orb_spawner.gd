@@ -55,6 +55,15 @@ func _orb_collected(id : int) -> void:
 		newId = 0
 		#REMOVE THIS LATER
 		print("ID ISSUE ID ISSUE: ", id)
+		var temp_used_orb_list = used_orb_list.duplicate()
+		temp_used_orb_list.sort()
+		print("USED ORB LIST")
+		print(temp_used_orb_list)
+		var temp_unused_orb_list = unused_orb_list.duplicate()
+		temp_unused_orb_list.sort()
+		print("unused_orb_list")
+		print(temp_unused_orb_list)
+		print("counts: ", temp_used_orb_list.size(), " ", temp_unused_orb_list.size())
 	used_orb_list.remove_at(newId)
 	unused_orb_list.append(id)
 	var find_orb = near_orb_list.find(id)

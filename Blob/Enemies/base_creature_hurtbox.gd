@@ -11,3 +11,6 @@ func getID() -> int:
 
 func toggle(on = true) -> void:
 	set_deferred("monitorable", on)
+
+func getPosition() -> Vector2:
+	return parentRef.getPosition()

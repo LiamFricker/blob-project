@@ -47,14 +47,15 @@ func create(val : float, i_d : int, size : float, type : int, color : Color, pos
 	id = i_d
 	position = pos
 	visible = true
-	$Detection.set_deferred("monitoring", true)
-	$Detection.set_deferred("monitorable", true)
+	set_deferred("monitoring", true)
+	set_deferred("monitorable", true)
 	temp_child.modulate = color
 
 #Call this when you need to change the orb size
 func augmentCollision(size : int) -> void:
-	$Detection/CollisionShape2D.shape = CircleShape2D
-	$Detection/CollisionShape2D.shape.radius = ceil(size)
+	var newShape = CircleShape2D.new()
+	newShape.radius = size
+	$CollisionShape2D.set_deferred("shape", newShape)
 
 #Meant to use this for non create, but I didn't need it it seems
 """
@@ -70,6 +71,9 @@ func move(v : float, i : int, size : float, type : int, color : Color) -> void:
 """		
 	
 func disable() -> void:
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
+	
 	if tween:
 		tween.kill()
 	tween = create_tween()
@@ -77,22 +81,34 @@ func disable() -> void:
 	if visible_sprite:	
 		tween.parallel().tween_property(visible_sprite, "scale", Vector2.ZERO, 0.25)
 	tween.tween_property(self, "visible", false, 0)
-	#visible = false
-	$Detection.set_deferred("monitoring", false)
-	$Detection.set_deferred("monitorable", false)
+	#visible = fals
 	
 func _on_detection_area_entered(area: Area2D) -> void:
-	#Call the player's collect here too as well with the value from this orb
-	area.getParent().collect(value, position, enemy_drop, 0) 
-	#This needs to connect to tentacle or something since it's an area rather than a body.
-	#print("collect")
-	#Need to fix this signal
-	collect.emit(id)
-	disable()
+	if value != -1:
+		var tempValue = value
+		value = -1
+		
+		disable()
+		
+		#Call the player's collect here too as well with the value from this orb
+		area.getParent().collect(tempValue, position, enemy_drop, 0) 
+		#This needs to connect to tentacle or something since it's an area rather than a body.
+		#print("collect")
+		#Need to fix this signal
+		#print("ORB COLLECT! ", id)
+		collect.emit(id)
+	
 
 func _on_detection_body_entered(body: Node2D) -> void:
-	#Call the player's collect here too as well with the value from this orb
-	body.collect(value, position, enemy_drop, 0)# w/e
-	#print("collect")
-	collect.emit(id)
-	disable()
+	if value != -1:
+		var tempValue = value
+		value = -1
+		
+		disable()
+		
+		#Call the player's collect here too as well with the value from this orb
+		body.collect(tempValue, position, enemy_drop, 0)# w/e
+		#print("collect")
+		#print("ORB body COLLECT! ", id)
+		collect.emit(id)
+	

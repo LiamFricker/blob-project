@@ -7,8 +7,12 @@
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_laylg"]
 
-[node name="orb" type="Node2D"]
+[node name="orb" type="Area2D"]
+collision_layer = 64
 script = ExtResource("1_iksre")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_laylg")
 
 [node name="Sprite2D0" type="Sprite2D" parent="."]
 visible = false
@@ -28,8 +32,7 @@ texture = ExtResource("3_laylg")
 collision_layer = 64
 monitoring = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Detection"]
-shape = SubResource("CircleShape2D_laylg")
-
+[connection signal="area_entered" from="." to="." method="_on_detection_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_detection_body_entered"]
 [connection signal="area_entered" from="Detection" to="." method="_on_detection_area_entered"]
 [connection signal="body_entered" from="Detection" to="." method="_on_detection_body_entered"]

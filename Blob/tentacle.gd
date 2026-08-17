@@ -17,6 +17,7 @@ var whipAmp:float = 0.0
 var whipSpeed:float = 1.0
 
 #State Vars
+@export var search_len : float = 1.5
 @export var search_speed = 1.0
 var searching:bool = false
 var retracted : bool = false
@@ -62,6 +63,7 @@ func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0
 		tween = create_tween()
 		var search_time = 0.6 / search_speed
 		tween.tween_property(pivot_ref, "rotation", 0, search_time)
+		tween.parallel().tween_property(sprite_ref, "scale:x", 1.0, search_time)
 		tween.finished.connect(_endSearch)
 	#orb_collection.emit(value, orbpos, enemy_drop, currency_type)
 	parentRef.collect(value, orbpos, enemy_drop, currency_type)
@@ -143,12 +145,30 @@ func toggleBoxes(toggle : bool) -> void:
 	hitbox_ref.set_deferred("monitoring", toggle)
 	collect_ref.set_deferred("monitorable", toggle)
 
+func changeSearchLength(newLen : float) -> void:
+	search_len = newLen
+	var newRad = 30.0 * newLen
+	
+	var tempShape = RectangleShape2D.new()
+	tempShape.size = Vector2(16.0, 60.0 * newLen)
+	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("shape", tempShape)
+	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("position:x", newRad - 1)
+	
+	var tempCirc = CircleShape2D.new()
+	tempCirc.radius = newRad
+	$Detection/CollisionShape2D.set_deferred("shape", tempCirc)
+	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("position:x", newRad)
+
+func toggleSearch(toggle) -> void:
+	$Detection/CollisionShape2D.set_deferred("disabled", not toggle)
+
 func _on_detection_area_entered(area: Area2D) -> void:
-	print("detected?")
 	detect_ref.set_deferred("monitoring", false)
+	$Pivot/CollectionBox/CollisionShape2D.set_deferred("disabled", true)
+	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("disabled", false)
 	
 	#This is kinda annoying to configure and there's lots of stuff so let's just do it this way
-	var c:float = getPosition().angle_to(area.get_parent().getPosition()) 
+	var c:float = getPosition().angle_to(area.getPosition()) 
 	if tween:
 		tween.kill()
 	tween = create_tween()
@@ -156,11 +176,14 @@ func _on_detection_area_entered(area: Area2D) -> void:
 	#$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
 	searching = true
 	var search_time = 1.25 / search_speed
+	
 	if c >= 0.0:
 		tween.tween_property(pivot_ref, "rotation", PI/3, search_time)
 	else:
 		tween.tween_property(pivot_ref, "rotation", -PI/3, search_time)
+	tween.parallel().tween_property(sprite_ref, "scale:x", search_len, search_time)
 	tween.tween_property(pivot_ref, "rotation", 0, search_time)
+	tween.parallel().tween_property(sprite_ref, "scale:x", 1.0, search_time)
 	tween.finished.connect(_endSearch)
 
 func _on_hitbox_area_entered(_area: Area2D) -> void:
@@ -168,9 +191,9 @@ func _on_hitbox_area_entered(_area: Area2D) -> void:
 
 func _endSearch() -> void:
 	detect_ref.set_deferred("monitoring", true)
+	$Pivot/CollectionBox/CollisionShape2D.set_deferred("disabled", false)
+	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("disabled", true)
 	searching = false
-	#$Hitbox/CollisionShape2D.set_deferred("disabled", false)
-	#$Hitbox/CollisionShape2D2.set_deferred("disabled", true)
 	
 func whip(reverse = 1) -> void:
 	if not retracted:
@@ -182,9 +205,10 @@ func whip(reverse = 1) -> void:
 		var whipTime = 0.1/whipSpeed
 		
 		tween.tween_property(self, "whipAmp", reverse*1.0, 8.0 * whipTime)
-		#if searching:
-		#	tween.parallel().tween_property(pivot_ref, "rotation", 0, 0.25)
-		if not searching:
+		if searching:
+			#tween.parallel().tween_property(pivot_ref, "rotation", 0, 0.25)
+			tween.parallel().tween_property(sprite_ref, "scale:x", 1.0, 8.0 * whipTime)
+		else:
 			detect_ref.set_deferred("monitoring", false)
 		tween.parallel().tween_property(pivot_ref, "rotation", PI/16 *reverse, 8.0 * whipTime)
 		

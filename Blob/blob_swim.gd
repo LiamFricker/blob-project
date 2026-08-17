@@ -567,6 +567,7 @@ func _idlingTrigger() -> void:
 		if primary_ability == SPEED_BOOST:
 			sb_ref.endWaddle()
 		idling = true
+		tent_ref.toggleSearch(true)
 		#Have a check that boosts idle gains if frog_charge >= max_charge
 		#Also boost idle gains under the effect of the lasso buff
 		#* (1 + int(lasso_buffs[2]) * 0.5)
@@ -577,6 +578,7 @@ func _idlingCancel() -> void:
 		if primary_ability == SPEED_BOOST:	
 			sb_ref.beginWaddle()
 		idling = false
+		tent_ref.toggleSearch(false)
 
 func _getWaddleDirection() -> void: #-> bool:
 	if mouseMovement:

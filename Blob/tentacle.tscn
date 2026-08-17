@@ -1,11 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://dg5dmmg4xvh2b"]
+[gd_scene load_steps=11 format=3 uid="uid://dg5dmmg4xvh2b"]
 
 [ext_resource type="Script" uid="uid://beyaisnbf3in" path="res://Blob/tentacle.gd" id="1_1hyyi"]
 [ext_resource type="Shader" uid="uid://c6arud038we6" path="res://Blob/tentacle.gdshader" id="1_lyjbf"]
 [ext_resource type="Script" uid="uid://oec33u4piltn" path="res://Blob/base_player_attack.gd" id="3_uxkvx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1hyyi"]
-radius = 33.0
+radius = 45.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1hyyi"]
 resource_local_to_scene = true
@@ -31,6 +31,9 @@ size = Vector2(16, 120)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_nibi8"]
 size = Vector2(15.9999, 66.0001)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4kb2l"]
+size = Vector2(15.9998, 90)
+
 [node name="Tentacle" type="Node2D"]
 script = ExtResource("1_1hyyi")
 search_speed = 0.8
@@ -41,7 +44,7 @@ collision_mask = 64
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Detection"]
-position = Vector2(32, 0)
+position = Vector2(45, 0)
 shape = SubResource("CircleShape2D_1hyyi")
 
 [node name="Pivot" type="Node2D" parent="."]
@@ -89,6 +92,12 @@ shape = SubResource("RectangleShape2D_nibi8")
 position = Vector2(59, 0)
 rotation = 1.5708
 shape = SubResource("RectangleShape2D_30ast")
+disabled = true
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Pivot/CollectionBox"]
+position = Vector2(44, -7.27596e-12)
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_4kb2l")
 disabled = true
 
 [connection signal="area_entered" from="Detection" to="." method="_on_detection_area_entered"]

@@ -481,3 +481,7 @@ func tentacleFastMovement(angle : float, move_duration : float, slowRetTime : bo
 func whipTentacles(rev : int = 1) -> void:
 	for t in tentacle_list:
 		t.whip(rev)
+
+func toggleSearch(toggle : bool) -> void:
+	for t in tentacle_list:
+		t.toggleSearch(toggle)
