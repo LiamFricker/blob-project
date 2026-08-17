@@ -33,6 +33,7 @@ charge_speed = 10.0
 lasso_cursor_speed = 2.0
 lasso_gain_speed = 2.0
 base_invul_time = 1.0
+directional_movement = false
 directional_movement_speed = 2.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

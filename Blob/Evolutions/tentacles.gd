@@ -4,6 +4,7 @@ extends Node2D
 #Let's just disable the ones we don't need and call it a day
 
 @export var parentRef : Node2D
+@onready var timer_ref = $SearchDelay
 
 @export var tentacle_total = 9
 @export var tentacleLength:int = 8
@@ -483,5 +484,15 @@ func whipTentacles(rev : int = 1) -> void:
 		t.whip(rev)
 
 func toggleSearch(toggle : bool) -> void:
+	if toggle:
+		if timer_ref.is_stopped():
+			timer_ref.start()
+	else:	
+		if not timer_ref.is_stopped():
+			timer_ref.stop()
+		for t in tentacle_list:
+			t.toggleSearch(false)
+
+func _on_timer_timeout() -> void:
 	for t in tentacle_list:
-		t.toggleSearch(toggle)
+		t.toggleSearch(true)

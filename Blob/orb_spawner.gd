@@ -4,8 +4,8 @@ const CHILD_OFFSET = 3
 
 @export var orb : PackedScene
 @export var orb_max : int = 100
-@export var near_orb_max : int = 20
-@export var far_orb_max : int = 40
+@export var near_orb_max : int = 2
+@export var far_orb_max : int = 4
 
 @export var despawn_dist_squared : float = 10000 * 9
 @export var spawn_dist : float = 50 * 3

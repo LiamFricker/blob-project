@@ -278,16 +278,18 @@ func toggleHurtbox(toggle : bool) -> void:
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	#var temp_enemy = area.getParent()
-	var dmg = area.getDamage()
-	if area.getID() != ID and dmg > 0: #temp_enemy.getID()
-		takeDamage(dmg*damageWeakness, area.getPosition(), area.getKnockback())
-		damageWeakness = 1.0
+	if state != DEAD:
+		var dmg = area.getDamage()
+		if area.getID() != ID and dmg > 0: #temp_enemy.getID()
+			takeDamage(dmg*damageWeakness, area.getPosition(), area.getKnockback())
+			damageWeakness = 1.0
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
-	var dmg = body.getDamage()
-	if body.getID() != ID and dmg > 0:
-		takeDamage(dmg*damageWeakness, body.getPosition(), body.getKnockback())
-		damageWeakness = 1.0
+	if state != DEAD:
+		var dmg = body.getDamage()
+		if body.getID() != ID and dmg > 0:
+			takeDamage(dmg*damageWeakness, body.getPosition(), body.getKnockback())
+			damageWeakness = 1.0
 
 func isDead() -> bool:
 	return state == DEAD

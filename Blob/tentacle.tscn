@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://oec33u4piltn" path="res://Blob/base_player_attack.gd" id="3_uxkvx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1hyyi"]
-radius = 45.0
+radius = 40.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1hyyi"]
 resource_local_to_scene = true

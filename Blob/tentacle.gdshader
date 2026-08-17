@@ -21,7 +21,7 @@ void vertex() {
 	//Basic Wave
 	//float sq_amp = 1.0/squeeze;
 	VERTEX.y += sin((VERTEX.x - TIME * speed) * frequency) * amplitude;
-	
+
 	if (direction != 0.0){
 		VERTEX.y += (abs(direction) <= 1.0) ? tentLength*6.0*direction * pow(VERTEX.x/(tentLength*8.0), 2): tentLength*6.0*sign(direction) * pow(VERTEX.x/(tentLength*8.0), 2);
 

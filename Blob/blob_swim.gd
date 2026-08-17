@@ -601,8 +601,24 @@ func _getWaddleDirection() -> void: #-> bool:
 		y_dir = int(down_input) - int(up_input)
 	
 	if x_dir or y_dir:
-		dirMoveLogic(Vector2(x_dir, y_dir), 2.0)
-		
+		if directional_movement:
+			dirMoveLogic(Vector2(x_dir, y_dir), 2.0)
+		"""
+		var directionAng = Vector2(x_dir, y_dir).angle()
+		if queued_direction != directionAng:
+			queued_direction = directionAng
+			var dir_ang_diff = -angle_difference(directionAng, charge_angle - PI/2)
+			if abs(dir_ang_diff) > 0:
+				if dir_move_tween:
+					dir_move_tween.kill()
+				dir_move_tween = create_tween()
+				var tot_dur = (2.0 / directional_movement_speed) * abs(dir_ang_diff)/PI
+				dir_move_tween.tween_property(self, "charge_angle", dir_ang_diff, tot_dur).as_relative()
+				dir_move_tween.parallel().tween_property(sprite_ref, "rotation", dir_ang_diff, tot_dur).as_relative()
+				#if tentacle:
+					#var tempDel = 0.5* ((2.0 / directional_movement_speed) - tot_dur)
+					#dir_move_tween.tween_callback(tent_ref.tentacleFastMovement.bind(0, 0.35 / directional_movement_speed, false)).set_delay(tempDel)
+		"""
 		_idlingCancel()
 	else:
 		if directional_movement and state != CHARGING:

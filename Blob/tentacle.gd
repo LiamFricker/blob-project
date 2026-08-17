@@ -155,7 +155,7 @@ func changeSearchLength(newLen : float) -> void:
 	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("position:x", newRad - 1)
 	
 	var tempCirc = CircleShape2D.new()
-	tempCirc.radius = newRad
+	tempCirc.radius = newRad - 5.0
 	$Detection/CollisionShape2D.set_deferred("shape", tempCirc)
 	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("position:x", newRad)
 
@@ -168,7 +168,8 @@ func _on_detection_area_entered(area: Area2D) -> void:
 	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("disabled", false)
 	
 	#This is kinda annoying to configure and there's lots of stuff so let's just do it this way
-	var c:float = getPosition().angle_to(area.getPosition()) 
+	var c:float = getPosition().angle_to_point(area.getPosition()) 
+	var c_diff = angle_difference(c, rotation + pivot_ref.rotation)
 	if tween:
 		tween.kill()
 	tween = create_tween()
@@ -176,11 +177,13 @@ func _on_detection_area_entered(area: Area2D) -> void:
 	#$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
 	searching = true
 	var search_time = 1.25 / search_speed
-	
-	if c >= 0.0:
-		tween.tween_property(pivot_ref, "rotation", PI/3, search_time)
-	else:
+	#print(getPosition())
+	#print(area.getPosition())
+	#print("tent num", tentacle_number, " ", rad_to_deg(c))
+	if c_diff >= 0:
 		tween.tween_property(pivot_ref, "rotation", -PI/3, search_time)
+	else:
+		tween.tween_property(pivot_ref, "rotation", PI/3, search_time)
 	tween.parallel().tween_property(sprite_ref, "scale:x", search_len, search_time)
 	tween.tween_property(pivot_ref, "rotation", 0, search_time)
 	tween.parallel().tween_property(sprite_ref, "scale:x", 1.0, search_time)
