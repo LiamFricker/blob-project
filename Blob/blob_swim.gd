@@ -66,13 +66,14 @@ enum {
 	BUTTERFLY,
 	DOLPHIN
 }
-@export var basic_movement_type = 0#WADDLE#WADDLE			
+@export var basic_movement_type = 0#WADDLE#WADDLE		
+@export var primary_ability : int = 0	
 var left_input = false
 var right_input = false
 var up_input = false
 var down_input = false
 
-var move_abil_mod = 1
+var move_abil_mod : float = 1.0
 @onready var sprite_ref = $InnerNode/Sprite
 
 #BASIC stuff
@@ -124,7 +125,6 @@ enum {
 	WALLKICK,
 	KITE
 }
-@export var primary_ability : int = 0
 
 #Charge Variables
 var charge = true
@@ -176,6 +176,8 @@ var lasso_buff : bool = true
 #@export var lasso_type : int = 0
 var buffRef : Node2D
 #var boardClockwise : int = 1
+#Stops you from moving during lasso
+@export var lasso_spin_disabled : bool = false
 
 var lasso_buffs : Array = [false, false, false, false]
 
@@ -310,6 +312,8 @@ func _ready() -> void:
 #Move some of this stuff to _process()
 #Physics process runs at 60fps constant
 func _physics_process(delta: float) -> void:
+	
+	print(move_abil_mod)
 	
 	var friction_delta = pow(friction, delta)
 	
@@ -1092,7 +1096,8 @@ func _lassoGo() -> void:
 		if _lassoCollisionCheck(endPos):
 			if kb_moving:
 				_knockbackCancel()
-			move_abil_mod = 0
+			if lasso_spin_disabled:	
+				move_abil_mod = 0
 			lasso_progress = 2000
 			$CollisionShape2D.set_deferred("disabled", true)
 			lassoRef.enableHitbox()
@@ -1102,13 +1107,22 @@ func _lassoGo() -> void:
 			primary_tween = create_tween() 
 			
 			var normEndPos = endPos - getPosition()
-			var normEndAng = normEndPos.angle() + PI/2 - charge_angle
+			
 			var crossLen = normEndPos.length()
 			var lasso_tot_ret_speed = crossLen / (2.0*lasso_base_range*lasso_retract_speed)
 			primary_tween.tween_property(Inner, "position", normEndPos, lasso_tot_ret_speed).as_relative()
-			if tentacle:
-				tent_ref.tentacleFastMovement(normEndAng, lasso_tot_ret_speed)
+			
 			primary_tween.finished.connect(_lassoEnd)
+			
+			if directional_movement:
+				dirMoveLogic(normEndPos, max(lasso_tot_ret_speed, 0.5))
+				if tentacle:
+					tent_ref.tentacleFastMovement(0, lasso_tot_ret_speed)
+			else:	
+				var normEndAngDiff = normEndPos.angle() + PI/2 - charge_angle
+				if tentacle:
+					tent_ref.tentacleFastMovement(normEndAngDiff, lasso_tot_ret_speed)
+			
 		else:
 			lassoRef.cancelLasso(true)
 			move_abil_mod = 1.0
