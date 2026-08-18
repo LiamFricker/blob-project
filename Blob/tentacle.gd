@@ -15,6 +15,7 @@ var tween
 var whipping:bool = false 
 var whipAmp:float = 0.0
 var whipSpeed:float = 1.0
+var whipBaseLen: float = 2.0
 
 #State Vars
 @export var search_len : float = 1.5
@@ -152,15 +153,17 @@ func changeSearchLength(newLen : float) -> void:
 	var tempShape = RectangleShape2D.new()
 	tempShape.size = Vector2(16.0, 60.0 * newLen)
 	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("shape", tempShape)
-	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("position:x", newRad - 1)
+	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("position", Vector2(newRad - 1, 0))
 	
 	var tempCirc = CircleShape2D.new()
 	tempCirc.radius = newRad - 5.0
 	$Detection/CollisionShape2D.set_deferred("shape", tempCirc)
-	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("position:x", newRad)
+	$Pivot/CollectionBox/CollisionShape2D3.set_deferred("position:x", Vector2(newRad, 0))
 
 func toggleSearch(toggle) -> void:
 	$Detection/CollisionShape2D.set_deferred("disabled", not toggle)
+	if not toggle and searching:
+		_endSearch()
 
 func _on_detection_area_entered(area: Area2D) -> void:
 	detect_ref.set_deferred("monitoring", false)
@@ -199,7 +202,7 @@ func _endSearch() -> void:
 	searching = false
 	
 func whip(reverse = 1) -> void:
-	if not retracted:
+	if not retracted and not whipping:
 		if tween:
 			tween.kill()
 		tween = create_tween()
@@ -228,6 +231,7 @@ func reverseWhip(reverse:int) -> void:
 	$Pivot/CollectionBox/CollisionShape2D.set_deferred("disabled", true)
 	$Pivot/Hitbox/CollisionShape2D2.set_deferred("disabled", false)
 	$Pivot/CollectionBox/CollisionShape2D2.set_deferred("disabled", false)
+	updateWhipBoxes(whipBaseLen)
 	
 	var whipTime = 0.2/whipSpeed
 	
@@ -289,3 +293,34 @@ func tentConfig() -> void:
 			position = Vector2(-4, -4)
 			rotation = 5*PI/4
 		
+func chargeWhip(temp : float, charge_cd : float) -> void:
+	if not retracted and not whipping:
+		whipping = true
+		
+		var whipLen = max(2.0 * temp/5.0, 1.5) 
+		updateWhipBoxes(whipLen)
+		
+		$Pivot/Hitbox/CollisionShape2D.set_deferred("disabled", true)
+		$Pivot/CollectionBox/CollisionShape2D.set_deferred("disabled", true)
+		$Pivot/Hitbox/CollisionShape2D2.set_deferred("disabled", false)
+		$Pivot/CollectionBox/CollisionShape2D2.set_deferred("disabled", false)
+		
+		var retPos : float = min(0.3 * charge_cd, 0.4)
+		
+		if tween:
+			tween.kill()
+		tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+		tween.tween_property(sprite_ref, "scale:x", whipLen, retPos).set_delay(retPos * 0.25)
+		tween.parallel().tween_property(pivot_ref, "rotation", 0, retPos)
+		tween.tween_property(sprite_ref, "scale:x", 1.0, retPos*2)
+		tween.finished.connect(endWhip)
+
+func updateWhipBoxes(whipLen : float) -> void:
+	var newPos = Vector2(30 * whipLen - 1, 0)
+	
+	var tempShape = RectangleShape2D.new()
+	tempShape.size = Vector2(16.0, 60.0 * whipLen)
+	$Pivot/CollectionBox/CollisionShape2D2.set_deferred("shape", tempShape)
+	$Pivot/CollectionBox/CollisionShape2D2.set_deferred("position", newPos)
+	$Pivot/Hitbox/CollisionShape2D2.set_deferred("shape", tempShape)
+	$Pivot/Hitbox/CollisionShape2D2.set_deferred("position", newPos)

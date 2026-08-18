@@ -64,12 +64,14 @@ func toggle(on = true) -> void:
 		hurtboxRef.set_deferred("monitoring", on)
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
-	if area.getID() != ID and area.getAttackMod(1): #temp_enemy.getID()
-		_takeDamage()
+	if health > 0:
+		if area.getID() != ID and area.getAttackMod(1): #temp_enemy.getID()
+			_takeDamage()
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
-	if body.getID() != ID and body.getAttackMod(1): #temp_enemy.getID()
-		_takeDamage()
+	if health > 0:
+		if body.getID() != ID and body.getAttackMod(1): #temp_enemy.getID()
+			_takeDamage()
 
 func _takeDamage() -> void:
 	if SpriteRef:

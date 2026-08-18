@@ -562,23 +562,23 @@ func _basicOnRelease() -> void:
 		BOARD:
 			_getBoardDirection()
 
-func _idlingTrigger() -> void:
+func _idlingTrigger(search_delay : float = 2.0) -> void:
 	if not idling:
 		if primary_ability == SPEED_BOOST:
 			sb_ref.endWaddle()
 		idling = true
-		tent_ref.toggleSearch(true)
+		tent_ref.toggleSearch(true, search_delay)
 		#Have a check that boosts idle gains if frog_charge >= max_charge
 		#Also boost idle gains under the effect of the lasso buff
 		#* (1 + int(lasso_buffs[2]) * 0.5)
 		
 
-func _idlingCancel() -> void:
+func _idlingCancel(search_delay : float = 2.0) -> void:
 	if idling:
 		if primary_ability == SPEED_BOOST:	
 			sb_ref.beginWaddle()
 		idling = false
-		tent_ref.toggleSearch(false)
+		tent_ref.toggleSearch(false, search_delay)
 
 func _getWaddleDirection() -> void: #-> bool:
 	if mouseMovement:
@@ -828,7 +828,7 @@ func _frogRelease() -> void:
 	var scaleVec
 	var posVec
 	
-	if directional_movement:
+	if directional_movement or state == CHARGING:
 		dirMoveLogic(frogDirection, 1.25)
 		
 		scaleVec = Vector2(0.6, 0.6 + (0.4 + 0.1 * temp))
@@ -912,6 +912,9 @@ func _primaryOnRelease() -> void:
 
 func _chargePress() -> void:
 	state = CHARGING
+	if idling:
+		_idlingCancel(5.0)
+	
 	if dir_move_tween:
 		dir_move_tween.kill()
 	
@@ -939,6 +942,9 @@ func _chargeOffCD() -> void:
 		_chargePress()
 	
 func _chargeRelease() -> void:
+	if idling:
+		_idlingCancel(5.0)
+	
 	if basic_tween and basic_movement_type == FROG:
 		basic_tween.kill()
 	if kb_moving:
@@ -961,7 +967,6 @@ func _chargeRelease() -> void:
 	charge_time = max(charge_time, charge_floor)  
 	var temp = ceil(10 * charge_time/charge_max) * charge_length# if charge_time < charge_floor else ceil(10 * charge_time/charge_max) * charge_length
 	
-	
 	primary_tween.tween_property(self, "charge_cool", 0.0, charge_cooldown).from(1.0)
 	#primary_tween
 	primary_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
@@ -971,7 +976,8 @@ func _chargeRelease() -> void:
 	
 	if tentacle:
 		tent_ref.handleTentacleChargeSwipe(temp, charge_cooldown)
-	
+		#tent_ref.handleTentacleWhipSwipe(temp, charge_cooldown)
+		
 	primary_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_LINEAR)
 	
 	primary_tween.tween_callback(self.setTempVelocity.bind(temp)).set_delay(swipePos)
@@ -1110,6 +1116,8 @@ func _lassoGo() -> void:
 	var endPos = lassoRef.getPos()
 	if lasso_progress >= 1000 and lasso_progress < 2000:
 		if _lassoCollisionCheck(endPos):
+			if idling:
+				_idlingCancel(5.0)
 			if kb_moving:
 				_knockbackCancel()
 			if lasso_spin_disabled:	
