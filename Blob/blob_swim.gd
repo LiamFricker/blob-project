@@ -1489,8 +1489,10 @@ func damagedEnemy(amt : float) -> void:
 
 #This doesn't account for bonus dmg and weakenesses but idgaf
 func getDamage() -> float:
-	damage_dealt += damage
 	return damage
+	
+func emitDamage(dmg_dealt : float) -> void:
+	damage_dealt += dmg_dealt
 	
 func getKnockback() -> float:
 	return base_knockback 

@@ -22,6 +22,7 @@ var roamingCreatures = []
 @export var creatureMax = 0
 @export var creatureSeed = 0
 var guestList = []
+var specialGuestList = []
 
 #Environment Type 
 #enum {NONE, POND, PLANT, HAZARD}
@@ -89,7 +90,13 @@ func handleRoamer(supplyState : int, pos : Vector2, ID = 0) -> void:
 				guestList.remove(i)
 				zoneHandleRoamer.emit(supplyState, pos, creatureList[ID])
 				break
-				
+
+func removeGuest(guest : Node2D) -> void:
+	var temppos = specialGuestList.find(guest)
+	if temppos == -1:
+		print("GUEST NOT FOUND CHANGE THIS FUNC")
+	else:
+		specialGuestList.remove_at(temppos)				
 
 #Create a zone
 #stgLvl : int, 
@@ -116,6 +123,11 @@ func changePosition(newpos : Vector2) -> void:
 			#Add this to the base class that basically += position
 			#In case they have children of their own, ya know.
 			c.addPosition(diff)
+	for g in guestList:
+		g.addPosition(diff)
+		
+	for sg in specialGuestList:
+		sg.addPosition(diff)
 	position = newpos
 
 #MAKE SURE TO SPAWN THE ENTITY WITHIN THE BOUNDS OF THIS ZONE * 0.9

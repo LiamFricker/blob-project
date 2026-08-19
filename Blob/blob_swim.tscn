@@ -123,7 +123,7 @@ position_smoothing_enabled = true
 
 [node name="Hurtbox" type="Area2D" parent="InnerNode"]
 collision_layer = 0
-collision_mask = 4
+collision_mask = 0
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox"]

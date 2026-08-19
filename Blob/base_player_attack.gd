@@ -42,8 +42,10 @@ func getParent() -> Node2D:
 	return parentRef
 	
 func getDamage() -> float:
-	damagedEnemy.emit(damage)
 	return damage
+	
+func emitDamage(dmg_amt : float):
+	damagedEnemy.emit(damage) 
 
 func connectDMG(calla : Callable) -> void:
 	damagedEnemy.connect(calla)

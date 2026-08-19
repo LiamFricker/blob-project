@@ -58,9 +58,9 @@ var MAP4C_EVENTS = [peaceful_event]
 var zone_list = [[]]
 var next_zone_list = [[]]
 
-const MAP_DIMS = [3,6,10,20,10,10,10] #Dimensions of the map
-const ZONE_WIDTH = [2000,200,200,200,200,200,200] #Width of each zone
-const ZONE_HEIGHT = [1000,100,100,100,100,100,100] #Width of each zone
+const MAP_DIMS = [5,6,10,20,10,10,10] #Dimensions of the map
+const ZONE_WIDTH = [200,200,200,200,200,200,200] #Width of each zone
+const ZONE_HEIGHT = [100,100,100,100,100,100,100] #Width of each zone
 
 #Number of each environment generated in a map. Final map is larger fyi. Maybe penultimate will be too.
 const ENV_MAX = [0,2,3,4,2,2,2] 
@@ -86,6 +86,8 @@ var MapState = UNLOADED
 @export var mapUpdateTime: float = 2.0
 
 @onready var HUD = $HUD_swim
+
+#var special_entities = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -690,6 +692,10 @@ func _handleBorderLogic(playerStartPos : Vector2, playerEndPos : Vector2) -> Vec
 		print("this trigger")
 		var retpos = playerReference.changePosition(_calculateZonePosition(int(playerEndPos.x), int(playerEndPos.y)), Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map]))
 		$PlayerParticleManager.addPosition(retpos)
+		
+		#for s in special_entities:
+		#	s.addPosition(retpos)
+		
 		orbReference.changePosition(Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map])* (playerEndPos-tempPEP))
 		set_deferred("currentZone", playerEndPos)
 	
@@ -799,6 +805,8 @@ func cellHandleRoamer(supplyState : int, pos : Vector2, creatureRef : Node2D) ->
 		creatureRef.RoamingULBound = center - dim_half
 		creatureRef.RoamingDRBound = center + dim_half
 		creatureRef.zoneReference = zone[i][j]
+		
+
 
 #Need to remember generate the events as well
 #To reduce complexity of Zones, have the events be generated here
@@ -1496,3 +1504,17 @@ func _on_blob_swim_end_after_image() -> void:
 
 func _spawnOrbs(amt : int, pos : Vector2) -> void:
 	orbReference.spawnOrbs(amt, pos)
+
+func _on_water_grizzly_connect_boss_to_zone(boss: Node2D, pos : Vector2, oldzone : Vector2) -> void:
+	var temp_ij = _uncalculateZonePosition(pos)
+	var i = temp_ij.x
+	var j = temp_ij.y
+	
+	if oldzone != Vector2(-1, -1):
+		zone[i][j].removeGuest(boss)
+	
+	zone[i][j].specialGuestList.append(boss)
+	var center = _calculateZonePosition(i, j)
+	var dim_half = Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map])/2
+	
+	boss.setNewRoamParams(center - dim_half, center + dim_half, Vector2(i, j))

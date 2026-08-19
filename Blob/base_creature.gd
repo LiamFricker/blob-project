@@ -281,13 +281,19 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if state != DEAD:
 		var dmg = area.getDamage()
 		if area.getID() != ID and dmg > 0: #temp_enemy.getID()
-			takeDamage(dmg*damageWeakness, area.getPosition(), area.getKnockback())
+			var dmg_dealt = dmg*damageWeakness
+			
+			area.emitDamage(min(dmg_dealt, health))
+			takeDamage(dmg_dealt, area.getPosition(), area.getKnockback())
 			damageWeakness = 1.0
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	if state != DEAD:
 		var dmg = body.getDamage()
 		if body.getID() != ID and dmg > 0:
+			var dmg_dealt = dmg*damageWeakness
+			
+			body.emitDamage(min(dmg_dealt, health))
 			takeDamage(dmg*damageWeakness, body.getPosition(), body.getKnockback())
 			damageWeakness = 1.0
 
@@ -478,15 +484,16 @@ func _damagedEffect(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) 
 		
 func _on_roam_timer_timeout():
 	var roamTemp = $RoamTimer
-	if not kb_moving: 
-		print("CHANGE")
-		position += Inner.position
-		Inner.position = 0 
+	#if not kb_moving: 
+	#	print("CHANGE")
+	#	position += Inner.position
+	#	Inner.position = 0 
 	 
 	if roaming:
-		if position > RoamingULBound or position < RoamingDRBound:
+		var pos = getPosition()
+		if pos > RoamingULBound or pos < RoamingDRBound:
 			var supplyState = 1
-			if position <= ParentDRBound or position >= ParentULBound:
+			if pos <= ParentDRBound or pos >= ParentULBound:
 				roaming = false
 				supplyState = 2
 			
@@ -513,7 +520,8 @@ func _on_roam_timer_timeout():
 			roamTemp.wait_time = 5
 			roamTemp.start()
 	else:
-		if position > ParentDRBound or position < ParentULBound:
+		var pos = getPosition()
+		if pos > ParentDRBound or pos < ParentULBound:
 			roaming = true
 			
 			#Need to call the Zone parent and supply (id and new position as well as 0)

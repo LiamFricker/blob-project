@@ -13,6 +13,11 @@ enum {
 	STUN, 
 	DEAD
 }
+
+var RoamingULBound : Vector2 = Vector2(1000, 1000)
+var RoamingDRBound : Vector2 = Vector2(-1000, -1000)
+var old_zone = Vector2(-1,-1)
+
 var state = IDLE
 
 #var PlayerRef : Node2D
@@ -87,9 +92,12 @@ var dot_tween
 
 var attack_mods : Array = [true, false, false, false, false]
 
+signal connectBossToZone(boss : Node2D)
+
 func _ready() -> void:
 	AnimPlay.speed_scale = attack_speed
 	_idleTrigger()
+	connectBossToZone.emit(self)
 
 func setParams(TopLeftBound : Vector2, BotRightBound : Vector2, origin = Vector2.ZERO, diff = 0, boss_count = 0) -> void:
 	MapULBound = TopLeftBound
@@ -495,6 +503,9 @@ func _walkBreak() -> void:
 #Use the 
 func _findClosestTarget() -> void:
 	#var DetectionNode = $InnerNode/BroadDetectionRadius
+	if not TargetRef and playerTarget:
+		$DespawnTimer.start()
+	
 	if $DetectionRecheck.is_stopped():
 		$InnerNode/BroadDetectionRadius.set_deferred("monitoring", true)
 		$DetectionRecheck.start()
@@ -547,6 +558,7 @@ func _closeCheck() -> void:
 			else:
 				TargetRef = closestNodeRef
 				playerTarget = true
+				$DespawnTimer.stop()
 		else:
 			if TargetRef == null:
 				TargetRef = closestNodeRef
@@ -556,6 +568,7 @@ func _closeCheck() -> void:
 				TargetRef = closestNodeRef
 	
 func _onPlayerDetection(PlayRef : Node2D) -> void:
+	$DespawnTimer.stop()
 	#Disable the detection radius
 	$InnerNode/DetectionRadius.set_deferred("monitoring", false)
 	#PlayerRef = PlayRef
@@ -602,6 +615,9 @@ func _dot_end(death : bool, _type : int = 0) -> void: #ID : int,
 		_OnDeath()		
 		
 func takeDamage(amt : float, _kwargs = []) -> void:
+	var rem_time = $DespawnTimer.time_left
+	$DespawnTimer.start(rem_time + 5.0)
+	
 	if health_mod_tween:
 		health_mod_tween.kill()
 	health_mod_tween = create_tween()
@@ -613,7 +629,7 @@ func takeDamage(amt : float, _kwargs = []) -> void:
 	health -= amt
 	if health <= 0:
 		_OnDeath()	
-	elif health <= max_health * 0.55:
+	elif health <= max_health * 0.55 and phase != 2:
 		_phaseChange()
 
 func _OnDeath() -> void:
@@ -622,6 +638,10 @@ func _OnDeath() -> void:
 	toggleHitbox(false)
 	toggleHurtbox(false)
 	set_process(false)
+
+func toggleDetectionBoxes(toggle1: bool, toggle2: bool) -> void:
+	$InnerNode/DetectionRadius.set_deferred("monitoring", toggle1)
+	$InnerNode/BroadDetectionRadius.set_deferred("monitoring", toggle2)
 
 #Override this if needs be (such as multiple hitboxes)
 func toggleHitbox(toggle : bool) -> void:
@@ -652,6 +672,8 @@ func _on_player_distance_check_timeout() -> void:
 			$PlayerDistanceCheck.stop()
 			$InnerNode/DetectionRadius.set_deferred("monitoring", true)
 			_findClosestTarget()
+		elif playerTarget:
+			$DespawnTimer.stop()
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	match anim_name:
@@ -674,6 +696,8 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 				_chooseNextAttack()
 			else:	
 				_runRealEnd()
+		"Despawn":
+			_respawnGrizzly()
 			
 func _on_damage_test_timer_timeout() -> void:
 	if state != IDLE:
@@ -730,3 +754,41 @@ func isDead() -> bool:
 
 func getAttackMod(num : int) -> bool:
 	return attack_mods[num]
+
+
+func _on_roam_timer_timeout() -> void:
+	var pos = getPosition()
+	if pos > RoamingULBound or pos < RoamingDRBound:
+		connectBossToZone.emit(self, pos, old_zone)
+		if $DespawnTimer.is_stopped():
+			$DespawnTimer.start(60.0)
+
+func setNewRoamParams(TLBound : Vector2, DRBound : Vector2, newzone : Vector2) -> void:
+	RoamingULBound = TLBound
+	RoamingDRBound = DRBound
+	old_zone = newzone
+
+func _on_despawn_timer_timeout() -> void:
+	if state != DEAD:
+		$AnimationPlayer.stop()
+		$PlayerDistanceCheck.stop()
+		$DetectionRecheck.stop()
+		if dot_tween:
+			dot_tween.kill()
+		if ear_tween:
+			ear_tween.kill()
+		if move_tween:
+			move_tween.kill()
+		toggleDetectionBoxes(false, false)
+		toggleHurtbox(false)
+		$AnimationPlayer.play("Despawn")
+
+func _respawnGrizzly() -> void:
+	$InnerNode/Sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	TargetRef = null
+	playerTarget = false
+	Inner.position = Vector2.ZERO
+	position = Vector2.ZERO
+	toggleDetectionBoxes(true, false)
+	toggleHurtbox(true)	
+	$PlayerDistanceCheck.start()
