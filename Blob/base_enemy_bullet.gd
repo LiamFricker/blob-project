@@ -66,11 +66,13 @@ func toggle(on = true) -> void:
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if health > 0:
 		if area.getID() != ID and area.getAttackMod(1): #temp_enemy.getID()
+			area.emitDamage(1)
 			_takeDamage()
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	if health > 0:
 		if body.getID() != ID and body.getAttackMod(1): #temp_enemy.getID()
+			body.emitDamage(1)
 			_takeDamage()
 
 func _takeDamage() -> void:

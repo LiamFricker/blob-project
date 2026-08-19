@@ -724,20 +724,26 @@ func _on_detection_radius_area_entered(area: Area2D) -> void:
 		$PlayerDistanceCheck.start()
 		_aggressionTrigger(false)
 
+func _damageFormula(base_dmg : float) -> float:
+	return base_dmg
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	#var temp_enemy = area.getParent()
 	if state != DEAD:
-		var dmg = area.getDamage()
-		if area.getID() != ID and dmg > 0: #temp_enemy.getID()
-			takeDamage(dmg)#, area.getPosition(), area.getKnockback())
+		var dmg_dealt = _damageFormula(area.getDamage())
+		
+		area.emitDamage(min(dmg_dealt, health))
+		if area.getID() != ID and dmg_dealt > 0: #temp_enemy.getID()
+			takeDamage(dmg_dealt)#, area.getPosition(), area.getKnockback())
 			#damageWeakness = 1.0
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	if state != DEAD:
-		var dmg = body.getDamage()
-		if body.getID() != ID and dmg > 0:
-			takeDamage(dmg)#, body.getPosition(), body.getKnockback())
+		var dmg_dealt = _damageFormula(body.getDamage())
+		
+		body.emitDamage(min(dmg_dealt, health))
+		if body.getID() != ID and dmg_dealt > 0:
+			takeDamage(dmg_dealt)#, body.getPosition(), body.getKnockback())
 			#damageWeakness = 1.0
 
 func getDamage() -> float:
@@ -792,3 +798,4 @@ func _respawnGrizzly() -> void:
 	toggleDetectionBoxes(true, false)
 	toggleHurtbox(true)	
 	$PlayerDistanceCheck.start()
+	_idleTrigger()

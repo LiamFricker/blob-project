@@ -276,12 +276,15 @@ func toggleHurtbox(toggle : bool) -> void:
 		hurtboxReference.set_deferred("monitoring", toggle)
 		hurtboxReference.set_deferred("monitorable", toggle)
 
+func _damageFormula(base_dmg : float) -> float:
+	return base_dmg*damageWeakness
+
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	#var temp_enemy = area.getParent()
 	if state != DEAD:
 		var dmg = area.getDamage()
-		if area.getID() != ID and dmg > 0: #temp_enemy.getID()
-			var dmg_dealt = dmg*damageWeakness
+		var dmg_dealt = _damageFormula(dmg)
+		if area.getID() != ID and dmg_dealt > 0: #temp_enemy.getID()
 			
 			area.emitDamage(min(dmg_dealt, health))
 			takeDamage(dmg_dealt, area.getPosition(), area.getKnockback())
@@ -290,8 +293,8 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	if state != DEAD:
 		var dmg = body.getDamage()
-		if body.getID() != ID and dmg > 0:
-			var dmg_dealt = dmg*damageWeakness
+		var dmg_dealt = _damageFormula(dmg)
+		if body.getID() != ID and dmg_dealt > 0:
 			
 			body.emitDamage(min(dmg_dealt, health))
 			takeDamage(dmg*damageWeakness, body.getPosition(), body.getKnockback())

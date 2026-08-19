@@ -154,16 +154,19 @@ func _idleStart() -> void:
 	$AnimationPlayer.play("run", 0.2, 0.5)	
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
-	area.getParent().collect(orb_reward, getPosition(), true, 0)
-	#area.getParent().collect(1, getPosition(), true, 1)
-	_deathAnim()
+	if state != DEAD:
+		area.getParent().collect(orb_reward, getPosition(), true, 0)
+		#area.getParent().collect(1, getPosition(), true, 1)
+		_deathAnim()
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
-	body.collect(orb_reward, getPosition(), true, 0)
-	#body.collect(1, getPosition(), true, 1)
-	_deathAnim()
+	if state != DEAD:
+		body.collect(orb_reward, getPosition(), true, 0)
+		#body.collect(1, getPosition(), true, 1)
+		_deathAnim()
 
 func _deathAnim() -> void:
+	state = DEAD
 	toggleHurtbox(false)
 	$InnerNode/DetectionRange.set_deferred("monitoring", false)
 	

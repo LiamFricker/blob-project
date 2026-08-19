@@ -53,18 +53,20 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
-	print("YOOOO?")
-	area.getParent().collect(orb_reward, getPosition(), true, 0)
-	#area.getParent().collect(1, getPosition(), true, 1)
-	_deathAnim()
+	if state != DEAD:
+		area.getParent().collect(orb_reward, getPosition(), true, 0)
+		#area.getParent().collect(1, getPosition(), true, 1)
+		_deathAnim()
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
-	print("YOOOO")
-	body.collect(orb_reward, getPosition(), true, 0)
-	#body.collect(1, getPosition(), true, 1)
-	_deathAnim()
+	if state != DEAD:
+		body.collect(orb_reward, getPosition(), true, 0)
+		#body.collect(1, getPosition(), true, 1)
+		_deathAnim()
 
 func _deathAnim() -> void:
+	state = DEAD
+	
 	toggleHurtbox(false)
 	
 	$AnimationPlayer.play("RESET", 0.4)

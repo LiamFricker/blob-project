@@ -32,14 +32,18 @@ func toggleHurtbox(toggle : bool) -> void:
 	$Inner/Hurtbox.set_deferred("monitoring", toggle)
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
-	area.getParent().collect(value, getPosition(), false) 
-	_deathAnim()
+	if value >= 0:
+		area.getParent().collect(value, getPosition(), false) 
+		_deathAnim()
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
-	body.collect(value, getPosition(), false)# w/e
-	_deathAnim()
+	if value >= 0:
+		body.collect(value, getPosition(), false)# w/e
+		_deathAnim()
 
 func _deathAnim() -> void:
+	value = -1.0
+	
 	$Lifetime.stop()
 	toggleHurtbox(false)
 	if oscillate_tween:

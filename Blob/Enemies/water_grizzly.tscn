@@ -420,6 +420,59 @@ tracks/15/keys = {
 "values": [Vector2(0.8, 1.2), Vector2(1, 1), Vector2(1, 1)]
 }
 
+[sub_resource type="Animation" id="Animation_mgwmx"]
+resource_name = "Despawn"
+length = 3.0
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("InnerNode/Sprite:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.05),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("InnerNode/Sprite/RArm:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.3, 1.55, 1.75, 1.9, 2.2, 2.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.261799, 0.261799, 1.73178, 2.41021, 2.61799, 2.41021, 0.261799]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("InnerNode/Sprite/LArm:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1.3, 1.55, 1.75, 1.9, 2.2, 2.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.139339, -0.139339, -1.66817, -2.33342, -2.61799, -2.33342, -0.139339]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("InnerNode/Sprite:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(2, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+
 [sub_resource type="Animation" id="Animation_uc3ed"]
 resource_name = "LeftEar"
 length = 0.24
@@ -2524,59 +2577,6 @@ tracks/14/keys = {
 "values": [0.10472, -0.10472, 0.10472, 0.0, 0.0]
 }
 
-[sub_resource type="Animation" id="Animation_mgwmx"]
-resource_name = "Despawn"
-length = 3.0
-step = 0.05
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("InnerNode/Sprite:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1.05),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 6.28319]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("InnerNode/Sprite/RArm:rotation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 1.3, 1.55, 1.75, 1.9, 2.2, 2.5),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [0.261799, 0.261799, 1.73178, 2.41021, 2.61799, 2.41021, 0.261799]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("InnerNode/Sprite/LArm:rotation")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 1.3, 1.55, 1.75, 1.9, 2.2, 2.5),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [-0.139339, -0.139339, -1.66817, -2.33342, -2.61799, -2.33342, -0.139339]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("InnerNode/Sprite:modulate")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(2, 3),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_7ya08"]
 _data = {
 &"DashCharge": SubResource("Animation_d0hpx"),
@@ -2734,11 +2734,11 @@ rotation = 1.5708
 shape = SubResource("CapsuleShape2D_df2fm")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="InnerNode/Hitbox"]
-position = Vector2(-90.0006, 137)
+position = Vector2(-90, 137)
 shape = SubResource("CircleShape2D_22dhy")
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="InnerNode/Hitbox"]
-position = Vector2(84.9994, 142)
+position = Vector2(85, 142)
 shape = SubResource("CircleShape2D_22dhy")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
