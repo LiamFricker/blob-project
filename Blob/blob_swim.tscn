@@ -164,6 +164,7 @@ one_shot = true
 [connection signal="crystal_canceled" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_crystal_canceled"]
 [connection signal="damagedEnemy" from="InnerNode/SpeedBoost" to="." method="damagedEnemy"]
 [connection signal="spawn_bomb" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_spawn_bomb"]
+[connection signal="damagedEnemy" from="InnerNode/Sprite/Tentacles" to="." method="damagedEnemy"]
 [connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]

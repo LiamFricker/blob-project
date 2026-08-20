@@ -3,9 +3,9 @@ extends Area2D
 @export var parentRef : Node2D
 @export var knockback : float = 2.0
 @export var damage : float = 3.0
-var size = 0.0
+@export var size = 0.0
 @export var attack_mods : Array = [false, false, false, false, false]
-var ID : int = 0.0
+var ID : int = 0
 
 signal damagedEnemy(amt : float)
 
@@ -22,11 +22,21 @@ func setParams(dmg : float, kb : float, pR : Node2D, sz : float, newID : int) ->
 	size = sz
 	ID = newID
 
+func updateParams(dmg : float, kb : float, sz : float) -> void:
+	if size != sz:
+		size = sz
+		_setSize()
+	damage = dmg
+	knockback = kb
+
 func _ready() -> void:
 	if size > 0:
-		var tempShape = CircleShape2D.new()
-		tempShape.radius = size
-		$CollisionShape2D.set_deferred("shape", tempShape)
+		_setSize()
+
+func _setSize() -> void:
+	var tempShape = CircleShape2D.new()
+	tempShape.radius = size
+	$CollisionShape2D.set_deferred("shape", tempShape)
 
 #These variables all go into the Area2D collision. 
 func getParent() -> Node2D:

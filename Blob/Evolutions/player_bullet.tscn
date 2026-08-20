@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://bpghodw0r7vaf"]
+
+[ext_resource type="PackedScene" uid="uid://pa3ykex38v5s" path="res://Blob/base_spawned_attack.tscn" id="1_0l3hc"]
+[ext_resource type="Script" uid="uid://b3dqqp8aolde5" path="res://Blob/Evolutions/player_bullet.gd" id="2_ipbdr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0l3hc"]
+size = Vector2(12, 10)
+
+[node name="player_bullet" instance=ExtResource("1_0l3hc")]
+script = ExtResource("2_ipbdr")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="0"]
+shape = SubResource("RectangleShape2D_0l3hc")
+
+[node name="Sprite" type="Node2D" parent="." index="1"]
+
+[node name="Polygon2D" type="Polygon2D" parent="Sprite" index="0"]
+color = Color(0.219608, 0.219608, 0.490196, 1)
+polygon = PackedVector2Array(6, -5, 6, 5, -6, 5, -6, -5)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Sprite" index="1"]
+color = Color(0.164706, 0.443137, 0.717647, 1)
+polygon = PackedVector2Array(5, -4, 5, 4, -5, 4, -5, -4)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Sprite" index="2"]
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(2, -2, 2, 2, -2, 2, -2, -2)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Sprite" index="3"]
+polygon = PackedVector2Array(2, -2, 2, 0, 0, 0, 0, -2)

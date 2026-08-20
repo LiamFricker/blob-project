@@ -76,8 +76,10 @@ func getParent() -> Node2D:
 	return playerRef
 	
 func getDamage() -> float:
-	damagedEnemy.emit(damage)
 	return damage
+	
+func emitDamage(dmg_amt : float):
+	damagedEnemy.emit(damage) 
 
 #Change this to the position of the tip.
 #Or the movement object

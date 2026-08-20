@@ -31,6 +31,11 @@ var queue_retract : bool = false
 @onready var detect_ref = $Detection
 @onready var hitbox_ref = $Pivot/Hitbox
 @onready var collect_ref = $Pivot/CollectionBox
+signal damagedEnemy(amt : float)
+
+func _damagedEnemy(amt : float) -> void:
+	damagedEnemy.emit(amt)
+
 
 #signal orb_collection(value, orbpos, enemy_drop, currency_type)
 
@@ -52,6 +57,8 @@ var busyState = false #If charging or performing an action
 
 func getID() -> int:
 	return parentRef.getID()
+	
+
 
 #These variables all go into the Area2D collision. 
 func getParent() -> Node2D:

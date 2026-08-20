@@ -20,6 +20,11 @@ var shader_update_tween
 var chargeTentacleSpin : float = 0.0
 var reverseTentacleSpin : float = 0.0
 
+signal damagedEnemy(amt : float)
+
+func _damagedEnemy(amt : float) -> void:
+	damagedEnemy.emit(amt)
+
 #signal orb_collection(value, orbpos, enemy_drop, currency_type)
 
 func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:

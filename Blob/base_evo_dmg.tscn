@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://byw5ckl2eqwlm"]
+
+[ext_resource type="Script" uid="uid://bqkd8ebk3r0f" path="res://Blob/base_evo_dmg.gd" id="1_6fnt1"]
+
+[node name="base_evo_dmg" type="Node2D"]
+script = ExtResource("1_6fnt1")

@@ -102,3 +102,4 @@ disabled = true
 
 [connection signal="area_entered" from="Detection" to="." method="_on_detection_area_entered"]
 [connection signal="area_entered" from="Pivot/Hitbox" to="." method="_on_hitbox_area_entered"]
+[connection signal="damagedEnemy" from="Pivot/Hitbox" to="." method="_damagedEnemy"]
