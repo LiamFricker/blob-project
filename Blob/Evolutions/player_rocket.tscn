@@ -1,5 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dugtyu4vqh8rx"]
+[gd_scene load_steps=3 format=3 uid="uid://dugtyu4vqh8rx"]
 
-[ext_resource type="PackedScene" uid="uid://pa3ykex38v5s" path="res://Blob/base_spawned_attack.tscn" id="1_418sp"]
+[ext_resource type="PackedScene" uid="uid://djfbg4sj4f65t" path="res://Blob/base_spawned_bullet.tscn" id="1_418sp"]
+[ext_resource type="Script" uid="uid://bcoqap0rp14u6" path="res://Blob/Evolutions/player_rocket.gd" id="2_0ima2"]
 
 [node name="player_rocket" instance=ExtResource("1_418sp")]
+script = ExtResource("2_0ima2")

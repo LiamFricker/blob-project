@@ -1,5 +1,21 @@
-[gd_scene load_steps=2 format=3 uid="uid://citywadbhd328"]
+[gd_scene load_steps=5 format=3 uid="uid://citywadbhd328"]
 
 [ext_resource type="PackedScene" uid="uid://byw5ckl2eqwlm" path="res://Blob/base_evo_dmg.tscn" id="1_6ydkb"]
+[ext_resource type="Script" uid="uid://dtopg2bj35jok" path="res://Blob/Evolutions/player_mama.gd" id="2_sla81"]
+[ext_resource type="Texture2D" uid="uid://bgw4puwpv7fwi" path="res://Art/Cell/Evolutions/MamaVirus.png" id="3_gwqhe"]
+[ext_resource type="Texture2D" uid="uid://wwfeeteqfrix" path="res://Art/Cell/Evolutions/MamaVirus_Weak.png" id="4_or1aw"]
 
 [node name="player_mama" instance=ExtResource("1_6ydkb")]
+script = ExtResource("2_sla81")
+detection_range = 250.0
+shoot_cooldown = 1.0
+cooldown = 20.0
+bullet_size = 0.0
+attack_speed = 1.0
+base_ammo = 8
+
+[node name="Sprite2D" type="Sprite2D" parent="." index="0"]
+texture = ExtResource("3_gwqhe")
+
+[node name="Sprite2D" type="Sprite2D" parent="Sprite2D" index="0"]
+texture = ExtResource("4_or1aw")

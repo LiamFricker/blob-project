@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://djfbg4sj4f65t"]
+
+[ext_resource type="PackedScene" uid="uid://pa3ykex38v5s" path="res://Blob/base_spawned_attack.tscn" id="1_an78m"]
+[ext_resource type="Script" uid="uid://bs863fw5i1n43" path="res://Blob/base_spawned_bullet.gd" id="2_gqn2o"]
+
+[node name="base_spawned_bullet" instance=ExtResource("1_an78m")]
+script = ExtResource("2_gqn2o")

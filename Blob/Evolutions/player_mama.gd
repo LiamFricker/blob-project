@@ -13,8 +13,8 @@ var mimi_tween
 @onready var Sprite = $Pivot/Sprite2D
 @onready var detectNode = $DetectionRange
 
-const bullets_max = 10
-var bullets_inactive = [true, true, true, true, true, true, true, true, true, true]
+const bullets_max = 3
+var bullets_inactive = [true, true, true]
 var shoot_queued : int = 0
 @export var bullet_size : float = 0.0
 @export var attack_speed : float = 1.0
@@ -22,7 +22,7 @@ var shoot_queued : int = 0
 @export var base_ammo : int = 8
 @onready var remaining_ammo : int = 8
 
-const bullet_id = 1021
+const bullet_id = 1022
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -130,7 +130,6 @@ func _shootProj() -> void:
 		for i in range(bullets_max):
 			if bullets_inactive[i]:
 				bullet_used = children_list[i]
-				bullets_inactive[i] = false
 				break
 		if not bullet_used:
 			shoot_queued += 1
