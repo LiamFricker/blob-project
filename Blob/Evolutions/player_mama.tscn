@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://citywadbhd328"]
+
+[ext_resource type="PackedScene" uid="uid://byw5ckl2eqwlm" path="res://Blob/base_evo_dmg.tscn" id="1_6ydkb"]
+
+[node name="player_mama" instance=ExtResource("1_6ydkb")]

@@ -261,6 +261,13 @@ Things to do:
 	Ugggh
 
 """
+
+var mimi : bool = true
+@onready var mimi_ref : Node2D = $Mimi 
+
+var mama : bool = true
+@onready var mama_ref : Node2D = $Mimi 
+
 const spawnerID = -255
 var virus_level : float = 0.0
 var virus_immunity : float = 1.0
@@ -415,19 +422,22 @@ func _boardLogic(delta: float, friction_delta : float) -> void:
 		var lassoPos = lassoRef.getPos() - getPosition()
 		var tempAngle = lassoPos.angle() 
 		var boardClockwise = 1 if y_dir == 1 else 0
-		charge_angle = tempAngle + PI * boardClockwise
+		#charge_angle = tempAngle + PI * boardClockwise
+		changeRot(tempAngle + PI * boardClockwise)
+		
 		if y_dir == 0:
 			velocity = Vector2.ZERO
 		else:
 			velocity = 1.5 * board_speed_cap * move_abil_mod * move_kb_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2)) * sb_speed_buff
 	else:
-		charge_angle += board_turning_speed * x_dir * delta * move_abil_mod * move_kb_mod
+		#charge_angle += board_turning_speed * x_dir * delta * move_abil_mod * move_kb_mod
+		changeRot(charge_angle + board_turning_speed * x_dir * delta * move_abil_mod * move_kb_mod)
 		velocity = board_speed * move_abil_mod * move_kb_mod * Vector2(cos(charge_angle - PI/2), sin(charge_angle - PI/2))
 	
-	$InnerNode/Pivot.rotation = charge_angle
-	sprite_ref.rotation = charge_angle
-	if primary_ability == SPEED_BOOST:
-		sb_ref.changeRot(charge_angle)
+	#$InnerNode/Pivot.rotation = charge_angle
+	#sprite_ref.rotation = charge_angle
+	#if primary_ability == SPEED_BOOST:
+	#	sb_ref.changeRot(charge_angle)
 	
 
 func _frogLogic(_delta : float, _friction_delta : float) -> void:
@@ -453,9 +463,10 @@ func _chargeDash(delta: float, friction_delta : float)-> void:
 		temp = sign(mousePos.angle_to(Vector2.from_angle(charge_angle+PI/2)))
 	else:
 		temp = int(right_input) - int(left_input)
-	charge_angle += charge_angle_speed * temp * delta * chargeStrength * 0.005
-	$InnerNode/Pivot.rotation = charge_angle
-	sprite_ref.rotation = charge_angle
+	#charge_angle += charge_angle_speed * temp * delta * chargeStrength * 0.005
+	changeRot(charge_angle + charge_angle_speed * temp * delta * chargeStrength * 0.005)
+	#$InnerNode/Pivot.rotation = charge_angle
+	#sprite_ref.rotation = charge_angle
 	
 	var chargeVelocity = Vector2(chargeStrength * cos(charge_angle - PI/2), chargeStrength * sin(charge_angle - PI/2))
 	
@@ -630,8 +641,9 @@ func _getWaddleDirection() -> void: #-> bool:
 						dir_move_tween.kill()
 					dir_move_tween = create_tween()
 					var tot_dur = (2.5 / directional_movement_speed) * abs(dir_ang_diff)/PI
-					dir_move_tween.tween_property(self, "charge_angle", dir_ang_diff, tot_dur).as_relative()
-					dir_move_tween.parallel().tween_property(sprite_ref, "rotation", dir_ang_diff, tot_dur).as_relative()
+					#dir_move_tween.tween_property(self, "charge_angle", dir_ang_diff, tot_dur).as_relative()
+					dir_move_tween.tween_method(changeRot, charge_angle, charge_angle + dir_ang_diff, tot_dur)
+					#dir_move_tween.parallel().tween_property(sprite_ref, "rotation", dir_ang_diff, tot_dur).as_relative()
 		
 		_idlingTrigger()
 
@@ -882,8 +894,9 @@ func dirMoveLogic(baseVec : Vector2, base_speed : float) -> void:
 				dir_move_tween.kill()
 			dir_move_tween = create_tween()
 			var tot_dur = (base_speed / directional_movement_speed) * abs(dir_ang_diff)/PI
-			dir_move_tween.tween_property(self, "charge_angle", dir_ang_diff, tot_dur).as_relative()
-			dir_move_tween.parallel().tween_property(sprite_ref, "rotation", dir_ang_diff, tot_dur).as_relative()
+			#dir_move_tween.tween_property(self, "charge_angle", dir_ang_diff, tot_dur).as_relative()
+			#dir_move_tween.parallel().tween_property(sprite_ref, "rotation", dir_ang_diff, tot_dur).as_relative()
+			dir_move_tween.tween_method(changeRot, charge_angle, charge_angle + dir_ang_diff, tot_dur)
 
 func _primaryOnPress() -> void:
 	match primary_ability:
@@ -1047,27 +1060,29 @@ func _chargeLogic(delta: float) -> void:
 			temp *= delta * pow((charge_max / (charge_time + 0.2)), 1.6)
 			chargeTentacleSpin *= pow(0.05, delta)
 			chargeTentacleSpin += -2 *temp# if abs(chargeTentacleSpin) <= 1.0 else 0
-			charge_angle += charge_angle_speed * temp
+			#charge_angle += charge_angle_speed * temp
 			
 		else:
 			temp *= delta
 			chargeTentacleSpin *= pow(0.1, delta)
 			chargeTentacleSpin += -1.5*temp# if abs(chargeTentacleSpin) < 2.5 else 0
-			charge_angle += charge_angle_speed * temp
+			#charge_angle += charge_angle_speed * temp
+		
 		tent_ref.handleTentacleShader(chargeTentacleSpin)
 		
 	else:
 		if charge_time < charge_max * 0.8:
 			temp *= delta * pow((charge_max / (charge_time + 0.2)), 1.6)
-			charge_angle += charge_angle_speed * temp
+			#charge_angle += charge_angle_speed * temp
 			
 		else:
 			temp *= delta
-			charge_angle += charge_angle_speed * temp
+			#charge_angle += charge_angle_speed * temp
 	
-		
-	$InnerNode/Pivot.rotation = charge_angle
-	sprite_ref.rotation = charge_angle
+	changeRot(charge_angle + charge_angle_speed * temp)
+	
+	#$InnerNode/Pivot.rotation = charge_angle
+	#sprite_ref.rotation = charge_angle
 
 func _sbPress() -> void:
 	match sb_state:
@@ -1358,17 +1373,24 @@ func changePosition(newpos : Vector2, dims : Vector2) -> Vector2:
 	position = newpos + (modPos-dims/2) - Inner.position  
 	#Inner.position = Vector2.ZERO 	
 	#CHANGE LASSO COORD
+	var off = getPosition() - oldPos
 	if primary_ability == LASSO:
-		lassoRef.updateLocation(getPosition() - oldPos)
+		lassoRef.updateLocation(off)
 	
 	for c in children_list:
-		c.addPosition(getPosition() - oldPos)
+		c.addPosition(off)
 		#Since we're relative this shouldn't be needed
 		#if move_abil_mod == 0: 
 		#	pass
 	
+	if mimi:
+		mimi_ref.addPosition(off)
+		
+	if mama:
+		mama_ref.addPosition(off)
+	
 	call_deferred("changeCamera")
-	return getPosition() - oldPos
+	return off
 
 func getSpriteDuplicate() -> Node2D:
 	return $InnerNode/Sprite/Node2D
@@ -1487,6 +1509,15 @@ func updateAllUpgrades(saveBonuses : Array) -> void:
 func damagedEnemy(amt : float) -> void:
 	damage_dealt += amt
 
+func changeRot(new_ang : float) -> void:
+	charge_angle = new_ang
+	sprite_ref.rotation = new_ang
+	$InnerNode/Pivot.rotation = new_ang
+	if primary_ability == SPEED_BOOST:
+		sb_ref.changeRot(new_ang)
+	if mimi:
+		mimi_ref.changeRot(new_ang)
+
 #This doesn't account for bonus dmg and weakenesses but idgaf
 func getDamage() -> float:
 	return damage
@@ -1532,9 +1563,9 @@ func _on_lasso_lasso_location_reached() -> void:
 			shock.setParams(3.0, 2.0, self, 60 * lasso_progress, 2.0)
 		else:
 			shock.setParams(3.0, 2.0, self, 60 * (fmod(lasso_progress, 100.0)), 2.0)
-		shock.setID(tempImpactId + children_count * 10000)
+		#shock.setID(tempImpactId + children_count * 10000)
 		shock.connectDMG(damagedEnemy)
-		children_count += 1
+		#children_count += 1
 		children_list.append(shock)
 	if primary_tween:
 		primary_tween.kill()		
@@ -1590,8 +1621,8 @@ func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : f
 		temp_td.setParams(10, 0, self, sz)
 		temp_td.initLines(posArr)
 		children_list.append(temp_td)
-		temp_td.setID(temp_ID + children_count * 10000)
-		children_count += 1
+		#temp_td.setID(temp_ID + children_count * 10000)
+		#children_count += 1
 	
 	
 	endAfterImage.emit()
@@ -1621,8 +1652,8 @@ func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int
 	temp_td.setParams(dmg, kb, self, sz)
 	temp_td.initExplosion(basic_movement_type, ticks)
 	children_list.append(temp_td)
-	temp_td.setID(temp_ID + children_count * 10000)
-	children_count += 1
+	#temp_td.setID(temp_ID + children_count * 10000)
+	#children_count += 1
 
 func getAttachNode() -> Node2D:
 	return attach
@@ -1708,8 +1739,8 @@ func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
 		kb_moving = true
 		var timeSpeed = snapped(log(0.5*kb + dmg+1.0), 0.01)
 		knockback_tween.tween_property(Inner, "position", end_dir, timeSpeed).as_relative()
-		knockback_tween.parallel().tween_property(sprite_ref, "rotation", rot_speed, timeSpeed).as_relative()
-		knockback_tween.parallel().tween_property(self, "charge_angle", rot_speed, timeSpeed).as_relative()
+		#knockback_tween.parallel().tween_property(sprite_ref, "rotation", rot_speed, timeSpeed).as_relative()
+		knockback_tween.parallel().tween_method(changeRot, charge_angle, charge_angle + rot_speed, timeSpeed)
 		knockback_tween.set_ease(Tween.EASE_IN)
 		knockback_tween.parallel().tween_property(self, "move_kb_mod", 1.0, 0.1)
 		knockback_tween.set_trans(Tween.TRANS_LINEAR)
@@ -1775,3 +1806,9 @@ func _collisionCheck() -> bool:
 			if b.getID() != 0 and b.getDamage() > 0:
 				return true
 	return false
+
+func _spawnFriend(friend_id : int, count : int, source : Node2D) -> void:
+	for i in range(count):
+		var temp_td = spawnerReference.spawnFriend(friend_id, Vector2.ZERO)
+		temp_td.setBulletParams(source, i)
+		source.connectBullet(temp_td)

@@ -6,6 +6,7 @@ extends Area2D
 @export var size = 0.0
 @export var attack_mods : Array = [false, false, false, false, false]
 var ID : int = 0
+var bullet_id : int = 0
 
 signal damagedEnemy(amt : float)
 
@@ -21,6 +22,11 @@ func setParams(dmg : float, kb : float, pR : Node2D, sz : float, newID : int) ->
 	parentRef = pR
 	size = sz
 	ID = newID
+
+func setBulletParams(pR : Node2D, bulID : int) -> void:
+	parentRef = pR
+	bullet_id = bulID
+	
 
 func updateParams(dmg : float, kb : float, sz : float) -> void:
 	if size != sz:
@@ -69,4 +75,6 @@ func toggle(on = true) -> void:
 func _delete() -> void:
 	parentRef.removeChild(self)
 	call_deferred("queue_free")
-	
+
+func _OnDeath() -> void:
+	parentRef.freeBullet(bullet_id)

@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://dugtyu4vqh8rx"]
+
+[ext_resource type="PackedScene" uid="uid://pa3ykex38v5s" path="res://Blob/base_spawned_attack.tscn" id="1_418sp"]
+
+[node name="player_rocket" instance=ExtResource("1_418sp")]

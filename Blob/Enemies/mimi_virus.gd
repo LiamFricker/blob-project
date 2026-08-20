@@ -69,6 +69,7 @@ func _startShoot() -> void:
 		min_delay = 0.75
 		if mimi_tween:
 			mimi_tween.kill()
+		_detectionCheck()
 		return
 	
 	var angle_diff = -angle_difference(targetAngle, Inner.rotation + PI/2)

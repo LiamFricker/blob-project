@@ -9,7 +9,7 @@ func _setSize() -> void:
 	$Sprite.scale = size * Vector2(1,1)
 		
 func initBullet(start_pos : Vector2, rot : float, speed : float) -> void:
-	set_deferred("process_mode", PROCESS_MODE_DISABLED)
+	set_deferred("process_mode", PROCESS_MODE_INHERIT)
 	show()
 	
 	position = start_pos
@@ -18,11 +18,13 @@ func initBullet(start_pos : Vector2, rot : float, speed : float) -> void:
 		movement_tween.kill()
 	movement_tween = create_tween()
 	var dirVect = speed * 100 * Vector2.from_angle(rot)
-	movement_tween.tween_property(self, "position", dirVect, 5).as_relative()
+	var duration = 25.0 / speed
+	movement_tween.tween_property(self, "position", dirVect, duration).as_relative()
 	movement_tween.finished.connect(_OnDeath)
 
 func _OnDeath() -> void:
-	set_deferred("process_mode", PROCESS_MODE_INHERIT)
+	super()
+	set_deferred("process_mode", PROCESS_MODE_DISABLED)
 	hide()
 	if movement_tween:
 		movement_tween.kill()

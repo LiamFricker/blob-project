@@ -39,6 +39,7 @@ script = ExtResource("1_1hyyi")
 search_speed = 0.8
 
 [node name="Detection" type="Area2D" parent="."]
+visible = false
 collision_layer = 0
 collision_mask = 64
 monitorable = false
@@ -60,6 +61,7 @@ gradient = SubResource("Gradient_uxkvx")
 joint_mode = 2
 
 [node name="Hitbox" type="Area2D" parent="Pivot" node_paths=PackedStringArray("parentRef")]
+visible = false
 collision_layer = 8
 collision_mask = 6
 script = ExtResource("3_uxkvx")
@@ -78,6 +80,7 @@ shape = SubResource("RectangleShape2D_30ast")
 disabled = true
 
 [node name="CollectionBox" type="Area2D" parent="Pivot" node_paths=PackedStringArray("parentRef")]
+visible = false
 collision_mask = 0
 monitoring = false
 script = ExtResource("3_uxkvx")

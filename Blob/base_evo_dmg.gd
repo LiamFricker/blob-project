@@ -1,6 +1,8 @@
 extends Node2D
 
-#signal spawnFriend(id : int)
+var children_list = []
+
+signal spawnFriend(friend_id : int, count : int, source : Node2D)
 signal damagedEnemy(amt : float)
 
 func _damagedEnemy(amt : float) -> void:
@@ -16,6 +18,16 @@ func getID() -> int:
 #These variables all go into the Area2D collision. 
 func getParent() -> Node2D:
 	return playerRef
+
+func addPos(newpos : float) -> void:
+	for c in children_list:
+		c.addPosition(newpos)
+
+func connectBullet(bul : Node2D) -> void:
+	children_list.append(bul)
+
+func freeBullet(bullet_id : int) -> void:
+	pass
 	
 """
 func getDamage() -> float:

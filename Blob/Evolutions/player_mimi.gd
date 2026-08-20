@@ -8,22 +8,32 @@ var movement_tween
 var mimi_tween
 @onready var mimi_rng = RandomNumberGenerator.new()
 @export var shoot_cooldown : float = 1.0
-var min_delay = 0.75
+@export var cooldown : float = 20.0
 
-@onready var Sprite = $Node2D/Sprite2D
+@onready var Sprite = $Pivot/Sprite2D
+@onready var detectNode = $DetectionRange
 
-var bullet_list = []
-var bullets_inactive = [true, true, true]
-var shoot_queued : bool = false
+const bullets_max = 10
+var bullets_inactive = [true, true, true, true, true, true, true, true, true, true]
+var shoot_queued : int = 0
 @export var bullet_size : float = 0.0
 @export var attack_speed : float = 1.0
 
+@export var base_ammo : int = 8
+@onready var remaining_ammo : int = 8
+
+const bullet_id = 1021
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	var newShape = CircleShape2D.new()
 	newShape.radius = detection_range
 	$InnerNode/DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
+	
+	spawnFriend.emit(bullet_id, bullets_max, self)
+
+func changeRot(newangle : float) -> void:
+	$Pivot.rotation = newangle
 
 func _on_detection_range_area_entered(area: Area2D) -> void:
 	if not targetRef and area.getID() != 0:
@@ -38,12 +48,12 @@ func _on_detection_range_body_entered(body: Node2D) -> void:
 func _detectionCheck() -> void:
 	if targetRef:	
 		var targetPos = targetRef.getPosition()
-		if getPosition().distance_squared_to(targetPos) <= detection_range * detection_range * 2.25:
+		var mimiPos = getPosition() + 52 * Vector2.from_angle($Pivot.rotation + PI/2)
+		if mimiPos.distance_squared_to(targetPos) <= detection_range * detection_range * 2.25:
 			_startShoot()
 			return
 		targetRef = null
-	min_delay = 0.75
-	var detectNode = $InnerNode/DetectionRange
+	
 	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
 		var localAreas = detectNode.get_overlapping_areas()
 		for a in localAreas:
@@ -54,95 +64,106 @@ func _detectionCheck() -> void:
 			_on_detection_range_body_entered(b)
 
 func _startShoot() -> void:
+	if shoot_queued == -1:
+		shoot_queued = 0
+		
+		remaining_ammo = base_ammo * attack_speed
+
+		if mimi_tween:
+			mimi_tween.kill()
+		mimi_tween = create_tween().set_loops(remaining_ammo)
+		mimi_tween.tween_callback(_shootLogic)
+		
+	else:
+		if mimi_tween:
+			mimi_tween.kill()
+		mimi_tween = create_tween().set_loops(remaining_ammo)
+		mimi_tween.tween_callback(_shootLogic)
+
+func _shootLogic() -> void:
 	if targetRef.isDead():
 		targetRef = null
+		if mimi_tween:
+			mimi_tween.kill()
 		_detectionCheck()
 		return
 	
 	var targetPos = targetRef.getPosition()
+	var mimiPos = getPosition() + 52 * Vector2.from_angle($Pivot.rotation + PI/2)
 	var targetAngle = getPosition().angle_to_point(targetPos)
 	
-	if getPosition().distance_squared_to(targetPos) > detection_range * detection_range * 2.25:
+	if mimiPos.distance_squared_to(targetPos) > detection_range * detection_range * 2.25:
 		targetRef = null
-		min_delay = 0.75
 		if mimi_tween:
 			mimi_tween.kill()
+		_detectionCheck()	
 		return
 	
-	var angle_diff = -angle_difference(targetAngle, rotation + PI/2)
-	var delay = max(1.5 * abs(angle_diff) / PI, min_delay) 
+	var mimiRot = $Pivot.rotation + Sprite.rotation + PI/2
+	var angle_diff = -angle_difference(targetAngle, mimiRot)
+	var delay = max(1.5 * abs(angle_diff) / PI, 0.5) / attack_speed 
+	var short_delay = max(0.1 / attack_speed, 0.05)
+	
+	Sprite.position.y = 0
+	if movement_tween:
+		movement_tween.kill()
+	movement_tween.tween_property(Sprite, "rotation", angle_diff, delay)
+	movement_tween.tween_property(Sprite, "position:y", -3, short_delay).as_relative()
+	movement_tween.tween_property(Sprite, "position:y", 6, short_delay*2.0).as_relative()
+	movement_tween.tween_callback(_shootProj)
+	movement_tween.tween_property(Sprite, "position:y", -6, short_delay*2.0).as_relative()
+	movement_tween.tween_property(Sprite, "position:y", 3, short_delay).as_relative()
+	movement_tween.tween_interval(shoot_cooldown/attack_speed)
 
+func freeBullet(bullet_id : int) -> void:
+	bullets_inactive[bullet_id] = true
+	if shoot_queued > 0:
+		shoot_queued -= 1
+		_startShoot()
+
+func _shootProj() -> void:
+	if remaining_ammo > 0:
+		const offset = 10 
+		var mimiPos = getPosition() + (52+offset) * Vector2.from_angle($Pivot.rotation + PI/2)
+		
+		var bullet_used : Area2D = null
+		for i in range(bullets_max):
+			if bullets_inactive[i]:
+				bullet_used = children_list[i]
+				break
+		if not bullet_used:
+			shoot_queued += 1
+			return
+		remaining_ammo -= 1
+		bullet_used.updateParams(damage, knockback, bullet_size)
+		bullet_used.initBullet(mimiPos, Sprite.rotation, 10.0)	
+	else:
+		shoot_queued = 0
+		_outOfAmmo()
+
+func _outOfAmmo() -> void:
 	Sprite.position.y = 0
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative().set_delay(delay)
-	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 3, 0.1).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", 3, 0.1).as_relative()
-	
-	
-	
-	if mimi_tween:
-		mimi_tween.kill()
-	mimi_tween = create_tween()
-	mimi_tween.tween_property(self, "rotation", angle_diff, delay).as_relative()
-	mimi_tween.parallel().tween_callback(_shootProj).set_delay(delay)
-	for i in range(5):
-		mimi_tween.tween_callback(_shootProj).set_delay(0.2)
-	$AnimationPlayer.play("reload", -1, shoot_cooldown)
-
-func _freeBullet(bullet_id : int) -> void:
-	bullets_inactive[bullet_id] = true
-	if shoot_queued:
-		shoot_queued = false
-		_shootProj()
-
-func _shootProj() -> void:
-	#var rand_angle = mimi_rng.randf_range(-0.1, 0.1)
-	var offset = 20 * Vector2.from_angle(rotation+PI/2)
-	
-	var bullet_used : Area2D = null
-	for i in range(3):
-		if bullets_inactive[i]:
-			bullet_used = bullet_list[i]
-			break
-	if not bullet_used:
-		shoot_queued = true
-		return
-	
-	bullet_used.updateParams(damage, knockback, bullet_size)
-	bullet_used.initBullet(getPosition() + offset, Sprite.rotation, 10.0)
-	"""
-	if spawnerRef:
-		var bullet = spawnerRef.spawnEntity(bullet_id, -1, getPosition()+offset)
-		bullet.setParams(damage, self, size, bullet_id)
-		bullet.initBullet(Inner.rotation + rand_angle + PI/2, 5.0)
-		_addConnectBullet(bullet)
-	else:
-		var bullet = test_bullet.instantiate()
-		bullet.position = getPosition()+offset 
-		bullet.setParams(base_damage, self, size, bullet_id)
-		bullet.initBullet(Inner.rotation + rand_angle + PI/2, 5.0)
-		_addConnectBullet(bullet)
-	"""
-	
-func _stopAnims() -> void:
-	if movement_tween:
-		movement_tween.kill()
-	if mimi_tween:
-		mimi_tween.kill()
-	if $AnimationPlayer.is_playing():
-		$AnimationPlayer.play("RESET", 0.5)
+	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
+	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
+	movement_tween.finished.connect(_finished)
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == "reload":
-		min_delay = 0.5
-		_startShoot()
+	if anim_name == "Retract" and $CooldownTimer.is_stopped():
+		detectNode.set_deferred("monitoring", true)
+		shoot_queued = -1
 	
-func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
-	$InnerNode/DetectionRange.set_deferred("monitoring", false)
+func _finished() -> void:
+	detectNode.set_deferred("monitoring", false)
+	$AnimationPlayer.play("Retract")
+	$CooldownTimer.start(cooldown)
+
+
+func _on_cooldown_timer_timeout() -> void:
+	$AnimationPlayer.play_backwards("Retract")

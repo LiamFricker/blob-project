@@ -6,6 +6,8 @@ var shockwave = preload("res://Blob/Evolutions/shockwave.tscn")
 var effect_pool = preload("res://Blob/Evolutions/effect_pool.tscn")
 var trail_deto = preload("res://Blob/Evolutions/trail_detonation.tscn")
 var trail_bomb = preload("res://Blob/Evolutions/trail_bombs.tscn")
+var mimi_bullet = preload("res://Blob/Evolutions/player_bullet.gd")
+var mama_bullet = preload("res://Blob/Evolutions/player_rocket.tscn")
 
 var stageLevel = 0
 var sizeLevel = 0
@@ -222,6 +224,11 @@ func spawnFriend(ID : int, pos : Vector2, _kwargs : Array = []) -> Node2D:
 			tempEntity = trail_deto.instantiate()
 		1012:
 			tempEntity = trail_bomb.instantiate()
+		
+		1021:
+			tempEntity = mimi_bullet.instantiate()
+		1022:
+			tempEntity = mama_bullet.instantiate()
 	tempEntity.position = pos
 	
 	call_deferred("add_child", tempEntity)
