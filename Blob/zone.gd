@@ -91,6 +91,9 @@ func handleRoamer(supplyState : int, pos : Vector2, ID = 0) -> void:
 				zoneHandleRoamer.emit(supplyState, pos, creatureList[ID])
 				break
 
+func addGuest(guest : Node2D) -> void:
+	specialGuestList.append(guest)
+
 func removeGuest(guest : Node2D) -> void:
 	var temppos = specialGuestList.find(guest)
 	if temppos == -1:

@@ -57,7 +57,7 @@ func _turnRocket() -> void:
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	if angle_diff > 0.0:
+	if angle_diff != 0.0:
 		movement_tween.tween_property(self, "rotation", angle_diff, speed_time).as_relative()
 		movement_tween.tween_interval(max_speed_time-speed_time)
 	else:
@@ -92,7 +92,7 @@ func _takeDamage() -> void:
 	health -= 1
 	#Just in case the health is set to 0 somehow
 	if health <= 0:
-		toggle(false)
+		#toggle(false)
 		_explode()
 
 func _explode() -> void:

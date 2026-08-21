@@ -263,10 +263,10 @@ Things to do:
 """
 
 var mimi : bool = true
-@onready var mimi_ref : Node2D = $Mimi 
+@onready var mimi_ref : Node2D = $InnerNode/player_mimi 
 
 var mama : bool = true
-@onready var mama_ref : Node2D = $Mimi 
+@onready var mama_ref : Node2D = $InnerNode/player_mama 
 
 const spawnerID = -255
 var virus_level : float = 0.0
@@ -1784,7 +1784,6 @@ func _on_invul_timer_timeout() -> void:
 		invul_leeway_count = 2
 		$InvulTimer.start(10.0)
 		$InvulLeeWay.start()
-	
 
 func _on_invul_lee_way_timeout() -> void:
 	invul_leeway_count -= 1

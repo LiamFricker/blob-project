@@ -1,6 +1,6 @@
 extends "res://Blob/base_evo_dmg.gd"
 
-var targetRef : Node2D
+var targetRef : Node2D = null
 #var targetFound : bool = false
 @export var detection_range : float = 250 
 
@@ -13,7 +13,7 @@ var mimi_tween
 @onready var Sprite = $Pivot/Sprite2D
 @onready var detectNode = $DetectionRange
 
-const bullets_max = 10
+#const bullets_max = 10
 var bullets_inactive = [true, true, true, true, true, true, true, true, true, true]
 var shoot_queued : int = 0
 @export var bullet_size : float = 0.0
@@ -22,15 +22,13 @@ var shoot_queued : int = 0
 @export var base_ammo : int = 8
 @onready var remaining_ammo : int = 8
 
-const bullet_id = 1021
+#const bullet_id = 1021
 
 # Called when the node enters the scene tree for the first time.
-func _ready() -> void:
+func _setSize() -> void:
 	var newShape = CircleShape2D.new()
 	newShape.radius = detection_range
-	$InnerNode/DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
-	
-	spawnFriend.emit(bullet_id, bullets_max, self)
+	$DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
 
 func changeRot(newangle : float) -> void:
 	$Pivot.rotation = newangle
@@ -64,10 +62,11 @@ func _detectionCheck() -> void:
 			_on_detection_range_body_entered(b)
 
 func _startShoot() -> void:
+	print("SHOOT BEGIN ", shoot_queued)
 	if shoot_queued == -1:
 		shoot_queued = 0
 		
-		remaining_ammo = base_ammo * attack_speed
+		remaining_ammo = ceil(base_ammo * attack_speed)
 
 		if mimi_tween:
 			mimi_tween.kill()
@@ -116,8 +115,8 @@ func _shootLogic() -> void:
 	movement_tween.tween_property(Sprite, "position:y", 3, short_delay).as_relative()
 	movement_tween.tween_interval(shoot_cooldown/attack_speed)
 
-func freeBullet(bullet_id : int) -> void:
-	bullets_inactive[bullet_id] = true
+func freeBullet(_bullet_id : int) -> void:
+	bullets_inactive[_bullet_id] = true
 	if shoot_queued > 0:
 		shoot_queued -= 1
 		_startShoot()
@@ -158,6 +157,7 @@ func _outOfAmmo() -> void:
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "Retract" and $CooldownTimer.is_stopped():
+		print("START TIME")
 		detectNode.set_deferred("monitoring", true)
 		shoot_queued = -1
 	

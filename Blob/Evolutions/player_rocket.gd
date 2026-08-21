@@ -22,7 +22,7 @@ func _setSize() -> void:
 	
 	var newShape = CircleShape2D.new()
 	newShape.radius = detection_range
-	$InnerNode/DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
+	$DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
 		
 func initBullet(start_pos : Vector2, rot : float, speed : float) -> void:
 	set_deferred("process_mode", PROCESS_MODE_INHERIT)
@@ -121,7 +121,7 @@ func _turnRocket(targetPos : Vector2) -> void:
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	if angle_diff > 0.0:
+	if angle_diff != 0.0:
 		movement_tween.tween_property(self, "rotation", angle_diff, speed_time).as_relative()
 		movement_tween.tween_interval(max_speed_time-speed_time)
 	else:

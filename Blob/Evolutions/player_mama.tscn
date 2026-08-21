@@ -1,11 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://citywadbhd328"]
+[gd_scene load_steps=9 format=3 uid="uid://citywadbhd328"]
 
 [ext_resource type="PackedScene" uid="uid://byw5ckl2eqwlm" path="res://Blob/base_evo_dmg.tscn" id="1_6ydkb"]
 [ext_resource type="Script" uid="uid://dtopg2bj35jok" path="res://Blob/Evolutions/player_mama.gd" id="2_sla81"]
 [ext_resource type="Texture2D" uid="uid://bgw4puwpv7fwi" path="res://Art/Cell/Evolutions/MamaVirus.png" id="3_gwqhe"]
 [ext_resource type="Texture2D" uid="uid://bstnj3yx76y5d" path="res://Art/Cell/MamaVirus_Blade.png" id="4_j0560"]
 [ext_resource type="Texture2D" uid="uid://wwfeeteqfrix" path="res://Art/Cell/Evolutions/MamaVirus_Weak.png" id="4_or1aw"]
-[ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="6_j0560"]
 
 [sub_resource type="Animation" id="Animation_bbsvr"]
 length = 0.001
@@ -171,6 +170,8 @@ detection_range = 250.0
 cooldown = 15.0
 bullet_size = 0.0
 attack_speed = 1.0
+bullet_id = 1022
+bullets_max = 3
 
 [node name="Sprite" type="Node2D" parent="." index="0"]
 modulate = Color(1, 1, 1, 0)
@@ -217,14 +218,12 @@ offset = Vector2(0, 15)
 position = Vector2(-1, 0)
 texture = ExtResource("3_gwqhe")
 
-[node name="Blob_Swim" parent="." index="1" instance=ExtResource("6_j0560")]
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="2"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="1"]
 libraries = {
 &"": SubResource("AnimationLibrary_v5j70")
 }
 
-[node name="CooldownTimer" type="Timer" parent="." index="3"]
+[node name="CooldownTimer" type="Timer" parent="." index="2"]
 wait_time = 15.0
 one_shot = true
 autostart = true

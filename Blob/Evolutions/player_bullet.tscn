@@ -7,6 +7,8 @@
 size = Vector2(12, 10)
 
 [node name="player_bullet" instance=ExtResource("1_0l3hc")]
+process_mode = 4
+visible = false
 script = ExtResource("2_ipbdr")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." index="0"]

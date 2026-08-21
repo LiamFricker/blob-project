@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://blvad8r1y76gf"]
+[gd_scene load_steps=16 format=3 uid="uid://blvad8r1y76gf"]
 
 [ext_resource type="Script" uid="uid://4u6uw0h6fqhw" path="res://Blob/blob_swim.gd" id="1_560oe"]
 [ext_resource type="Texture2D" uid="uid://6r00aigasy26" path="res://Art/Cell/Glimmer.png" id="2_02q5b"]
@@ -6,8 +6,10 @@
 [ext_resource type="PackedScene" uid="uid://bgxasyew2kt8g" path="res://Blob/Evolutions/speed_boost.tscn" id="4_a16ly"]
 [ext_resource type="Texture2D" uid="uid://c43vreo7c407m" path="res://Art/Cell/TestTexture2.png" id="4_cws7r"]
 [ext_resource type="Material" uid="uid://cnn885v4juwuw" path="res://Blob/Materials/blob_swim.tres" id="5_8tadd"]
+[ext_resource type="PackedScene" uid="uid://2vm2q4hkxmh8" path="res://Blob/Evolutions/player_mimi.tscn" id="5_ns6ge"]
 [ext_resource type="PackedScene" uid="uid://177vwvphes8i" path="res://Blob/Evolutions/tentacles.tscn" id="5_rs8qj"]
 [ext_resource type="Texture2D" uid="uid://nkptmcawvx1e" path="res://Art/Cell/Evolutions/X_indicator.png" id="6_fcc0v"]
+[ext_resource type="PackedScene" uid="uid://citywadbhd328" path="res://Blob/Evolutions/player_mama.tscn" id="6_y1243"]
 [ext_resource type="PackedScene" uid="uid://dg88vj8yfbw4t" path="res://Blob/organelles.tscn" id="7_fcc0v"]
 [ext_resource type="Script" uid="uid://cekx7gkpetryd" path="res://Blob/player_attachments.gd" id="10_5yg2x"]
 
@@ -72,6 +74,14 @@ playerRef = NodePath("../..")
 buff_type = 1
 playerRef = NodePath("../..")
 
+[node name="player_mimi" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("5_ns6ge")]
+bullet_id = 1021
+bullets_max = 10
+playerRef = NodePath("../..")
+
+[node name="player_mama" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("6_y1243")]
+playerRef = NodePath("../..")
+
 [node name="Sprite" type="Node2D" parent="InnerNode"]
 
 [node name="Tentacles" parent="InnerNode/Sprite" node_paths=PackedStringArray("parentRef") instance=ExtResource("5_rs8qj")]
@@ -123,7 +133,8 @@ position_smoothing_enabled = true
 
 [node name="Hurtbox" type="Area2D" parent="InnerNode"]
 collision_layer = 0
-collision_mask = 0
+collision_mask = 4
+monitoring = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox"]
@@ -164,6 +175,10 @@ one_shot = true
 [connection signal="crystal_canceled" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_crystal_canceled"]
 [connection signal="damagedEnemy" from="InnerNode/SpeedBoost" to="." method="damagedEnemy"]
 [connection signal="spawn_bomb" from="InnerNode/SpeedBoost" to="." method="_on_speed_boost_spawn_bomb"]
+[connection signal="damagedEnemy" from="InnerNode/player_mimi" to="." method="damagedEnemy"]
+[connection signal="spawnFriend" from="InnerNode/player_mimi" to="." method="_spawnFriend"]
+[connection signal="damagedEnemy" from="InnerNode/player_mama" to="." method="damagedEnemy"]
+[connection signal="spawnFriend" from="InnerNode/player_mama" to="." method="_spawnFriend"]
 [connection signal="damagedEnemy" from="InnerNode/Sprite/Tentacles" to="." method="damagedEnemy"]
 [connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]

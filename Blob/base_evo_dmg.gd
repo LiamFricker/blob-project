@@ -8,9 +8,19 @@ signal damagedEnemy(amt : float)
 func _damagedEnemy(amt : float) -> void:
 	damagedEnemy.emit(amt)
 
+@export var bullet_id : int = 0
+@export var bullets_max : int = 0 
+
 @export var damage = 0
 @export var knockback = 0
 @export var playerRef : Node2D
+
+func _ready() -> void:
+	_setSize()
+	spawnFriend.emit(bullet_id, bullets_max, self)
+
+func _setSize() -> void:
+	pass
 
 func getID() -> int:
 	return playerRef.getID()
@@ -26,7 +36,7 @@ func addPos(newpos : float) -> void:
 func connectBullet(bul : Node2D) -> void:
 	children_list.append(bul)
 
-func freeBullet(bullet_id : int) -> void:
+func freeBullet(_bullet_id : int) -> void:
 	pass
 	
 """
@@ -40,7 +50,7 @@ func emitDamage(dmg_amt : float):
 #Change this to the position of the tip.
 #Or the movement object
 func getPosition() -> Vector2:
-	return position
+	return position + playerRef.getPosition()
 
 #I want to make the knockback particular but we can just ignore it for now.
 func getKnockback() -> float:

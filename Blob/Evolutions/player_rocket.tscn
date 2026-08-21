@@ -46,6 +46,8 @@ radius = 250.0
 radius = 24.0208
 
 [node name="player_rocket" instance=ExtResource("1_418sp")]
+process_mode = 4
+visible = false
 collision_mask = 2
 script = ExtResource("2_0ima2")
 
@@ -89,3 +91,5 @@ shape = SubResource("CircleShape2D_gvlcq")
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="area_entered" from="DetectionRange" to="." method="_on_detection_range_area_entered"]
+[connection signal="body_entered" from="DetectionRange" to="." method="_on_detection_range_body_entered"]

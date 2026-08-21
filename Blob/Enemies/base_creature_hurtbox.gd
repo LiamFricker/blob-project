@@ -14,3 +14,6 @@ func toggle(on = true) -> void:
 
 func getPosition() -> Vector2:
 	return parentRef.getPosition()
+
+func emitDamage(_dmg_amt) -> void:
+	pass

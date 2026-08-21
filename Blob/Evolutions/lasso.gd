@@ -79,7 +79,7 @@ func getDamage() -> float:
 	return damage
 	
 func emitDamage(dmg_amt : float):
-	damagedEnemy.emit(damage) 
+	damagedEnemy.emit(dmg_amt) 
 
 #Change this to the position of the tip.
 #Or the movement object

@@ -90,6 +90,9 @@ func _takeDamage() -> void:
 	if health <= 0:
 		_OnDeath()
 
+func emitDamage(_dmg_amt) -> void:
+	pass
+
 func _OnDeath() -> void:
 	toggle(false)
 	if movement_tween:

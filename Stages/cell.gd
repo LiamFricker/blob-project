@@ -59,8 +59,8 @@ var zone_list = [[]]
 var next_zone_list = [[]]
 
 const MAP_DIMS = [5,6,10,20,10,10,10] #Dimensions of the map
-const ZONE_WIDTH = [200,200,200,200,200,200,200] #Width of each zone
-const ZONE_HEIGHT = [100,100,100,100,100,100,100] #Width of each zone
+const ZONE_WIDTH = [2000,200,200,200,200,200,200] #Width of each zone
+const ZONE_HEIGHT = [1000,100,100,100,100,100,100] #Width of each zone
 
 #Number of each environment generated in a map. Final map is larger fyi. Maybe penultimate will be too.
 const ENV_MAX = [0,2,3,4,2,2,2] 
@@ -1505,7 +1505,7 @@ func _on_blob_swim_end_after_image() -> void:
 func _spawnOrbs(amt : int, pos : Vector2) -> void:
 	orbReference.spawnOrbs(amt, pos)
 
-func _on_water_grizzly_connect_boss_to_zone(boss: Node2D, pos : Vector2, oldzone : Vector2) -> void:
+func _connectBossToZone(boss: Node2D, pos : Vector2, oldzone : Vector2) -> void:
 	var temp_ij = _uncalculateZonePosition(pos)
 	var i = temp_ij.x
 	var j = temp_ij.y
@@ -1513,7 +1513,7 @@ func _on_water_grizzly_connect_boss_to_zone(boss: Node2D, pos : Vector2, oldzone
 	if oldzone != Vector2(-1, -1):
 		zone[i][j].removeGuest(boss)
 	
-	zone[i][j].specialGuestList.append(boss)
+	zone[i][j].addGuest(boss)
 	var center = _calculateZonePosition(i, j)
 	var dim_half = Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map])/2
 	

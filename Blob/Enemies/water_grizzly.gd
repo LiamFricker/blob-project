@@ -92,12 +92,13 @@ var dot_tween
 
 var attack_mods : Array = [true, false, false, false, false]
 
-signal connectBossToZone(boss : Node2D)
+signal connectBossToZone(boss : Node2D, pos : Vector2, oldzone : Vector2)
 
 func _ready() -> void:
 	AnimPlay.speed_scale = attack_speed
 	_idleTrigger()
-	connectBossToZone.emit(self)
+	
+	#connectBossToZone.emit(self, getPosition(), old_zone)
 
 func setParams(TopLeftBound : Vector2, BotRightBound : Vector2, origin = Vector2.ZERO, diff = 0, boss_count = 0) -> void:
 	MapULBound = TopLeftBound

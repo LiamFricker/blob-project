@@ -45,7 +45,7 @@ func getDamage() -> float:
 	return damage
 	
 func emitDamage(dmg_amt : float):
-	damagedEnemy.emit(damage) 
+	damagedEnemy.emit(dmg_amt) 
 
 func connectDMG(calla : Callable) -> void:
 	damagedEnemy.connect(calla)
