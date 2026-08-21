@@ -1,7 +1,7 @@
 extends base_creature
 
 var targetRef : Node2D
-var targetFound : bool = false
+#var targetFound : bool = false
 @export var detection_range : float = 200 
 
 const bullet_id = 9

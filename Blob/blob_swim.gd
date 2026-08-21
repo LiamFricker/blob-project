@@ -1618,6 +1618,7 @@ func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : f
 	if detonate:
 		var temp_ID = sb_ref.getSPAWNID(true)
 		var temp_td = spawnerReference.spawnFriend(temp_ID, Vector2.ZERO)
+		temp_td.connectDMG(damagedEnemy)
 		temp_td.setParams(10, 0, self, sz)
 		temp_td.initLines(posArr)
 		children_list.append(temp_td)
@@ -1649,6 +1650,7 @@ func _on_speed_boost_crystal_canceled(decay_rate: float, detonate : bool, sz : f
 func _on_speed_boost_spawn_bomb(dmg : float, kb : float, sz : float, ticks : int) -> void:
 	var temp_ID = sb_ref.getSPAWNID(false)
 	var temp_td = spawnerReference.spawnFriend(temp_ID, getPosition())
+	temp_td.connectDMG(damagedEnemy)
 	temp_td.setParams(dmg, kb, self, sz)
 	temp_td.initExplosion(basic_movement_type, ticks)
 	children_list.append(temp_td)
@@ -1810,5 +1812,6 @@ func _collisionCheck() -> bool:
 func _spawnFriend(friend_id : int, count : int, source : Node2D) -> void:
 	for i in range(count):
 		var temp_td = spawnerReference.spawnFriend(friend_id, Vector2.ZERO)
+		temp_td.connectDMG(damagedEnemy)
 		temp_td.setBulletParams(source, i)
 		source.connectBullet(temp_td)

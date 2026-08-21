@@ -1,7 +1,91 @@
-[gd_scene load_steps=3 format=3 uid="uid://dugtyu4vqh8rx"]
+[gd_scene load_steps=13 format=3 uid="uid://dugtyu4vqh8rx"]
 
 [ext_resource type="PackedScene" uid="uid://djfbg4sj4f65t" path="res://Blob/base_spawned_bullet.tscn" id="1_418sp"]
 [ext_resource type="Script" uid="uid://bcoqap0rp14u6" path="res://Blob/Evolutions/player_rocket.gd" id="2_0ima2"]
+[ext_resource type="Texture2D" uid="uid://sy7p5usw45h1" path="res://Art/Cell/Evolutions/Explosion/explosion.png" id="3_jeatb"]
+[ext_resource type="Texture2D" uid="uid://c0fhypfxh5lpa" path="res://Art/Cell/Evolutions/Explosion/explosion(0).png" id="4_72ps0"]
+[ext_resource type="Texture2D" uid="uid://rl8x0s5lukjg" path="res://Art/Cell/Evolutions/Explosion/explosion(1).png" id="5_dvx57"]
+[ext_resource type="Texture2D" uid="uid://dfx1nr0c2otvf" path="res://Art/Cell/Evolutions/Explosion/explosion(2).png" id="6_ioo0q"]
+[ext_resource type="Texture2D" uid="uid://breq4xra1vsfo" path="res://Art/Cell/Evolutions/Explosion/explosion(3).png" id="7_klgjj"]
+[ext_resource type="Texture2D" uid="uid://cu5gkc33qaff7" path="res://Art/Cell/Evolutions/Explosion/explosion(4).png" id="8_g4bo6"]
+[ext_resource type="Texture2D" uid="uid://b8hv4vw4cgfkw" path="res://Art/Cell/Evolutions/Explosion/explosion(5).png" id="9_bia14"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_k4hpv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_jeatb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_72ps0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_dvx57")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_ioo0q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_klgjj")
+}, {
+"duration": 30.0,
+"texture": ExtResource("8_g4bo6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_bia14")
+}],
+"loop": false,
+"name": &"default",
+"speed": 8.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0ima2"]
+radius = 250.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gvlcq"]
+radius = 24.0208
 
 [node name="player_rocket" instance=ExtResource("1_418sp")]
+collision_mask = 2
 script = ExtResource("2_0ima2")
+
+[node name="Sprite" type="Node2D" parent="." index="0"]
+
+[node name="Polygon2D" type="Polygon2D" parent="Sprite" index="0"]
+color = Color(0.219608, 0.219608, 0.490196, 1)
+polygon = PackedVector2Array(-23, -18, 5, -4, 8, -7, 12, -7, 19, 0, 12, 7, 8, 7, 5, 4, -23, 18, -7, 2, -7, -2)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Sprite" index="1"]
+color = Color(0.164706, 0.443137, 0.717647, 1)
+polygon = PackedVector2Array(-16, -13, 5, -2, 8, -5, 12, -5, 17, 0, 12, 5, 8, 5, 5, 2, -16, 13, -5, 2, -5, -2)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Sprite" index="2"]
+position = Vector2(10, 0)
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(2, -2, 2, 2, -2, 2, -2, -2)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Sprite" index="3"]
+position = Vector2(10, 0)
+polygon = PackedVector2Array(2, -2, 2, 0, 0, 0, 0, -2)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Sprite" index="4"]
+position = Vector2(-7, 0)
+scale = Vector2(0.25, 0.25)
+sprite_frames = SubResource("SpriteFrames_k4hpv")
+
+[node name="DetectionRange" type="Area2D" parent="." index="1"]
+visible = false
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionRange" index="0"]
+shape = SubResource("CircleShape2D_0ima2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="2"]
+visible = false
+position = Vector2(-5, 0)
+shape = SubResource("CircleShape2D_gvlcq")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -1,12 +1,12 @@
 extends "res://Blob/base_evo_dmg.gd"
 
 var targetRef : Node2D
-var targetFound : bool = false
+#var targetFound : bool = false
 @export var detection_range : float = 250 
 
 var movement_tween
 var mimi_tween
-@onready var mimi_rng = RandomNumberGenerator.new()
+#@onready var mimi_rng = RandomNumberGenerator.new()
 @export var shoot_cooldown : float = 1.0
 @export var cooldown : float = 20.0
 
@@ -107,6 +107,7 @@ func _shootLogic() -> void:
 	Sprite.position.y = 0
 	if movement_tween:
 		movement_tween.kill()
+	movement_tween = create_tween()
 	movement_tween.tween_property(Sprite, "rotation", angle_diff, delay)
 	movement_tween.tween_property(Sprite, "position:y", -3, short_delay).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", 6, short_delay*2.0).as_relative()
@@ -137,7 +138,7 @@ func _shootProj() -> void:
 			return
 		remaining_ammo -= 1
 		bullet_used.updateParams(damage, knockback, bullet_size)
-		bullet_used.initBullet(mimiPos, Sprite.rotation, 10.0)	
+		bullet_used.initBullet(mimiPos, Sprite.rotation + PI/2, 10.0)	
 	else:
 		shoot_queued = 0
 		_outOfAmmo()

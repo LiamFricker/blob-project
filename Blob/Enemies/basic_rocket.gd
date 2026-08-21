@@ -2,7 +2,8 @@ extends "res://Blob/base_enemy_bullet.gd"
 
 var targetRef : Node2D
 var speed : float = 1.0
-var angle_max_diff : float = 0.6
+const angle_max_diff : float = 0.6
+#var angle_min_diff : float = 0.005
 
 var timer_tween 
 
@@ -43,26 +44,38 @@ func _turnRocket() -> void:
 		angle_diff = sign(angle_diff) * total_diff
 	else:
 		speed_time = max(max_speed_time * angle_diff / total_diff, 0.1 * speed_time)
+	"""
+	elif abs(angle_diff) < angle_min_diff:
+		if movement_tween:
+			movement_tween.kill()
+		movement_tween = create_tween()
+		movement_tween.tween_interval(max_speed_time)
+		movement_tween.finished.connect(_turnRocket)
+		return
+	"""
 	
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property(self, "rotation", angle_diff, speed_time).as_relative()
-	if speed_time > 0.0:
+	if angle_diff > 0.0:
+		movement_tween.tween_property(self, "rotation", angle_diff, speed_time).as_relative()
 		movement_tween.tween_interval(max_speed_time-speed_time)
+	else:
+		movement_tween.tween_interval(max_speed_time)
 	movement_tween.finished.connect(_turnRocket)
 
 func _process(delta : float) -> void:
 	position += 10 * speed * delta * Vector2.from_angle(rotation)
 
 func _on_area_entered(_area: Area2D) -> void:
-	
+	if speed != 0:
 	#if area.getID() != ID:
-	_explode()
+		_explode()
 
 func _on_body_entered(_body: Node2D) -> void:
-	#if body.getID() != ID:
-	_explode()
+	if speed != 0:
+		#if body.getID() != ID:
+		_explode()
 
 func _takeDamage() -> void:
 	print("dmg takennnn")
@@ -86,7 +99,7 @@ func _explode() -> void:
 	$CollisionShape2D3.set_deferred("disabled", false)
 	speed = 0
 	$Sprite.hide()
-	$AnimatedSprite2D.show()
+	#$AnimatedSprite2D.show()
 	$AnimatedSprite2D.position = Vector2.ZERO
 	$AnimatedSprite2D.play("default")
 	if movement_tween:

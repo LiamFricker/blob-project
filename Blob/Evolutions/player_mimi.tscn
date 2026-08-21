@@ -1,12 +1,62 @@
-[gd_scene load_steps=9 format=3 uid="uid://2vm2q4hkxmh8"]
+[gd_scene load_steps=8 format=3 uid="uid://2vm2q4hkxmh8"]
 
 [ext_resource type="PackedScene" uid="uid://byw5ckl2eqwlm" path="res://Blob/base_evo_dmg.tscn" id="1_bnyrm"]
 [ext_resource type="Texture2D" uid="uid://nkt1oxj86mcf" path="res://Art/Cell/Evolutions/MimiVirus.png" id="2_iafeh"]
 [ext_resource type="Script" uid="uid://c6wo46eha5pbd" path="res://Blob/Evolutions/player_mimi.gd" id="2_ogxgw"]
-[ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="5_hf24h"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ogxgw"]
 radius = 250.0
+
+[sub_resource type="Animation" id="Animation_lgnpf"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Pivot/Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Pivot/Sprite2D:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Pivot/Sprite2D:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 33)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Pivot/Polygon2D:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
 
 [sub_resource type="Animation" id="Animation_hf24h"]
 resource_name = "Retract"
@@ -62,57 +112,6 @@ tracks/3/keys = {
 "values": [Vector2(1, 1), Vector2(1, 1), Vector2(1, 0)]
 }
 
-[sub_resource type="Animation" id="Animation_lgnpf"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Pivot/Sprite2D:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Pivot/Sprite2D:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("Pivot/Sprite2D:position")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 33)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Pivot/Polygon2D:scale")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_kpc2d"]
 _data = {
 &"RESET": SubResource("Animation_lgnpf"),
@@ -156,9 +155,7 @@ libraries = {
 &"": SubResource("AnimationLibrary_kpc2d")
 }
 
-[node name="Blob_Swim" parent="." index="3" instance=ExtResource("5_hf24h")]
-
-[node name="CooldownTimer" type="Timer" parent="." index="4"]
+[node name="CooldownTimer" type="Timer" parent="." index="3"]
 wait_time = 20.0
 one_shot = true
 autostart = true

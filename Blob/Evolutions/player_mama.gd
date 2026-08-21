@@ -1,26 +1,20 @@
 extends "res://Blob/base_evo_dmg.gd"
 
 var targetRef : Node2D
-var targetFound : bool = false
 @export var detection_range : float = 250 
 
 var movement_tween
-var mimi_tween
-@onready var mimi_rng = RandomNumberGenerator.new()
-@export var shoot_cooldown : float = 1.0
-@export var cooldown : float = 20.0
+@export var cooldown : float = 15.0
 
-@onready var Sprite = $Pivot/Sprite2D
-@onready var detectNode = $DetectionRange
+#@onready var Sprite = $Sprite
 
 const bullets_max = 3
 var bullets_inactive = [true, true, true]
-var shoot_queued : int = 0
+var shoot_queued : bool = false
 @export var bullet_size : float = 0.0
 @export var attack_speed : float = 1.0
 
-@export var base_ammo : int = 8
-@onready var remaining_ammo : int = 8
+var queued_rotation : float = 0.0
 
 const bullet_id = 1022
 
@@ -33,137 +27,48 @@ func _ready() -> void:
 	spawnFriend.emit(bullet_id, bullets_max, self)
 
 func changeRot(newangle : float) -> void:
-	$Pivot.rotation = newangle
-
-func _on_detection_range_area_entered(area: Area2D) -> void:
-	if not targetRef and area.getID() != 0:
-		targetRef = area.getParent()
-		_startShoot()
-
-func _on_detection_range_body_entered(body: Node2D) -> void:
-	if not targetRef and body.getID() != 0:
-		targetRef = body
-		_startShoot()
-
-func _detectionCheck() -> void:
-	if targetRef:	
-		var targetPos = targetRef.getPosition()
-		var mimiPos = getPosition() + 52 * Vector2.from_angle($Pivot.rotation + PI/2)
-		if mimiPos.distance_squared_to(targetPos) <= detection_range * detection_range * 2.25:
-			_startShoot()
-			return
-		targetRef = null
-	
-	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
-		var localAreas = detectNode.get_overlapping_areas()
-		for a in localAreas:
-			_on_detection_range_area_entered(a)
-		
-		var localBodies = detectNode.get_overlapping_bodies()
-		for b in localBodies:
-			_on_detection_range_body_entered(b)
-
-func _startShoot() -> void:
-	if shoot_queued == -1:
-		shoot_queued = 0
-		
-		remaining_ammo = base_ammo * attack_speed
-
-		if mimi_tween:
-			mimi_tween.kill()
-		mimi_tween = create_tween().set_loops(remaining_ammo)
-		mimi_tween.tween_callback(_shootLogic)
-		
-	else:
-		if mimi_tween:
-			mimi_tween.kill()
-		mimi_tween = create_tween().set_loops(remaining_ammo)
-		mimi_tween.tween_callback(_shootLogic)
-
-func _shootLogic() -> void:
-	if targetRef.isDead():
-		targetRef = null
-		if mimi_tween:
-			mimi_tween.kill()
-		_detectionCheck()
-		return
-	
-	var targetPos = targetRef.getPosition()
-	var mimiPos = getPosition() + 52 * Vector2.from_angle($Pivot.rotation + PI/2)
-	var targetAngle = getPosition().angle_to_point(targetPos)
-	
-	if mimiPos.distance_squared_to(targetPos) > detection_range * detection_range * 2.25:
-		targetRef = null
-		if mimi_tween:
-			mimi_tween.kill()
-		_detectionCheck()	
-		return
-	
-	var mimiRot = $Pivot.rotation + Sprite.rotation + PI/2
-	var angle_diff = -angle_difference(targetAngle, mimiRot)
-	var delay = max(1.5 * abs(angle_diff) / PI, 0.5) / attack_speed 
-	var short_delay = max(0.1 / attack_speed, 0.05)
-	
-	Sprite.position.y = 0
-	if movement_tween:
-		movement_tween.kill()
-	movement_tween.tween_property(Sprite, "rotation", angle_diff, delay)
-	movement_tween.tween_property(Sprite, "position:y", -3, short_delay).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 6, short_delay*2.0).as_relative()
-	movement_tween.tween_callback(_shootProj)
-	movement_tween.tween_property(Sprite, "position:y", -6, short_delay*2.0).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 3, short_delay).as_relative()
-	movement_tween.tween_interval(shoot_cooldown/attack_speed)
+	if not $AnimationPlayer.is_playing():
+	#	queued_rotation = newangle
+	#else:
+		rotation = newangle
+	queued_rotation = newangle
 
 func freeBullet(bullet_id : int) -> void:
 	bullets_inactive[bullet_id] = true
-	if shoot_queued > 0:
-		shoot_queued -= 1
-		_startShoot()
-
-func _shootProj() -> void:
-	if remaining_ammo > 0:
-		const offset = 10 
-		var mimiPos = getPosition() + (52+offset) * Vector2.from_angle($Pivot.rotation + PI/2)
+	if shoot_queued:
+		shoot_queued = false
+		_shootLogic(children_list[bullet_id])
 		
-		var bullet_used : Area2D = null
+
+func _shootProj(bullet_used : Area2D) -> void:
+	var mimiPos = Vector2(91.0, 101.0).rotated(rotation) + getPosition()
+	
+	bullet_used.updateParams(damage, knockback, bullet_size)
+	bullet_used.initBullet(mimiPos, rotation + -PI/2, 10.0)	
+	
+func _on_animation_player_animation_finished(anim_name: StringName) -> void:
+	if anim_name == "Spawn":
+		$CooldownTimer.start()
+		if queued_rotation != rotation:
+			rotation = queued_rotation
+
+func _on_cooldown_timer_timeout() -> void:
+	_shootLogic(null)
+	
+func _shootLogic(bullet_used : Area2D) -> void:
+	if not bullet_used:
 		for i in range(bullets_max):
 			if bullets_inactive[i]:
 				bullet_used = children_list[i]
 				break
 		if not bullet_used:
-			shoot_queued += 1
+			shoot_queued = true
 			return
-		remaining_ammo -= 1
-		bullet_used.updateParams(damage, knockback, bullet_size)
-		bullet_used.initBullet(mimiPos, Sprite.rotation, 10.0)	
-	else:
-		shoot_queued = 0
-		_outOfAmmo()
-
-func _outOfAmmo() -> void:
-	Sprite.position.y = 0
+	
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property(Sprite, "position:y", -3, 0.1).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 3, 0.1).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", -6, 0.2).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 6, 0.2).as_relative()
-	movement_tween.finished.connect(_finished)
+	movement_tween.tween_interval(0.5)
+	movement_tween.tween_callback(_shootProj.bind(bullet_used))
 
-func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == "Retract" and $CooldownTimer.is_stopped():
-		detectNode.set_deferred("monitoring", true)
-		shoot_queued = -1
-	
-func _finished() -> void:
-	detectNode.set_deferred("monitoring", false)
-	$AnimationPlayer.play("Retract")
-	$CooldownTimer.start(cooldown)
-
-
-func _on_cooldown_timer_timeout() -> void:
-	$AnimationPlayer.play_backwards("Retract")
+	$AnimationPlayer.play("Spawn")

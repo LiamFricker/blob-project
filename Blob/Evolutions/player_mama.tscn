@@ -1,21 +1,232 @@
-[gd_scene load_steps=5 format=3 uid="uid://citywadbhd328"]
+[gd_scene load_steps=10 format=3 uid="uid://citywadbhd328"]
 
 [ext_resource type="PackedScene" uid="uid://byw5ckl2eqwlm" path="res://Blob/base_evo_dmg.tscn" id="1_6ydkb"]
 [ext_resource type="Script" uid="uid://dtopg2bj35jok" path="res://Blob/Evolutions/player_mama.gd" id="2_sla81"]
 [ext_resource type="Texture2D" uid="uid://bgw4puwpv7fwi" path="res://Art/Cell/Evolutions/MamaVirus.png" id="3_gwqhe"]
+[ext_resource type="Texture2D" uid="uid://bstnj3yx76y5d" path="res://Art/Cell/MamaVirus_Blade.png" id="4_j0560"]
 [ext_resource type="Texture2D" uid="uid://wwfeeteqfrix" path="res://Art/Cell/Evolutions/MamaVirus_Weak.png" id="4_or1aw"]
+[ext_resource type="PackedScene" uid="uid://blvad8r1y76gf" path="res://Blob/blob_swim.tscn" id="6_j0560"]
+
+[sub_resource type="Animation" id="Animation_bbsvr"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(176, 143)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [-4.33547]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite/FakeRocket:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite/BladeL:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Sprite/BladeR:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_j0560"]
+resource_name = "Spawn"
+length = 1.9
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.65, 0.8, 1.1, 1.8, 1.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(176, 143), Vector2(91, 101), Vector2(91, 120), Vector2(91, 101), Vector2(91, 101), Vector2(-175, 97), Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.575, 0.65, 0.725, 0.8, 1.1, 1.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [-4.33547, -3.14159, -2.96706, -3.14159, -3.31613, -3.14159, -3.14159, -1.94427]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.1, 1.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1), Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite/FakeRocket:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.45, 0.575),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite/BladeL:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.65, 1.1),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, -0.523599, 0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Sprite/BladeR:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.65, 1.1),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.523599, 0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_v5j70"]
+_data = {
+&"RESET": SubResource("Animation_bbsvr"),
+&"Spawn": SubResource("Animation_j0560")
+}
 
 [node name="player_mama" instance=ExtResource("1_6ydkb")]
 script = ExtResource("2_sla81")
 detection_range = 250.0
-shoot_cooldown = 1.0
-cooldown = 20.0
+cooldown = 15.0
 bullet_size = 0.0
 attack_speed = 1.0
-base_ammo = 8
 
-[node name="Sprite2D" type="Sprite2D" parent="." index="0"]
+[node name="Sprite" type="Node2D" parent="." index="0"]
+modulate = Color(1, 1, 1, 0)
+position = Vector2(176, 143)
+rotation = -4.33547
+
+[node name="FakeRocket" type="Node2D" parent="Sprite" index="0"]
+position = Vector2(-1, 42)
+rotation = 1.5708
+
+[node name="Polygon2D" type="Polygon2D" parent="Sprite/FakeRocket" index="0"]
+color = Color(0.219608, 0.219608, 0.490196, 1)
+polygon = PackedVector2Array(-23, -18, 5, -4, 8, -7, 12, -7, 19, 0, 12, 7, 8, 7, 5, 4, -23, 18, -7, 2, -7, -2)
+
+[node name="Polygon2D4" type="Polygon2D" parent="Sprite/FakeRocket" index="1"]
+color = Color(0.164706, 0.443137, 0.717647, 1)
+polygon = PackedVector2Array(-16, -13, 5, -2, 8, -5, 12, -5, 17, 0, 12, 5, 8, 5, 5, 2, -16, 13, -5, 2, -5, -2)
+
+[node name="Polygon2D2" type="Polygon2D" parent="Sprite/FakeRocket" index="2"]
+position = Vector2(10, 0)
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(2, -2, 2, 2, -2, 2, -2, -2)
+
+[node name="Polygon2D3" type="Polygon2D" parent="Sprite/FakeRocket" index="3"]
+position = Vector2(10, 0)
+polygon = PackedVector2Array(2, -2, 2, 0, 0, 0, 0, -2)
+
+[node name="Cap" type="Sprite2D" parent="Sprite" index="1"]
+position = Vector2(0, -30)
+texture = ExtResource("4_or1aw")
+
+[node name="BladeL" type="Sprite2D" parent="Sprite" index="2"]
+position = Vector2(-19, 3)
+texture = ExtResource("4_j0560")
+offset = Vector2(0, 15)
+
+[node name="BladeR" type="Sprite2D" parent="Sprite" index="3"]
+position = Vector2(18, 2)
+scale = Vector2(-1, 1)
+texture = ExtResource("4_j0560")
+offset = Vector2(0, 15)
+
+[node name="Head" type="Sprite2D" parent="Sprite" index="4"]
+position = Vector2(-1, 0)
 texture = ExtResource("3_gwqhe")
 
-[node name="Sprite2D" type="Sprite2D" parent="Sprite2D" index="0"]
-texture = ExtResource("4_or1aw")
+[node name="Blob_Swim" parent="." index="1" instance=ExtResource("6_j0560")]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="2"]
+libraries = {
+&"": SubResource("AnimationLibrary_v5j70")
+}
+
+[node name="CooldownTimer" type="Timer" parent="." index="3"]
+wait_time = 15.0
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="CooldownTimer" to="." method="_on_cooldown_timer_timeout"]
