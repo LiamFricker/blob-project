@@ -3,16 +3,18 @@
 [ext_resource type="PackedScene" uid="uid://pa3ykex38v5s" path="res://Blob/base_spawned_attack.tscn" id="1_0l3hc"]
 [ext_resource type="Script" uid="uid://b3dqqp8aolde5" path="res://Blob/Evolutions/player_bullet.gd" id="2_ipbdr"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0l3hc"]
-size = Vector2(12, 10)
+[sub_resource type="CircleShape2D" id="CircleShape2D_ipbdr"]
 
 [node name="player_bullet" instance=ExtResource("1_0l3hc")]
 process_mode = 4
 visible = false
+collision_mask = 6
+monitoring = true
 script = ExtResource("2_ipbdr")
+attack_mods = [false, true, false, false, false]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." index="0"]
-shape = SubResource("RectangleShape2D_0l3hc")
+shape = SubResource("CircleShape2D_ipbdr")
 
 [node name="Sprite" type="Node2D" parent="." index="1"]
 
@@ -30,3 +32,6 @@ polygon = PackedVector2Array(2, -2, 2, 2, -2, 2, -2, -2)
 
 [node name="Polygon2D3" type="Polygon2D" parent="Sprite" index="3"]
 polygon = PackedVector2Array(2, -2, 2, 0, 0, 0, 0, -2)
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -18,6 +18,10 @@ var queued_rotation : float = 0.0
 
 #const bullet_id = 1022
 
+func _ready() -> void:
+	super()
+	$CooldownTimer.start(cooldown)
+
 func changeRot(newangle : float) -> void:
 	if not $AnimationPlayer.is_playing():
 	#	queued_rotation = newangle
@@ -29,18 +33,19 @@ func freeBullet(_bullet_id : int) -> void:
 	bullets_inactive[_bullet_id] = true
 	if shoot_queued:
 		shoot_queued = false
+		bullets_inactive[_bullet_id] = false
 		_shootLogic(children_list[_bullet_id])
 		
 
 func _shootProj(bullet_used : Area2D) -> void:
-	var mimiPos = Vector2(91.0, 101.0).rotated(rotation) + getPosition()
+	var mimiPos = Vector2(92.0, 59.0).rotated(rotation) + getPosition()
 	
 	bullet_used.updateParams(damage, knockback, bullet_size)
 	bullet_used.initBullet(mimiPos, rotation + -PI/2, 10.0)	
 	
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "Spawn":
-		$CooldownTimer.start()
+		$CooldownTimer.start(cooldown)
 		if queued_rotation != rotation:
 			rotation = queued_rotation
 
@@ -52,6 +57,7 @@ func _shootLogic(bullet_used : Area2D) -> void:
 		for i in range(bullets_max):
 			if bullets_inactive[i]:
 				bullet_used = children_list[i]
+				bullets_inactive[i] = false
 				break
 		if not bullet_used:
 			shoot_queued = true

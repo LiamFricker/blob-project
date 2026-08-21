@@ -124,11 +124,11 @@ texture = ExtResource("6_fcc0v")
 offset = Vector2(0, 1)
 
 [node name="Camera2D2" type="Camera2D" parent="InnerNode"]
+zoom = Vector2(2, 2)
 
 [node name="Camera2D" type="Camera2D" parent="InnerNode"]
 offset = Vector2(115, 0)
 enabled = false
-zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 
 [node name="Hurtbox" type="Area2D" parent="InnerNode"]

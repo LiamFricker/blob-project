@@ -49,34 +49,37 @@ radius = 24.0208
 process_mode = 4
 visible = false
 collision_mask = 2
+monitoring = true
 script = ExtResource("2_0ima2")
+attack_mods = [true, false, false, false, false]
 
 [node name="Sprite" type="Node2D" parent="." index="0"]
 
-[node name="Polygon2D" type="Polygon2D" parent="Sprite" index="0"]
+[node name="Node2D" type="Node2D" parent="Sprite" index="0"]
+
+[node name="Polygon2D" type="Polygon2D" parent="Sprite/Node2D" index="0"]
 color = Color(0.219608, 0.219608, 0.490196, 1)
 polygon = PackedVector2Array(-23, -18, 5, -4, 8, -7, 12, -7, 19, 0, 12, 7, 8, 7, 5, 4, -23, 18, -7, 2, -7, -2)
 
-[node name="Polygon2D4" type="Polygon2D" parent="Sprite" index="1"]
+[node name="Polygon2D4" type="Polygon2D" parent="Sprite/Node2D" index="1"]
 color = Color(0.164706, 0.443137, 0.717647, 1)
 polygon = PackedVector2Array(-16, -13, 5, -2, 8, -5, 12, -5, 17, 0, 12, 5, 8, 5, 5, 2, -16, 13, -5, 2, -5, -2)
 
-[node name="Polygon2D2" type="Polygon2D" parent="Sprite" index="2"]
+[node name="Polygon2D2" type="Polygon2D" parent="Sprite/Node2D" index="2"]
 position = Vector2(10, 0)
 color = Color(0, 0, 0, 1)
 polygon = PackedVector2Array(2, -2, 2, 2, -2, 2, -2, -2)
 
-[node name="Polygon2D3" type="Polygon2D" parent="Sprite" index="3"]
+[node name="Polygon2D3" type="Polygon2D" parent="Sprite/Node2D" index="3"]
 position = Vector2(10, 0)
 polygon = PackedVector2Array(2, -2, 2, 0, 0, 0, 0, -2)
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Sprite" index="4"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Sprite" index="1"]
 position = Vector2(-7, 0)
 scale = Vector2(0.25, 0.25)
 sprite_frames = SubResource("SpriteFrames_k4hpv")
 
 [node name="DetectionRange" type="Area2D" parent="." index="1"]
-visible = false
 collision_layer = 0
 collision_mask = 2
 monitorable = false
@@ -85,7 +88,6 @@ monitorable = false
 shape = SubResource("CircleShape2D_0ima2")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." index="2"]
-visible = false
 position = Vector2(-5, 0)
 shape = SubResource("CircleShape2D_gvlcq")
 

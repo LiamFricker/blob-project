@@ -172,6 +172,8 @@ bullet_size = 0.0
 attack_speed = 1.0
 bullet_id = 1022
 bullets_max = 3
+damage = 5
+knockback = 1
 
 [node name="Sprite" type="Node2D" parent="." index="0"]
 modulate = Color(1, 1, 1, 0)
@@ -226,6 +228,6 @@ libraries = {
 [node name="CooldownTimer" type="Timer" parent="." index="2"]
 wait_time = 15.0
 one_shot = true
-autostart = true
 
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
 [connection signal="timeout" from="CooldownTimer" to="." method="_on_cooldown_timer_timeout"]

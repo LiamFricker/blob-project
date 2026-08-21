@@ -44,8 +44,8 @@ func getDamage() -> float:
 func emitDamage(dmg_dealt : float) -> void:
 	damagedEnemy.emit(dmg_dealt)
 
-func connectDMG(call : Callable) -> void:
-	damagedEnemy.connect(call)
+func connectDMG(calla : Callable) -> void:
+	damagedEnemy.connect(calla)
 
 func addPosition(newpos) -> void:
 	position += newpos

@@ -16,13 +16,17 @@ var mimi_tween
 #const bullets_max = 10
 var bullets_inactive = [true, true, true, true, true, true, true, true, true, true]
 var shoot_queued : int = 0
-@export var bullet_size : float = 0.0
+@export var bullet_size : float = 1.0
 @export var attack_speed : float = 1.0
 
 @export var base_ammo : int = 8
 @onready var remaining_ammo : int = 8
 
 #const bullet_id = 1021
+
+func _ready() -> void:
+	super()
+	$CooldownTimer.start(cooldown)
 
 # Called when the node enters the scene tree for the first time.
 func _setSize() -> void:
@@ -62,58 +66,60 @@ func _detectionCheck() -> void:
 			_on_detection_range_body_entered(b)
 
 func _startShoot() -> void:
-	print("SHOOT BEGIN ", shoot_queued)
 	if shoot_queued == -1:
 		shoot_queued = 0
 		
 		remaining_ammo = ceil(base_ammo * attack_speed)
 
-		if mimi_tween:
-			mimi_tween.kill()
-		mimi_tween = create_tween().set_loops(remaining_ammo)
-		mimi_tween.tween_callback(_shootLogic)
+		#if mimi_tween:
+		#	mimi_tween.kill()
+		#mimi_tween = create_tween().set_loops(remaining_ammo)
+		#mimi_tween.tween_callback(_shootLogic)
+		_shootLogic()
 		
 	else:
-		if mimi_tween:
-			mimi_tween.kill()
-		mimi_tween = create_tween().set_loops(remaining_ammo)
-		mimi_tween.tween_callback(_shootLogic)
+		#if mimi_tween:
+		#	mimi_tween.kill()
+		#mimi_tween = create_tween().set_loops(remaining_ammo)
+		#mimi_tween.tween_callback(_shootLogic).set_delay()
+		_shootLogic()
 
 func _shootLogic() -> void:
 	if targetRef.isDead():
 		targetRef = null
-		if mimi_tween:
-			mimi_tween.kill()
+		#if mimi_tween:
+		#	mimi_tween.kill()
 		_detectionCheck()
 		return
 	
 	var targetPos = targetRef.getPosition()
 	var mimiPos = getPosition() + 52 * Vector2.from_angle($Pivot.rotation + PI/2)
-	var targetAngle = getPosition().angle_to_point(targetPos)
+	var targetAngle = mimiPos.angle_to_point(targetPos)
 	
 	if mimiPos.distance_squared_to(targetPos) > detection_range * detection_range * 2.25:
 		targetRef = null
-		if mimi_tween:
-			mimi_tween.kill()
+		#if mimi_tween:
+		#	mimi_tween.kill()
 		_detectionCheck()	
 		return
-	
+		
 	var mimiRot = $Pivot.rotation + Sprite.rotation + PI/2
 	var angle_diff = -angle_difference(targetAngle, mimiRot)
-	var delay = max(1.5 * abs(angle_diff) / PI, 0.5) / attack_speed 
-	var short_delay = max(0.1 / attack_speed, 0.05)
+	var delay = max(1.0 * abs(angle_diff) / PI, 0.5) / attack_speed 
+	var short_delay = max(0.075 / attack_speed, 0.05)
 	
-	Sprite.position.y = 0
+	#Sprite.position.y = 0
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property(Sprite, "rotation", angle_diff, delay)
+	movement_tween.tween_property(Sprite, "rotation", angle_diff, delay).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", -3, short_delay).as_relative()
-	movement_tween.tween_property(Sprite, "position:y", 6, short_delay*2.0).as_relative()
 	movement_tween.tween_callback(_shootProj)
+	movement_tween.tween_property(Sprite, "position:y", 6, short_delay*2.0).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", -6, short_delay*2.0).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", 3, short_delay).as_relative()
 	movement_tween.tween_interval(shoot_cooldown/attack_speed)
+	movement_tween.finished.connect(_shootLogic)
 
 func freeBullet(_bullet_id : int) -> void:
 	bullets_inactive[_bullet_id] = true
@@ -123,8 +129,9 @@ func freeBullet(_bullet_id : int) -> void:
 
 func _shootProj() -> void:
 	if remaining_ammo > 0:
-		const offset = 10 
-		var mimiPos = getPosition() + (52+offset) * Vector2.from_angle($Pivot.rotation + PI/2)
+		const offset = 20 
+		var pivotRot = $Pivot.rotation + PI/2
+		var mimiPos = getPosition() + (52) * Vector2.from_angle(pivotRot) + offset * Vector2.from_angle(pivotRot + Sprite.rotation)
 		
 		var bullet_used : Area2D = null
 		for i in range(bullets_max):
@@ -143,7 +150,7 @@ func _shootProj() -> void:
 		_outOfAmmo()
 
 func _outOfAmmo() -> void:
-	Sprite.position.y = 0
+	#Sprite.position.y = 0
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
@@ -160,6 +167,7 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 		print("START TIME")
 		detectNode.set_deferred("monitoring", true)
 		shoot_queued = -1
+		targetRef = null
 	
 func _finished() -> void:
 	detectNode.set_deferred("monitoring", false)
@@ -168,4 +176,4 @@ func _finished() -> void:
 
 
 func _on_cooldown_timer_timeout() -> void:
-	$AnimationPlayer.play_backwards("Retract")
+	$AnimationPlayer.play_backwards("Retract", 0.5)

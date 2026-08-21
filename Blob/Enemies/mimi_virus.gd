@@ -21,16 +21,19 @@ func _ready() -> void:
 	$InnerNode/DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
 
 func _on_detection_range_area_entered(area: Area2D) -> void:
-	if not kb_moving:
-		if not targetRef and area.getID() != ID:
-			targetRef = area.getParent()
+	if not kb_moving and not targetRef and area.getID() != ID:
+		targetRef = area.getParent()
+		if targetRef.isDead():
+			targetRef = null
+		else:
 			_startShoot()
 
 func _on_detection_range_body_entered(body: Node2D) -> void:
-	if not kb_moving:
-		if not targetRef and body.getID() != ID:
-			targetRef = body
-			_startShoot()
+	if not kb_moving and not targetRef and body.getID() != ID:
+		if body.isDead():
+			return
+		targetRef = body
+		_startShoot()
 
 func _knockbackEnd() -> void:
 	kb_moving = false
@@ -118,7 +121,6 @@ func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var areaID = area.getID()
 	if areaID == ID:
 		return
-	
 	var shieldBox = $InnerNode/ShieldBox
 	if not area.getAttackMod(0) and (shieldBox.has_overlapping_areas() or shieldBox.has_overlapping_bodies()):
 		var ID_list = []

@@ -3,7 +3,7 @@ extends "res://Blob/base_player_attack.gd"
 var lineArray : PackedVector2Array
 var state = 0
 #This shouldn't be here but w/e idc
-var mini = 0
+var minim = 0
 var rectState = 0
 var storedLen = 0
 var storedWid = 0
@@ -75,7 +75,7 @@ func createMesh() -> void:
 	var uvArr = PackedVector2Array()
 	uvArr.resize(points*2)
 	var points_max = points*2-1
-	mini = size
+	minim = size
 	
 	var angleL = lineArray[0].angle_to_point(lineArray[1])
 	var angleR = angleL
@@ -137,13 +137,13 @@ func _createCollisionShape(disLen : float, angleBef : float, angleAft : float, c
 	match rectState:
 		0:
 			#IF the diff is too small for a new collision shape
-			if disLen < mini:
-				mini -= disLen * 0.5
+			if disLen < minim:
+				minim -= disLen * 0.5
 				storedLen += disLen
 				storedWid += disLen * 0.5
 			#If the diff is too long for a circle to be affordable	
 			elif disLen > 0.75 * det_size:
-				mini = det_size*0.6
+				minim = det_size*0.6
 				var angleDiff = abs(angle_difference(angleBef, angleAft))
 				var minAngle = 0.1*(1.5 * det_size) / disLen
 				var offset = disLen + storedLen
@@ -178,7 +178,7 @@ func _createCollisionShape(disLen : float, angleBef : float, angleAft : float, c
 			#If the diff is too small for a rectangle to be affordable. Max sep with mins is ~2.75*size
 			
 			else:
-				mini = 0.6*det_size# * 1.5 + storedWid
+				minim = 0.6*det_size# * 1.5 + storedWid
 				var tempCol = CollisionShape2D.new()
 				var tempShape = CircleShape2D.new()
 				tempShape.radius = 0.8 * det_size + storedWid
@@ -269,7 +269,7 @@ func _createFinalShape(disLen : float, angleBef : float, currPos : Vector2):
 				call_deferred("add_child", tempCol)
 			#If the diff is too small for a rectangle to be affordable. Max sep with mins is ~2.75*size
 			else:
-			#elif disLen >= mini:
+			#elif disLen >= minim:
 				var tempCol = CollisionShape2D.new()
 				var tempShape = CircleShape2D.new()
 				tempShape.radius = 0.8 * det_size + storedWid

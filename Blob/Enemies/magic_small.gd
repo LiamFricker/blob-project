@@ -14,10 +14,13 @@ var targetRef : Node2D
 func _on_detection_range_area_entered(area: Area2D) -> void:
 	if not targetRef:
 		targetRef = area.getParent()
-		_jump_start()
+		if targetRef.isDead():
+			targetRef = null
+		else:
+			_jump_start()
 
 func _on_detection_range_body_entered(body: Node2D) -> void:
-	if not targetRef:
+	if not targetRef and not body.isDead():
 		targetRef = body
 		_jump_start()
 

@@ -2,7 +2,7 @@ extends "res://Blob/base_enemy_bullet.gd"
 
 var targetRef : Node2D
 var speed : float = 1.0
-const angle_max_diff : float = 0.6
+const angle_max_diff : float = 0.04
 #var angle_min_diff : float = 0.005
 
 var timer_tween 
@@ -64,6 +64,9 @@ func _turnRocket() -> void:
 		movement_tween.tween_interval(max_speed_time)
 	movement_tween.finished.connect(_turnRocket)
 
+func orphan(_pos : Vector2) -> void:
+	get_tree().create_timer(6.0).timeout.connect(_explode)
+
 func _process(delta : float) -> void:
 	position += 10 * speed * delta * Vector2.from_angle(rotation)
 
@@ -78,7 +81,6 @@ func _on_body_entered(_body: Node2D) -> void:
 		_explode()
 
 func _takeDamage() -> void:
-	print("dmg takennnn")
 	if SpriteRef:
 		if oscillate_tween:
 			oscillate_tween.kill()

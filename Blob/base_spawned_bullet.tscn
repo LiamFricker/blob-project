@@ -5,5 +5,3 @@
 
 [node name="base_spawned_bullet" instance=ExtResource("1_an78m")]
 script = ExtResource("2_gqn2o")
-
-[connection signal="damagedEnemy" from="." to="." method="_on_damaged_enemy"]

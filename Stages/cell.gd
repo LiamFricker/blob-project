@@ -1125,7 +1125,7 @@ func generateEvents() -> void:
 	var tempDim = MAP_DIMS[current_map]
 	var playerSpawn = Vector2(tempDim / 2, tempDim / 2) 
 	var event_ids = [[0],[0],[0],[0],[0],[0]]
-	var MAP_EVENTS;
+	var MAP_EVENTS
 	
 	#Need prob gonna need custom code for each event generation
 	#Let's worry about that later

@@ -7,7 +7,7 @@ func setBulletParams(pR : Node2D, bulID : int) -> void:
 	bullet_id = bulID
 
 func updateParams(dmg : float, kb : float, sz : float) -> void:
-	if size != sz:
+	if size != 0.0 or size != sz:
 		size = sz
 		_setSize()
 	damage = dmg
@@ -15,6 +15,3 @@ func updateParams(dmg : float, kb : float, sz : float) -> void:
 
 func _OnDeath() -> void:
 	parentRef.freeBullet(bullet_id)
-
-func _on_damaged_enemy(amt: float) -> void:
-	damagedEnemy.emit(amt)

@@ -705,6 +705,9 @@ func _on_damage_test_timer_timeout() -> void:
 		takeDamage(2)
 
 func _on_detection_radius_body_entered(body: Node2D) -> void:
+	if body.isDead():
+		return
+	
 	var bID = body.getID()
 	if bID == 0:	
 		_onPlayerDetection(body)
@@ -716,14 +719,18 @@ func _on_detection_radius_body_entered(body: Node2D) -> void:
 		_aggressionTrigger(false)
 
 func _on_detection_radius_area_entered(area: Area2D) -> void:
+	
 	if area.getID() != ID and not TargetRef:
-		#Disable the detection radius
-		print("Area Detected")
-		$InnerNode/DetectionRadius.set_deferred("monitoring", false)
 		TargetRef = area.getParent()
-		playerTarget = false
-		$PlayerDistanceCheck.start()
-		_aggressionTrigger(false)
+		if TargetRef.isDead():
+			TargetRef = null
+		else:
+			#Disable the detection radius
+			print("Area Detected")
+			$InnerNode/DetectionRadius.set_deferred("monitoring", false)
+			playerTarget = false
+			$PlayerDistanceCheck.start()
+			_aggressionTrigger(false)
 
 func _damageFormula(base_dmg : float) -> float:
 	return base_dmg

@@ -1,6 +1,7 @@
 extends "res://Blob/base_spawned_bullet.gd"
 
 var detection_range = 250
+@onready var detection_range_sqrd = detection_range * detection_range
 var movement_tween
 @onready var detectNode = $DetectionRange
 @onready var Sprite = $Sprite
@@ -8,8 +9,9 @@ var movement_tween
 
 var targetRef : Node2D
 var playerFollow : bool = true
-var speed : float = 1.0
-const angle_max_diff : float = 0.6
+var base_speed : float = 1.0
+var speed : float = 0.0
+const angle_max_diff : float = 0.03
 const max_speed_time = 0.1
 
 var timer_tween 
@@ -24,30 +26,42 @@ func _setSize() -> void:
 	newShape.radius = detection_range
 	$DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
 		
-func initBullet(start_pos : Vector2, rot : float, speed : float) -> void:
+func initBullet(start_pos : Vector2, rot : float, sd : float) -> void:
 	set_deferred("process_mode", PROCESS_MODE_INHERIT)
 	show()
+	attack_mods[1] = false
 	
 	position = start_pos
 	Sprite.rotation = rot
-	speed = speed
+	base_speed = sd
 	targetRef = null
 	playerFollow = true
 	$DetectionRange.set_deferred("monitoring", true)
 	Explosion.position = Vector2(-7, 0)
-	Explosion.modulate = Color.WHITE
+	Explosion.modulate = Color.LIGHT_BLUE
+	Explosion.frame = 0
+	$Sprite/Node2D.show()
 	
-	_startPlayerFollow()
+	if movement_tween:
+		movement_tween.kill()
+	movement_tween = create_tween()
+	movement_tween.tween_interval(max_speed_time)
+	movement_tween.finished.connect(_startPlayerFollow)
 	
 
 func _on_detection_range_area_entered(area: Area2D) -> void:
 	if (not targetRef or playerFollow) and area.getID() != 0:
 		targetRef = area.getParent()
+		if targetRef.isDead():
+			targetRef = null
+			return
 		playerFollow = false
 		_startFollow()
 
 func _on_detection_range_body_entered(body: Node2D) -> void:
 	if (not targetRef or playerFollow) and body.getID() != 0:
+		if body.isDead():
+			return
 		targetRef = body
 		playerFollow = false
 		_startFollow()
@@ -55,7 +69,7 @@ func _on_detection_range_body_entered(body: Node2D) -> void:
 func _detectionCheck() -> void:
 	if targetRef:	
 		var targetPos = targetRef.getPosition()
-		if getPosition().distance_squared_to(targetPos) <= detection_range * detection_range * 2.25:
+		if getPosition().distance_squared_to(targetPos) <= detection_range_sqrd * 2.25:
 			_startFollow()
 			return
 		targetRef = null
@@ -72,23 +86,29 @@ func _detectionCheck() -> void:
 
 #If too far from the player, just die
 func _startPlayerFollow() -> void:
+	#print("player following ", bullet_id)
 	var targetPos : Vector2 = parentRef.getPosition()
-	var targ_distance : float = getPosition().distance_to(targetPos)
+	var targ_distance : float = getPosition().distance_squared_to(targetPos)
+	var min_detect = detection_range_sqrd / 20.0
 	
-	if targ_distance > detection_range * 6:
+	if targ_distance > detection_range_sqrd * 36:
 		_explode()
-		return
-	elif targ_distance < detection_range / 4.0:
+		
+	elif targ_distance < min_detect:
+		speed = 0
 		if movement_tween:
 			movement_tween.kill()
 		movement_tween = create_tween()
-		movement_tween.tween_interval(max_speed_time)
+		movement_tween.tween_interval(max_speed_time*0.5)
 		movement_tween.finished.connect(_startPlayerFollow)
-		return
-	_turnRocket(targetPos)
-	movement_tween.finished.connect(_startPlayerFollow)
+	else:
+		
+		speed = base_speed * min(targ_distance / min_detect - 1.0, 1.0)
+		_turnRocket(targetPos)
+		movement_tween.finished.connect(_startPlayerFollow)
 
 func _startFollow() -> void:
+	#print("target following")
 	var targetPos : Vector2
 	if not targetRef or targetRef.isDead():
 		targetRef = null
@@ -97,8 +117,9 @@ func _startFollow() -> void:
 	else:
 		targetPos = targetRef.getPosition()
 	
-	var targ_distance : float = getPosition().distance_to(targetPos)
-	if targ_distance > detection_range * 6:
+	speed = base_speed
+	var targ_distance : float = getPosition().distance_squared_to(targetPos)
+	if targ_distance > detection_range_sqrd * 36:
 		targetRef = null
 		_detectionCheck()
 		return
@@ -108,7 +129,7 @@ func _startFollow() -> void:
 
 func _turnRocket(targetPos : Vector2) -> void: 
 	var targetAngle = getPosition().angle_to_point(targetPos)
-	var angle_diff = -angle_difference(targetAngle, rotation)
+	var angle_diff = -angle_difference(targetAngle, Sprite.rotation)
 	
 	var speed_time = max_speed_time
 	var total_diff = angle_max_diff * speed
@@ -122,7 +143,7 @@ func _turnRocket(targetPos : Vector2) -> void:
 		movement_tween.kill()
 	movement_tween = create_tween()
 	if angle_diff != 0.0:
-		movement_tween.tween_property(self, "rotation", angle_diff, speed_time).as_relative()
+		movement_tween.tween_property(Sprite, "rotation", angle_diff, speed_time).as_relative()
 		movement_tween.tween_interval(max_speed_time-speed_time)
 	else:
 		movement_tween.tween_interval(max_speed_time)
@@ -130,18 +151,22 @@ func _turnRocket(targetPos : Vector2) -> void:
 func _process(delta : float) -> void:
 	position += 10 * speed * delta * Vector2.from_angle(Sprite.rotation)
 
-func _on_area_entered(area: Area2D) -> void:
-	_explode()
+func _on_area_entered(_area: Area2D) -> void:
+	if base_speed != 0:	
+		_explode()
 
-func _on_body_entered(body: Node2D) -> void:
-	_explode()
+func _on_body_entered(_body: Node2D) -> void:
+	if base_speed != 0:
+		_explode()
 
 func _explode() -> void:
 	$DetectionRange.set_deferred("monitoring", false)
+	attack_mods[1] = true
 	targetRef = parentRef
 	playerFollow = false
 	speed = 0
-	Sprite.hide()
+	base_speed = 0
+	$Sprite/Node2D.hide()
 	Explosion.position = Vector2.ZERO
 	Explosion.play("default")
 	if movement_tween:
@@ -154,5 +179,6 @@ func _explode() -> void:
 
 func _OnDeath() -> void:
 	super()
+	Explosion.stop()
 	set_deferred("process_mode", PROCESS_MODE_DISABLED)
 	hide()
