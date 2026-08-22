@@ -15,12 +15,19 @@ func _damagedEnemy(amt : float) -> void:
 @export var knockback = 0
 @export var playerRef : Node2D
 
+@export var size = 1.0
+
 func _ready() -> void:
 	_setSize()
 	spawnFriend.emit(bullet_id, bullets_max, self)
 
 func _setSize() -> void:
 	pass
+	"""
+	for c in children_list:
+		c.size = size
+		c._setSize()
+	"""
 
 func getID() -> int:
 	return playerRef.getID()

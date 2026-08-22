@@ -23,6 +23,7 @@ orbReference = NodePath("orb_spawner")
 
 [node name="Sprite2D2" type="Sprite2D" parent="."]
 modulate = Color(1, 1, 0.619608, 1)
+z_index = -2
 scale = Vector2(15, 15)
 texture = ExtResource("3_wq666")
 

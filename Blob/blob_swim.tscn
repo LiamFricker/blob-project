@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://blvad8r1y76gf"]
+[gd_scene load_steps=17 format=3 uid="uid://blvad8r1y76gf"]
 
 [ext_resource type="Script" uid="uid://4u6uw0h6fqhw" path="res://Blob/blob_swim.gd" id="1_560oe"]
 [ext_resource type="Texture2D" uid="uid://6r00aigasy26" path="res://Art/Cell/Glimmer.png" id="2_02q5b"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://nkptmcawvx1e" path="res://Art/Cell/Evolutions/X_indicator.png" id="6_fcc0v"]
 [ext_resource type="PackedScene" uid="uid://citywadbhd328" path="res://Blob/Evolutions/player_mama.tscn" id="6_y1243"]
 [ext_resource type="PackedScene" uid="uid://dg88vj8yfbw4t" path="res://Blob/organelles.tscn" id="7_fcc0v"]
+[ext_resource type="PackedScene" uid="uid://b11rxy80sx20t" path="res://Blob/Evolutions/player_yaai.tscn" id="7_y1243"]
 [ext_resource type="Script" uid="uid://cekx7gkpetryd" path="res://Blob/player_attachments.gd" id="10_5yg2x"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8tadd"]
@@ -74,12 +75,22 @@ playerRef = NodePath("../..")
 buff_type = 1
 playerRef = NodePath("../..")
 
-[node name="player_mimi" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("5_ns6ge")]
-bullet_id = 1021
-bullets_max = 10
-playerRef = NodePath("../..")
+[node name="player_mimi" parent="InnerNode" instance=ExtResource("5_ns6ge")]
+visible = false
+bullet_id = 0
+bullets_max = 0
+damage = 0
+knockback = 0
 
-[node name="player_mama" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("6_y1243")]
+[node name="player_mama" parent="InnerNode" instance=ExtResource("6_y1243")]
+process_mode = 4
+visible = false
+bullet_id = 0
+bullets_max = 0
+damage = 0
+knockback = 0
+
+[node name="player_yaai" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("7_y1243")]
 playerRef = NodePath("../..")
 
 [node name="Sprite" type="Node2D" parent="InnerNode"]
@@ -179,6 +190,8 @@ one_shot = true
 [connection signal="spawnFriend" from="InnerNode/player_mimi" to="." method="_spawnFriend"]
 [connection signal="damagedEnemy" from="InnerNode/player_mama" to="." method="damagedEnemy"]
 [connection signal="spawnFriend" from="InnerNode/player_mama" to="." method="_spawnFriend"]
+[connection signal="damagedEnemy" from="InnerNode/player_yaai" to="." method="damagedEnemy"]
+[connection signal="spawnFriend" from="InnerNode/player_yaai" to="." method="_spawnFriend"]
 [connection signal="damagedEnemy" from="InnerNode/Sprite/Tentacles" to="." method="damagedEnemy"]
 [connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]

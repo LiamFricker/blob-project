@@ -104,7 +104,6 @@ func _throwOrbital(distance : int) -> void:
 		$UpdateTimer.stop()
 		return
 	orbitals_dead += 1
-	orbitals_alive -= 1
 	var travelAng : float = previous_angles[distance] + 0.25 + randf_range(0, 5.783)
 	var travelPos : Vector2
 	
@@ -122,6 +121,7 @@ func _throwOrbital(distance : int) -> void:
 	
 	previous_angles[distance] = travelAng
 	_matchAngleToOrbital(travelAng, travelPos)
+	orbitals_alive -= 1
 
 func _handleRedDeath() -> void:
 	dot_tween.tween_property(Sprite, "modulate", Color(1.0, 0, 0, 0), 1.0).set_delay(2.0)

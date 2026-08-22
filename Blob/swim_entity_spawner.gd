@@ -8,6 +8,7 @@ var trail_deto = preload("res://Blob/Evolutions/trail_detonation.tscn")
 var trail_bomb = preload("res://Blob/Evolutions/trail_bombs.tscn")
 var mimi_bullet = preload("res://Blob/Evolutions/player_bullet.tscn")
 var mama_bullet = preload("res://Blob/Evolutions/player_rocket.tscn")
+var yaai_bullet = preload("res://Blob/Evolutions/player_yaai_mini.tscn")
 
 var stageLevel = 0
 var sizeLevel = 0
@@ -208,7 +209,7 @@ func _loadEntity(path : String, weight : int, weightTotal : int, biome = 4, isRe
 #Weight = -1 if you don't want to go through a random weight system
 #Thanks for not explaining it idiot. 
 
-func spawnFriend(ID : int, pos : Vector2, _kwargs : Array = []) -> Node2D:
+func spawnFriend(ID : int, pos : Vector2, _kwargs : Array = []) -> Node2D: #unattached : bool = true, 
 	var tempEntity = Node2D
 	
 	#This is for testing cause I cba:	
@@ -229,11 +230,14 @@ func spawnFriend(ID : int, pos : Vector2, _kwargs : Array = []) -> Node2D:
 			tempEntity = mimi_bullet.instantiate()
 		1022:
 			tempEntity = mama_bullet.instantiate()
+		1023:
+			tempEntity = yaai_bullet.instantiate()
 			
 		_:
 			tempEntity = shockwave.instantiate()
 	tempEntity.position = pos
 	
+	#if unattached:	
 	call_deferred("add_child", tempEntity)
 	#add_child(tempEntity)
 	return tempEntity

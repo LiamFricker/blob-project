@@ -34,7 +34,7 @@ func initSelf(currPos : Vector2, finalPos : Vector2, currRot : float, currIndex 
 	movement_tween = create_tween()
 	movement_tween.tween_property(self, "position", finalPos, duration).from(currPos)
 	movement_tween.parallel().tween_property($Sprite/Tiny, "position:y", -40, duration)
-	movement_tween.parallel().tween_property(self, "rotation", 0, duration * 0.25).from(currRot)
+	movement_tween.parallel().tween_property($Sprite, "rotation", 0, duration * 0.25).from(currRot)
 	movement_tween.finished.connect(endInit)
 	
 func endInit() -> void:
