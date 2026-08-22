@@ -43,16 +43,16 @@ func initBullet(currPos : Vector2, finalPos : Vector2, currRot : float, progress
 	changed = false
 	lifetime = lt
 	
-	var duration = currPos.distance_to(finalPos) / 50.0
-	currRot = angle_difference(currRot, 0)
+	var duration = currPos.distance_to(finalPos) / 150.0
+	currRot = angle_difference(currRot+2*PI, 0)
 	
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
 	print(currPos, " ", finalPos)
 	movement_tween.tween_property(self, "position", finalPos, duration).from(currPos)
-	movement_tween.parallel().tween_property($Sprite/Tiny, "position:y", -40, duration)
-	movement_tween.parallel().tween_property($Sprite, "rotation", 0, duration * 0.5).from(currRot)
+	movement_tween.parallel().tween_property($Sprite/Tiny, "position:y", -40, duration)#.set_delay(duration*0.25)
+	movement_tween.parallel().tween_property($Sprite, "rotation", 0, duration * 0.6).from(currRot)
 	movement_tween.finished.connect(endInit)	
 
 func _startOscillate(progress : float) -> void:
@@ -64,13 +64,14 @@ func _startOscillate(progress : float) -> void:
 		
 		if progress < 0.25:
 			var prog_reduc = progress/0.25
-			var osc_reduc_time = osc_time * (1.0 - prog_reduc)
-			var transp_reduc = (Color.WHITE).lerp(Color(1,1,1,0), prog_reduc)
-			var white_reduc = (Color.WHITE).lerp(Color(1,1,1,0), 1.0-prog_reduc)
-			oscillate_tween.tween_property($Sprite/Tiny/Black, "modulate:a", 0, osc_reduc_time).from(transp_reduc)
-			oscillate_tween.parallel().tween_property($Sprite/Full/Black, "modulate:a", 0, osc_reduc_time).from(transp_reduc)
-			oscillate_tween.parallel().tween_property($Sprite/Tiny/White, "modulate:a", 1, osc_reduc_time).from(white_reduc)
-			oscillate_tween.parallel().tween_property($Sprite/Full/White, "modulate:a", 1, osc_reduc_time).from(white_reduc)
+			var rev_reduc = (1.0 - prog_reduc)
+			var osc_reduc_time = osc_time * rev_reduc
+			#var transp_reduc = (Color.WHITE).lerp(Color(1,1,1,0), prog_reduc)
+			
+			oscillate_tween.tween_property($Sprite/Tiny/Black, "modulate:a", 0, osc_reduc_time).from(rev_reduc)
+			oscillate_tween.parallel().tween_property($Sprite/Full/Black, "modulate:a", 0, osc_reduc_time).from(rev_reduc)
+			oscillate_tween.parallel().tween_property($Sprite/Tiny/White, "modulate:a", 1, osc_reduc_time).from(prog_reduc)
+			oscillate_tween.parallel().tween_property($Sprite/Full/White, "modulate:a", 1, osc_reduc_time).from(prog_reduc)
 			oscillate_tween.tween_interval(osc_time)
 			
 		else:
@@ -80,13 +81,14 @@ func _startOscillate(progress : float) -> void:
 			oscillate_tween.tween_interval(osc_reduc_time)
 	if progress < 0.75:	
 		var prog_reduc = (progress-0.5)/0.25
-		var osc_reduc_time = osc_time * (1.0 - prog_reduc)
-		var transp_reduc = (Color.WHITE).lerp(Color(1,1,1,0), prog_reduc)
-		var white_reduc = (Color.WHITE).lerp(Color(1,1,1,0), 1.0-prog_reduc)
-		oscillate_tween.tween_property($Sprite/Tiny/Black, "modulate:a", 1, osc_reduc_time).from(white_reduc)
-		oscillate_tween.parallel().tween_property($Sprite/Full/Black, "modulate:a", 1, osc_reduc_time).from(white_reduc)
-		oscillate_tween.parallel().tween_property($Sprite/Tiny/White, "modulate:a", 0, osc_reduc_time).from(transp_reduc)
-		oscillate_tween.parallel().tween_property($Sprite/Full/White, "modulate:a", 0, osc_reduc_time).from(transp_reduc)
+		var rev_reduc = (1.0 - prog_reduc)
+		var osc_reduc_time = osc_time * rev_reduc
+		#var transp_reduc = (Color.WHITE).lerp(Color(1,1,1,0), prog_reduc)
+		#var white_reduc = (Color.WHITE).lerp(Color(1,1,1,0), 1.0-prog_reduc)
+		oscillate_tween.tween_property($Sprite/Tiny/Black, "modulate:a", 1, osc_reduc_time).from(prog_reduc)
+		oscillate_tween.parallel().tween_property($Sprite/Full/Black, "modulate:a", 1, osc_reduc_time).from(prog_reduc)
+		oscillate_tween.parallel().tween_property($Sprite/Tiny/White, "modulate:a", 0, osc_reduc_time).from(rev_reduc)
+		oscillate_tween.parallel().tween_property($Sprite/Full/White, "modulate:a", 0, osc_reduc_time).from(rev_reduc)
 		oscillate_tween.tween_interval(osc_time)
 	else:
 		$Sprite/Tiny/Black.modulate = Color.WHITE

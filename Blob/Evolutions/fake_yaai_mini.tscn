@@ -23,10 +23,10 @@ tracks/1/path = NodePath("Sprite/Tiny:rotation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 1),
+"times": PackedFloat32Array(1, 1.7),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [-6.28319, 0.0]
+"values": [0.0, -6.28319]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ajxtc"]
@@ -40,7 +40,6 @@ script = ExtResource("1_ajxtc")
 [node name="Sprite" type="Node2D" parent="."]
 
 [node name="Tiny" type="Node2D" parent="Sprite"]
-rotation = -6.28319
 scale = Vector2(1e-05, 1e-05)
 
 [node name="Black" type="Node2D" parent="Sprite/Tiny"]

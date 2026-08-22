@@ -22,6 +22,9 @@ var shoot_queued : int = 0
 @export var base_ammo : int = 8
 @onready var remaining_ammo : int = 8
 
+#Increases aiming speed to help with aiming at high speeds
+@export var move_speed : float = 1.0
+
 #const bullet_id = 1021
 
 func _ready() -> void:
@@ -31,8 +34,10 @@ func _ready() -> void:
 # Called when the node enters the scene tree for the first time.
 func _setSize() -> void:
 	var newShape = CircleShape2D.new()
-	newShape.radius = detection_range
+	newShape.radius = detection_range * size
 	$DetectionRange/CollisionShape2D.set_deferred("shape", newShape)
+	
+	$Pivot.scale = size * Vector2(1,1)
 
 func changeRot(newangle : float) -> void:
 	$Pivot.rotation = newangle
@@ -50,7 +55,7 @@ func _on_detection_range_body_entered(body: Node2D) -> void:
 func _detectionCheck() -> void:
 	if targetRef:	
 		var targetPos = targetRef.getPosition()
-		var mimiPos = getPosition() + 52 * Vector2.from_angle($Pivot.rotation + PI/2)
+		var mimiPos = getPosition() + 52 * size * Vector2.from_angle($Pivot.rotation + PI/2)
 		if mimiPos.distance_squared_to(targetPos) <= detection_range * detection_range * 2.25:
 			_startShoot()
 			return
@@ -112,7 +117,7 @@ func _shootLogic() -> void:
 	if movement_tween:
 		movement_tween.kill()
 	movement_tween = create_tween()
-	movement_tween.tween_property(Sprite, "rotation", angle_diff, delay).as_relative()
+	movement_tween.tween_property(Sprite, "rotation", angle_diff, delay/move_speed).as_relative()
 	movement_tween.tween_property(Sprite, "position:y", -3, short_delay).as_relative()
 	movement_tween.tween_callback(_shootProj)
 	movement_tween.tween_property(Sprite, "position:y", 6, short_delay*2.0).as_relative()
@@ -144,7 +149,7 @@ func _shootProj() -> void:
 			return
 		remaining_ammo -= 1
 		bullet_used.updateParams(damage, knockback, bullet_size)
-		bullet_used.initBullet(mimiPos, Sprite.rotation + PI/2, 10.0)	
+		bullet_used.initBullet(mimiPos, $Pivot.rotation + Sprite.rotation + PI/2, move_speed*10.0)	
 	else:
 		shoot_queued = 0
 		_outOfAmmo()
@@ -163,8 +168,7 @@ func _outOfAmmo() -> void:
 	movement_tween.finished.connect(_finished)
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == "Retract" and $CooldownTimer.is_stopped():
-		print("START TIME")
+	if anim_name == "Reretract":# and $CooldownTimer.is_stopped():
 		detectNode.set_deferred("monitoring", true)
 		shoot_queued = -1
 		targetRef = null
@@ -176,4 +180,4 @@ func _finished() -> void:
 
 
 func _on_cooldown_timer_timeout() -> void:
-	$AnimationPlayer.play_backwards("Retract", 0.5)
+	$AnimationPlayer.play("Reretract", 0.5)

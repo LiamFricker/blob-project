@@ -56,7 +56,7 @@ func _matchAngleToOrbital(travelAng : float, travelPos : Vector2) -> void:
 			var best_orb_node = orb_node
 			
 			for i in range(orbitals_alive - 1):
-				orb_id = orbital_states.find(2, orb_id)
+				orb_id = orbital_states.find(2, orb_id+1)
 				orb_node = get_node(orb_path + str(orb_id+1))
 				orb_angle = orb_node.position.angle()
 				#orb_angles[orb_id] = orb_angle

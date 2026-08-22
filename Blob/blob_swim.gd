@@ -262,11 +262,15 @@ Things to do:
 
 """
 
+#Change this to an array later
 var mimi : bool = true
 @onready var mimi_ref : Node2D = $InnerNode/player_mimi 
 
 var mama : bool = true
 @onready var mama_ref : Node2D = $InnerNode/player_mama 
+
+var yaai : bool = true
+@onready var yaai_ref : Node2D = $InnerNode/player_yaai
 
 const spawnerID = -255
 var virus_level : float = 0.0
@@ -1515,8 +1519,14 @@ func changeRot(new_ang : float) -> void:
 	$InnerNode/Pivot.rotation = new_ang
 	if primary_ability == SPEED_BOOST:
 		sb_ref.changeRot(new_ang)
+	
+	#Need to make this a for loop
 	if mimi:
 		mimi_ref.changeRot(new_ang)
+	if mama:
+		mama_ref.changeRot(new_ang)
+	if yaai:
+		yaai_ref.changeRot(new_ang)
 
 #This doesn't account for bonus dmg and weakenesses but idgaf
 func getDamage() -> float:

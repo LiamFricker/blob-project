@@ -75,22 +75,22 @@ playerRef = NodePath("../..")
 buff_type = 1
 playerRef = NodePath("../..")
 
-[node name="player_mimi" parent="InnerNode" instance=ExtResource("5_ns6ge")]
+[node name="player_mimi" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("5_ns6ge")]
 visible = false
-bullet_id = 0
-bullets_max = 0
-damage = 0
-knockback = 0
+cooldown = 2.0
+bullet_id = 1021
+bullets_max = 10
+damage = 2
+playerRef = NodePath("../..")
 
-[node name="player_mama" parent="InnerNode" instance=ExtResource("6_y1243")]
-process_mode = 4
-visible = false
-bullet_id = 0
-bullets_max = 0
-damage = 0
-knockback = 0
+[node name="player_mama" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("6_y1243")]
+cooldown = 2.0
+knockback = 2
+playerRef = NodePath("../..")
 
 [node name="player_yaai" parent="InnerNode" node_paths=PackedStringArray("playerRef") instance=ExtResource("7_y1243")]
+process_mode = 4
+visible = false
 playerRef = NodePath("../..")
 
 [node name="Sprite" type="Node2D" parent="InnerNode"]

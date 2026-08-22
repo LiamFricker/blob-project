@@ -74,7 +74,8 @@ position = Vector2(-334, -214)
 health_max = 2.0
 
 [node name="mama_virus" parent="." instance=ExtResource("10_0cxo5")]
-position = Vector2(459, -17)
+position = Vector2(459, 0)
+health_max = 50.0
 
 [node name="mama_virus2" parent="." instance=ExtResource("10_0cxo5")]
 position = Vector2(406, 445)
