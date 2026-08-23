@@ -91,7 +91,7 @@ func _startPlayerFollow() -> void:
 	var targ_distance : float = getPosition().distance_squared_to(targetPos)
 	var min_detect = detection_range_sqrd / 20.0
 	
-	if targ_distance > detection_range_sqrd * 36:
+	if targ_distance > detection_range_sqrd * 16:
 		_explode()
 		
 	elif targ_distance < min_detect:
@@ -119,7 +119,7 @@ func _startFollow() -> void:
 	
 	speed = base_speed
 	var targ_distance : float = getPosition().distance_squared_to(targetPos)
-	if targ_distance > detection_range_sqrd * 36:
+	if targ_distance > detection_range_sqrd * 16:
 		targetRef = null
 		_detectionCheck()
 		return

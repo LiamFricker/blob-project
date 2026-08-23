@@ -22,6 +22,9 @@ func _ready() -> void:
 	super()
 	$CooldownTimer.start(cooldown)
 
+func _setSize() -> void:
+	$Sprite.scale = size * Vector2(1,1)
+
 func changeRot(newangle : float) -> void:
 	if not $AnimationPlayer.is_playing():
 	#	queued_rotation = newangle
@@ -38,7 +41,7 @@ func freeBullet(_bullet_id : int) -> void:
 		
 
 func _shootProj(bullet_used : Area2D) -> void:
-	var mimiPos = Vector2(92.0, 59.0).rotated(rotation) + getPosition()
+	var mimiPos = size * Vector2(92.0, 59.0).rotated(rotation) + getPosition()
 	
 	bullet_used.updateParams(damage, knockback, bullet_size)
 	bullet_used.initBullet(mimiPos, rotation + -PI/2, 10.0)	

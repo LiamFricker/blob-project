@@ -25,7 +25,7 @@ var base_knockback : float = 1.0
 var attack_mods : Array = [false, false, false, false, false]
 
 var damage_dealt : float = 0.0
-var damage_dealt_check : float = 0.0
+#var damage_dealt_check : float = 0.0
 
 var energy = 100
 var max_energy = 100
@@ -262,6 +262,8 @@ Things to do:
 
 """
 
+#Bullet Spawners Vars
+
 #Change this to an array later
 var mimi : bool = true
 @onready var mimi_ref : Node2D = $InnerNode/player_mimi 
@@ -271,6 +273,22 @@ var mama : bool = true
 
 var yaai : bool = true
 @onready var yaai_ref : Node2D = $InnerNode/player_yaai
+
+#Defensive Vars:
+var defensive_flags : Array = [true, true, true, true]
+
+var cell_membrane_amount : float = 2.0
+var cell_wall_murein_max : float = 5.0
+var cwm_amount : float = 0.0
+
+var cell_wall_cellulose_max : float = 5.0
+var cwc_damage_check : float = 0.0
+
+var cell_wall_chitin_max : float = 5.0
+var cwch_amount : float = 0.0
+var cwch_tween
+
+
 
 const spawnerID = -255
 var virus_level : float = 0.0
@@ -310,6 +328,13 @@ func _get_input() -> Dictionary:
 
 func _ready() -> void:
 	_frogReset()
+	
+	if defensive_flags[3]:
+		if cwch_tween:
+			cwch_tween.kill()
+		cwch_tween = create_tween()
+		cwch_tween.tween_property(self, cwch_amount, cell_wall_chitin_max, cell_wall_chitin_max).from(0)
+	
 	"""
 	print("START")
 	tween4 = create_tween()
@@ -1680,8 +1705,29 @@ func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var dmg = body.getDamage()
 	if body.getID() != 0 and dmg > 0:
 		takeDamage(dmg, body.getPosition(), body.getKnockback())
+
+
 #Damage after damage reduction reset shields as well 
 func _damageTakenFormula(damageTaken : float) -> float:
+	if defensive_flags[0]:
+		damageTaken -= cell_membrane_amount
+	if defensive_flags[1]:
+		if cwm_amount > 0.5 and damageTaken > 0:
+			damageTaken -= min(cell_wall_murein_max, cwm_amount)
+			cwm_amount = 0
+	if defensive_flags[2]:
+		var cwc_dmg_amt = damage_dealt - cwc_damage_check
+		if cwc_dmg_amt > 0.5 and damageTaken > 0:
+			damageTaken -= min(cell_wall_cellulose_max, damage_dealt - cwc_damage_check)
+			cwc_damage_check = damage_dealt
+	if defensive_flags[3]:
+		if cwch_amount > 0.5 and damageTaken > 0:
+			damageTaken -= min(cell_wall_chitin_max, cwch_amount)
+			if cwch_tween:
+				cwch_tween.kill()
+			cwch_tween = create_tween()
+			cwch_tween.tween_property(self, cwch_amount, cell_wall_chitin_max, cell_wall_chitin_max).from(0)
+	
 	return damageTaken
 
 func takeDamage(dmg : float, dmgDir = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
@@ -1692,6 +1738,8 @@ func takeDamage(dmg : float, dmgDir = Vector2.ZERO, kb = 1.0, _kwargs = []) -> v
 	
 	#Damage after damage reduction reset shields as well 
 	var damage_taken = _damageTakenFormula(dmg) #_damageTakenFormula()
+	if damage_taken <= 0:
+		return
 	
 	#If energy is 0, need to trigger some sort of death punishment. Let the player survive 1 hit at 0 first.
 	var energy_lost = min(damage_taken, energy)
