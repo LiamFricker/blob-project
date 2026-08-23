@@ -36,7 +36,7 @@ func getID() -> int:
 func getParent() -> Node2D:
 	return playerRef
 
-func addPos(newpos : float) -> void:
+func addPosition(newpos : float) -> void:
 	for c in children_list:
 		c.addPosition(newpos)
 

@@ -264,7 +264,11 @@ Things to do:
 
 #Bullet Spawners Vars
 
-#Change this to an array later
+const bullet_spawner_flags_max = 3
+var bullet_spawner_flags : Array = [true, true, true]
+@onready var bullet_spawners : Array = [$InnerNode/player_mimi, $InnerNode/player_mama, $InnerNode/player_yaai]
+
+"""
 var mimi : bool = true
 @onready var mimi_ref : Node2D = $InnerNode/player_mimi 
 
@@ -273,6 +277,7 @@ var mama : bool = true
 
 var yaai : bool = true
 @onready var yaai_ref : Node2D = $InnerNode/player_yaai
+"""
 
 #Defensive Vars:
 var defensive_flags : Array = [true, true, true, true]
@@ -1412,11 +1417,9 @@ func changePosition(newpos : Vector2, dims : Vector2) -> Vector2:
 		#if move_abil_mod == 0: 
 		#	pass
 	
-	if mimi:
-		mimi_ref.addPosition(off)
-		
-	if mama:
-		mama_ref.addPosition(off)
+	for i in range(bullet_spawner_flags_max):
+		if bullet_spawner_flags[i]:
+			bullet_spawners[i].addPosition(off)
 	
 	call_deferred("changeCamera")
 	return off
@@ -1542,16 +1545,14 @@ func changeRot(new_ang : float) -> void:
 	charge_angle = new_ang
 	sprite_ref.rotation = new_ang
 	$InnerNode/Pivot.rotation = new_ang
+	
 	if primary_ability == SPEED_BOOST:
 		sb_ref.changeRot(new_ang)
 	
 	#Need to make this a for loop
-	if mimi:
-		mimi_ref.changeRot(new_ang)
-	if mama:
-		mama_ref.changeRot(new_ang)
-	if yaai:
-		yaai_ref.changeRot(new_ang)
+	for i in range(bullet_spawner_flags_max):
+		if bullet_spawner_flags[i]:
+			bullet_spawners[i].changeRot(new_ang)
 
 #This doesn't account for bonus dmg and weakenesses but idgaf
 func getDamage() -> float:
