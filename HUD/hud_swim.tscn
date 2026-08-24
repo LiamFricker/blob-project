@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://qora73oubnt4"]
+[gd_scene load_steps=29 format=3 uid="uid://qora73oubnt4"]
 
 [ext_resource type="Script" uid="uid://dicwyhdaqa76u" path="res://HUD/hud_swim.gd" id="1_7fxp5"]
 [ext_resource type="PackedScene" uid="uid://dbo34n1yd6yo" path="res://HUD/upgrade_container.tscn" id="2_7a5bb"]
@@ -14,6 +14,7 @@
 [ext_resource type="SpriteFrames" uid="uid://bl70ebc4quodk" path="res://Art/Cell/UpgradeNote-3.tres" id="10_u504b"]
 [ext_resource type="PackedScene" uid="uid://cl8ea8lybsgao" path="res://HUD/tab_button.tscn" id="11_mlqip"]
 [ext_resource type="PackedScene" uid="uid://bbmamg4bc74wy" path="res://HUD/upgrade_tab.tscn" id="12_l8lqh"]
+[ext_resource type="PackedScene" uid="uid://3svd3orbjuwh" path="res://HUD/currencies.tscn" id="12_mlqip"]
 [ext_resource type="Texture2D" uid="uid://mb375binidtn" path="res://Art/Cell/HUD/DNA_Big_Paneling.png" id="12_u6o1b"]
 [ext_resource type="Theme" uid="uid://cu0uwbxbmwaof" path="res://HUD/upgradeTabButtonTheme.tres" id="19_fns87"]
 [ext_resource type="Shader" uid="uid://8sk83drha550" path="res://HUD/tab_bg_gradient.gdshader" id="19_uivk0"]
@@ -66,6 +67,8 @@ upgradeFrames2 = ExtResource("9_aqmfv")
 upgradeFrames3 = ExtResource("10_u504b")
 upgradeTabButton = ExtResource("11_mlqip")
 upgradeTabContainer = ExtResource("12_l8lqh")
+
+[node name="Currencies" parent="." instance=ExtResource("12_mlqip")]
 
 [node name="FullUpgradeContainer" type="Control" parent="."]
 layout_mode = 3

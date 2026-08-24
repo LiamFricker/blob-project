@@ -1,0 +1,164 @@
+[gd_scene load_steps=12 format=3 uid="uid://3svd3orbjuwh"]
+
+[ext_resource type="Script" uid="uid://it6taww1dg44" path="res://HUD/currencies.gd" id="1_12eic"]
+[ext_resource type="Shader" uid="uid://dbqbkrow0t4ft" path="res://HUD/currencies_bg_gradient.gdshader" id="1_i7wmu"]
+[ext_resource type="Texture2D" uid="uid://clggqs5in87d6" path="res://Art/Cell/HUD/energy0.png" id="1_px50b"]
+[ext_resource type="Texture2D" uid="uid://bcmsxcrtpdhj7" path="res://Art/Cell/HUD/energy1.png" id="2_i7wmu"]
+[ext_resource type="Texture2D" uid="uid://xdiut42omqhd" path="res://Art/Cell/HUD/size.png" id="2_j34uj"]
+[ext_resource type="Texture2D" uid="uid://obejewkhtd6h" path="res://Art/Cell/HUD/energy2.png" id="3_x47rp"]
+[ext_resource type="Script" uid="uid://c1hhj2g715g7q" path="res://HUD/energy_gradient_handler.gd" id="4_1drba"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_x47rp"]
+shader = ExtResource("1_i7wmu")
+shader_parameter/start_color = Color(1, 1, 1, 0.635294)
+shader_parameter/end_color = Color(0, 0, 0, 0)
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_12eic"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_i7wmu"]
+shader = ExtResource("1_i7wmu")
+shader_parameter/start_color = Color(0.82, 0.82, 0.7298, 0.635294)
+shader_parameter/end_color = Color(0, 0, 0, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_12eic"]
+shader = ExtResource("1_i7wmu")
+shader_parameter/start_color = Color(0.697, 0.82, 0.82, 0.635294)
+shader_parameter/end_color = Color(0, 0, 0, 0)
+
+[node name="Currencies" type="Control"]
+layout_mode = 3
+anchor_top = 0.05
+anchor_right = 0.2
+anchor_bottom = 0.21
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_12eic")
+
+[node name="Background" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_x47rp")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("PlaceholderTexture2D_12eic")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Energy" type="Control" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Background" type="TextureRect" parent="MarginContainer/VBoxContainer/Energy"]
+material = SubResource("ShaderMaterial_i7wmu")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("PlaceholderTexture2D_12eic")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Energy"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Energy/HBoxContainer"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer/Energy/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("1_px50b")
+expand_mode = 2
+script = ExtResource("4_1drba")
+
+[node name="TextureRect2" type="TextureRect" parent="MarginContainer/VBoxContainer/Energy/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("2_i7wmu")
+expand_mode = 2
+script = ExtResource("4_1drba")
+orb_type = 1
+
+[node name="TextureRect3" type="TextureRect" parent="MarginContainer/VBoxContainer/Energy/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("3_x47rp")
+expand_mode = 2
+script = ExtResource("4_1drba")
+orb_type = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Energy/HBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+text = "1.97 E+97"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.0
+
+[node name="Size" type="Control" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Background" type="TextureRect" parent="MarginContainer/VBoxContainer/Size"]
+material = SubResource("ShaderMaterial_12eic")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("PlaceholderTexture2D_12eic")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Size"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Size/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.0
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer/Size/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("2_j34uj")
+expand_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Size/HBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+text = "8.56 um"

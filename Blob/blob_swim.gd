@@ -338,7 +338,7 @@ func _ready() -> void:
 		if cwch_tween:
 			cwch_tween.kill()
 		cwch_tween = create_tween()
-		cwch_tween.tween_property(self, cwch_amount, cell_wall_chitin_max, cell_wall_chitin_max).from(0)
+		cwch_tween.tween_property(self, "cwch_amount", cell_wall_chitin_max, cell_wall_chitin_max).from(0)
 	
 	"""
 	print("START")
@@ -1288,8 +1288,11 @@ func energyGainFormula(value : int, enemy_drop : bool) -> float:
 func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
 	if currency_type == 0:
 		set_energy(energyGainFormula(value, enemy_drop))
+		cwm_amount += value
 	#else: 
 		#set_currency(value, currency_type)
+	
+	
 	
 	#Need a variable that tracks ripples
 	#Need 3 variables that track ripple amps.
@@ -1727,7 +1730,7 @@ func _damageTakenFormula(damageTaken : float) -> float:
 			if cwch_tween:
 				cwch_tween.kill()
 			cwch_tween = create_tween()
-			cwch_tween.tween_property(self, cwch_amount, cell_wall_chitin_max, cell_wall_chitin_max).from(0)
+			cwch_tween.tween_property(self, "cwch_amount", cell_wall_chitin_max, cell_wall_chitin_max).from(0)
 	
 	return damageTaken
 
