@@ -1487,10 +1487,10 @@ func addNewUpgrade(upgradeFullID : int, upgradeLevel = 0) -> void:
 	HUD.addUpgrade(upgradeFullID, upgradeMultiplier, upgradeLevel)
 
 #This function needs to trigger the change in the position of the camera for the player
-#it also needs to disable player input on the right side of the screen.
 #NEED TO CHANGE THIS SOON
-func _on_hud_swim_upgrade_tab_toggled(_state: bool) -> void:
-	pass # Replace with function body.
+func _on_hud_swim_upgrade_tab_toggled(upg_tab_state: bool) -> void:
+	print("upgrade tab state: ", upg_tab_state)
+	playerReference.upgradeTabSwitch(upg_tab_state)
 
 #This needs to update the dimensions of the invalid space where click based input doesn't trigger player movement/abilities
 func _on_resolution_change() -> void:

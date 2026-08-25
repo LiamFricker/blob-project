@@ -267,7 +267,7 @@ func _on_toggle_upgrades() -> void:
 			upgrade_tween.tween_property(fullUpgradeContainer, "anchor_left", 0.4, UPGRADE_TAB_MOVE_TIME)
 			upgrade_tween.parallel().tween_property(fullUpgradeContainer, "anchor_right", 1.4, UPGRADE_TAB_MOVE_TIME)
 			
-			upgrade_tab_toggled.emit(false)
+			#upgrade_tab_toggled.emit(false)
 		else:
 			fullUpgradePanel.show()
 			$FullUpgradeContainer/UpgradeHeader.show()
@@ -281,9 +281,10 @@ func _on_transition_complete() -> void:
 	$FullUpgradeContainer/progress.hide()
 	if pending_up_state:
 		$FullUpgradeContainer/off.show()
-		upgrade_tab_toggled.emit(true)
+		#upgrade_tab_toggled.emit(true)
 	else:
 		$FullUpgradeContainer/on.show()
+		#upgrade_tab_toggled.emit(false)
 		fullUpgradePanel.hide()
 		$FullUpgradeContainer/UpgradeHeader.hide()
 	

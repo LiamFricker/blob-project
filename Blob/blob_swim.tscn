@@ -28,7 +28,7 @@ collision_layer = 17
 collision_mask = 32
 script = ExtResource("1_560oe")
 mouseMovement = false
-camReference = NodePath("InnerNode/Camera2D")
+camReference = NodePath("InnerNode/Camera2D2")
 waddle_speed = 10
 frog_speed = 1.25
 frog_travel_speed = 1.25
@@ -136,6 +136,7 @@ offset = Vector2(0, 1)
 [node name="Camera2D2" type="Camera2D" parent="InnerNode"]
 
 [node name="Camera2D" type="Camera2D" parent="InnerNode"]
+visible = false
 offset = Vector2(115, 0)
 enabled = false
 position_smoothing_enabled = true

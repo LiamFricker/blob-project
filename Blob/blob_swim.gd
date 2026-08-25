@@ -46,10 +46,15 @@ var primary_tween #meant for primary abilities
 #var tween #basic all purpose tween for stretches 
 var tween2 #tween for glimmer 
 var tween3 #tween for ripple amp UNUSED USE IT FOR SOMETHING ELSE
-var tween4 #idk
 var tween5
 
 var current_map = -1
+
+#Camera vars
+var camera_tween
+var upgrade_tab_opened : bool = false
+const UPGRADE_TAB_BASE_DUR : float = 2.5
+
 
 #Fat:
 #Pos(-17, -35) Scale(1.063, 1.063)
@@ -342,8 +347,8 @@ func _ready() -> void:
 	
 	"""
 	print("START")
-	tween4 = create_tween()
-	tween4.tween_callback(print.bind("2DONE")).set_delay(2.0)
+	camera_tween = create_tween()
+	camera_tween.tween_callback(print.bind("2DONE")).set_delay(2.0)
 	tween5 = create_tween()
 	tween5.tween_method(_testMethod, 1.0, 10.0, 1.0).set_delay(1.0)
 	tween5.tween_callback(print.bind("1DONE"))
@@ -1440,20 +1445,22 @@ func removeChild(childRef : Node2D) -> void:
 #IDk why I kept this shitty function for
 func changeCameraSpeed(toggle : bool, updateTime : float) -> void:
 	print("THIS STUPID FUNCTION CALLED")
-	if tween4:
-		tween4.kill()
-	tween4 = create_tween()
+	if camera_tween:
+		camera_tween.kill()
+	camera_tween = create_tween()
 	
 	if toggle:
-		tween4.tween_property(camReference, "position_smoothing_speed", 50, updateTime)
+		camera_tween.tween_property(camReference, "position_smoothing_speed", 50, updateTime)
 	else:
-		tween4.tween_property(camReference, "position_smoothing_speed", 5, updateTime)
+		camera_tween.tween_property(camReference, "position_smoothing_speed", 5, updateTime)
 
 #It's probably best to just disable position smoothing here
 #When the player is at  a border, increase the position smoothing speed over time
 #Then make it instananeous
 #Keep it disabled for now and bring it back later	
 func changeCamera() -> void:
+	
+	
 	#camReference.force_update_scroll()
 	
 	#var zoom = 2
@@ -1463,7 +1470,7 @@ func changeCamera() -> void:
 	#print("CAMERA POS: ", camReference.get_screen_center_position(), " ", camReference.get_target_position())
 	#camReference.position = camera_offset/zoom
 	#print("CAMERA OFFSET: ", camera_offset)
-	print("CAMERA CHANGED")
+	
 	
 	"""
 	$InnerNode/Camera2D2.enabled = true
@@ -1471,15 +1478,15 @@ func changeCamera() -> void:
 	camReference.enabled = false
 	
 	
-	if tween4:
-		tween4.kill()
-	tween4 = create_tween()
-	tween4.tween_callback(_fixCamera.bind(0)).set_delay(0.3)
-	tween4.tween_callback(_fixCamera.bind(1)).set_delay(0.3)
-	tween4.tween_callback(_fixCamera.bind(2)).set_delay(3.3)
+	if camera_tween:
+		camera_tween.kill()
+	camera_tween = create_tween()
+	camera_tween.tween_callback(_fixCamera.bind(0)).set_delay(0.3)
+	camera_tween.tween_callback(_fixCamera.bind(1)).set_delay(0.3)
+	camera_tween.tween_callback(_fixCamera.bind(2)).set_delay(3.3)
 	"""
-	#tween4.parallel().tween_property(camReference, "position", Vector2(0,0), 2).from(camera_offset/zoom)
-	return
+	#camera_tween.parallel().tween_property(camReference, "position", Vector2(0,0), 2).from(camera_offset/zoom)
+	
 
 func _fixCamera(i : int) -> void:
 	match i:
@@ -1494,6 +1501,26 @@ func _fixCamera(i : int) -> void:
 	#$InnerNode/Camera2D2.enabled = false
 	
 	#camReference.enabled = true
+
+func upgradeTabSwitch(new_state : bool) -> void:
+	if new_state != upgrade_tab_opened:
+		var win_size_x = get_viewport().get_visible_rect().size.x#DisplayServer.window_get_size()
+		print(win_size_x)
+		
+		upgrade_tab_opened = new_state
+		if camera_tween:
+			camera_tween.kill()
+		camera_tween = create_tween()
+		
+		win_size_x *= 0.2
+		
+		if new_state:
+			var time_dur = UPGRADE_TAB_BASE_DUR * abs(win_size_x - camReference.position.x)/win_size_x
+			camera_tween.tween_property(camReference, "position:x", win_size_x, time_dur)
+		else:
+			#Just incase to prevent negative time
+			var time_dur = UPGRADE_TAB_BASE_DUR * abs(camReference.position.x/win_size_x)
+			camera_tween.tween_property(camReference, "position:x", 0, time_dur)
 
 #Duration isn't used for this?
 #This should be changed anyways. DOT damage sounds like ass for constant health.
