@@ -1,10 +1,11 @@
-[gd_scene load_steps=12 format=3 uid="uid://3svd3orbjuwh"]
+[gd_scene load_steps=16 format=3 uid="uid://3svd3orbjuwh"]
 
 [ext_resource type="Script" uid="uid://it6taww1dg44" path="res://HUD/currencies.gd" id="1_12eic"]
 [ext_resource type="Shader" uid="uid://dbqbkrow0t4ft" path="res://HUD/currencies_bg_gradient.gdshader" id="1_i7wmu"]
 [ext_resource type="Texture2D" uid="uid://clggqs5in87d6" path="res://Art/Cell/HUD/energy0.png" id="1_px50b"]
 [ext_resource type="Texture2D" uid="uid://bcmsxcrtpdhj7" path="res://Art/Cell/HUD/energy1.png" id="2_i7wmu"]
 [ext_resource type="Texture2D" uid="uid://xdiut42omqhd" path="res://Art/Cell/HUD/size.png" id="2_j34uj"]
+[ext_resource type="Shader" uid="uid://ce1ksrkb2vrnb" path="res://HUD/currencies_orb.gdshader" id="3_1drba"]
 [ext_resource type="Texture2D" uid="uid://obejewkhtd6h" path="res://Art/Cell/HUD/energy2.png" id="3_x47rp"]
 [ext_resource type="Script" uid="uid://c1hhj2g715g7q" path="res://HUD/energy_gradient_handler.gd" id="4_1drba"]
 
@@ -19,6 +20,18 @@ shader_parameter/end_color = Color(0, 0, 0, 0)
 shader = ExtResource("1_i7wmu")
 shader_parameter/start_color = Color(0.82, 0.82, 0.7298, 0.635294)
 shader_parameter/end_color = Color(0, 0, 0, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0aj8n"]
+shader = ExtResource("3_1drba")
+shader_parameter/offset = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1drba"]
+shader = ExtResource("3_1drba")
+shader_parameter/offset = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lv3x3"]
+shader = ExtResource("3_1drba")
+shader_parameter/offset = 4.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_12eic"]
 shader = ExtResource("1_i7wmu")
@@ -86,6 +99,8 @@ grow_vertical = 2
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/VBoxContainer/Energy/HBoxContainer/MarginContainer"]
+modulate = Color(0.75, 0.75, 0.75, 1)
+material = SubResource("ShaderMaterial_0aj8n")
 layout_mode = 2
 size_flags_horizontal = 3
 texture = ExtResource("1_px50b")
@@ -93,6 +108,8 @@ expand_mode = 2
 script = ExtResource("4_1drba")
 
 [node name="TextureRect2" type="TextureRect" parent="MarginContainer/VBoxContainer/Energy/HBoxContainer/MarginContainer"]
+modulate = Color(0.75, 0.75, 0.75, 1)
+material = SubResource("ShaderMaterial_1drba")
 layout_mode = 2
 size_flags_horizontal = 3
 texture = ExtResource("2_i7wmu")
@@ -101,6 +118,8 @@ script = ExtResource("4_1drba")
 orb_type = 1
 
 [node name="TextureRect3" type="TextureRect" parent="MarginContainer/VBoxContainer/Energy/HBoxContainer/MarginContainer"]
+modulate = Color(0.75, 0.75, 0.75, 1)
+material = SubResource("ShaderMaterial_lv3x3")
 layout_mode = 2
 size_flags_horizontal = 3
 texture = ExtResource("3_x47rp")
