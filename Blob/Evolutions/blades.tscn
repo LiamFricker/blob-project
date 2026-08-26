@@ -27,6 +27,7 @@ size = Vector2(48, 55)
 
 [node name="blades" instance=ExtResource("1_dy6pj")]
 script = ExtResource("2_u7dal")
+blade_level = 0
 
 [node name="blade1" type="Node2D" parent="." index="0"]
 position = Vector2(0, 2)
