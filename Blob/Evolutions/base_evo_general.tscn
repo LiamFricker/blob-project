@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://td4tbf3xp18y"]
+
+[ext_resource type="Script" uid="uid://c5oxx7syg8qm5" path="res://Blob/Evolutions/base_evo_general.gd" id="1_topya"]
+
+[node name="base_evo_general" type="Node2D"]
+script = ExtResource("1_topya")

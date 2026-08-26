@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://dgmmgbtcy1psn"]
+[gd_scene load_steps=11 format=3 uid="uid://dgmmgbtcy1psn"]
 
 [ext_resource type="Material" uid="uid://cnn885v4juwuw" path="res://Blob/Materials/blob_swim.tres" id="1_j157g"]
 [ext_resource type="Texture2D" uid="uid://c43vreo7c407m" path="res://Art/Cell/TestTexture2.png" id="2_i6vdn"]
 [ext_resource type="Texture2D" uid="uid://dr28h5khq6m2y" path="res://Art/Cell/TestTexture.png" id="3_v7xid"]
+[ext_resource type="PackedScene" uid="uid://c1a8a2g5anmiw" path="res://Blob/base_player_attack.tscn" id="4_i6vdn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_j157g"]
 size = Vector2(14, 38)
@@ -32,13 +33,13 @@ position = Vector2(0, 2)
 position = Vector2(-10, 0)
 
 [node name="Pincer" type="Polygon2D" parent="blade1/Left"]
-polygon = PackedVector2Array(0, 0, -10, -8, -10, -30, 0, -38, 0, -30, -5, -26, -5, -12, 0, -8)
+polygon = PackedVector2Array(0, 0, -10, -8, -12, -19, -10, -30, 0, -38, -1, -30, -5, -26, -6, -19, -5, -12, 0, -8)
 
 [node name="Right" type="Node2D" parent="blade1"]
 position = Vector2(10, 0)
 
 [node name="Pincer" type="Polygon2D" parent="blade1/Right"]
-polygon = PackedVector2Array(0, 0, 10, -8, 10, -30, 0, -38, 0, -30, 5, -26, 5, -12, 0, -8)
+polygon = PackedVector2Array(0, 0, 10, -8, 12, -19, 10, -30, 0, -38, 1, -30, 5, -26, 6, -19, 5, -12, 0, -8)
 
 [node name="blade2" type="Node2D" parent="."]
 visible = false
@@ -48,13 +49,13 @@ position = Vector2(0, 2)
 position = Vector2(-12, 0)
 
 [node name="Pincer" type="Polygon2D" parent="blade2/Left"]
-polygon = PackedVector2Array(0, 0, -12, -8, -12, -34, 0, -45, 0, -34, -7, -29, -7, -20, 0, -17, -7, -14, -7, -13, 0, -8)
+polygon = PackedVector2Array(0, 0, -12, -8, -15, -18, -12, -34, 0, -45, -1, -34, -7, -29, -8, -26, -7, -22, 0, -17, -7, -16, -8, -14, -7, -12, 0, -8)
 
 [node name="Right" type="Node2D" parent="blade2"]
 position = Vector2(12, 0)
 
 [node name="Pincer" type="Polygon2D" parent="blade2/Right"]
-polygon = PackedVector2Array(0, 0, 12, -8, 12, -34, 0, -45, 0, -34, 7, -29, 7, -20, 0, -17, 7, -14, 7, -13, 0, -8)
+polygon = PackedVector2Array(0, 0, 12, -8, 15, -18, 12, -34, 0, -45, 1, -34, 7, -29, 8, -26, 7, -22, 0, -17, 7, -16, 8, -14, 7, -12, 0, -8)
 
 [node name="blade3" type="Node2D" parent="."]
 position = Vector2(0, 2)
@@ -103,8 +104,9 @@ polygon = PackedVector2Array(16, 12, 24, 12, 24, 20, 16, 20)
 position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
-[node name="HitboxL" type="Area2D" parent="."]
-visible = false
+[node name="HitboxL" parent="." instance=ExtResource("4_i6vdn")]
+collision_mask = 6
+monitoring = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxL"]
 position = Vector2(-15, -19)
@@ -120,8 +122,9 @@ position = Vector2(-20, -30)
 shape = SubResource("RectangleShape2D_v7xid")
 disabled = true
 
-[node name="HitboxR" type="Area2D" parent="."]
-visible = false
+[node name="HitboxR" parent="." instance=ExtResource("4_i6vdn")]
+collision_mask = 6
+monitoring = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxR"]
 position = Vector2(14, -19)
@@ -137,20 +140,23 @@ position = Vector2(18, -23)
 shape = SubResource("RectangleShape2D_i6vdn")
 disabled = true
 
-[node name="Detection Zone" type="Area2D" parent="."]
+[node name="Detection" type="Area2D" parent="."]
 visible = false
 position = Vector2(0, -30)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Detection Zone"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Detection"]
 position = Vector2(0, 13.5)
 shape = SubResource("RectangleShape2D_jb6q2")
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Detection Zone"]
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Detection"]
 position = Vector2(0, 10)
 shape = SubResource("RectangleShape2D_n3udq")
 disabled = true
 
-[node name="CollisionShape2D3" type="CollisionShape2D" parent="Detection Zone"]
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Detection"]
 position = Vector2(0, 2.5)
 shape = SubResource("RectangleShape2D_qej8y")
 disabled = true
