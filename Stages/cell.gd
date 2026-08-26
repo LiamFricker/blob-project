@@ -4,7 +4,7 @@ extends Node2D
 #When you add more currencies, be sure to change this array
 #0 = energy, 1 = RNA, 2 = DNA_Y, 3 = DNA_B 
 const CURRENCY_MAX = 3
-var currency_array = PackedFloat32Array([0, 0, 0])
+var currency_array = PackedFloat32Array([0, 0, 0, 0, 0, 0, 0])
 var currency_flags = [false, false, false]
 
 #0 = x1, 1 = x5, 2 = x10, 3 = BUY MAX
@@ -1401,14 +1401,16 @@ func _on_update_tick_timeout() -> void:
 			currency_flags[i] = false
 			tempIndexes.append(i)
 			tempValues.append(currency_array[i])
+			HUD.updateCurrencyDisplay(i, currency_array[i])
+			
 	if tempIndexes.size() > 0:
 		HUD.updateTickMoneyChange(tempIndexes, tempValues)
 
 #This needs to update the HUD display for currencies as well
-func _on_blob_swim_currency_update(index: int, value: float) -> void:
+func _on_blob_swim_currency_update(value: float, index: int) -> void:
 	currency_flags[index] = true
-	currency_array[index] = value
-	HUD.updateCurrencyDisplay(index, value)
+	currency_array[index] += value
+	#HUD.updateCurrencyDisplay(index, value)
 	
 func _on_mult_change() -> void:
 	currency_flags.fill(false)

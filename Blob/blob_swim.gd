@@ -29,7 +29,7 @@ var damage_dealt : float = 0.0
 
 var energy = 100
 var max_energy = 100
-signal currencyUpdate(index : int, value : float)
+signal currencyUpdate(value : float, index : int)
 signal spawnOrbs(amt : int, pos : Vector2)
 #Upgrades and bonuses count
 var staticBonuses = []
@@ -37,6 +37,8 @@ var upgradeTab1 = [0, 0, 0]
 var upgradeTab2 = [0, 0, 0]
 var upgradeTab3 = [0, 0, 0]
 var upgradeBonuses = [upgradeTab1, upgradeTab2, upgradeTab3]
+
+#Energy, Yellow, Swim, Hazard, Plant, Magic, Prestige
 
 var primary_queued = false
 
@@ -311,6 +313,42 @@ func _input(event: InputEvent) -> void:
 		#velocity = Vector2.ZERO
 		#activateRipple(Vector2(0.5, 0.866), 1.0)
 		tent_ref.whipTentacles(-1) #$InnerNode/Sprite/Tentacle1.whip(-1)
+		
+	if event.is_action_pressed("Left"):
+		left_input = true
+		_basicOnPress()
+		return
+	elif event.is_action_released("Left"):
+		left_input = false
+		_basicOnRelease()
+		return
+		
+	if event.is_action_pressed("Right"):
+		right_input = true
+		_basicOnPress()
+		return
+	elif event.is_action_released("Right"):
+		right_input = false
+		_basicOnRelease()
+		return
+	
+	if event.is_action_pressed("Up"):
+		up_input = true
+		_basicOnPress()
+		return
+	elif event.is_action_released("Up"):
+		up_input = false
+		_basicOnRelease()
+		return
+	
+	if event.is_action_pressed("Down"):
+		down_input = true
+		_basicOnPress()
+		return
+	elif event.is_action_released("Down"):
+		down_input = false
+		_basicOnRelease()
+		return
 
 func activateRipple(origin: Vector2, amplitude: float) -> void:
 	$InnerNode/Sprite/Node2D/Inside.material.set_shader_parameter("rippleSource", origin)
@@ -338,7 +376,7 @@ func _get_input() -> Dictionary:
 
 func _ready() -> void:
 	_frogReset()
-	
+		
 	if defensive_flags[3]:
 		if cwch_tween:
 			cwch_tween.kill()
@@ -558,6 +596,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event is InputEventMouseMotion:
 			mousePos = event.position - mouseCenter
 			_basicOnPress()
+			return
+	"""
 	else:
 		if event.is_action_pressed("Left"):
 			left_input = true
@@ -594,6 +634,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			down_input = false
 			_basicOnRelease()
 			return
+	"""
 
 func _basicOnPress() -> void:
 	match basic_movement_type:
@@ -1544,10 +1585,10 @@ func _death() -> void:
 
 #For all events, collectables, abilities, and monsters to use
 func set_energy(amount : float) -> void:
+	energy += amount
 	if amount < 0 and energy > max_energy:
 		max_energy = energy
-	energy += amount
-	#currencyUpdate.emit(amount, 0)
+	currencyUpdate.emit(amount, 0)
 
 #For all events, collectables, abilities, and monsters to use
 func set_currency(amount : float, type = 1) -> void:
@@ -1903,3 +1944,6 @@ func _spawnFriend(friend_id : int, count : int, source : Node2D) -> void:
 		temp_td.connectDMG(damagedEnemy)
 		temp_td.setBulletParams(source, i)
 		source.connectBullet(temp_td)
+
+
+	

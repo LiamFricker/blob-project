@@ -59,7 +59,7 @@ offset_right = -133.0
 offset_bottom = -139.0
 
 [node name="UpdateTick" type="Timer" parent="."]
-wait_time = 0.2
+wait_time = 0.5
 autostart = true
 
 [node name="TestTimer" type="Timer" parent="."]

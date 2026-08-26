@@ -55,9 +55,10 @@ func _ready() -> void:
 
 #I kinda want to ceiling all of this stuff to make it look more consistent. If it's bad you can remove it later. 
 #Update the display to show current money
-func updateCurrencyDisplay(_currencyIndex : int, money : float) -> void:
-	var _ceilMoney = ceilf(money)
-	pass
+func updateCurrencyDisplay(currencyIndex : int, money : float) -> void:
+	var ceilMoney = snappedf(money, 0.01)
+	if currencyIndex == 0:
+		$Currencies.setEnergy(money)
 
 #Each update tick, process the new currency amounts
 func updateTickMoneyChange(currencyIndexes : Array, currencyChanged : Array) -> void:

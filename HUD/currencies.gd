@@ -1,6 +1,6 @@
 extends Control
 
-var base_tick_time = 0.1
+var base_tick_time = 0.5
 
 var energy_tween
 var size_tween
@@ -19,6 +19,7 @@ func setEnergy(new_amt : float) -> void:
 		energy_tween.kill()
 	energy_tween = create_tween()
 	energy_tween.tween_method(_setEnergy, energy_old, new_amt, time_duration)
+	energy_old = new_amt
 	
 func setSize(new_amt : float) -> void:
 	var size_max = max(size_old, new_amt)
@@ -28,9 +29,13 @@ func setSize(new_amt : float) -> void:
 		size_tween.kill()
 	size_tween = create_tween()
 	size_tween.tween_method(_setSize, size_old, new_amt, time_duration)
+	size_old = new_amt
+
+func _parseAmt(new_amt : float) -> String:
+	return str(snappedf(new_amt, 0.01))
 
 func _setEnergy(new_amt : float) -> void:
-	energy_ref.text = new_amt
+	energy_ref.text = _parseAmt(new_amt)
 
 func _setSize(new_amt : float) -> void:
-	size_ref.text = new_amt
+	size_ref.text = _parseAmt(new_amt)

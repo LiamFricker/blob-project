@@ -140,7 +140,7 @@ func upgradeTabMoneyChange(currency : int, money : float, gain : bool) -> void:
 				#Only trigger if 
 				if gain and upgradeStatus[i] >= 1:
 					upgradeStatus[i] = upgrades[i].posChange(money)#get_child(UPGRADE_INDEX_OFFSET + i).posChange(money)
-				elif not gain and upgradeStatus <= 1:
+				elif not gain and upgradeStatus[i] <= 1:
 					upgradeStatus[i] = upgrades[i].negChange(money)#get_child(UPGRADE_INDEX_OFFSET + i).negChange(money)
 
 
