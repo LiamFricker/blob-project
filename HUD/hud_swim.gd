@@ -58,7 +58,7 @@ func _ready() -> void:
 func updateCurrencyDisplay(currencyIndex : int, money : float) -> void:
 	var ceilMoney = snappedf(money, 0.01)
 	if currencyIndex == 0:
-		$Currencies.setEnergy(money)
+		$Currencies.setEnergy(ceilMoney)
 
 #Each update tick, process the new currency amounts
 func updateTickMoneyChange(currencyIndexes : Array, currencyChanged : Array) -> void:

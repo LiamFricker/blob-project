@@ -269,6 +269,10 @@ Things to do:
 
 """
 
+#Blade Vars
+var blades : bool = true
+@onready var blade_ref : Node2D = $InnerNode/Sprite/Blades
+
 #Bullet Spawners Vars
 
 const bullet_spawner_flags_max = 3
@@ -313,6 +317,7 @@ func _input(event: InputEvent) -> void:
 		#velocity = Vector2.ZERO
 		#activateRipple(Vector2(0.5, 0.866), 1.0)
 		tent_ref.whipTentacles(-1) #$InnerNode/Sprite/Tentacle1.whip(-1)
+		blade_ref.addBladeLevel()
 		
 	if event.is_action_pressed("Left"):
 		left_input = true
@@ -1024,6 +1029,8 @@ func _chargePress() -> void:
 	if frogState == 0:	
 		primary_tween.tween_property($InnerNode/Pivot, "scale", Vector2(-2, 0.6), charge_max)
 	#if frog_charge <= 0:	
+	if blades:
+		primary_tween.parallel().tween_property($InnerNode/Sprite/Blades, "position:y", 0, charge_max)
 	primary_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1, 0.25), charge_max)
 	primary_tween.finished.connect(_onFullCharge)
 	
@@ -1070,6 +1077,10 @@ func _chargeRelease() -> void:
 	if tentacle:
 		tent_ref.handleTentacleChargeSwipe(temp, charge_cooldown)
 		#tent_ref.handleTentacleWhipSwipe(temp, charge_cooldown)
+	
+	if blades:
+		blade_ref.attack(temp, charge_cooldown)
+		primary_tween.tween_property($InnerNode/Sprite/Blades, "position:y", -9, swipePos)
 		
 	primary_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_LINEAR)
 	

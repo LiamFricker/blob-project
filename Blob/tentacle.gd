@@ -137,8 +137,9 @@ func retract() -> void:
 			tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 			tween.tween_property(sprite_ref, "scale", Vector2(0.1, 1.0), 0.25)
 			if searching:
-				tween.parallel().tween_property(pivot_ref, "rotation", 0, 0.25)
+				
 				searching = false
+			tween.parallel().tween_property(pivot_ref, "rotation", 0, 0.25)
 			tween.tween_property(sprite_ref, "scale", Vector2(1.0, 1.0), 0.25).set_delay(retract_dur)
 			
 			tween.finished.connect(_retractEnd)

@@ -45,9 +45,9 @@ shader_parameter/endColor = Color(0, 1, 0, 1)
 
 [node name="spear" instance=ExtResource("1_y0r7j")]
 script = ExtResource("2_0oswo")
+size = 12.0
 base_damage = 1.0
 damage_mult = 1.0
-size = 12.0
 base_intensity = 1.0
 dot_mult = 1.0
 duration = 1.0
