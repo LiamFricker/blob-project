@@ -27,7 +27,8 @@ var rust_level_r : float = 0.0
 
 @export var pinch_cooldown : float = 2.0
 
-signal spawnRustParticle(totalRot : float, size : float, rust_pos : Vector2, left : bool, BL : int)
+signal spawnRustParticle(partID : int, rust_pos : Vector2, totalRot : float, size : float, kwargs : Array)
+
 
 func _ready() -> void:
 	var blade_temp = blade_level
@@ -166,7 +167,6 @@ func _toggle(toggle : bool) -> void:
 		hitbox_r_ref.set_deferred("monitorable", toggle)
 
 func _pinch() -> void:
-	print("pinch")
 	var pinch_time = 0.6
 	
 	_BLtoColShape(blade_level).set_deferred("disabled", false)
@@ -528,10 +528,10 @@ func _fullDeRust(left : bool, rustNode : Node2D) -> void:
 
 #Need rotation, size, proper position, L/R, and BL
 func _spawnRustParticle(left : bool, tempRot : float) -> void: #BL : int, 
-	var totalRot : float = parentRef.getRotation()
+	#var totalRot : float = parentRef.getRotation()
 	
-	var rust_pos = getRustPosition(totalRot, left)
-	spawnRustParticle.emit(totalRot + tempRot, size, rust_pos, left, blade_level)
+	var rust_pos = getRustPosition(left) #totalRot, 
+	spawnRustParticle.emit(0, rust_pos, tempRot, size, [left, blade_level])#totalRot + 
 
 func _deRustLeft() -> void:
 	var rust_length = 12.0 / rust_recovery_speed * min(rust_level_l / rust_max, 1.0)
@@ -574,7 +574,10 @@ func getFocusedPosition(hitbox_type : int) -> Vector2:
 	
 	return retVec
 
-func getRustPosition(totalRot : float, left : bool) -> Vector2:
+#The rot calculation has to be here instead of player bcause particles might come from difference sources that don't need to be rotated
+#like that 
+#NVM I'll just create another func for it if needs be
+func getRustPosition(left : bool) -> Vector2: #totalRot : float, 
 	
 	
 	var retVec = position#getPosition()
@@ -589,4 +592,4 @@ func getRustPosition(totalRot : float, left : bool) -> Vector2:
 		2:
 			retVec += size * Vector2(neg_left * 12, -70) #2 + -12*6
 	
-	return retVec.rotated(totalRot)
+	return retVec#.rotated(totalRot)

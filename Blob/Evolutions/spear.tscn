@@ -50,6 +50,12 @@ damage_mult = 1.0
 base_intensity = 1.0
 dot_mult = 1.0
 duration = 1.0
+spear_level = 0
+rust_max = 10.0
+rust_recovery_speed = 1.0
+startspearColor = Color(0, 0, 0, 1)
+endspearColor = Color(0, 0, 0, 1)
+pinch_cooldown = 2.0
 size = 12.0
 
 [node name="Hitbox" parent="." index="0" instance=ExtResource("3_i4my6")]

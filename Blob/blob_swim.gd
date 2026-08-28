@@ -1957,5 +1957,7 @@ func _spawnFriend(friend_id : int, count : int, source : Node2D) -> void:
 		temp_td.setBulletParams(source, i)
 		source.connectBullet(temp_td)
 
-func _on_blades_spawn_rust_particle(totalRot: float, sized: float, rust_pos: Vector2, left: bool, BL: int) -> void:
-	spawnParticle.emit(0, getPosition() + rust_pos, totalRot, sized, [left, BL])
+func _spawnParticle(partID : int, part_pos: Vector2, part_rot: float, sized: float, kwargs : Array) -> void:
+	var player_rot = getRotation()
+	part_pos = part_pos.rotated(player_rot)
+	spawnParticle.emit(partID, getPosition() + part_pos, player_rot+part_rot, sized, kwargs)

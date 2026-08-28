@@ -206,7 +206,7 @@ one_shot = true
 [connection signal="spawnFriend" from="InnerNode/player_yaai" to="." method="_spawnFriend"]
 [connection signal="damagedEnemy" from="InnerNode/Sprite/Tentacles" to="." method="damagedEnemy"]
 [connection signal="damagedEnemy" from="InnerNode/Sprite/Blades" to="." method="damagedEnemy"]
-[connection signal="spawnRustParticle" from="InnerNode/Sprite/Blades" to="." method="_on_blades_spawn_rust_particle"]
+[connection signal="spawnRustParticle" from="InnerNode/Sprite/Blades" to="." method="_spawnParticle"]
 [connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]
