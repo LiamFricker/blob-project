@@ -2,7 +2,7 @@ extends "res://Blob/Evolutions/base_evo_general.gd"
 
 @export var base_damage : float = 1
 @export var damage_mult : float = 1
-@export var size : float = 12
+#@export var size : float = 12
 
 @export var base_intensity : float = 1
 @export var dot_mult : float = 1

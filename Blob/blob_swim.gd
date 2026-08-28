@@ -57,6 +57,7 @@ var camera_tween
 var upgrade_tab_opened : bool = false
 const UPGRADE_TAB_BASE_DUR : float = 2.5
 
+signal spawnParticle(particleID : int, pos : Vector2, rot : float, size : float, kwargs : Array)
 
 #Fat:
 #Pos(-17, -35) Scale(1.063, 1.063)
@@ -1956,5 +1957,5 @@ func _spawnFriend(friend_id : int, count : int, source : Node2D) -> void:
 		temp_td.setBulletParams(source, i)
 		source.connectBullet(temp_td)
 
-
-	
+func _on_blades_spawn_rust_particle(totalRot: float, sized: float, rust_pos: Vector2, left: bool, BL: int) -> void:
+	spawnParticle.emit(0, getPosition() + rust_pos, totalRot, sized, [left, BL])

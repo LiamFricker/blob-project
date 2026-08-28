@@ -7,6 +7,7 @@ var detected : bool = false
 @onready var blade_left_refs = [$Blade1/Left, $Blade2/Left, $Blade3/Left]
 @onready var blade_right_refs = [$Blade1/Right, $Blade2/Right, $Blade3/Right]
 
+
 @onready var hitbox_l_ref = $HitboxL
 @onready var hitbox_r_ref = $HitboxR
 #@onready var hitbox_ref
@@ -25,6 +26,8 @@ var rust_level_r : float = 0.0
 @export var endBladeColor : Color
 
 @export var pinch_cooldown : float = 2.0
+
+signal spawnRustParticle(totalRot : float, size : float, rust_pos : Vector2, left : bool, BL : int)
 
 func _ready() -> void:
 	var blade_temp = blade_level
@@ -47,6 +50,12 @@ func setBladeLevel(newBL : int) -> void:
 			$Detection/CollisionShape2D.set_deferred("disabled", true)
 			if not attacking:
 				$Blade1.hide()
+			$Blade1/RustedL.position.y = 2
+			$Blade1/RustedL.modulate.a = 0.0
+			$Blade1/RustedR.position.y = 2
+			$Blade1/RustedR.modulate.a = 0.0
+			$Blade1/RustedL.rotation = 0.0
+			$Blade1/RustedR.rotation = 0.0
 		1:
 			$HitboxL/CollisionShape2D2.set_deferred("disabled", true)
 			$HitboxR/CollisionShape2D2.set_deferred("disabled", true)
@@ -54,6 +63,12 @@ func setBladeLevel(newBL : int) -> void:
 			$Detection/CollisionShape2D2.set_deferred("disabled", true)
 			if not attacking:
 				$Blade2.hide()
+			$Blade2/RustedL.position.y = 2
+			$Blade2/RustedL.modulate.a = 0.0
+			$Blade2/RustedR.position.y = 2
+			$Blade2/RustedR.modulate.a = 0.0
+			$Blade2/RustedL.rotation = 0.0
+			$Blade2/RustedR.rotation = 0.0
 		2:
 			$HitboxL/CollisionShape2D3.set_deferred("disabled", true)
 			$HitboxR/CollisionShape2D3.set_deferred("disabled", true)
@@ -61,9 +76,17 @@ func setBladeLevel(newBL : int) -> void:
 			$Detection/CollisionShape2D3.set_deferred("disabled", true)
 			if not attacking:
 				$Blade3.hide()
+			$Blade3/RustedL.position.y = 2
+			$Blade3/RustedL.modulate.a = 0.0
+			$Blade3/RustedR.position.y = 2
+			$Blade3/RustedR.modulate.a = 0.0
+			$Blade3/RustedL.rotation = 0.0
+			$Blade3/RustedR.rotation = 0.0
 	
 	blade_left_refs[blade_level].modulate = startBladeColor
 	blade_right_refs[blade_level].modulate = startBladeColor
+	hitbox_l_ref.set_deferred("monitorable", true)
+	hitbox_r_ref.set_deferred("monitorable", true)
 	
 	blade_level = newBL
 	rust_level_l = 0.0
@@ -100,19 +123,20 @@ func setBladeLevel(newBL : int) -> void:
 	
 	
 
-func _on_detection_area_entered(_area: Area2D) -> void:
-	print("dEtected")
+func _on_detection_area_entered(area: Area2D) -> void:
 	if not detected and not attacking:
-		if rust_level_l < rust_max or rust_level_r < rust_max:
-			detected = true
-			_pinch()
+		if area.getID() != 0:
+			if rust_level_l < rust_max or rust_level_r < rust_max:
+				detected = true
+				_pinch()
 		
 
-func _on_detection_body_entered(_body: Node2D) -> void:
+func _on_detection_body_entered(body: Node2D) -> void:
 	if not detected and not attacking:
-		detected = true
-		if rust_level_l < rust_max or rust_level_r < rust_max:
-			_pinch()
+		if body.getID() != 0:
+			detected = true
+			if rust_level_l < rust_max or rust_level_r < rust_max:
+				_pinch()
 
 func _detectionCheck() -> void:
 	var detectNode = $Detection
@@ -184,28 +208,35 @@ func attack(temp : float, charge_cd : float) -> void:
 		var return_time : float = min(0.5 * charge_cd, 0.75)
 		var bladeLen = max(2.0 * temp/6.0, 1.5) 
 		
-		var posChange = 8*size
-		
+		var posChange 
+		match blade_level:
+			0:
+				posChange = 9*size
+			1:
+				posChange = 14*size
+			2:
+				posChange = 17*size
+
 		if blade_tween:
 			blade_tween.kill()
 		blade_tween = create_tween().set_parallel()
 		if rustL:
-			blade_tween.tween_property(blade_left_refs[blade_level], "scale:y", bladeLen, return_time)
-			blade_tween.tween_property(blade_left_refs[blade_level], "position:x", posChange, return_time).as_relative()
+			blade_tween.tween_property(blade_left_refs[blade_level], "scale:y", bladeLen, charge_time)
+			blade_tween.tween_property(blade_left_refs[blade_level], "position:x", posChange, swipe_time).as_relative()
 			blade_tween.tween_property(blade_left_refs[blade_level], "rotation", -PI/8, charge_time)
 			blade_tween.tween_property(blade_left_refs[blade_level], "rotation", PI/4, swipe_time).set_delay(charge_time)
+			blade_tween.tween_property(blade_left_refs[blade_level], "position:x", -0, charge_time).as_relative().set_delay(charge_time)
 			blade_tween.tween_property(blade_left_refs[blade_level], "rotation", 0, return_time).set_delay(return_time)
 			blade_tween.tween_property(blade_left_refs[blade_level], "scale:y", 1.0, return_time).set_delay(return_time)
-			blade_tween.tween_property(blade_left_refs[blade_level], "position:x", -0, return_time).as_relative().set_delay(return_time)
 		
 		if rustR:
-			blade_tween.tween_property(blade_right_refs[blade_level], "scale:y", bladeLen, return_time)
-			blade_tween.tween_property(blade_right_refs[blade_level], "position:x", -posChange, return_time).as_relative()
+			blade_tween.tween_property(blade_right_refs[blade_level], "scale:y", bladeLen, charge_time)
+			blade_tween.tween_property(blade_right_refs[blade_level], "position:x", -posChange, swipe_time).as_relative()
 			blade_tween.tween_property(blade_right_refs[blade_level], "rotation", PI/8, charge_time)
 			blade_tween.tween_property(blade_right_refs[blade_level], "rotation", -PI/4, swipe_time).set_delay(charge_time)
+			blade_tween.tween_property(blade_right_refs[blade_level], "position:x", 0, charge_time).as_relative().set_delay(charge_time)
 			blade_tween.tween_property(blade_right_refs[blade_level], "rotation", 0, return_time).set_delay(return_time)
 			blade_tween.tween_property(blade_right_refs[blade_level], "scale:y", 1.0, return_time).set_delay(return_time)
-			blade_tween.tween_property(blade_right_refs[blade_level], "position:x", 0, return_time).as_relative().set_delay(return_time)
 		
 		#var blade_temp = blade_level
 		blade_tween.finished.connect(_attackEnd.bind(blade_level))#blade_temp))
@@ -394,49 +425,116 @@ func _RustedLeft() -> void:
 	#hitbox_l_ref.set_deferred("monitorable", false)
 	#$AnimationPlayer.play("removeRustLeft", -1, rust_recovery_speed)
 	
-	var derust_time = 15.0 / rust_recovery_speed
+	var rustNode : Node2D
+	var rustOffset : float
+	match blade_level:
+		0:
+			rustNode = $Blade1/RustedL
+			rustOffset = -8.5
+		1:
+			rustNode = $Blade2/RustedL
+			rustOffset = -10.0
+		2:
+			rustNode = $Blade3/RustedL 
+			rustOffset = -12.0
 	
-	var startColor : Color = startBladeColor
-	startColor.a = 0.0
+	var derust_start = 1.0 
+	var derust_time = 12.55 / rust_recovery_speed
+	var derust_interval = 0.1
+	var derust_end = 0.75 # *2 
+	var derust_end_end = 0.6
+	
+	#var startColor : Color = startBladeColor
+	#startColor.a = 0.0
 	if rust_tween_l:
 		rust_tween_l.kill()
 	rust_tween_l = create_tween()
-	rust_tween_l.tween_property(blade_left_refs[blade_level], "modulate", startBladeColor, derust_time).from(startColor)
-	rust_tween_l.finished.connect(_fullDeRust.bind(true))
+	rust_tween_l.tween_property(blade_left_refs[blade_level], "modulate:a", 0.0, derust_start)
+	rust_tween_l.parallel().tween_property(rustNode, "modulate:a", 1.0, derust_start)
+	rust_tween_l.tween_property(blade_left_refs[blade_level], "scale", Vector2(0.0,0.0), derust_time)
+	rust_tween_l.tween_property(blade_left_refs[blade_level], "modulate", startBladeColor, derust_interval)
+	rust_tween_l.tween_property(blade_left_refs[blade_level], "scale", Vector2(0.5,0.25), derust_end)
+	rust_tween_l.parallel().tween_property(rustNode, "position:y", rustOffset, derust_end).as_relative()
+	rust_tween_l.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	rust_tween_l.tween_property(blade_left_refs[blade_level], "scale", Vector2(1.0,1.0), derust_end_end)
+	rust_tween_l.parallel().tween_property(rustNode, "position:y", 5*rustOffset, derust_end_end).as_relative()
+	rust_tween_l.parallel().tween_property(rustNode, "rotation", 2.0, derust_end_end)
+	rust_tween_l.finished.connect(_fullDeRust.bind(true, rustNode))
 
 func _RustedRight() -> void:
-	#hitbox_r_ref.set_deferred("monitorable", false)
+	var rustNode : Node2D
+	var rustOffset : float
+	match blade_level:
+		0:
+			rustNode = $Blade1/RustedR
+			rustOffset = -8.5 * size
+		1:
+			rustNode = $Blade2/RustedR
+			rustOffset = -10.0 * size
+		2:
+			rustNode = $Blade3/RustedR 
+			rustOffset = -12.0 * size
 	
-	#$AnimationPlayer.play("removeRustRight", -1, rust_recovery_speed)
-	
-	var derust_time = 15.0 / rust_recovery_speed
+	var derust_start = 1.0 
+	var derust_time = 12.55 / rust_recovery_speed
+	var derust_interval = 0.1
+	var derust_end = 0.75  
+	var derust_end_end = 0.6
 	
 	var startColor : Color = startBladeColor
 	startColor.a = 0.0
 	if rust_tween_r:
 		rust_tween_r.kill()
 	rust_tween_r = create_tween()
-	rust_tween_r.tween_property(blade_right_refs[blade_level], "modulate", startBladeColor, derust_time).from(startColor)
-	rust_tween_r.finished.connect(_fullDeRust.bind(false))
+	rust_tween_r.tween_property(blade_right_refs[blade_level], "modulate:a", 0.0, derust_start)
+	rust_tween_r.parallel().tween_property(rustNode, "modulate:a", 1.0, derust_start)
+	rust_tween_r.tween_property(blade_right_refs[blade_level], "scale", Vector2(0.0,0.0), derust_time)
+	rust_tween_r.tween_property(blade_right_refs[blade_level], "modulate", startBladeColor, derust_interval)
+	rust_tween_r.tween_property(blade_right_refs[blade_level], "scale", Vector2(0.5,0.25), derust_end)
+	rust_tween_r.parallel().tween_property(rustNode, "position:y", rustOffset, derust_end).as_relative()
+	rust_tween_r.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	rust_tween_r.tween_property(blade_right_refs[blade_level], "scale", Vector2(1.0,1.0), derust_end_end)
+	rust_tween_r.parallel().tween_property(rustNode, "position:y", 5*rustOffset, derust_end_end).as_relative()
+	rust_tween_r.parallel().tween_property(rustNode, "rotation", -2.0, derust_end_end)
+	rust_tween_r.finished.connect(_fullDeRust.bind(false, rustNode))
 
-func _fullDeRust(left : bool) -> void:
+func _fullDeRust(left : bool, rustNode : Node2D) -> void:
+	rustNode.modulate.a = 0.0
+	rustNode.position.y = 2
+	var tempRot = rustNode.rotation
+	
+	rustNode.rotation = 0
+	
 	if left:
-		if rust_level_l >= rust_max:	
-			hitbox_l_ref.show()
-			rust_level_l = 0.0
-			hitbox_l_ref.set_deferred("monitorable", true)
-			if detected and not attacking:	
-				_detectionCheck()
+		#if rust_level_l >= rust_max:	
+		
+		_spawnRustParticle(true, tempRot)
+		
+		hitbox_l_ref.show()
+		rust_level_l = 0.0
+		hitbox_l_ref.set_deferred("monitorable", true)
+		if detected and not attacking:	
+			_detectionCheck()
 	else:
-		if rust_level_r >= rust_max:	
-			hitbox_r_ref.show()
-			rust_level_r = 0.0
-			hitbox_r_ref.set_deferred("monitorable", true)
-			if detected and not attacking:	
-				_detectionCheck()
+		
+		_spawnRustParticle(false, tempRot)
+		
+		#if rust_level_r >= rust_max:	
+		hitbox_r_ref.show()
+		rust_level_r = 0.0
+		hitbox_r_ref.set_deferred("monitorable", true)
+		if detected and not attacking:	
+			_detectionCheck()
+
+#Need rotation, size, proper position, L/R, and BL
+func _spawnRustParticle(left : bool, tempRot : float) -> void: #BL : int, 
+	var totalRot : float = parentRef.getRotation()
+	
+	var rust_pos = getRustPosition(totalRot, left)
+	spawnRustParticle.emit(totalRot + tempRot, size, rust_pos, left, blade_level)
 
 func _deRustLeft() -> void:
-	var rust_length = 10.0 / rust_recovery_speed * min(rust_level_l / rust_max, 1.0)
+	var rust_length = 12.0 / rust_recovery_speed * min(rust_level_l / rust_max, 1.0)
 	
 	if rust_tween_l:
 		rust_tween_l.kill()
@@ -445,10 +543,50 @@ func _deRustLeft() -> void:
 	rust_tween_l.parallel().tween_property(self, "rust_level_l", 0, rust_length)
 
 func _deRustRight() -> void:
-	var rust_length = 10.0 / rust_recovery_speed * min(rust_level_r / rust_max, 1.0)
+	var rust_length = 12.0 / rust_recovery_speed * min(rust_level_r / rust_max, 1.0)
 	
 	if rust_tween_r:
 		rust_tween_r.kill()
 	rust_tween_r = create_tween()
 	rust_tween_r.tween_property(blade_right_refs[blade_level], "modulate", startBladeColor, rust_length)
 	rust_tween_r.parallel().tween_property(self, "rust_level_r", 0, rust_length)
+
+func getFocusedPosition(hitbox_type : int) -> Vector2: 
+	var retVec = getPosition()
+	var the_node_path : String
+	
+	
+	match hitbox_type:
+		0:
+			the_node_path = "HitboxL/CollisionShape2D"
+		1:
+			the_node_path = "HitboxR/CollisionShape2D"
+		2:
+			the_node_path = "Hitbox/CollisionShape2D"
+	
+	match blade_level:
+		0:
+			retVec += get_node(the_node_path).position
+		1:
+			retVec += get_node(the_node_path+"2").position
+		2:
+			retVec += get_node(the_node_path+"3").position
+	
+	return retVec
+
+func getRustPosition(totalRot : float, left : bool) -> Vector2:
+	
+	
+	var retVec = position#getPosition()
+	
+	var neg_left = -1.0 if left else 1.0
+	
+	match blade_level:
+		0:
+			retVec += size * Vector2(neg_left * 10, -49) #2 + -8.5*6
+		1:
+			retVec += size * Vector2(neg_left * 11, -58) #2 + -10*6
+		2:
+			retVec += size * Vector2(neg_left * 12, -70) #2 + -12*6
+	
+	return retVec.rotated(totalRot)

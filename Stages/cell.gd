@@ -1520,3 +1520,7 @@ func _connectBossToZone(boss: Node2D, pos : Vector2, oldzone : Vector2) -> void:
 	var dim_half = Vector2(ZONE_WIDTH[current_map], ZONE_HEIGHT[current_map])/2
 	
 	boss.setNewRoamParams(center - dim_half, center + dim_half, Vector2(i, j))
+
+
+func _on_blob_swim_spawn_particle(particleID: int, pos: Vector2, rot: float, size: float, kwargs: Array) -> void:
+	$PlayerParticleManager.createParticle(particleID, pos, rot, size, kwargs)

@@ -1,0 +1,79 @@
+[gd_scene load_steps=3 format=3 uid="uid://buoibtrttd0wj"]
+
+[ext_resource type="PackedScene" uid="uid://cex582ur8dubm" path="res://Blob/base_player_particle.tscn" id="1_wurot"]
+[ext_resource type="Script" uid="uid://b0n52ja8ch26t" path="res://Blob/Evolutions/Particles/rust_blade_particle.gd" id="2_ab1gf"]
+
+[node name="rust_blade_particle" instance=ExtResource("1_wurot")]
+script = ExtResource("2_ab1gf")
+
+[node name="RustedL1" type="Node2D" parent="." index="0"]
+visible = false
+
+[node name="Pincer" type="Polygon2D" parent="RustedL1" index="0"]
+color = Color(0.729412, 0.458824, 0.278431, 1)
+polygon = PackedVector2Array(0, 0, -7, -8, -10, -19, -10, -25, -8, -28, -8, -25, -3, -30, -5, -26, -6, -19, -5, -12, 0, -4)
+
+[node name="Pincer2" type="Polygon2D" parent="RustedL1" index="1"]
+color = Color(0.65098, 0.407843, 0.247059, 1)
+polygon = PackedVector2Array(0, -4, -6, -10, -8, -19, -6, -25, -3, -30, -5, -26, -6, -19, -5, -12, -2, -8)
+
+[node name="RustedR1" type="Node2D" parent="." index="1"]
+visible = false
+
+[node name="Pincer" type="Polygon2D" parent="RustedR1" index="0"]
+scale = Vector2(-1, 1)
+color = Color(0.729412, 0.458824, 0.278431, 1)
+polygon = PackedVector2Array(0, 0, -7, -8, -10, -19, -10, -25, -8, -28, -8, -25, -3, -30, -5, -26, -6, -19, -5, -12, 0, -4)
+
+[node name="Pincer2" type="Polygon2D" parent="RustedR1" index="1"]
+scale = Vector2(-1, 1)
+color = Color(0.65098, 0.407843, 0.247059, 1)
+polygon = PackedVector2Array(0, -4, -6, -10, -8, -19, -6, -25, -3, -30, -5, -26, -6, -19, -5, -12, -2, -8)
+
+[node name="RustedL2" type="Node2D" parent="." index="2"]
+visible = false
+
+[node name="Pincer" type="Polygon2D" parent="RustedL2" index="0"]
+color = Color(0.729412, 0.458824, 0.278431, 1)
+polygon = PackedVector2Array(0, 0, -10, -9, -11, -15, -14, -21, -11, -32, -13, -38, -9, -33, -4, -37, -4, -34, -1, -34, -7, -29, -8, -26, -8, -21, -2, -23, -7, -16, -8, -14, -7, -12, 0, -5)
+
+[node name="Pincer2" type="Polygon2D" parent="RustedL2" index="1"]
+color = Color(0.65098, 0.407843, 0.247059, 1)
+polygon = PackedVector2Array(0, -3, -8, -10, -9, -14, -6, -20, -10, -19, -11, -21, -10, -26, -8, -31, -4, -35, -4, -34, -1, -34, -7, -29, -8, -26, -8, -21, -2, -23, -7, -16, -8, -14, -7, -12, 0, -5)
+
+[node name="RustedR2" type="Node2D" parent="." index="3"]
+visible = false
+
+[node name="Pincer" type="Polygon2D" parent="RustedR2" index="0"]
+scale = Vector2(-1, 1)
+color = Color(0.729412, 0.458824, 0.278431, 1)
+polygon = PackedVector2Array(0, 0, -10, -9, -11, -15, -14, -21, -11, -32, -13, -38, -9, -33, -4, -37, -4, -34, -1, -34, -7, -29, -8, -26, -8, -21, -2, -23, -7, -16, -8, -14, -7, -12, 0, -5)
+
+[node name="Pincer2" type="Polygon2D" parent="RustedR2" index="1"]
+scale = Vector2(-1, 1)
+color = Color(0.65098, 0.407843, 0.247059, 1)
+polygon = PackedVector2Array(0, -3, -8, -10, -9, -14, -6, -20, -10, -19, -11, -21, -10, -26, -8, -31, -4, -35, -4, -34, -1, -34, -7, -29, -8, -26, -8, -21, -2, -23, -7, -16, -8, -14, -7, -12, 0, -5)
+
+[node name="RustedL3" type="Node2D" parent="." index="4"]
+visible = false
+
+[node name="Pincer" type="Polygon2D" parent="RustedL3" index="0"]
+color = Color(0.729412, 0.458824, 0.278431, 1)
+polygon = PackedVector2Array(0, 0, -10, -9, -13, -17, -20, -25, -14, -23, -14, -30, -18, -42, -15, -39, -14, -45, -11, -56, -11, -52, -10, -48, -10, -42, -6, -43, -10, -37, -9, -28, -5, -30, -8, -17, -7, -13, 0, -8)
+
+[node name="Pincer2" type="Polygon2D" parent="RustedL3" index="1"]
+scale = Vector2(-1, 1)
+color = Color(0.65098, 0.407843, 0.247059, 1)
+polygon = PackedVector2Array(0, -6, 8, -10, 10, -16, 10, -22, 11, -27, 12, -38, 12, -42, 12, -48, 11, -56, 11, -52, 10, -48, 10, -42, 6, -43, 10, -37, 9, -28, 5, -30, 8, -17, 7, -13, 3, -15, 3, -10, 0, -8)
+
+[node name="RustedR3" type="Node2D" parent="." index="5"]
+visible = false
+
+[node name="Pincer" type="Polygon2D" parent="RustedR3" index="0"]
+scale = Vector2(-1, 1)
+color = Color(0.729412, 0.458824, 0.278431, 1)
+polygon = PackedVector2Array(0, 0, -10, -9, -13, -17, -20, -25, -14, -23, -14, -30, -18, -42, -15, -39, -14, -45, -11, -56, -11, -52, -10, -48, -10, -42, -6, -43, -10, -37, -9, -28, -5, -30, -8, -17, -7, -13, 0, -8)
+
+[node name="Pincer2" type="Polygon2D" parent="RustedR3" index="1"]
+color = Color(0.65098, 0.407843, 0.247059, 1)
+polygon = PackedVector2Array(0, -6, 8, -10, 10, -16, 10, -22, 11, -27, 12, -38, 12, -42, 12, -48, 11, -56, 11, -52, 10, -48, 10, -42, 6, -43, 10, -37, 9, -28, 5, -30, 8, -17, 7, -13, 3, -15, 3, -10, 0, -8)

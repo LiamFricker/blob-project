@@ -98,6 +98,7 @@ position = Vector2(-717, -245)
 [connection signal="currencyUpdate" from="Blob_Swim" to="." method="_on_blob_swim_currency_update"]
 [connection signal="endAfterImage" from="Blob_Swim" to="." method="_on_blob_swim_end_after_image"]
 [connection signal="spawnOrbs" from="Blob_Swim" to="." method="_spawnOrbs"]
+[connection signal="spawnParticle" from="Blob_Swim" to="." method="_on_blob_swim_spawn_particle"]
 [connection signal="timeout" from="OrbTimer" to="." method="_on_orb_timer_timeout"]
 [connection signal="timeout" from="UpdateZoneTimer" to="." method="_on_update_zone_timer_timeout"]
 [connection signal="timeout" from="UpdateTick" to="." method="_on_update_tick_timeout"]
