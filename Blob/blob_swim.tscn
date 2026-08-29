@@ -47,6 +47,7 @@ shape = SubResource("CircleShape2D_8tadd")
 [node name="InnerNode" type="Node2D" parent="."]
 
 [node name="Pivot" type="Node2D" parent="InnerNode"]
+visible = false
 scale = Vector2(1, 1.5)
 
 [node name="Node2D" type="Node2D" parent="InnerNode/Pivot"]
