@@ -88,6 +88,8 @@ func setBladeLevel(newBL : int) -> void:
 	blade_right_refs[blade_level].modulate = startBladeColor
 	hitbox_l_ref.set_deferred("monitorable", true)
 	hitbox_r_ref.set_deferred("monitorable", true)
+	#hitbox_l_ref.show()
+	#hitbox_r_ref.show()
 	
 	blade_level = newBL
 	rust_level_l = 0.0
@@ -157,7 +159,7 @@ func _BLtoColShape(BL : int) -> CollisionShape2D:
 			return $Hitbox/CollisionShape2D2
 		_:
 			return $Hitbox/CollisionShape2D3
-
+"""
 func _toggle(toggle : bool) -> void:
 	if rust_level_l < rust_max: #not toggle or 
 		#hitbox_l_ref.set_deferred("monitoring", toggle)
@@ -165,6 +167,7 @@ func _toggle(toggle : bool) -> void:
 	if rust_level_r < rust_max: #not toggle or 
 		#hitbox_r_ref.set_deferred("monitoring", toggle)
 		hitbox_r_ref.set_deferred("monitorable", toggle)
+"""
 
 func _pinch() -> void:
 	var pinch_time = 0.6
