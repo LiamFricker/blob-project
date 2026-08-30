@@ -41,7 +41,7 @@ func _ready() -> void:
 	super()
 
 func addspearLevel() -> void:
-	if spear_level == 2:
+	if spear_level == 4:
 		setspearLevel(0)
 	else:
 		setspearLevel(spear_level+1)
@@ -271,11 +271,15 @@ func _colShapeReset(BL : int) -> void:
 
 func _setSize() -> void:
 	var sizeVec = size * Vector2(1,1)
-	$Spear1.scale = sizeVec
-	$Spear2.scale = sizeVec
-	$Spear3.scale = sizeVec
-	$Spear4.scale = sizeVec
-	$Spear5.scale = sizeVec
+	#Some FUCKING idiot decided to scale all of them by 2 for NO good reason. Some lazy fucking idiot
+	#Now when I'm done with ALL the sprites do I realize this fucking lazy idiot scaled them all by two
+	#and it'd take me hours to fix it.
+	#Make sure you scale ALL the fucking position offsets by two you god damn idiot.
+	$Spear1.scale = sizeVec * 2 
+	$Spear2.scale = sizeVec * 2
+	$Spear3.scale = sizeVec * 2
+	$Spear4.scale = sizeVec * 2
+	$Spear5.scale = sizeVec * 2
 	
 	
 	if not attacking:
