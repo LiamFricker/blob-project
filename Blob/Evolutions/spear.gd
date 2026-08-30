@@ -21,12 +21,13 @@ func _on_inject(area: Area2D) -> void:
 	area.getParent().applyPoison(base_intensity * dot_mult, duration)
 
 var attacking : bool = false
-var detected : bool = false
+var impaled : bool = false
 
 @export var spear_level : int = 0
-@onready var spear_refs = [$Spear1/Left, $Spear2/Left, $Spear3/Left]
+@onready var spear_refs = [$Spear1/Left, $Spear2/Left, $Spear3/Left, $Spear4/Left, $Spear5/Left]
 
-@onready var hitbox_ref = $HitboxL
+@onready var hitbox_ref = $Hitbox
+var first_hitbox_enabled : bool = true 
 
 var spear_tween
 var rust_tween
@@ -38,8 +39,6 @@ var rust_level : float = 0.0
 
 @export var startspearColor : Color
 @export var endspearColor : Color
-
-@export var pinch_cooldown : float = 2.0
 
 signal spawnRustParticle(partID : int, rust_pos : Vector2, totalRot : float, size : float, kwargs : Array)
 
@@ -96,57 +95,29 @@ func setspearLevel(newBL : int) -> void:
 	if rust_tween:
 		rust_tween.kill()
 	
-	if not detected:
-		match spear_level:
-			0:
-				$Hitbox/CollisionShape2D.set_deferred("disabled", false)
-				$Hitbox/CollisionShape2D.set_deferred("disabled", false)
-				#$Hitbox/CollisionShape2D.set_deferred("disabled", false)
-				$Detection/CollisionShape2D.set_deferred("disabled", false)
-				if not attacking:	
-					$Spear1.show()
-			1:
-				$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
-				$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
-				#$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
-				$Detection/CollisionShape2D2.set_deferred("disabled", false)
-				if not attacking:
-					$Spear2.show()
-			2:
-				$Hitbox/CollisionShape2D3.set_deferred("disabled", false)
-				$Hitbox/CollisionShape2D3.set_deferred("disabled", false)
-				#$Hitbox/CollisionShape2D3.set_deferred("disabled", false)
-				$Detection/CollisionShape2D3.set_deferred("disabled", false)
-				if not attacking:	
-					$Spear3.show()
+	match spear_level:
+		0:
+			$Hitbox/CollisionShape2D.set_deferred("disabled", false)
+			$Hitbox/CollisionShape2D.set_deferred("disabled", false)
+			#$Hitbox/CollisionShape2D.set_deferred("disabled", false)
+			$Detection/CollisionShape2D.set_deferred("disabled", false)
+			if not attacking:	
+				$Spear1.show()
+		1:
+			$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
+			$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
+			#$Hitbox/CollisionShape2D2.set_deferred("disabled", false)
+			$Detection/CollisionShape2D2.set_deferred("disabled", false)
+			if not attacking:
+				$Spear2.show()
+		2:
+			$Hitbox/CollisionShape2D3.set_deferred("disabled", false)
+			$Hitbox/CollisionShape2D3.set_deferred("disabled", false)
+			#$Hitbox/CollisionShape2D3.set_deferred("disabled", false)
+			$Detection/CollisionShape2D3.set_deferred("disabled", false)
+			if not attacking:	
+				$Spear3.show()
 	
-	
-
-func _on_detection_area_entered(area: Area2D) -> void:
-	if not detected and not attacking:
-		if area.getID() != 0:
-			if rust_level < rust_max:
-				detected = true
-				_pinch()
-		
-
-func _on_detection_body_entered(body: Node2D) -> void:
-	if not detected and not attacking:
-		if body.getID() != 0:
-			detected = true
-			if rust_level < rust_max:
-				_pinch()
-
-func _detectionCheck() -> void:
-	var detectNode = $Detection
-	
-	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
-		if not attacking:
-			detected = true
-			if rust_level < rust_max:
-				_pinch()
-	detected = false
-
 func _BLtoColShape(BL : int) -> CollisionShape2D:
 	match BL:
 		0:
@@ -161,33 +132,7 @@ func _toggle(toggle : bool) -> void:
 		#hitbox_ref.set_deferred("monitoring", toggle)
 		hitbox_ref.set_deferred("monitorable", toggle)
 
-func _pinch() -> void:
-	print("pinch")
-	var pinch_time = 0.6
-	
-	_BLtoColShape(spear_level).set_deferred("disabled", false)
-	#_toggle(false)
-	
-	if spear_tween:
-		spear_tween.kill()
-	spear_tween = create_tween().set_parallel()
-	if rust_level < rust_max:
-		spear_tween.tween_property(spear_refs[spear_level], "scale:y", 1.2, pinch_time)
-		spear_tween.tween_property(spear_refs[spear_level], "rotation", PI/4, pinch_time)
-		spear_tween.tween_property(spear_refs[spear_level], "rotation", 0, pinch_time).set_delay(pinch_time)
-		spear_tween.tween_property(spear_refs[spear_level], "scale:y", 1.0, pinch_time).set_delay(pinch_time)
 
-	
-	#var spear_temp = spear_level
-	spear_tween.finished.connect(_pinchEnd.bind(spear_level))#spear_temp))
-
-func _pinchEnd(BL : int) -> void:
-	_BLtoColShape(BL).set_deferred("disabled", true)
-	#_toggle(true)
-	$PinchCooldown.start(pinch_cooldown)
-	
-func _on_pinch_cooldown_timeout() -> void:
-	_detectionCheck()
 
 func attack(temp : float, charge_cd : float) -> void:
 	
@@ -248,8 +193,7 @@ func _attackEnd(BL : int) -> void:
 	attacking = false
 	_BLtoColShape(BL).set_deferred("disabled", true)
 	_colShapeReset(BL)
-	if detected:
-		_detectionCheck()
+
 
 func _colShapeIncrease(BL : int, inc : float) -> void:
 	var tempShape = CircleShape2D.new()
@@ -419,8 +363,7 @@ func _fullDeRust(rustNode : Node2D) -> void:
 	hitbox_ref.show()
 	rust_level = 0.0
 	hitbox_ref.set_deferred("monitorable", true)
-	if detected and not attacking:	
-		_detectionCheck()
+
 
 #Need rotation, size, proper position, L/R, and BL
 func _spawnRustParticle(tempRot : float) -> void: #BL : int, 
