@@ -86,6 +86,8 @@ func setBladeLevel(newBL : int) -> void:
 	
 	blade_left_refs[blade_level].modulate = startBladeColor
 	blade_right_refs[blade_level].modulate = startBladeColor
+	blade_left_refs[blade_level].scale = Vector2(1,1)
+	blade_right_refs[blade_level].scale = Vector2(1,1)
 	hitbox_l_ref.set_deferred("monitorable", true)
 	hitbox_r_ref.set_deferred("monitorable", true)
 	#hitbox_l_ref.show()

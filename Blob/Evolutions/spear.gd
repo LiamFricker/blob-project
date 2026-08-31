@@ -1,5 +1,6 @@
 extends "res://Blob/Evolutions/base_evo_general.gd"
 
+"""
 @export var base_damage : float = 1
 @export var damage_mult : float = 1
 #@export var size : float = 12
@@ -10,12 +11,14 @@ extends "res://Blob/Evolutions/base_evo_general.gd"
 
 func _on_inject(area: Area2D) -> void:
 	area.getParent().applyPoison(base_intensity * dot_mult, duration)
+"""
 
-var attacking : bool = false
+var attacking : int = 0
 var impaled : bool = false
 
 @export var spear_level : int = 0
-@onready var spear_refs = [$Spear1/Left, $Spear2/Left, $Spear3/Left, $Spear4/Left, $Spear5/Left]
+@onready var spear_refs = [$Spear1, $Spear2, $Spear3, $Spear4, $Spear5]
+@onready var spear_spear_refs = [$Spear1/SpearShade, $Spear2/SpearShade, $Spear3/SpearShade, $Spear4/SpearShade, $Spear5/SpearShade]
 @onready var hitbox_refs = [$Hitbox1, $Hitbox2, $Hitbox3, $Hitbox4, $Hitbox5]
 
 #@onready var hitbox_ref = $Hitbox
@@ -40,7 +43,7 @@ func _ready() -> void:
 	setspearLevel(spear_temp)
 	super()
 
-func addspearLevel() -> void:
+func addSpearLevel() -> void:
 	if spear_level == 4:
 		setspearLevel(0)
 	else:
@@ -52,77 +55,73 @@ func setspearLevel(newBL : int) -> void:
 			$Hitbox1/CollisionShape2D.set_deferred("disabled", true)
 			$Hitbox1/CollisionShape2D2.set_deferred("disabled", false)
 			#$Hitbox1.set_deferred("monitorable", false)
-			if not attacking:
+			if attacking == 0:
 				$Spear1.hide()
-			$Spear1/SpearShade/Rusted.position.y = 2
-			$Spear1/SpearShade/Rusted.modulate.a = 0.0
-			$Spear1/SpearShade/Rusted.position.y = 2
+			$Spear1/Rust.position.y = 2
+			$Spear1/Rust.modulate.a = 0.0
+			$Spear1/Rust.position.y = 2
+			$Spear1/SpearShade.modulate = Color.WHITE
+			$Spear1/SpearShade.scale = Vector2(1,1)
 		1:
 			$Hitbox2/CollisionShape2D.set_deferred("disabled", true)
 			$Hitbox2/CollisionShape2D2.set_deferred("disabled", false)
 			#$Hitbox2.set_deferred("monitorable", false)
-			if not attacking:
+			if attacking == 0:
 				$Spear2.hide()
-			$Spear2/SpearShade/Rusted.position.y = 2
-			$Spear2/SpearShade/Rusted.modulate.a = 0.0
-			$Spear2/SpearShade/Rusted.position.y = 2
+			$Spear2/Rust.position.y = 2
+			$Spear2/Rust.modulate.a = 0.0
+			$Spear2/Rust.position.y = 2
+			$Spear2/SpearShade/Full.modulate = Color.WHITE
+			$Spear2/SpearShade/Full.scale = Vector2(1,1)
 		2:
 			$Hitbox3/CollisionShape2D.set_deferred("disabled", true)
 			$Hitbox3/CollisionShape2D2.set_deferred("disabled", false)
 			#$Hitbox3.set_deferred("monitorable", false)
-			if not attacking:
+			if attacking == 0:
 				$Spear3.hide()
-			$Spear3/SpearShade/Rusted.position.y = 2
-			$Spear3/SpearShade/Rusted.modulate.a = 0.0
-			$Spear3/SpearShade/Rusted.position.y = 2
+			$Spear3/Rust.position.y = 2
+			$Spear3/Rust.modulate.a = 0.0
+			$Spear3/Rust.position.y = 2
+			$Spear3/SpearShade/Full.modulate = Color.WHITE
+			$Spear3/SpearShade/Full.scale = Vector2(1,1)
 		3:
 			$Hitbox4/CollisionShape2D.set_deferred("disabled", true)
 			$Hitbox4/CollisionShape2D2.set_deferred("disabled", false)
 			#$Hitbox4.set_deferred("monitorable", false)
-			if not attacking:
+			if attacking == 0:
 				$Spear4.hide()
-			$Spear4/SpearShade/Rusted.position.y = 2
-			$Spear4/SpearShade/Rusted.modulate.a = 0.0
-			$Spear4/SpearShade/Rusted.position.y = 2
+			$Spear4/Rust.position.y = 2
+			$Spear4/Rust.modulate.a = 0.0
+			$Spear4/Rust.position.y = 2
+			$Spear4/SpearShade/Full.modulate = Color.WHITE
+			$Spear4/SpearShade/Full.scale = Vector2(1,1)
 		4:
 			$Hitbox5/CollisionShape2D.set_deferred("disabled", true)
-			$Hitbox5/CollisionShape2D2.set_deferred("disabled", false)
+			#$Hitbox5/CollisionShape2D2.set_deferred("disabled", false)
 			#$Hitbox5.set_deferred("monitorable", false)
-			if not attacking:
+			if attacking == 0:
 				$Spear5.hide()
-			$Spear5/SpearShade/Rusted.position.y = 2
-			$Spear5/SpearShade/Rusted.modulate.a = 0.0
-			$Spear5/SpearShade/Rusted.position.y = 2
+			#$Spear5/Rust.position.y = 2
+			#$Spear5/Rust.modulate.a = 0.0
+			#$Spear5/Rust.position.y = 2
 	
-	spear_refs[spear_level].modulate = startspearColor
+	spear_spear_refs[spear_level].modulate = startspearColor
+	
 	hitbox_refs[spear_level].set_deferred("monitorable", false)
-	hitbox_refs[spear_level].show()
+	hitbox_refs[spear_level].hide()
 	first_hitbox_enabled = true
 	
 	spear_level = newBL
 	rust_level = 0.0
 	
 	hitbox_refs[newBL].set_deferred("monitorable", true)
+	hitbox_refs[newBL].show()
 	
 	if rust_tween:
 		rust_tween.kill()
 	
-	match newBL:
-		0:
-			if not attacking:
-				$Spear1.show()
-		1:
-			if not attacking:
-				$Spear2.show()
-		2:
-			if not attacking:
-				$Spear3.show()
-		3:
-			if not attacking:
-				$Spear4.show()
-		4:
-			if not attacking:
-				$Spear5.show()
+	if attacking == 0:
+		spear_refs[newBL].show()
 	
 func _BLtoColShape(BL : int) -> CollisionShape2D:
 	match BL:
@@ -143,15 +142,22 @@ func _toggle(toggle : bool) -> void:
 		hitbox_refs[spear_level].set_deferred("monitorable", toggle)
 		#hitbox_ref.set_deferred("monitorable", toggle)
 """
+func chargeAttack(charge_max : float) -> void:
+	if attacking != 1 and (rust_level < rust_max or spear_level < 3):
+		attacking = 1
+		if spear_tween:
+			spear_tween.kill()
+		spear_tween = create_tween()
+		var base_size = 2.0*size
+		spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(1, 0.25), charge_max)
 
-func attack(temp : float, charge_cd : float) -> void:
+func attack(temp : float, charge_cd : float, charge_pull : float) -> void:
 	
-	if not attacking and rust_level < rust_max:
-		attacking = true
+	if attacking == 1 and (rust_level < rust_max or spear_level < 3):
+		attacking = 2
 		
-		var charge_time : float = min(0.3 * charge_cd, 0.45)
-		var swipe_time : float = min(0.2 * charge_cd, 0.3)
-		var return_time : float = min(0.5 * charge_cd, 0.75)
+		var swipePos : float = min(0.08 * charge_cd, 0.2)
+		var retPos : float = min(0.3 * charge_cd, 0.4) / charge_pull
 		var spearLen = max(2.0 * temp/6.0, 1.5) 
 		
 		var posChange 
@@ -171,13 +177,10 @@ func attack(temp : float, charge_cd : float) -> void:
 			spear_tween.kill()
 		spear_tween = create_tween().set_parallel()
 		
-		spear_tween.tween_property(spear_refs[spear_level], "scale:y", spearLen, charge_time)
-		spear_tween.tween_property(spear_refs[spear_level], "position:x", posChange, swipe_time).as_relative()
-		spear_tween.tween_property(spear_refs[spear_level], "rotation", -PI/8, charge_time)
-		spear_tween.tween_property(spear_refs[spear_level], "rotation", PI/4, swipe_time).set_delay(charge_time)
-		spear_tween.tween_property(spear_refs[spear_level], "position:x", -0, charge_time).as_relative().set_delay(charge_time)
-		spear_tween.tween_property(spear_refs[spear_level], "rotation", 0, return_time).set_delay(return_time)
-		spear_tween.tween_property(spear_refs[spear_level], "scale:y", 1.0, return_time).set_delay(return_time)
+		var base_size = 2.0*size
+		
+		spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(temp/20, 1 + 0.1 * temp), swipePos)
+		spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(1,1), retPos).set_delay(swipePos)
 		
 		
 		#var spear_temp = spear_level
@@ -212,61 +215,64 @@ func _attackEnd(BL : int) -> void:
 			4:
 				$Spear5.show()
 	
-	attacking = false
+	attacking = 0
 	_BLtoColShape(BL).set_deferred("disabled", true)
 	_colShapeReset(BL)
 
 
 func _colShapeIncrease(BL : int, inc : float) -> void:
 	var tempShape = CircleShape2D.new()
+	
 	var abs_size = size * inc
 	var hb_shape = _BLtoColShape(BL)
+	tempShape.radius = 12 * abs_size
+	hb_shape.set_deferred("shape", tempShape)
 	match BL:
-		0:
-			tempShape.radius = 20 * abs_size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -22*abs_size)
+		0:	
+			hb_shape.set_deferred("position:y", -43*abs_size)
 		1:
-			tempShape.radius = 26 * abs_size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -26*abs_size)
+			#tempShape.radius = 26 * abs_size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -49*abs_size)
 		2:
-			tempShape.radius = 32 * abs_size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -34*abs_size)
+			#tempShape.radius = 32 * abs_size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -61*abs_size)
 		3:
-			tempShape.radius = 32 * abs_size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -34*abs_size)
+			#tempShape.radius = 32 * abs_size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -55*abs_size)
 		4:
-			tempShape.radius = 32 * abs_size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -34*abs_size)
+			#tempShape.radius = 32 * abs_size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -37*abs_size)
 			
 func _colShapeReset(BL : int) -> void:
 	var tempShape = CircleShape2D.new()
 	var hb_shape = _BLtoColShape(BL)
+	tempShape.radius = 12 * size
+	hb_shape.set_deferred("shape", tempShape)
 	match BL:
 		0:
-			tempShape.radius = 20 * size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -22*size)
+			#tempShape.radius = 20 * size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -43*size)
 		1:
-			tempShape.radius = 26 * size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -26*size)
+			#tempShape.radius = 26 * size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -49*size)
 		2:
-			tempShape.radius = 32 * size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -34*size)
+			#tempShape.radius = 32 * size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -61*size)
 		3:
-			tempShape.radius = 32 * size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -34*size)
+			#tempShape.radius = 32 * size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -55*size)
 		4:
-			tempShape.radius = 32 * size
-			hb_shape.set_deferred("shape", tempShape)
-			hb_shape.set_deferred("position:y", -34*size)
+			#tempShape.radius = 32 * size
+			#hb_shape.set_deferred("shape", tempShape)
+			hb_shape.set_deferred("position:y", -37*size)
 
 
 func _setSize() -> void:
@@ -281,7 +287,7 @@ func _setSize() -> void:
 	$Spear4.scale = sizeVec * 2
 	$Spear5.scale = sizeVec * 2
 	
-	
+	"""
 	if not attacking:
 		var tempShape = CircleShape2D.new()
 		tempShape.radius = 20 * size
@@ -307,45 +313,50 @@ func _setSize() -> void:
 		tempShape.radius = 32 * size
 		$Hitbox/Spear5.set_deferred("shape", tempShape)
 		$Hitbox/Spear5.set_deferred("position:y", -34*size)
+	"""
 	
 	var tempRect = RectangleShape2D.new()
-	tempRect.size = size * Vector2(14.0, 38.0)
+	tempRect.size = size * Vector2(12.0, 40.0)
 	$Hitbox1/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox1/CollisionShape2D.set_deferred("position", Vector2(-15,-19)*size)
+	$Hitbox1/CollisionShape2D.set_deferred("position", Vector2(0,-23)*size)
 	$Hitbox1/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox1/CollisionShape2D2.set_deferred("position", Vector2(-15,-19)*size)
+	$Hitbox1/CollisionShape2D2.set_deferred("position", Vector2(0,-23)*size)
 	
 	tempRect = RectangleShape2D.new()
-	tempRect.size = size * Vector2(16.0, 46.0)
+	tempRect.size = size * Vector2(12.0, 46.0)
 	$Hitbox2/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox2/CollisionShape2D.set_deferred("position", Vector2(-18,-23)*size)
+	$Hitbox2/CollisionShape2D.set_deferred("position", Vector2(-0,-26)*size)
 	$Hitbox2/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox2/CollisionShape2D2.set_deferred("position", Vector2(-18,-23)*size)
+	$Hitbox2/CollisionShape2D2.set_deferred("position", Vector2(-0,-26)*size)
 	
 	tempRect = RectangleShape2D.new()
-	tempRect.size = size * Vector2(20.0, 60.0)
+	tempRect.size = size * Vector2(18.0, 58.0)
 	$Hitbox3/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox3/CollisionShape2D.set_deferred("position", Vector2(-20,-30)*size)
+	$Hitbox3/CollisionShape2D.set_deferred("position", Vector2(0,-32)*size)
 	$Hitbox3/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox3/CollisionShape2D2.set_deferred("position", Vector2(-20,-30)*size)
+	$Hitbox3/CollisionShape2D2.set_deferred("position", Vector2(0,-32)*size)
 	
 	tempRect = RectangleShape2D.new()
-	tempRect.size = size * Vector2(20.0, 60.0)
+	tempRect.size = size * Vector2(14.0, 47.0)
 	$Hitbox4/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox4/CollisionShape2D.set_deferred("position", Vector2(-20,-30)*size)
+	$Hitbox4/CollisionShape2D.set_deferred("position", Vector2(0,-26.5)*size)
 	$Hitbox4/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox4/CollisionShape2D2.set_deferred("position", Vector2(-20,-30)*size)
+	$Hitbox4/CollisionShape2D2.set_deferred("position", Vector2(0,-26.5)*size)
 	
 	tempRect = RectangleShape2D.new()
-	tempRect.size = size * Vector2(20.0, 60.0)
+	tempRect.size = size * Vector2(16.0, 34.0)
 	$Hitbox5/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox5/CollisionShape2D.set_deferred("position", Vector2(-20,-30)*size)
-	$Hitbox5/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox5/CollisionShape2D2.set_deferred("position", Vector2(-20,-30)*size)
+	$Hitbox5/CollisionShape2D.set_deferred("position", Vector2(0,-20)*size)
+	#$Hitbox5/CollisionShape2D2.set_deferred("shape", tempRect)
+	#$Hitbox5/CollisionShape2D2.set_deferred("position", Vector2(-20,-30)*size)
 
-func _damagedEnemy(amt : float) -> void:
-	super(amt)
+func _damagedEnemyNormal(amt : float) -> void:
+	_damagedEnemy(amt)
 	_handleRust(amt)
+
+func _damagedEnemyAttack(amt : float) -> void:
+	_damagedEnemy(amt)
+	_handleRust(amt*0.5)
 
 func _handleRust(amt : float) -> void:
 	if rust_level < rust_max:
@@ -357,7 +368,7 @@ func _handleRust(amt : float) -> void:
 		if rust_tween:
 			rust_tween.kill()
 		rust_tween = create_tween()
-		rust_tween.tween_property(spear_refs[spear_level], "modulate", end_rust_color, rust_length)
+		rust_tween.tween_property(spear_spear_refs[spear_level], "modulate", end_rust_color, rust_length)
 		if rust_level < rust_max:
 			rust_tween.tween_interval(1.0 / rust_recovery_speed)
 			rust_tween.finished.connect(_deRust)
@@ -372,23 +383,44 @@ func _Rusted() -> void:
 	#$AnimationPlayer.play("removeRustLeft", -1, rust_recovery_speed)
 	
 	var rustNode : Node2D
+	var spearNode : Node2D
 	var rustOffset : float
 	match spear_level:
 		0:
-			rustNode = $Spear1/SpearShade/Rust
-			rustOffset = -8.5
+			rustNode = $Spear1/Rust
+			spearNode = $Spear1/SpearShade
+			rustOffset = -6.0
 		1:
-			rustNode = $Spear2/SpearShade/Rust
-			rustOffset = -10.0
+			rustNode = $Spear2/Rust
+			spearNode = $Spear2/SpearShade/Full
+			rustOffset = -7.5
 		2:
-			rustNode = $Spear3/SpearShade/Rust 
-			rustOffset = -12.0
+			rustNode = $Spear3/Rust 
+			spearNode = $Spear3/SpearShade/Full
+			rustOffset = -8
 		3:
-			rustNode = $Spear3/SpearShade/Rust 
-			rustOffset = -12.0
+			rustNode = $Spear4/Rust 
+			spearNode = $Spear4/SpearShade/Full
+			rustOffset = -8.0
 		4:
-			rustNode = $Spear3/SpearShade/Rust 
-			rustOffset = -12.0
+			rustNode = $Spear5/SpearShade/Rust 
+			spearNode = $Spear5/SpearShade/Full
+			
+			var derust_start = 1.0 
+			var derust_time = 13.0 / rust_recovery_speed
+			var derust_end = 1.0
+			
+			if rust_tween:
+				rust_tween.kill()
+			rust_tween = create_tween()
+			rust_tween.tween_property(spearNode, "modulate:a", 0.0, derust_start)
+			rust_tween.parallel().tween_property(rustNode, "modulate:a", 1.0, derust_start)
+			rust_tween.tween_interval(derust_time)
+			rust_tween.tween_property(spear_spear_refs[spear_level], "modulate", startspearColor, derust_end)
+			rust_tween.parallel().tween_property(spearNode, "modulate:a", 1.0, derust_end)
+			rust_tween.parallel().tween_property(rustNode, "modulate:a", 0.0, derust_end)
+			rust_tween.finished.connect(_fullDeRust.bind(rustNode, false))
+			return
 	
 	var derust_start = 1.0 
 	var derust_time = 12.55 / rust_recovery_speed
@@ -401,26 +433,28 @@ func _Rusted() -> void:
 	if rust_tween:
 		rust_tween.kill()
 	rust_tween = create_tween()
-	rust_tween.tween_property(spear_refs[spear_level], "modulate:a", 0.0, derust_start)
+	rust_tween.tween_property(spearNode, "modulate:a", 0.0, derust_start)
 	rust_tween.parallel().tween_property(rustNode, "modulate:a", 1.0, derust_start)
-	rust_tween.tween_property(spear_refs[spear_level], "scale", Vector2(0.0,0.0), derust_time)
-	rust_tween.tween_property(spear_refs[spear_level], "modulate", startspearColor, derust_interval)
-	rust_tween.tween_property(spear_refs[spear_level], "scale", Vector2(0.5,0.25), derust_end)
+	rust_tween.tween_property(spearNode, "scale", Vector2(0.0,0.0), derust_time)
+	rust_tween.tween_property(spear_spear_refs[spear_level], "modulate", startspearColor, derust_end_end*0.5)
+	rust_tween.parallel().tween_property(spearNode, "modulate:a", 1.0, derust_interval)
+	rust_tween.parallel().tween_property(spearNode, "scale", Vector2(0.75,0.5), derust_end)
 	rust_tween.parallel().tween_property(rustNode, "position:y", rustOffset, derust_end).as_relative()
 	rust_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	rust_tween.tween_property(spear_refs[spear_level], "scale", Vector2(1.0,1.0), derust_end_end)
-	rust_tween.parallel().tween_property(rustNode, "position:y", 5*rustOffset, derust_end_end).as_relative()
-	rust_tween.parallel().tween_property(rustNode, "rotation", 2.0, derust_end_end)
-	rust_tween.finished.connect(_fullDeRust.bind(rustNode))
+	rust_tween.tween_property(spearNode, "scale", Vector2(1.0,1.0), derust_end_end*0.5)
+	rust_tween.parallel().tween_property(rustNode, "position:y", 7.5*rustOffset, derust_end_end*1.5).as_relative()
+	rust_tween.parallel().tween_property(rustNode, "rotation", 2.0, derust_end_end*1.5)
+	rust_tween.finished.connect(_fullDeRust.bind(rustNode, true))
 
-func _fullDeRust(rustNode : Node2D) -> void:
-	rustNode.modulate.a = 0.0
-	rustNode.position.y = 2
-	var tempRot = rustNode.rotation
+func _fullDeRust(rustNode : Node2D, notLast : bool) -> void:
+	if notLast:
+		rustNode.modulate.a = 0.0
+		rustNode.position.y = 2
+		var tempRot = rustNode.rotation
+		
+		rustNode.rotation = 0
 	
-	rustNode.rotation = 0
-	
-	_spawnRustParticle(tempRot)
+		_spawnRustParticle(tempRot)
 	
 	hitbox_refs[spear_level].show()
 	rust_level = 0.0
@@ -440,7 +474,7 @@ func _deRust() -> void:
 	if rust_tween:
 		rust_tween.kill()
 	rust_tween = create_tween()
-	rust_tween.tween_property(spear_refs[spear_level], "modulate", startspearColor, rust_length)
+	rust_tween.tween_property(spear_spear_refs[spear_level], "modulate", startspearColor, rust_length)
 	rust_tween.parallel().tween_property(self, "rust_level", 0, rust_length)
 
 
@@ -459,7 +493,7 @@ func getFocusedPosition() -> Vector2:
 		3:
 			retVec += get_node(the_node_path+"4").position
 		4:
-			retVec += get_node(the_node_path+"5").position
+			retVec += get_node(the_node_path+"5").positions
 	
 	return retVec
 
@@ -471,14 +505,14 @@ func getRustPosition() -> Vector2:
 	
 	match spear_level:
 		0:
-			retVec += size * Vector2(10, -49) #2 + -8.5*6
+			retVec += 2.0 * size * Vector2(0, -49) #-8.5*6
 		1:
-			retVec += size * Vector2(11, -58) #2 + -10*6
+			retVec += 2.0 * size * Vector2(0, -61.75) #-8.5*7.5
 		2:
-			retVec += size * Vector2(12, -70) #2 + -12*6
+			retVec += 2.0 * size * Vector2(0, -66) #-8.5*8.0
 		3:
-			retVec += size * Vector2(12, -70) #2 + -12*6
-		4:
-			retVec += size * Vector2(12, -70) #2 + -12*6
+			retVec += 2.0 * size * Vector2(0, -66) #-8.5*8.0
+		#4:
+		#	retVec += size * Vector2(12, -70) #2 + -12*6
 	
 	return retVec#.rotated(totalRot)

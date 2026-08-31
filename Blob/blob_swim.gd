@@ -274,6 +274,10 @@ Things to do:
 var blades : bool = true
 @onready var blade_ref : Node2D = $InnerNode/Sprite/Blades
 
+#Spear Vars
+var spear : bool = true
+@onready var spear_ref : Node2D = $InnerNode/Sprite/Spear
+
 #Bullet Spawners Vars
 
 const bullet_spawner_flags_max = 3
@@ -319,6 +323,7 @@ func _input(event: InputEvent) -> void:
 		#activateRipple(Vector2(0.5, 0.866), 1.0)
 		tent_ref.whipTentacles(-1) #$InnerNode/Sprite/Tentacle1.whip(-1)
 		blade_ref.addBladeLevel()
+		spear_ref.addSpearLevel()
 		
 	if event.is_action_pressed("Left"):
 		left_input = true
@@ -1032,6 +1037,10 @@ func _chargePress() -> void:
 	#if frog_charge <= 0:	
 	if blades:
 		primary_tween.parallel().tween_property($InnerNode/Sprite/Blades, "position:y", 0, charge_max)
+		
+	if spear:
+		primary_tween.parallel().tween_property($InnerNode/Sprite/Spear, "position:y", -4, charge_max)
+		spear_ref.chargeAttack(charge_max)
 	primary_tween.parallel().tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1, 0.25), charge_max)
 	primary_tween.finished.connect(_onFullCharge)
 	
@@ -1083,12 +1092,20 @@ func _chargeRelease() -> void:
 		blade_ref.attack(temp, charge_cooldown)
 		primary_tween.tween_property($InnerNode/Sprite/Blades, "position:y", -9, swipePos)
 		
+	if spear:
+		spear_ref.attack(temp, charge_cooldown, charge_pull_speed)
+		primary_tween.tween_property($InnerNode/Sprite/Spear, "position:y", -15 + -3.6*temp + -2.2 * temp, swipePos*0.8).set_trans(Tween.TRANS_CUBIC)
+		
+	
 	primary_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_LINEAR)
 	
 	primary_tween.tween_callback(self.setTempVelocity.bind(temp)).set_delay(swipePos)
-	primary_tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10)).set_delay(swipePos)
+	primary_tween.tween_callback(self.activateRipple.bind(Vector2(0, -1), temp/10))#.set_delay(swipePos)
 	primary_tween.tween_property($InnerNode/Sprite/Node2D, "scale", Vector2(1, 1), retPos/charge_pull_speed).set_delay(swipePos)
 	primary_tween.tween_property($InnerNode/Sprite/Node2D, "position", Vector2(0, 0), retPos /charge_pull_speed).set_delay(swipePos)
+	
+	if spear:
+		primary_tween.tween_property($InnerNode/Sprite/Spear, "position:y", -15, retPos /charge_pull_speed).set_delay(swipePos)
 	
 	primary_tween.tween_callback(self.resetCharge.bind(false)).set_delay(swipePos + retPos/charge_pull_speed)#.bind(4.8*temp, charge_angle - PI/2))
 	

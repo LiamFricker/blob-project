@@ -1,7 +1,7 @@
 extends "res://Blob/base_player_particle.gd"
 
 func setParams(pos : Vector2, rot : float, size : float, kwargs : Array) -> void:
-	super(pos, rot, size*2, [])
+	super(pos, rot, size, [])
 	match kwargs[0]:
 		0:
 			$Rust1.show()

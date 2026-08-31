@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://blvad8r1y76gf"]
+[gd_scene load_steps=19 format=3 uid="uid://blvad8r1y76gf"]
 
 [ext_resource type="Script" uid="uid://4u6uw0h6fqhw" path="res://Blob/blob_swim.gd" id="1_560oe"]
 [ext_resource type="Texture2D" uid="uid://6r00aigasy26" path="res://Art/Cell/Glimmer.png" id="2_02q5b"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://b11rxy80sx20t" path="res://Blob/Evolutions/player_yaai.tscn" id="7_y1243"]
 [ext_resource type="PackedScene" uid="uid://b1cat7qk3cgmc" path="res://Blob/Evolutions/blades.tscn" id="8_krtxu"]
 [ext_resource type="Script" uid="uid://cekx7gkpetryd" path="res://Blob/player_attachments.gd" id="10_5yg2x"]
+[ext_resource type="PackedScene" uid="uid://cmvk2p1q5l4t4" path="res://Blob/Evolutions/spear.tscn" id="12_h78nt"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8tadd"]
 radius = 18.0
@@ -106,6 +107,8 @@ visible = false
 parentRef = NodePath("../../..")
 
 [node name="Blades" parent="InnerNode/Sprite" node_paths=PackedStringArray("parentRef") instance=ExtResource("8_krtxu")]
+process_mode = 4
+visible = false
 position = Vector2(0, -9)
 parentRef = NodePath("../../..")
 
@@ -139,6 +142,10 @@ polygon = PackedVector2Array(16, 12, 24, 12, 24, 20, 16, 20)
 [node name="Eye2" type="Polygon2D" parent="InnerNode/Sprite/Node2D/Eye"]
 position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
+
+[node name="Spear" parent="InnerNode/Sprite" node_paths=PackedStringArray("parentRef") instance=ExtResource("12_h78nt")]
+position = Vector2(0, -15)
+parentRef = NodePath("../../..")
 
 [node name="Crosshair" type="Sprite2D" parent="InnerNode"]
 visible = false
@@ -208,6 +215,8 @@ one_shot = true
 [connection signal="damagedEnemy" from="InnerNode/Sprite/Tentacles" to="." method="damagedEnemy"]
 [connection signal="damagedEnemy" from="InnerNode/Sprite/Blades" to="." method="damagedEnemy"]
 [connection signal="spawnRustParticle" from="InnerNode/Sprite/Blades" to="." method="_spawnParticle"]
+[connection signal="damagedEnemy" from="InnerNode/Sprite/Spear" to="." method="damagedEnemy"]
+[connection signal="spawnRustParticle" from="InnerNode/Sprite/Spear" to="." method="_spawnParticle"]
 [connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]
