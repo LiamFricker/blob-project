@@ -19,10 +19,12 @@ var impaled : bool = false
 @export var spear_level : int = 0
 @onready var spear_refs = [$Spear1, $Spear2, $Spear3, $Spear4, $Spear5]
 @onready var spear_spear_refs = [$Spear1/SpearShade, $Spear2/SpearShade, $Spear3/SpearShade, $Spear4/SpearShade, $Spear5/SpearShade]
-@onready var hitbox_refs = [$Hitbox1, $Hitbox2, $Hitbox3, $Hitbox4, $Hitbox5]
+@onready var hitbox_refs = [$HitboxSpear/CollisionShape2D, $HitboxSpear/CollisionShape2D2, $HitboxSpear/CollisionShape2D3, $HitboxSpear/CollisionShape2D4,$HitboxSpear/CollisionShape2D5]
 
 #@onready var hitbox_ref = $Hitbox
-var first_hitbox_enabled : bool = true 
+var dot_hitbox_enabled : bool = false 
+var first_hitbox_enabled : bool = false
+@export var dot_timer : float = 0.2
 
 var spear_tween
 var rust_tween
@@ -52,8 +54,11 @@ func addSpearLevel() -> void:
 func setspearLevel(newBL : int) -> void:
 	match spear_level:
 		0:
-			$Hitbox1/CollisionShape2D.set_deferred("disabled", true)
-			$Hitbox1/CollisionShape2D2.set_deferred("disabled", false)
+			$HitboxSpear/CollisionShape2D.set_deferred("disabled", false)
+			if first_hitbox_enabled:	
+				$HitboxDOT/CollisionShape2D.set_deferred("disabled", false)
+			else:
+				$HitboxDOT/SecondShape2D.set_deferred("disabled", false)
 			#$Hitbox1.set_deferred("monitorable", false)
 			if attacking == 0:
 				$Spear1.hide()
@@ -63,8 +68,11 @@ func setspearLevel(newBL : int) -> void:
 			$Spear1/SpearShade.modulate = Color.WHITE
 			$Spear1/SpearShade.scale = Vector2(1,1)
 		1:
-			$Hitbox2/CollisionShape2D.set_deferred("disabled", true)
-			$Hitbox2/CollisionShape2D2.set_deferred("disabled", false)
+			$HitboxSpear/CollisionShape2D2.set_deferred("disabled", false)
+			if first_hitbox_enabled:
+				$HitboxDOT/CollisionShape2D2.set_deferred("disabled", false)
+			else:
+				$HitboxDOT/SecondShape2D2.set_deferred("disabled", false)
 			#$Hitbox2.set_deferred("monitorable", false)
 			if attacking == 0:
 				$Spear2.hide()
@@ -74,8 +82,11 @@ func setspearLevel(newBL : int) -> void:
 			$Spear2/SpearShade/Full.modulate = Color.WHITE
 			$Spear2/SpearShade/Full.scale = Vector2(1,1)
 		2:
-			$Hitbox3/CollisionShape2D.set_deferred("disabled", true)
-			$Hitbox3/CollisionShape2D2.set_deferred("disabled", false)
+			$HitboxSpear/CollisionShape2D3.set_deferred("disabled", false)
+			if first_hitbox_enabled:
+				$HitboxDOT/CollisionShape2D3.set_deferred("disabled", false)
+			else:
+				$HitboxDOT/SecondShape2D3.set_deferred("disabled", false)
 			#$Hitbox3.set_deferred("monitorable", false)
 			if attacking == 0:
 				$Spear3.hide()
@@ -85,8 +96,11 @@ func setspearLevel(newBL : int) -> void:
 			$Spear3/SpearShade/Full.modulate = Color.WHITE
 			$Spear3/SpearShade/Full.scale = Vector2(1,1)
 		3:
-			$Hitbox4/CollisionShape2D.set_deferred("disabled", true)
-			$Hitbox4/CollisionShape2D2.set_deferred("disabled", false)
+			$HitboxSpear/CollisionShape2D4.set_deferred("disabled", false)
+			if first_hitbox_enabled:
+				$HitboxDOT/CollisionShape2D4.set_deferred("disabled", false)
+			else:
+				$HitboxDOT/SecondShape2D4.set_deferred("disabled", false)
 			#$Hitbox4.set_deferred("monitorable", false)
 			if attacking == 0:
 				$Spear4.hide()
@@ -96,7 +110,7 @@ func setspearLevel(newBL : int) -> void:
 			$Spear4/SpearShade/Full.modulate = Color.WHITE
 			$Spear4/SpearShade/Full.scale = Vector2(1,1)
 		4:
-			$Hitbox5/CollisionShape2D.set_deferred("disabled", true)
+			$HitboxSpear/CollisionShape2D5.set_deferred("disabled", false)
 			#$Hitbox5/CollisionShape2D2.set_deferred("disabled", false)
 			#$Hitbox5.set_deferred("monitorable", false)
 			if attacking == 0:
@@ -105,11 +119,13 @@ func setspearLevel(newBL : int) -> void:
 			#$Spear5/Rust.modulate.a = 0.0
 			#$Spear5/Rust.position.y = 2
 	
+	$DoTTickTimer.stop()
+	
 	spear_spear_refs[spear_level].modulate = startspearColor
 	
 	hitbox_refs[spear_level].set_deferred("monitorable", false)
 	hitbox_refs[spear_level].hide()
-	first_hitbox_enabled = true
+	
 	
 	spear_level = newBL
 	rust_level = 0.0
@@ -317,42 +333,47 @@ func _setSize() -> void:
 	
 	var tempRect = RectangleShape2D.new()
 	tempRect.size = size * Vector2(12.0, 40.0)
-	$Hitbox1/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox1/CollisionShape2D.set_deferred("position", Vector2(0,-23)*size)
-	$Hitbox1/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox1/CollisionShape2D2.set_deferred("position", Vector2(0,-23)*size)
+	$HitboxSpear/CollisionShape2D.set_deferred("shape", tempRect)
+	$HitboxSpear/CollisionShape2D.set_deferred("position", Vector2(0,-23)*size)
+	$HitboxDOT/CollisionShape2D.set_deferred("shape", tempRect)
+	$HitboxDOT/SecondShape2D.set_deferred("position", Vector2(0,-23)*size)
 	
 	tempRect = RectangleShape2D.new()
 	tempRect.size = size * Vector2(12.0, 46.0)
-	$Hitbox2/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox2/CollisionShape2D.set_deferred("position", Vector2(-0,-26)*size)
-	$Hitbox2/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox2/CollisionShape2D2.set_deferred("position", Vector2(-0,-26)*size)
+	$HitboxSpear/CollisionShape2D2.set_deferred("shape", tempRect)
+	$HitboxSpear/CollisionShape2D2.set_deferred("position", Vector2(-0,-26)*size)
+	$HitboxDOT/CollisionShape2D2.set_deferred("shape", tempRect)
+	$HitboxDOT/SecondShape2D2.set_deferred("position", Vector2(-0,-26)*size)
 	
 	tempRect = RectangleShape2D.new()
 	tempRect.size = size * Vector2(18.0, 58.0)
-	$Hitbox3/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox3/CollisionShape2D.set_deferred("position", Vector2(0,-32)*size)
-	$Hitbox3/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox3/CollisionShape2D2.set_deferred("position", Vector2(0,-32)*size)
+	$HitboxSpear/CollisionShape2D3.set_deferred("shape", tempRect)
+	$HitboxSpear/CollisionShape2D3.set_deferred("position", Vector2(0,-32)*size)
+	$HitboxDOT/CollisionShape2D3.set_deferred("shape", tempRect)
+	$HitboxDOT/SecondShape2D3.set_deferred("position", Vector2(0,-32)*size)
 	
 	tempRect = RectangleShape2D.new()
 	tempRect.size = size * Vector2(14.0, 47.0)
-	$Hitbox4/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox4/CollisionShape2D.set_deferred("position", Vector2(0,-26.5)*size)
-	$Hitbox4/CollisionShape2D2.set_deferred("shape", tempRect)
-	$Hitbox4/CollisionShape2D2.set_deferred("position", Vector2(0,-26.5)*size)
+	$HitboxSpear/CollisionShape2D4.set_deferred("shape", tempRect)
+	$HitboxSpear/CollisionShape2D4.set_deferred("position", Vector2(0,-26.5)*size)
+	$HitboxDOT/CollisionShape2D4.set_deferred("shape", tempRect)
+	$HitboxDOT/SecondShape2D4.set_deferred("position", Vector2(0,-26.5)*size)
 	
 	tempRect = RectangleShape2D.new()
 	tempRect.size = size * Vector2(16.0, 34.0)
-	$Hitbox5/CollisionShape2D.set_deferred("shape", tempRect)
-	$Hitbox5/CollisionShape2D.set_deferred("position", Vector2(0,-20)*size)
+	$HitboxSpear/CollisionShape2D5.set_deferred("shape", tempRect)
+	$HitboxSpear/CollisionShape2D5.set_deferred("position", Vector2(0,-20)*size)
 	#$Hitbox5/CollisionShape2D2.set_deferred("shape", tempRect)
 	#$Hitbox5/CollisionShape2D2.set_deferred("position", Vector2(-20,-30)*size)
 
 func _damagedEnemyNormal(amt : float) -> void:
 	_damagedEnemy(amt)
 	_handleRust(amt)
+	if $DoTTickTimer.is_stopped():
+		$DoTTickTimer.start()
+		dot_hitbox_enabled = true
+		$HitboxDOT.set_deferred("monitorable", true)
+	
 
 func _damagedEnemyAttack(amt : float) -> void:
 	_damagedEnemy(amt)
@@ -516,3 +537,42 @@ func getRustPosition() -> Vector2:
 		#	retVec += size * Vector2(12, -70) #2 + -12*6
 	
 	return retVec#.rotated(totalRot)
+
+
+func _on_do_t_tick_timer_timeout() -> void:
+	
+	match spear_level:
+		0:
+			$HitboxDOT/SecondShape2D.set_deferred("disabled", first_hitbox_enabled)
+			$HitboxDOT/CollisionShape2D.set_deferred("disabled", not first_hitbox_enabled)
+		1:
+			$HitboxDOT/SecondShape2D2.set_deferred("disabled", first_hitbox_enabled)
+			$HitboxDOT/CollisionShape2D2.set_deferred("disabled", not first_hitbox_enabled)
+		2:
+			$HitboxDOT/SecondShape2D3.set_deferred("disabled", first_hitbox_enabled)
+			$HitboxDOT/CollisionShape2D3.set_deferred("disabled", not first_hitbox_enabled)
+		3:
+			$HitboxDOT/SecondShape2D4.set_deferred("disabled", first_hitbox_enabled)
+			$HitboxDOT/CollisionShape2D4.set_deferred("disabled", not first_hitbox_enabled)
+	first_hitbox_enabled = not first_hitbox_enabled
+	
+	if _detectionCheck():
+		$DoTTickTimer.start(dot_timer)
+	else:
+		$HitboxDOT.set_deferred("monitoring", false)
+
+func _detectionCheck() -> bool:
+	if rust_level >= rust_max:
+		return false
+	
+	var detectNode = $HitboxSpear
+	
+	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
+			return true
+			
+	return false
+
+func setDamage(new_dmg : float) -> void:
+	$HitboxDOT.setDamage(new_dmg*0.6)
+	$HitboxSpear.setDamage(new_dmg)
+	$Hitbox.setDamage(new_dmg)

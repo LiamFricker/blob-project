@@ -41,6 +41,9 @@ func _ready() -> void:
 func getParent() -> Node2D:
 	return parentRef
 	
+func setDamage(new_dmg : float) -> void:
+	damage = new_dmg	
+	
 func getDamage() -> float:
 	return damage
 	

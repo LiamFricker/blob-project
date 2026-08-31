@@ -60,6 +60,7 @@ size = Vector2(16, 34)
 [node name="spear" instance=ExtResource("1_y0r7j")]
 script = ExtResource("2_0oswo")
 spear_level = 0
+dot_timer = 0.2
 rust_max = 2.0
 rust_recovery_speed = 2.0
 startspearColor = Color(0.466667, 0.521569, 0.619608, 1)
@@ -406,82 +407,87 @@ polygon = PackedVector2Array(-2, 1.5, 0, 2, 2, 1.5, 2.5, 0, 4, -1.5, 5, -4, 3, -
 position = Vector2(0, 4)
 polygon = PackedVector2Array(0, 2, 1.5, 1, 2, -0.5, 3.5, -1.5, 4.5, -4, 2.5, -5.5, 1, -9, 2, -6, 2.5, -3, 0.5, -1, 1, 1, -1, 1, -1.5, -2.5, -2.5, -4.5, -2, -6, -1, -9, -2.5, -5.5, -4, -4, -2.5, -2, -1.5, 0.5, -1.5, 1)
 
-[node name="Hitbox1" parent="." index="6" node_paths=PackedStringArray("parentRef") instance=ExtResource("3_i4my6")]
+[node name="HitboxSpear" parent="." index="6" node_paths=PackedStringArray("parentRef") instance=ExtResource("3_i4my6")]
+collision_mask = 2
+monitoring = true
 parentRef = NodePath("..")
 knockback = 0.0
 attack_mods = [false, true, false, false, false]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox1" index="0"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxSpear" index="0"]
 position = Vector2(0, -23)
 shape = SubResource("RectangleShape2D_m5un3")
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Hitbox1" index="1"]
-position = Vector2(0, -23)
-shape = SubResource("RectangleShape2D_m5un3")
-disabled = true
-
-[node name="Hitbox2" parent="." index="7" node_paths=PackedStringArray("parentRef") instance=ExtResource("3_i4my6")]
-visible = false
-monitorable = false
-parentRef = NodePath("..")
-knockback = 0.0
-attack_mods = [false, true, false, false, false]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox2" index="0"]
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="HitboxSpear" index="1"]
 position = Vector2(0, -26)
 shape = SubResource("RectangleShape2D_0oswo")
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Hitbox2" index="1"]
-position = Vector2(0, -26)
-shape = SubResource("RectangleShape2D_0oswo")
-disabled = true
-
-[node name="Hitbox3" parent="." index="8" node_paths=PackedStringArray("parentRef") instance=ExtResource("3_i4my6")]
-visible = false
-monitorable = false
-parentRef = NodePath("..")
-knockback = 0.0
-attack_mods = [false, true, false, false, false]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox3" index="0"]
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="HitboxSpear" index="2"]
 position = Vector2(0, -32)
 shape = SubResource("RectangleShape2D_i4my6")
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Hitbox3" index="1"]
-position = Vector2(0, -32)
-shape = SubResource("RectangleShape2D_i4my6")
-disabled = true
-
-[node name="Hitbox4" parent="." index="9" node_paths=PackedStringArray("parentRef") instance=ExtResource("3_i4my6")]
-visible = false
-monitorable = false
-parentRef = NodePath("..")
-knockback = 0.0
-attack_mods = [false, true, false, false, false]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox4" index="0"]
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="HitboxSpear" index="3"]
 position = Vector2(0, -26.5)
 shape = SubResource("RectangleShape2D_tkguc")
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Hitbox4" index="1"]
-position = Vector2(0, -26.5)
-shape = SubResource("RectangleShape2D_tkguc")
-disabled = true
-
-[node name="Hitbox5" parent="." index="10" node_paths=PackedStringArray("parentRef") instance=ExtResource("3_i4my6")]
-visible = false
-monitorable = false
-parentRef = NodePath("..")
-knockback = 0.0
-attack_mods = [false, true, false, false, false]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox5" index="0"]
+[node name="CollisionShape2D5" type="CollisionShape2D" parent="HitboxSpear" index="4"]
 position = Vector2(0, -20)
 shape = SubResource("RectangleShape2D_h1tyr")
 
+[node name="HitboxDOT" parent="." index="7" node_paths=PackedStringArray("parentRef") instance=ExtResource("3_i4my6")]
+visible = false
+parentRef = NodePath("..")
+knockback = 0.0
+damage = 0.6
+attack_mods = [false, true, false, false, false]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxDOT" index="0"]
+position = Vector2(0, -23)
+shape = SubResource("RectangleShape2D_m5un3")
+disabled = true
+
+[node name="SecondShape2D" type="CollisionShape2D" parent="HitboxDOT" index="1"]
+position = Vector2(0, -23)
+shape = SubResource("RectangleShape2D_m5un3")
+disabled = true
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="HitboxDOT" index="2"]
+position = Vector2(0, -26)
+shape = SubResource("RectangleShape2D_0oswo")
+disabled = true
+
+[node name="SecondShape2D2" type="CollisionShape2D" parent="HitboxDOT" index="3"]
+position = Vector2(0, -26)
+shape = SubResource("RectangleShape2D_0oswo")
+disabled = true
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="HitboxDOT" index="4"]
+position = Vector2(0, -32)
+shape = SubResource("RectangleShape2D_i4my6")
+disabled = true
+
+[node name="SecondShape2D3" type="CollisionShape2D" parent="HitboxDOT" index="5"]
+position = Vector2(0, -32)
+shape = SubResource("RectangleShape2D_i4my6")
+disabled = true
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="HitboxDOT" index="6"]
+position = Vector2(0, -26.5)
+shape = SubResource("RectangleShape2D_tkguc")
+disabled = true
+
+[node name="SecondShape2D4" type="CollisionShape2D" parent="HitboxDOT" index="7"]
+position = Vector2(0, -26.5)
+shape = SubResource("RectangleShape2D_tkguc")
+disabled = true
+
+[node name="DoTTickTimer" type="Timer" parent="." index="8"]
+wait_time = 0.2
+one_shot = true
+
+[node name="Node2D" type="Node2D" parent="." index="9"]
+
 [connection signal="damagedEnemy" from="Hitbox" to="." method="_damagedEnemyAttack"]
-[connection signal="damagedEnemy" from="Hitbox1" to="." method="_damagedEnemyNormal"]
-[connection signal="damagedEnemy" from="Hitbox2" to="." method="_damagedEnemyNormal"]
-[connection signal="damagedEnemy" from="Hitbox3" to="." method="_damagedEnemyNormal"]
-[connection signal="damagedEnemy" from="Hitbox4" to="." method="_damagedEnemyNormal"]
-[connection signal="damagedEnemy" from="Hitbox5" to="." method="_damagedEnemyNormal"]
+[connection signal="damagedEnemy" from="HitboxSpear" to="." method="_damagedEnemyNormal"]
+[connection signal="damagedEnemy" from="HitboxDOT" to="." method="_damagedEnemyNormal"]
+[connection signal="timeout" from="DoTTickTimer" to="." method="_on_do_t_tick_timer_timeout"]
