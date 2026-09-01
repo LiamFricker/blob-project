@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://c05ve83xbyb3q"]
+
+[ext_resource type="Shader" uid="uid://ci3rd5ve0xxre" path="res://Blob/spear.gdshader" id="1_3u1pp"]
+
+[resource]
+shader = ExtResource("1_3u1pp")
+shader_parameter/progress = 1.0
+shader_parameter/startColor = Color(1, 1, 0, 1)
+shader_parameter/endColor = Color(0, 1, 0, 1)

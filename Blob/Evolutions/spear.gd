@@ -21,10 +21,20 @@ var impaled : bool = false
 @onready var spear_spear_refs = [$Spear1/SpearShade, $Spear2/SpearShade, $Spear3/SpearShade, $Spear4/SpearShade, $Spear5/SpearShade]
 @onready var hitbox_refs = [$HitboxSpear/CollisionShape2D, $HitboxSpear/CollisionShape2D2, $HitboxSpear/CollisionShape2D3, $HitboxSpear/CollisionShape2D4,$HitboxSpear/CollisionShape2D5]
 
+@export var dot : bool = true
 #@onready var hitbox_ref = $Hitbox
-var dot_hitbox_enabled : bool = false 
+#var dot_hitbox_enabled : bool = false 
 var first_hitbox_enabled : bool = false
 @export var dot_timer : float = 0.2
+
+@export var poison : bool = true
+@export var poison_max : float = 8.0
+@export var poison_gain_rate : float = 1.0
+var poison_amount : float = poison_max
+var poison_damage : float = 1.0
+var poison_tween
+
+var damage_mult = 2.0
 
 var spear_tween
 var rust_tween
@@ -67,6 +77,7 @@ func setspearLevel(newBL : int) -> void:
 			$Spear1/Rust.position.y = 2
 			$Spear1/SpearShade.modulate = Color.WHITE
 			$Spear1/SpearShade.scale = Vector2(1,1)
+			
 		1:
 			$HitboxSpear/CollisionShape2D2.set_deferred("disabled", false)
 			if first_hitbox_enabled:
@@ -118,6 +129,8 @@ func setspearLevel(newBL : int) -> void:
 			#$Spear5/Rust.position.y = 2
 			#$Spear5/Rust.modulate.a = 0.0
 			#$Spear5/Rust.position.y = 2
+			poison_amount = 0.0
+			_poisonInitialFinished(0.0)
 	
 	$DoTTickTimer.stop()
 	
@@ -138,6 +151,26 @@ func setspearLevel(newBL : int) -> void:
 	
 	if attacking == 0:
 		spear_refs[newBL].show()
+	
+	match newBL:
+		0:
+			if poison:
+				$Spear1/CapsuleBG.show()
+				$Spear1/Juice.show()
+				$Spear1/Cover.show()
+		1:	
+			if poison:
+				$Spear2/Juice.show()
+		2:	
+			if poison:
+				$Spear3/Juice.show()
+		3:
+			if poison:
+				$Spear4/Juice.show()
+		4:
+			poison_amount = 0.0
+			_poisonInitialFinished(0.0)
+		
 	
 func _BLtoColShape(BL : int) -> CollisionShape2D:
 	match BL:
@@ -175,19 +208,6 @@ func attack(temp : float, charge_cd : float, charge_pull : float) -> void:
 		var swipePos : float = min(0.08 * charge_cd, 0.2)
 		var retPos : float = min(0.3 * charge_cd, 0.4) / charge_pull
 		var spearLen = max(2.0 * temp/6.0, 1.5) 
-		
-		var posChange 
-		match spear_level:
-			0:
-				posChange = 9*size
-			1:
-				posChange = 14*size
-			2:
-				posChange = 17*size
-			3:
-				posChange = 17*size
-			4:
-				posChange = 17*size
 
 		if spear_tween:
 			spear_tween.kill()
@@ -241,7 +261,7 @@ func _colShapeIncrease(BL : int, inc : float) -> void:
 	
 	var abs_size = size * inc
 	var hb_shape = _BLtoColShape(BL)
-	tempShape.radius = 12 * abs_size
+	tempShape.radius = 12 * abs_size if BL != 4 else 24 * abs_size
 	hb_shape.set_deferred("shape", tempShape)
 	match BL:
 		0:	
@@ -266,7 +286,7 @@ func _colShapeIncrease(BL : int, inc : float) -> void:
 func _colShapeReset(BL : int) -> void:
 	var tempShape = CircleShape2D.new()
 	var hb_shape = _BLtoColShape(BL)
-	tempShape.radius = 12 * size
+	tempShape.radius = 12 * size if BL != 4 else 24 * size
 	hb_shape.set_deferred("shape", tempShape)
 	match BL:
 		0:
@@ -369,9 +389,9 @@ func _setSize() -> void:
 func _damagedEnemyNormal(amt : float) -> void:
 	_damagedEnemy(amt)
 	_handleRust(amt)
-	if $DoTTickTimer.is_stopped():
-		$DoTTickTimer.start()
-		dot_hitbox_enabled = true
+	if dot and $DoTTickTimer.is_stopped():
+		$DoTTickTimer.start(dot_timer)
+		#dot_hitbox_enabled = true
 		$HitboxDOT.set_deferred("monitorable", true)
 	
 
@@ -406,6 +426,11 @@ func _Rusted() -> void:
 	var rustNode : Node2D
 	var spearNode : Node2D
 	var rustOffset : float
+	
+	var derust_start : float
+	var derust_time : float
+	var derust_end : float
+	
 	match spear_level:
 		0:
 			rustNode = $Spear1/Rust
@@ -427,9 +452,9 @@ func _Rusted() -> void:
 			rustNode = $Spear5/SpearShade/Rust 
 			spearNode = $Spear5/SpearShade/Full
 			
-			var derust_start = 1.0 
-			var derust_time = 13.0 / rust_recovery_speed
-			var derust_end = 1.0
+			derust_start = 1.0 
+			derust_time = 13.0 / rust_recovery_speed
+			derust_end = 1.0
 			
 			if rust_tween:
 				rust_tween.kill()
@@ -443,10 +468,10 @@ func _Rusted() -> void:
 			rust_tween.finished.connect(_fullDeRust.bind(rustNode, false))
 			return
 	
-	var derust_start = 1.0 
-	var derust_time = 12.55 / rust_recovery_speed
+	derust_start = 1.0 
+	derust_time = 12.55 / rust_recovery_speed
 	var derust_interval = 0.1
-	var derust_end = 0.75 # *2 
+	derust_end = 0.75 # *2 
 	var derust_end_end = 0.6
 	
 	#var startColor : Color = startspearColor
@@ -576,3 +601,82 @@ func setDamage(new_dmg : float) -> void:
 	$HitboxDOT.setDamage(new_dmg*0.6)
 	$HitboxSpear.setDamage(new_dmg)
 	$Hitbox.setDamage(new_dmg)
+
+func _on_hitbox_spear_area_entered(area: Area2D) -> void:
+	var duration = _applyAndCalcPoison(false)
+	if duration > 0:
+		area.getParent().applyPoison(poison_damage, duration)
+
+
+func _on_hitbox_spear_body_entered(body: Node2D) -> void:
+	var duration = _applyAndCalcPoison(false)
+	if duration > 0:
+		body.applyPoison(poison_damage, duration)
+
+
+func _on_hitbox_area_entered(area: Area2D) -> void:
+	var duration = _applyAndCalcPoison()
+	if duration > 0:	
+		area.getParent().applyPoison(poison_damage, duration)
+	print("INJECTed")
+
+func _on_hitbox_body_entered(body: Node2D) -> void:
+	var duration = _applyAndCalcPoison()
+	if duration > 0:	
+		body.applyPoison(poison_damage, duration)
+
+func _applyAndCalcPoison(spearOrInject : bool = true) -> float:
+	if not dot:
+		return 0.0
+	
+	if poison_tween:
+		poison_tween.kill()
+	poison_tween = create_tween().set_parallel()
+	
+	var rusted = rust_level >= rust_max
+	
+	if spear_level == 4 and not spearOrInject:
+		var poison_loss = poison_amount / 12.0
+		var poison_loss_amt = poison_amount * 0.8
+		poison_tween.tween_property(self, "poison_amount", poison_loss_amt, poison_loss)
+		poison_tween.tween_method(_setRedPoisonShader, poison_amount, poison_loss_amt, poison_loss)
+		poison_tween.finished.connect(_poisonInitialFinished.bind(poison_loss))
+		return poison_amount * 0.25 if rusted else poison_amount * 0.2
+	else:
+		var poison_loss = poison_amount / 6.0
+		poison_tween.tween_property(self, "poison_amount", 0, poison_loss)
+		poison_tween.tween_method(_setPoisonShader, poison_amount, 0, poison_loss)
+		poison_tween.finished.connect(_poisonInitialFinished.bind(poison_loss))
+		return poison_amount * 1.25 if rusted else poison_amount
+
+func _poisonInitialFinished(poison_lost : float) -> void:
+	if poison_tween:
+		poison_tween.kill()
+	poison_tween = create_tween().set_parallel()
+
+	if spear_level == 4: 
+		var dot_amt = 0.4/dot_timer
+		if rust_level < rust_max:
+			var poison_remaining = max((poison_max*damage_mult) - poison_amount - poison_lost, 0.0) / (poison_gain_rate * dot_amt)
+			poison_tween.tween_property(self, "poison_amount", 2.0*poison_max, poison_remaining)
+			poison_tween.tween_method(_setRedPoisonShader, poison_amount, 2.0*poison_max, poison_remaining)
+			#poison_tween.finished.connect(_poisonEnd.bind(0.0))
+		else:
+			var poison_remaining = max((poison_max*damage_mult) - poison_amount - poison_lost, 0.0) / (poison_gain_rate * dot_amt)
+			poison_tween.tween_property(self, "poison_amount", poison_max, poison_remaining)
+			poison_tween.tween_method(_setRedPoisonShader, poison_amount, poison_max, poison_remaining)
+			#poison_tween.finished.connect(_poisonEnd.bind(0.0))
+	else:
+		var poison_remaining = max(poison_max - poison_amount - poison_lost, 0.0) / poison_gain_rate
+		poison_tween.tween_property(self, "poison_amount", poison_max, poison_remaining)
+		poison_tween.tween_method(_setPoisonShader, poison_amount, poison_max, poison_remaining)
+		#poison_tween.finished.connect(_poisonEnd.bind(0.0))
+
+func _setPoisonShader(poison_prog : float) -> void:
+	$Spear1/Juice.material.set_shader_parameter("progress", poison_prog/poison_max)
+
+func _setRedPoisonShader(poison_prog : float) -> void:
+	$Spear5/Juice.material.set_shader_parameter("progress", poison_prog/poison_max)
+
+#func _poisonEnd(temp : float) -> void:
+#	pass

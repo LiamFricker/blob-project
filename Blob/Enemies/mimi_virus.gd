@@ -48,6 +48,10 @@ func _detectionCheck() -> void:
 			return
 		targetRef = null
 	min_delay = 0.75
+	if isDead():
+		targetRef = null
+		return
+		
 	var detectNode = $InnerNode/DetectionRange
 	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
 		var localAreas = detectNode.get_overlapping_areas()
