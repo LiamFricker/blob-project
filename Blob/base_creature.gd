@@ -54,9 +54,11 @@ var movement_tween
 var oscillate_tween
 var dot_tween
 
+var stun_level = 0
+
 #dot (poison)
-var dot_remaining
-var dot_pow
+var dot_remaining : float = 0.0
+var dot_pow : float = 0.0
 enum{
 	NONE, VIRUS, POISON
 } 
@@ -187,7 +189,7 @@ func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
 	
 	oldDirPower = 5000.0 * power / dir_len 
 	var end_dir = oldDirPower*dir_norm
-	if power <= 0.5 or superArmor:
+	if power <= 0.5 or superArmor or stun_level >= 3:
 		_shake(end_dir, power)
 	else:
 		var rot_speed = 0.1 * power * dir_len if dir.x > 0 else -0.1 * power * dir_len
@@ -361,7 +363,8 @@ func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
 	print("DEATH: ", self)
 	state = DEAD
 	for c in children_list:
-		c.orphan(pos)
+		if c:
+			c.orphan(pos)
 	toggleHitbox(false)
 	toggleHurtbox(false)
 	if pos == Vector2.ZERO:
@@ -437,29 +440,38 @@ func increaseVirusLevel(type : int, intensity : float, duration = 2.0) -> void: 
 	dot_pow = intensity
 	dot_remaining = 0
 	
-func applyPoison(intensity : float, duration = 2.0) -> void: #ID : int, 
-	var dotLeft = 0
+func applyPoison(intensity : float, duration : float, nodeSource : Node2D, truePoison : bool = false) -> void: #ID : int, 
+	var dotLeft = duration
 	dot_type = POISON
+	
+	
+	if truePoison:
+		dotLeft = (dot_remaining+duration) * dot_pow if dot_pow > intensity else (dot_remaining+duration) * intensity
+	elif (dot_remaining * dot_pow) > (intensity * duration):
+		return
+	dot_pow = intensity
+	dot_remaining = duration
+	
 	if dot_tween:
 		dot_tween.kill()
-		if dot_remaining == -1:
-			dotLeft = dot_remaining * dot_pow
-	dot_tween = create_tween()
-	dot_tween.tween_method(_dot_tick, 0, int(dotLeft + intensity*duration), duration) #ID, 
-	dot_tween.tween_callback(_dot_end.bind(false))
-	dot_pow = intensity
-	dot_remaining = 0
+	dot_tween = create_tween().set_loops(ceil(dotLeft/0.5))
+	dot_tween.tween_callback(_dot_tick.bind(intensity, nodeSource))
+	dot_tween.parallel().tween_property(Sprite, "modulate", Color(0.5, 1.0, 0.5), 0.25)
+	dot_tween.tween_property(Sprite, "modulate", Color.WHITE, 0.25)
+	dot_tween.finished.connect(_dot_end.bind(false))
+	
 
-func _dot_tick(dot_speed : int, type : int = 0) -> void:
-	health -= (dot_speed - dot_remaining)
-	dot_remaining = dot_speed
+func _dot_tick(dot_intensity : int, nodeSource : Node2D) -> void:
+	health -= (dot_intensity)
+	dot_remaining -= 0.5
+	nodeSource._damagedEnemy(dot_intensity)
 	if health <= 0:
 		if dot_tween:
 			dot_tween.kill()
-		_dot_end(true, type)	#ID, 
+		_dot_end(true)	#ID, 
 
 func _dot_end(death : bool, type : int = 0) -> void: #ID : int, 
-	dot_remaining = -1
+	Sprite.modulate = Color.WHITE
 	if death:
 		if dot_type == VIRUS:
 			#Add Code to make it explode
@@ -542,4 +554,29 @@ func _on_roam_timer_timeout():
 			roamTemp.wait_time = 5
 			roamTemp.start()
 			
+func dragGrab() -> void:#_followNode : Node2D) -> void:
+	applyStun()	
+
+func updateGrabPos(new_pos : Vector2, new_rot : float) -> bool:
+	Inner.rotation = new_rot
+	#print("POST DIFF ", new_pos, " ", new_pos - getPosition())
+	position += new_pos - getPosition()
 	
+	return isDead()
+	
+
+func endGrab() -> void:
+	stun_level = 0	
+	kb_moving = false
+	toggleHitbox(true)
+
+func applyStun() -> void:
+	stun_level = 3
+	kb_moving = true
+	#position = Vector2(0,0)
+	if movement_tween:
+		movement_tween.kill()
+	toggleHitbox(false)
+
+func getWeight() -> float:
+	return weight + int(superArmor) * 100

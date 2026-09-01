@@ -1978,3 +1978,6 @@ func _spawnParticle(partID : int, part_pos: Vector2, part_rot: float, sized: flo
 	var player_rot = getRotation()
 	part_pos = part_pos.rotated(player_rot)
 	spawnParticle.emit(partID, getPosition() + part_pos, player_rot+part_rot, sized, kwargs)
+
+func getWeight() -> int:
+	return 0

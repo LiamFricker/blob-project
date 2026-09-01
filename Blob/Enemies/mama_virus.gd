@@ -24,9 +24,9 @@ func _ready() -> void:
 
 func _on_detection_range_area_entered(area: Area2D) -> void:
 	if not kb_moving and not targetRef and area.getID() != ID:
-		if area.isDead():
-			return
 		targetRef = area.getParent()
+		if targetRef.isDead():
+			return
 		_startShoot()
 
 func _on_detection_range_body_entered(body: Node2D) -> void:
@@ -71,7 +71,7 @@ func _detectionCheck() -> void:
 			_on_detection_range_body_entered(b)
 
 func _startShoot() -> void:
-	if targetRef.isDead():
+	if not targetRef or targetRef.isDead():
 		targetRef = null
 		_detectionCheck()
 		return

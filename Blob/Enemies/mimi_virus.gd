@@ -63,7 +63,7 @@ func _detectionCheck() -> void:
 			_on_detection_range_body_entered(b)
 
 func _startShoot() -> void:
-	if targetRef.isDead():
+	if not targetRef or targetRef.isDead():
 		targetRef = null
 		_detectionCheck()
 		return

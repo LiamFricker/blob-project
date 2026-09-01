@@ -22,4 +22,4 @@ func getParent() -> Node2D:
 	return parentRef
 
 func getPosition() -> Vector2:
-	return position + parentRef.getPosition()
+	return position.rotated(parentRef.getRotation()) + parentRef.getPosition()

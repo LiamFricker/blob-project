@@ -14,7 +14,14 @@ func _on_inject(area: Area2D) -> void:
 """
 
 var attacking : int = 0
+
+
 var impaled : bool = false
+var impale : bool = true
+var imp_ref : Node2D 
+var impale_max_dura : float = 5.0
+const impale_weight_limt = 5.0
+var impale_tween
 
 @export var spear_level : int = 0
 @onready var spear_refs = [$Spear1, $Spear2, $Spear3, $Spear4, $Spear5]
@@ -132,6 +139,8 @@ func setspearLevel(newBL : int) -> void:
 			poison_amount = 0.0
 			_poisonInitialFinished(0.0)
 	
+	impale = newBL == 2
+	
 	$DoTTickTimer.stop()
 	
 	spear_spear_refs[spear_level].modulate = startspearColor
@@ -193,6 +202,10 @@ func _toggle(toggle : bool) -> void:
 """
 func chargeAttack(charge_max : float) -> void:
 	if attacking != 1 and (rust_level < rust_max or spear_level < 3):
+		if impaled:
+			impaleEnd()
+			return
+		
 		attacking = 1
 		if spear_tween:
 			spear_tween.kill()
@@ -203,6 +216,10 @@ func chargeAttack(charge_max : float) -> void:
 func attack(temp : float, charge_cd : float, charge_pull : float) -> void:
 	
 	if attacking == 1 and (rust_level < rust_max or spear_level < 3):
+		if impaled:
+			impaleEnd()
+			return
+			
 		attacking = 2
 		
 		var swipePos : float = min(0.08 * charge_cd, 0.2)
@@ -262,6 +279,8 @@ func _colShapeIncrease(BL : int, inc : float) -> void:
 	var abs_size = size * inc
 	var hb_shape = _BLtoColShape(BL)
 	tempShape.radius = 12 * abs_size if BL != 4 else 24 * abs_size
+	if BL == 2:
+		tempShape.radius = 18 * abs_size
 	hb_shape.set_deferred("shape", tempShape)
 	match BL:
 		0:	
@@ -287,6 +306,8 @@ func _colShapeReset(BL : int) -> void:
 	var tempShape = CircleShape2D.new()
 	var hb_shape = _BLtoColShape(BL)
 	tempShape.radius = 12 * size if BL != 4 else 24 * size
+	if BL == 2:
+		tempShape.radius = 18 * size
 	hb_shape.set_deferred("shape", tempShape)
 	match BL:
 		0:
@@ -418,6 +439,9 @@ func _handleRust(amt : float) -> void:
 			#hitbox_ref.set_deferred("monitoring", false)
 			hitbox_refs[spear_level].set_deferred("monitorable", false)
 			hitbox_refs[spear_level].hide()
+			
+			if impaled:
+				impaleEnd()
 
 func _Rusted() -> void:
 	#hitbox_ref.set_deferred("monitorable", false)
@@ -524,22 +548,52 @@ func _deRust() -> void:
 	rust_tween.parallel().tween_property(self, "rust_level", 0, rust_length)
 
 
-func getFocusedPosition() -> Vector2: 
+func getFocusedPosition(hitbox_type : int) -> Vector2: 
 	var retVec = getPosition()
-	var the_node_path : String = "Hitbox/Spear"
 	
-	
-	match spear_level:
+	match hitbox_type:
 		0:
-			retVec += get_node(the_node_path).position
+			var the_node_path : String = "Hitbox/Spear"
+	
+			match spear_level:
+				0:
+					retVec += get_node(the_node_path+"1").position
+				1:
+					retVec += get_node(the_node_path+"2").position
+				2:
+					retVec += get_node(the_node_path+"3").position
+				3:
+					retVec += get_node(the_node_path+"4").position
+				4:
+					retVec += get_node(the_node_path+"5").positions
 		1:
-			retVec += get_node(the_node_path+"2").position
+			var the_node_path : String = "HitboxSpear/CollisionShape2D"
+	
+			match spear_level:
+				0:
+					retVec += get_node(the_node_path).position
+				1:
+					retVec += get_node(the_node_path+"2").position
+				2:
+					retVec += get_node(the_node_path+"3").position
+				3:
+					retVec += get_node(the_node_path+"4").position
+				4:
+					retVec += get_node(the_node_path+"5").positions
 		2:
-			retVec += get_node(the_node_path+"3").position
-		3:
-			retVec += get_node(the_node_path+"4").position
-		4:
-			retVec += get_node(the_node_path+"5").positions
+			var the_node_path : String = "HitboxDOT/CollisionShape2D"
+	
+			match spear_level:
+				0:
+					retVec += get_node(the_node_path).position
+				1:
+					retVec += get_node(the_node_path+"2").position
+				2:
+					retVec += get_node(the_node_path+"3").position
+				3:
+					retVec += get_node(the_node_path+"4").position
+				4:
+					retVec += get_node(the_node_path+"5").positions
 	
 	return retVec
 
@@ -605,25 +659,37 @@ func setDamage(new_dmg : float) -> void:
 func _on_hitbox_spear_area_entered(area: Area2D) -> void:
 	var duration = _applyAndCalcPoison(false)
 	if duration > 0:
-		area.getParent().applyPoison(poison_damage, duration)
-
+		area.getParent().applyPoison(poison_damage, duration, self)
 
 func _on_hitbox_spear_body_entered(body: Node2D) -> void:
 	var duration = _applyAndCalcPoison(false)
 	if duration > 0:
-		body.applyPoison(poison_damage, duration)
+		body.applyPoison(poison_damage, duration, self)
 
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
+	var targetNode = area.getParent()
+	if not impaled and impale:
+		if targetNode.getWeight() < impale_weight_limt:
+			targetNode.dragGrab()
+			imp_ref = targetNode
+			impaleEnemy()
+			
+	
 	var duration = _applyAndCalcPoison()
 	if duration > 0:	
-		area.getParent().applyPoison(poison_damage, duration)
-	print("INJECTed")
+		targetNode.applyPoison(poison_damage, duration, self)
+	
 
 func _on_hitbox_body_entered(body: Node2D) -> void:
 	var duration = _applyAndCalcPoison()
 	if duration > 0:	
-		body.applyPoison(poison_damage, duration)
+		body.applyPoison(poison_damage, duration, self)
+	if not impaled and impale:
+		if body.getWeight() < impale_weight_limt:
+			body.dragGrab()
+			imp_ref = body
+			impaleEnemy()
 
 func _applyAndCalcPoison(spearOrInject : bool = true) -> float:
 	if not dot:
@@ -678,5 +744,30 @@ func _setPoisonShader(poison_prog : float) -> void:
 func _setRedPoisonShader(poison_prog : float) -> void:
 	$Spear5/Juice.material.set_shader_parameter("progress", poison_prog/poison_max)
 
-#func _poisonEnd(temp : float) -> void:
-#	pass
+func impaleEnemy() -> void:
+	impaled = true
+	
+	if impale_tween:
+		impale_tween.kill()
+	impale_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	impale_tween.tween_method(setImpaledEnemyPos, -61, -20, impale_max_dura)
+	impale_tween.finished.connect(impaleEnd)
+
+func setImpaledEnemyPos(impale_offset : float) -> void:
+	var currentRot = parentRef.getRotation()
+	
+	var returnPos = getPosition() + size * Vector2(0, impale_offset).rotated(currentRot)
+	
+	if imp_ref.updateGrabPos(returnPos, currentRot): 
+		impaleEnd(true)
+
+func impaleEnd(isDead : bool = false) -> void:
+	if impale_tween:
+		impale_tween.kill()
+	if not isDead:
+		imp_ref.endGrab()	
+		imp_ref.takeDamage(6*damage_mult, imp_ref.getPosition() + Vector2(0,1).rotated(parentRef.getRotation()), 2.5)
+	imp_ref = null
+	impaled = false
+	

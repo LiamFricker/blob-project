@@ -88,6 +88,7 @@ position = Vector2(-522, 268)
 
 [node name="YAAI_virus" parent="." instance=ExtResource("13_nwwet")]
 position = Vector2(-1, 459)
+health_max = 1000.0
 
 [node name="WaterGrizzly" parent="." instance=ExtResource("14_j8g7a")]
 process_mode = 4
