@@ -90,6 +90,15 @@ position = Vector2(-522, 268)
 position = Vector2(-1, 459)
 health_max = 1000.0
 
+[node name="YAAI_virus2" parent="." instance=ExtResource("13_nwwet")]
+position = Vector2(-1, -621)
+
+[node name="YAAI_virus3" parent="." instance=ExtResource("13_nwwet")]
+position = Vector2(218, -628)
+
+[node name="YAAI_virus4" parent="." instance=ExtResource("13_nwwet")]
+position = Vector2(525, -630)
+
 [node name="WaterGrizzly" parent="." instance=ExtResource("14_j8g7a")]
 process_mode = 4
 position = Vector2(-717, -245)
@@ -112,4 +121,7 @@ position = Vector2(-717, -245)
 [connection signal="spawnOrbs" from="magic_tiny" to="." method="_spawnOrbs"]
 [connection signal="spawnOrbs" from="magic_small" to="." method="_spawnOrbs"]
 [connection signal="spawnOrbs" from="YAAI_virus" to="." method="_spawnOrbs"]
+[connection signal="spawnOrbs" from="YAAI_virus2" to="." method="_spawnOrbs"]
+[connection signal="spawnOrbs" from="YAAI_virus3" to="." method="_spawnOrbs"]
+[connection signal="spawnOrbs" from="YAAI_virus4" to="." method="_spawnOrbs"]
 [connection signal="connectBossToZone" from="WaterGrizzly" to="." method="_connectBossToZone"]

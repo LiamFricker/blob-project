@@ -38,6 +38,7 @@ charge_speed = 10.0
 lasso_cursor_speed = 2.0
 lasso_gain_speed = 2.0
 base_invul_time = 1.0
+directional_movement = false
 directional_movement_speed = 2.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -142,11 +143,10 @@ polygon = PackedVector2Array(16, 12, 24, 12, 24, 20, 16, 20)
 position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
-[node name="Spear" parent="InnerNode/Sprite" instance=ExtResource("12_h78nt")]
-process_mode = 4
-visible = false
+[node name="Spear" parent="InnerNode/Sprite" node_paths=PackedStringArray("parentRef") instance=ExtResource("12_h78nt")]
 position = Vector2(0, -15)
 poison_max = 4.0
+parentRef = NodePath("../../..")
 
 [node name="Crosshair" type="Sprite2D" parent="InnerNode"]
 visible = false
@@ -218,6 +218,7 @@ one_shot = true
 [connection signal="spawnRustParticle" from="InnerNode/Sprite/Blades" to="." method="_spawnParticle"]
 [connection signal="damagedEnemy" from="InnerNode/Sprite/Spear" to="." method="damagedEnemy"]
 [connection signal="spawnRustParticle" from="InnerNode/Sprite/Spear" to="." method="_spawnParticle"]
+[connection signal="spawnSpearProjectile" from="InnerNode/Sprite/Spear" to="." method="_on_spear_spawn_spear_projectile"]
 [connection signal="area_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_area_entered"]
 [connection signal="body_entered" from="InnerNode/Hurtbox" to="." method="_on_hurtbox_body_entered"]
 [connection signal="timeout" from="WaddleOrbTimer" to="." method="_waddleOrbDecay"]

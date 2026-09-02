@@ -119,7 +119,8 @@ func _shake(direction: Vector2, power : float) -> void:
 	oscillate_tween.tween_property(Sprite, "position", direction * 0.25, power / 2)
 	oscillate_tween.tween_property(Sprite, "position", Vector2.ZERO, power / 4)
 	_handleRedFlash(oscillate_tween)
-	oscillate_tween.tween_callback(_collisionCheck)
+	#Uh why would I do this?
+	#oscillate_tween.tween_callback(_collisionCheck)
 	
 func directedKnockback(pos: Vector2, dmg : float, kb = 1.0, speed = 0) -> void:
 	var power = 4.0 * kb * dmg / (health_max * weight)
@@ -363,7 +364,7 @@ func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
 	print("DEATH: ", self)
 	state = DEAD
 	for c in children_list:
-		if c:
+		if c and c.isDead():
 			c.orphan(pos)
 	toggleHitbox(false)
 	toggleHurtbox(false)
@@ -463,6 +464,7 @@ func applyPoison(intensity : float, duration : float, nodeSource : Node2D, trueP
 
 func _dot_tick(dot_intensity : int, nodeSource : Node2D) -> void:
 	health -= (dot_intensity)
+	#print("NEW HEALTH: ", health)
 	dot_remaining -= 0.5
 	nodeSource._damagedEnemy(dot_intensity)
 	if health <= 0:

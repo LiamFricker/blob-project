@@ -124,7 +124,7 @@ func setspearLevel(newBL : int) -> void:
 			else:
 				$HitboxDOT/SecondShape2D4.set_deferred("disabled", false)
 			#$Hitbox4.set_deferred("monitorable", false)
-			if attacking == 0:
+			if attacking == 0 or attacking == 3:
 				$Spear4.hide()
 			$Spear4/Rust.position.y = 2
 			$Spear4/Rust.modulate.a = 0.0
@@ -149,20 +149,24 @@ func setspearLevel(newBL : int) -> void:
 	
 	spear_spear_refs[spear_level].modulate = startspearColor
 	
-	hitbox_refs[spear_level].set_deferred("monitorable", false)
-	hitbox_refs[spear_level].hide()
+	hitbox_refs[spear_level].set_deferred("disabled", true)
+	#hitbox_refs[spear_level].hide()
 	
 	
 	spear_level = newBL
 	rust_level = 0.0
 	
-	hitbox_refs[newBL].set_deferred("monitorable", true)
-	hitbox_refs[newBL].show()
+	hitbox_refs[newBL].set_deferred("disabled", false)
+	#hitbox_refs[newBL].show()
 	
 	if rust_tween:
 		rust_tween.kill()
 	
 	if attacking == 0:
+		spear_refs[newBL].show()
+	
+	if attacking == 3:
+		attacking = 0
 		spear_refs[newBL].show()
 	
 	match newBL:
@@ -205,12 +209,13 @@ func _toggle(toggle : bool) -> void:
 		#hitbox_ref.set_deferred("monitorable", toggle)
 """
 func chargeAttack(charge_max : float) -> void:
-	if attacking != 1 and (rust_level < rust_max or spear_level < 3):
+	if attacking < 2 and (rust_level < rust_max or spear_level > 2):
 		if impaled:
 			impaleEnd()
 			return
+					
 		
-		attacking = 1
+		attacking = 2
 		if spear_tween:
 			spear_tween.kill()
 		spear_tween = create_tween()
@@ -218,8 +223,10 @@ func chargeAttack(charge_max : float) -> void:
 		spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(1, 0.25), charge_max)
 
 func attack(temp : float, charge_cd : float, charge_pull : float) -> void:
-	if attacking == 1 and (rust_level < rust_max or spear_level < 3):
+	if attacking == 2 and (rust_level < rust_max or spear_level > 2):
 		if spear_level == 3:
+			hitbox_refs[3].set_deferred("disabled", true)
+			attacking = 3
 			var shootPos : float = min(0.08 * charge_cd, 0.2)
 			if spear_tween:
 				spear_tween.kill()
@@ -231,11 +238,14 @@ func attack(temp : float, charge_cd : float, charge_pull : float) -> void:
 			spear_tween.finished.connect(_shootProj.bind(temp))
 		else:
 			if impaled:
+				attacking = 3
 				impaleEnd()
 				return
 			
+			if spear_level == 4:
+				hitbox_refs[4].set_deferred("disabled", true)
 
-			attacking = 2
+			attacking = 1
 			
 			
 			
@@ -284,6 +294,10 @@ func _attackEnd(BL : int) -> void:
 				$Spear4.show()
 			4:
 				$Spear5.show()
+				
+	if spear_level == 4:
+		hitbox_refs[4].set_deferred("disabled", false)
+	
 	
 	attacking = 0
 	_BLtoColShape(BL).set_deferred("disabled", true)
@@ -427,7 +441,7 @@ func _setSize() -> void:
 func _damagedEnemyNormal(amt : float) -> void:
 	_damagedEnemy(amt)
 	_handleRust(amt)
-	if dot and $DoTTickTimer.is_stopped():
+	if dot and $DoTTickTimer.is_stopped() and spear_level != 4:
 		$DoTTickTimer.start(dot_timer)
 		#dot_hitbox_enabled = true
 		$HitboxDOT.set_deferred("monitorable", true)
@@ -439,7 +453,8 @@ func _damagedEnemyAttack(amt : float) -> void:
 
 func _handleRust(amt : float) -> void:
 	if rust_level < rust_max:
-		rust_level += 1.0 * amt
+		rust_level += amt
+		#print("RUST_LEVEL: ", rust_level, " ", rust_max)
 		var rust_length = 1.5 * min(amt / rust_max, 1.0)
 		var rust_level_diff = min(rust_level / rust_max, 1.0)
 		var end_rust_color = startspearColor.lerp(endspearColor, rust_level_diff)
@@ -454,8 +469,8 @@ func _handleRust(amt : float) -> void:
 		else:
 			rust_tween.finished.connect(_Rusted)
 			#hitbox_ref.set_deferred("monitoring", false)
-			hitbox_refs[spear_level].set_deferred("monitorable", false)
-			hitbox_refs[spear_level].hide()
+			hitbox_refs[spear_level].set_deferred("disabled", true)
+			#hitbox_refs[spear_level].hide()
 			
 			if impaled:
 				impaleEnd()
@@ -534,6 +549,10 @@ func _Rusted() -> void:
 	rust_tween.finished.connect(_fullDeRust.bind(rustNode, true))
 
 func _fullDeRust(rustNode : Node2D, notLast : bool) -> void:
+	
+	rust_level = 0.0
+	hitbox_refs[spear_level].set_deferred("disabled", false)
+	
 	if notLast:
 		rustNode.modulate.a = 0.0
 		rustNode.position.y = 2
@@ -542,10 +561,11 @@ func _fullDeRust(rustNode : Node2D, notLast : bool) -> void:
 		rustNode.rotation = 0
 	
 		_spawnRustParticle(tempRot)
+	else:
+		_poisonInitialFinished(0.0)
 	
-	hitbox_refs[spear_level].show()
-	rust_level = 0.0
-	hitbox_refs[spear_level].set_deferred("monitorable", true)
+	#hitbox_refs[spear_level].show()
+	
 
 
 #Need rotation, size, proper position, L/R, and BL
@@ -567,7 +587,7 @@ func _deRust() -> void:
 
 func getFocusedPosition(hitbox_type : int) -> Vector2: 
 	var retVec = getPosition()
-	
+	#print("HITBOX TYPE: ", hitbox_type)
 	match hitbox_type:
 		0:
 			#var the_node_path : String = "Hitbox/Spear"
@@ -586,7 +606,7 @@ func getFocusedPosition(hitbox_type : int) -> Vector2:
 					retVec += _BLtoColShape(spear_level).position
 		1:
 			var the_node_path : String = "HitboxSpear/CollisionShape2D"
-	
+			#print("spear hit")
 			match spear_level:
 				0:
 					retVec += get_node(the_node_path).position
@@ -597,7 +617,7 @@ func getFocusedPosition(hitbox_type : int) -> Vector2:
 				3:
 					retVec += get_node(the_node_path+"4").position
 				4:
-					retVec += get_node(the_node_path+"5").positions
+					retVec += get_node(the_node_path+"5").position
 		2:
 			var the_node_path : String = "HitboxDOT/CollisionShape2D"
 	
@@ -610,8 +630,9 @@ func getFocusedPosition(hitbox_type : int) -> Vector2:
 					retVec += get_node(the_node_path+"3").position
 				3:
 					retVec += get_node(the_node_path+"4").position
-				4:
-					retVec += get_node(the_node_path+"5").positions
+				_:
+					#Just incase this gets called
+					retVec += get_node(the_node_path+"4").position
 	
 	return retVec
 
@@ -653,7 +674,7 @@ func _on_do_t_tick_timer_timeout() -> void:
 			$HitboxDOT/CollisionShape2D4.set_deferred("disabled", not first_hitbox_enabled)
 	first_hitbox_enabled = not first_hitbox_enabled
 	
-	if _detectionCheck():
+	if _detectionCheck() and rust_level < rust_max:
 		$DoTTickTimer.start(dot_timer)
 	else:
 		$HitboxDOT.set_deferred("monitoring", false)
@@ -710,22 +731,32 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 			impaleEnemy()
 
 func _applyAndCalcPoison(spearOrInject : bool = true) -> float:
-	if not dot:
+	#print("POISON AMT: ", poison_amount, " ", spearOrInject)
+	
+	var rusted = rust_level >= rust_max
+	
+	if not dot or (spear_level != 4 and rusted):
 		return 0.0
 	
 	if poison_tween:
 		poison_tween.kill()
 	poison_tween = create_tween().set_parallel()
 	
-	var rusted = rust_level >= rust_max
-	
-	if spear_level == 4 and not spearOrInject:
-		var poison_loss = poison_amount / 12.0
-		var poison_loss_amt = poison_amount * 0.8
-		poison_tween.tween_property(self, "poison_amount", poison_loss_amt, poison_loss)
-		poison_tween.tween_method(_setRedPoisonShader, poison_amount, poison_loss_amt, poison_loss)
-		poison_tween.finished.connect(_poisonInitialFinished.bind(poison_loss))
-		return poison_amount * 0.25 if rusted else poison_amount * 0.2
+	if spear_level == 4:
+		if spearOrInject:
+			var poison_loss = poison_amount / 6.0
+			poison_tween.tween_property(self, "poison_amount", 0, poison_loss)
+			poison_tween.tween_method(_setRedPoisonShader, poison_amount, 0, poison_loss)
+			poison_tween.finished.connect(_poisonInitialFinished.bind(poison_loss))
+			return poison_amount * 1.25 if rusted else poison_amount
+		else:
+			var poison_loss = poison_amount / 12.0
+			var poison_loss_amt = min(poison_max * 0.8, poison_amount)
+			var poison_reduc = poison_amount - poison_loss_amt
+			poison_tween.tween_property(self, "poison_amount", poison_reduc, poison_loss)
+			poison_tween.tween_method(_setRedPoisonShader, poison_amount, poison_reduc, poison_loss)
+			poison_tween.finished.connect(_poisonInitialFinished.bind(poison_loss))
+			return poison_loss_amt * 1.25 if rusted else poison_loss_amt
 	else:
 		var poison_loss = poison_amount / 6.0
 		poison_tween.tween_property(self, "poison_amount", 0, poison_loss)
@@ -734,6 +765,8 @@ func _applyAndCalcPoison(spearOrInject : bool = true) -> float:
 		return poison_amount * 1.25 if rusted else poison_amount
 
 func _poisonInitialFinished(poison_lost : float) -> void:
+	
+	
 	if poison_tween:
 		poison_tween.kill()
 	poison_tween = create_tween().set_parallel()
@@ -788,23 +821,30 @@ func impaleEnd(isDead : bool = false) -> void:
 		imp_ref.takeDamage(6*damage_mult, imp_ref.getPosition() + Vector2(0,1).rotated(parentRef.getRotation()), 2.5)
 	imp_ref = null
 	impaled = false
+	attacking = 0
 	
 func _shootProj(charge_dura : float) -> void:
+	if rust_tween:
+		rust_tween.kill()
+	rust_tween = 0.0
+	
 	$Spear4/Rust.hide()
 	$Spear4/SpearShade/Full.hide()
 	if spear_tween:
 		spear_tween.kill()
 	spear_tween = create_tween()
-	spear_tween.tween_interval(15.0 / rust_recovery_speed)
-	spear_tween.finished.connect(_shootRecharge)
+	spear_tween.tween_interval(13.5 / rust_recovery_speed)
+	spear_tween.tween_callback(_shootRecharge)
+	spear_tween.tween_property($Spear4/SpearShade/Full, "scale", Vector2(1,1), 1.5 / rust_recovery_speed).from(Vector2(1,0))
+	spear_tween.finished.connect(_shootEnd)
 	
 	#if rust_tween:
 	#	rust_tween.kill()
 	#rust_tween = create_tween()
 	
-	_BLtoColShape(spear_level).set_deferred("disabled", false)
 	
-	var new_speed = 10.0 * charge_dura
+	
+	var new_speed = 125.0 * charge_dura
 	var damage_base = 6.0 * (0.5 + 0.1 * charge_dura) 
 	#var rot = parentRef.getRotation()
 	
@@ -814,15 +854,16 @@ func _shootProj(charge_dura : float) -> void:
 	spawnSpearProjectile.emit(projectile_id, damage_mult*damage_base, size, rust_level >= rust_max, new_speed, start_pos)
 
 func _shootRecharge() -> void:
-	attacking = 2
 	$Spear4/Rust.position.y = 2
 	$Spear4/Rust.modulate.a = 0.0
 	$Spear4/Rust.position.y = 2
 	$Spear4/SpearShade/Full.modulate = Color.WHITE
-	$Spear4/SpearShade/Full.scale = Vector2(1,1)
+	
 	spear_spear_refs[spear_level].modulate = startspearColor
 	
-	$Spear4/Rust.show()
 	$Spear4/SpearShade/Full.show()
-	_BLtoColShape(spear_level).set_deferred("disabled", true)
-	
+
+func _shootEnd() -> void:
+	$Spear4/Rust.show()
+	attacking = 0
+	$HitboxSpear/CollisionShape2D4.set_deferred("disabled", false)

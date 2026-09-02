@@ -93,6 +93,9 @@ func _takeDamage() -> void:
 func emitDamage(_dmg_amt) -> void:
 	pass
 
+func isDead() -> bool:
+	return health > 0 
+
 func _OnDeath() -> void:
 	toggle(false)
 	if movement_tween:
