@@ -54,7 +54,11 @@ var rust_level : float = 0.0
 @export var startspearColor : Color
 @export var endspearColor : Color
 
+const projectile_id = 1024
+
 signal spawnRustParticle(partID : int, rust_pos : Vector2, totalRot : float, size : float, kwargs : Array)
+signal spawnSpearProjectile(proj_id : int, dmg : float, sz : float, isRusted : bool, new_speed : float, start_pos : Vector2)
+
 
 func _ready() -> void:
 	var spear_temp = spear_level
@@ -190,7 +194,7 @@ func _BLtoColShape(BL : int) -> CollisionShape2D:
 		2:
 			return $Hitbox/Spear3
 		3:
-			return $Hitbox/Spear4
+			return $Hitbox/UnusedSpear4
 		_:
 			return $Hitbox/Spear5
 
@@ -214,33 +218,46 @@ func chargeAttack(charge_max : float) -> void:
 		spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(1, 0.25), charge_max)
 
 func attack(temp : float, charge_cd : float, charge_pull : float) -> void:
-	
 	if attacking == 1 and (rust_level < rust_max or spear_level < 3):
-		if impaled:
-			impaleEnd()
-			return
+		if spear_level == 3:
+			var shootPos : float = min(0.08 * charge_cd, 0.2)
+			if spear_tween:
+				spear_tween.kill()
+			spear_tween = create_tween()
 			
-		attacking = 2
-		
-		var swipePos : float = min(0.08 * charge_cd, 0.2)
-		var retPos : float = min(0.3 * charge_cd, 0.4) / charge_pull
-		var spearLen = max(2.0 * temp/6.0, 1.5) 
+			var base_size = 2.0*size
+			
+			spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(1,1), shootPos)
+			spear_tween.finished.connect(_shootProj.bind(temp))
+		else:
+			if impaled:
+				impaleEnd()
+				return
+			
 
-		if spear_tween:
-			spear_tween.kill()
-		spear_tween = create_tween().set_parallel()
-		
-		var base_size = 2.0*size
-		
-		spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(temp/20, 1 + 0.1 * temp), swipePos)
-		spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(1,1), retPos).set_delay(swipePos)
-		
-		
-		#var spear_temp = spear_level
-		spear_tween.finished.connect(_attackEnd.bind(spear_level))#spear_temp))
-		
-		_colShapeIncrease(spear_level, spearLen)
-		_BLtoColShape(spear_level).set_deferred("disabled", false)
+			attacking = 2
+			
+			
+			
+			var swipePos : float = min(0.08 * charge_cd, 0.2)
+			var retPos : float = min(0.3 * charge_cd, 0.4) / charge_pull
+			var spearLen = max(2.0 * temp/6.0, 1.5) 
+
+			if spear_tween:
+				spear_tween.kill()
+			spear_tween = create_tween()#.set_parallel()
+			
+			var base_size = 2.0*size
+			
+			spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(temp/20, 1 + 0.1 * temp), swipePos)
+			spear_tween.tween_property(spear_refs[spear_level], "scale", base_size*Vector2(1,1), retPos)#.set_delay(swipePos)
+			
+			
+			#var spear_temp = spear_level
+			spear_tween.finished.connect(_attackEnd.bind(spear_level))#spear_temp))
+			
+			_colShapeIncrease(spear_level, spearLen)
+			_BLtoColShape(spear_level).set_deferred("disabled", false)
 		
 
 func _attackEnd(BL : int) -> void:
@@ -553,19 +570,20 @@ func getFocusedPosition(hitbox_type : int) -> Vector2:
 	
 	match hitbox_type:
 		0:
-			var the_node_path : String = "Hitbox/Spear"
+			#var the_node_path : String = "Hitbox/Spear"
 	
 			match spear_level:
 				0:
-					retVec += get_node(the_node_path+"1").position
+					retVec += _BLtoColShape(spear_level).position
+					#get_node(the_node_path+"1").position
 				1:
-					retVec += get_node(the_node_path+"2").position
+					retVec += _BLtoColShape(spear_level).position
 				2:
-					retVec += get_node(the_node_path+"3").position
+					retVec += _BLtoColShape(spear_level).position
 				3:
-					retVec += get_node(the_node_path+"4").position
+					retVec += _BLtoColShape(spear_level).position
 				4:
-					retVec += get_node(the_node_path+"5").positions
+					retVec += _BLtoColShape(spear_level).position
 		1:
 			var the_node_path : String = "HitboxSpear/CollisionShape2D"
 	
@@ -770,4 +788,41 @@ func impaleEnd(isDead : bool = false) -> void:
 		imp_ref.takeDamage(6*damage_mult, imp_ref.getPosition() + Vector2(0,1).rotated(parentRef.getRotation()), 2.5)
 	imp_ref = null
 	impaled = false
+	
+func _shootProj(charge_dura : float) -> void:
+	$Spear4/Rust.hide()
+	$Spear4/SpearShade/Full.hide()
+	if spear_tween:
+		spear_tween.kill()
+	spear_tween = create_tween()
+	spear_tween.tween_interval(15.0 / rust_recovery_speed)
+	spear_tween.finished.connect(_shootRecharge)
+	
+	#if rust_tween:
+	#	rust_tween.kill()
+	#rust_tween = create_tween()
+	
+	_BLtoColShape(spear_level).set_deferred("disabled", false)
+	
+	var new_speed = 10.0 * charge_dura
+	var damage_base = 6.0 * (0.5 + 0.1 * charge_dura) 
+	#var rot = parentRef.getRotation()
+	
+	var start_pos = position + size * Vector2(0, -22)
+	#start_pos.rotated(rot)
+	
+	spawnSpearProjectile.emit(projectile_id, damage_mult*damage_base, size, rust_level >= rust_max, new_speed, start_pos)
+
+func _shootRecharge() -> void:
+	attacking = 2
+	$Spear4/Rust.position.y = 2
+	$Spear4/Rust.modulate.a = 0.0
+	$Spear4/Rust.position.y = 2
+	$Spear4/SpearShade/Full.modulate = Color.WHITE
+	$Spear4/SpearShade/Full.scale = Vector2(1,1)
+	spear_spear_refs[spear_level].modulate = startspearColor
+	
+	$Spear4/Rust.show()
+	$Spear4/SpearShade/Full.show()
+	_BLtoColShape(spear_level).set_deferred("disabled", true)
 	

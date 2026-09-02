@@ -23,8 +23,6 @@ func setParams(dmg : float, kb : float, pR : Node2D, sz : float, newID : int) ->
 	size = sz
 	ID = newID
 
-
-
 func _ready() -> void:
 	if size > 0:
 		_setSize()

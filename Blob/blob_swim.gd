@@ -1989,3 +1989,14 @@ func _spawnParticle(partID : int, part_pos: Vector2, part_rot: float, sized: flo
 
 func getWeight() -> int:
 	return 0
+
+#You should really create a central function for all of these guys.
+func spawnSpearProjectile(proj_id : int, dmg : float, sz : float, isRusted : bool, new_speed : float, start_pos : Vector2) -> void:
+	var rot = getRotation()
+	
+	var temp_td = spawnerReference.spawnFriend(proj_id, getPosition()+start_pos.rotated(rot))
+	temp_td.connectDMG(damagedEnemy)
+	temp_td.setParams(dmg, 0.0, self, sz)
+	temp_td._initSpearProj(isRusted, new_speed, rot)
+	children_list.append(temp_td)
+	

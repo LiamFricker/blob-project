@@ -9,6 +9,7 @@ var trail_bomb = preload("res://Blob/Evolutions/trail_bombs.tscn")
 var mimi_bullet = preload("res://Blob/Evolutions/player_bullet.tscn")
 var mama_bullet = preload("res://Blob/Evolutions/player_rocket.tscn")
 var yaai_bullet = preload("res://Blob/Evolutions/player_yaai_mini.tscn")
+var spear_proj = preload("res://Blob/Evolutions/spear_projectile.tscn")
 
 var stageLevel = 0
 var sizeLevel = 0
@@ -232,6 +233,8 @@ func spawnFriend(ID : int, pos : Vector2, _kwargs : Array = []) -> Node2D: #unat
 			tempEntity = mama_bullet.instantiate()
 		1023:
 			tempEntity = yaai_bullet.instantiate()
+		1024:
+			tempEntity = spear_proj.instantiate()
 			
 		_:
 			tempEntity = shockwave.instantiate()

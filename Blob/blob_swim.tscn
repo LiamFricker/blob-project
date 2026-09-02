@@ -142,12 +142,11 @@ polygon = PackedVector2Array(16, 12, 24, 12, 24, 20, 16, 20)
 position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
-[node name="Spear" parent="InnerNode/Sprite" node_paths=PackedStringArray("parentRef") instance=ExtResource("12_h78nt")]
+[node name="Spear" parent="InnerNode/Sprite" instance=ExtResource("12_h78nt")]
 process_mode = 4
 visible = false
 position = Vector2(0, -15)
 poison_max = 4.0
-parentRef = NodePath("../../..")
 
 [node name="Crosshair" type="Sprite2D" parent="InnerNode"]
 visible = false

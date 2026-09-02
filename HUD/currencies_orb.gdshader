@@ -8,15 +8,15 @@ float random (vec2 uv) {
 }
 
 float superSin (float f) {
-	return 0.2 + 0.8 * sin(.1*f) * sin(.8*f); 
+	return 0.2 + 0.8 * sin(.1*f) * sin(.8*f);
 }
 
 void fragment() {
 	//float temp = (1-UV.y);
 	//float pct = TIME + offset;
-	
+
     float pct = TIME + offset; //* TIME;
-	
+
 	vec4 result = vec4(superSin(pct), superSin(pct+3.0), superSin(pct+6.0), COLOR.a);
 	COLOR = mix(COLOR, result, 0.4);
 }
