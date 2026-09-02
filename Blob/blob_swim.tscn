@@ -38,7 +38,6 @@ charge_speed = 10.0
 lasso_cursor_speed = 2.0
 lasso_gain_speed = 2.0
 base_invul_time = 1.0
-directional_movement = false
 directional_movement_speed = 2.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -144,6 +143,8 @@ position = Vector2(-20, -16)
 polygon = PackedVector2Array(20, 12, 24, 12, 24, 16, 20, 16)
 
 [node name="Spear" parent="InnerNode/Sprite" node_paths=PackedStringArray("parentRef") instance=ExtResource("12_h78nt")]
+process_mode = 4
+visible = false
 position = Vector2(0, -15)
 poison_max = 4.0
 parentRef = NodePath("../../..")

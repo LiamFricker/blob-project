@@ -212,6 +212,7 @@ var invul_leeway_count = 2
 @export var directional_movement_speed : float = 1.0
 var queued_direction : float = 0.0
 var dir_move_tween #Normally I don't need this but it'll make it consistent between wad and frog
+var dir_move_cancel : bool = false
 
 #Ripple Vars
 var rippleOn = false
@@ -1022,6 +1023,9 @@ func _chargePress() -> void:
 	if dir_move_tween:
 		dir_move_tween.kill()
 	
+	if directional_movement:
+		directional_movement = false
+		dir_move_cancel = true
 	
 	if tentacle:
 		tent_ref.startTentacleShader()
@@ -1054,6 +1058,10 @@ func _chargeOffCD() -> void:
 func _chargeRelease() -> void:
 	if idling:
 		_idlingCancel(5.0)
+	
+	if dir_move_cancel:
+		directional_movement = true
+		dir_move_cancel = false
 	
 	if basic_tween and basic_movement_type == FROG:
 		basic_tween.kill()
