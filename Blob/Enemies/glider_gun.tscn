@@ -191,8 +191,4 @@ collision_mask = 13
 position = Vector2(-13, -2)
 shape = SubResource("CircleShape2D_kdk4l")
 
-[node name="SpawnTimer" type="Timer" parent="." index="2"]
-wait_time = 4.0
-autostart = true
-
 [connection signal="animation_finished" from="InnerNode/Sprite/AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]

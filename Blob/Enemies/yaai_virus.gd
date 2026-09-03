@@ -125,3 +125,12 @@ func _throwOrbital(distance : int) -> void:
 
 func _handleRedDeath() -> void:
 	dot_tween.tween_property(Sprite, "modulate", Color(1.0, 0, 0, 0), 1.0).set_delay(2.0)
+
+#This guy should have 1 hp anyways
+"""
+func applyStun() -> void:
+	super()
+
+func endStun() -> void:
+	super()
+"""

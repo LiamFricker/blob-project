@@ -568,9 +568,7 @@ func updateGrabPos(new_pos : Vector2, new_rot : float) -> bool:
 	
 
 func endGrab() -> void:
-	stun_level = 0	
-	kb_moving = false
-	toggleHitbox(true)
+	endStun()
 
 func applyStun() -> void:
 	stun_level = 3
@@ -579,6 +577,11 @@ func applyStun() -> void:
 	if movement_tween:
 		movement_tween.kill()
 	toggleHitbox(false)
+
+func endStun() -> void:
+	stun_level = 0	
+	kb_moving = false
+	toggleHitbox(true)
 
 func getWeight() -> float:
 	return weight + int(superArmor) * 100

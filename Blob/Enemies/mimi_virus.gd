@@ -36,8 +36,7 @@ func _on_detection_range_body_entered(body: Node2D) -> void:
 		_startShoot()
 
 func _knockbackEnd() -> void:
-	kb_moving = false
-	_collisionCheck()
+	super()
 	_detectionCheck()
 
 func _detectionCheck() -> void:
@@ -197,3 +196,11 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 func _OnDeath(pos = Vector2.ZERO, kb = 1.0, _kwargs = []) -> void:
 	$InnerNode/DetectionRange.set_deferred("monitoring", false)
 	super(pos, kb, _kwargs)
+
+func applyStun() -> void:
+	_stopAnims()
+	super()
+
+func endStun() -> void:
+	super()
+	_detectionCheck()
