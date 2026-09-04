@@ -35,7 +35,7 @@ var deathQueued = false
 
 #State:
 enum{
-	IDLE, FIGHT, FLEE, FEAST, DEAD, DISABLE
+	IDLE, DEAD, DISABLE
 } 
 #1: IDLE
 #2: FIGHT
@@ -50,9 +50,9 @@ var RoamingULBound: Vector2
 var RoamingDRBound: Vector2
 var homepos : Vector2
 
-var movement_tween 
-var oscillate_tween
-var dot_tween
+var movement_tween : Tween
+var oscillate_tween : Tween
+var dot_tween : Tween
 
 var stun_level = 0
 

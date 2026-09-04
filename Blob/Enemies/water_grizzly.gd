@@ -711,7 +711,7 @@ func _on_detection_radius_body_entered(body: Node2D) -> void:
 	var bID = body.getID()
 	if bID == 0:	
 		_onPlayerDetection(body)
-	elif bID == ID and not TargetRef:
+	elif bID != ID and not TargetRef:
 		$InnerNode/DetectionRadius.set_deferred("monitoring", false)
 		TargetRef = body
 		playerTarget = false
@@ -725,8 +725,6 @@ func _on_detection_radius_area_entered(area: Area2D) -> void:
 		if TargetRef.isDead():
 			TargetRef = null
 		else:
-			#Disable the detection radius
-			print("Area Detected")
 			$InnerNode/DetectionRadius.set_deferred("monitoring", false)
 			playerTarget = false
 			$PlayerDistanceCheck.start()

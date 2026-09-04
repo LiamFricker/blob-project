@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://ch7cjawum63h7"]
+
+[ext_resource type="PackedScene" uid="uid://4gn7v0b6uvt4" path="res://Blob/base_creature.tscn" id="1_4j6bt"]
+[ext_resource type="Script" uid="uid://da16vcvyt67dj" path="res://Blob/Enemies/base_common_creature.gd" id="2_40tut"]
+
+[node name="base_common_creature" instance=ExtResource("1_4j6bt")]
+script = ExtResource("2_40tut")
+action_speed = 1.0
+
+[node name="Detection" type="Area2D" parent="InnerNode" index="2"]
+collision_layer = 0
+collision_mask = 18
+
+[connection signal="area_entered" from="InnerNode/Detection" to="." method="_on_detection_area_entered"]
+[connection signal="body_entered" from="InnerNode/Detection" to="." method="_on_detection_body_entered"]

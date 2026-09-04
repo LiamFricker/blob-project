@@ -6,6 +6,9 @@ var rusted : bool = false
 var speed : float = 0.0
 var direction : Vector2 = Vector2(0,-1)
 
+#var origin : Vector2
+var max_dist_squared : float = 10000000
+
 func _process(delta : float) -> void:
 	position += direction * delta * speed
 
@@ -34,6 +37,7 @@ func _hitCheck(enemyHitQueued : Node2D) -> void:
 		enemyHitQueued.hide()
 
 func _initSpearProj(isRusted : bool, new_speed : float, rot : float) -> void:	
+	#var origin = position
 	direction = Vector2(0,-1).rotated(rot)
 	rotation = rot
 	speed = new_speed
@@ -42,6 +46,8 @@ func _initSpearProj(isRusted : bool, new_speed : float, rot : float) -> void:
 	
 	$Sprite.scale = size * Vector2(1,1)
 	var tempShape = RectangleShape2D.new()
+	
+	$Timer.start()
 	
 	if isRusted:
 		damage *= 1.25
@@ -60,4 +66,11 @@ func _initSpearProj(isRusted : bool, new_speed : float, rot : float) -> void:
 		$CollisionShape2D2.set_deferred("disabled", false)
 		$CollisionShape2D2.set_deferred("position:y", size * -5)
 		$Sprite/Full.show()
-	
+
+#Preferably I'd like to change this to being a distance away from the player instead. 
+#As it is now, you should also add a custom death anim to fade it out.	
+#Nvm changed it.
+func _on_timer_timeout() -> void:
+	var origin : Vector2 = parentRef.getPosition()
+	if origin.distance_squared_to(position) >= max_dist_squared:
+		_delete()
