@@ -6,10 +6,19 @@
 [node name="base_common_creature" instance=ExtResource("1_4j6bt")]
 script = ExtResource("2_40tut")
 action_speed = 1.0
+idling_delay = 5.0
+
+[node name="Weakpoint" type="RemoteTransform2D" parent="InnerNode/Sprite" index="1"]
+remote_path = NodePath("../../Weakpoint")
+update_scale = false
 
 [node name="Detection" type="Area2D" parent="InnerNode" index="2"]
 collision_layer = 0
 collision_mask = 18
+
+[node name="Weakpoint" type="Area2D" parent="InnerNode" index="3"]
+collision_layer = 0
+collision_mask = 9
 
 [connection signal="area_entered" from="InnerNode/Detection" to="." method="_on_detection_area_entered"]
 [connection signal="body_entered" from="InnerNode/Detection" to="." method="_on_detection_body_entered"]
