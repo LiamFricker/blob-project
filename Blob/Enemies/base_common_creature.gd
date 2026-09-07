@@ -11,6 +11,8 @@ var move_dir : Vector2 = Vector2.ZERO
 
 @export var DetectNode : Node2D
 
+@export var FeedingBox : Node2D 
+
 @export var action_speed : float = 1.0
 
 @export var idling_delay : float = 5.0
@@ -54,10 +56,10 @@ func getRotation(abs : bool = false) -> float:
 
 func setSize(new_size : float) -> void:
 	size = new_size
-	size_log = snappedf(log(size + 3.0), 0.01)
+	size_log = snappedf(log(size * exp(1)), 0.01)
 
 func _idleTrigger() -> void:
-	state = IDLING
+	action_state = IDLING
 	_idling()
 	
 
@@ -90,56 +92,112 @@ func _idling() -> void:
 func _walk(dir_ang : float, base_len : float = 2.0) -> void:
 	var walk_time = (base_len) * size_log
 	move_dir = Vector2.from_angle(dir_ang)
-	var distance = base_len * move_dir * 65.0
+	var distance = base_len * move_dir * 50.0
+	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
 	
 	moveAnimate()	
-	movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	movement_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
 	movement_tween.tween_property(Inner, "position", distance, walk_time).as_relative()
+	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, walk_time*0.25)#.as_relative()
 	$AnimationPlayer.play("Walk", 0.2, size_log)
 
 func _run(dir_ang : float, base_len : float = 1.0) -> void:
 	var run_time = (base_len) * size_log
 	move_dir = Vector2.from_angle(dir_ang)
-	var distance = base_len * move_dir * 130.0
+	var distance = base_len * move_dir * 100.0
+	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
 	
 	moveAnimate()	
 	movement_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
 	movement_tween.tween_property(Inner, "position", distance, run_time).as_relative()
+	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, run_time*0.5)
 	$AnimationPlayer.play("Run", 0.2, size_log)
 
 func _dash(dir_ang : float, base_len : float = 0.5) -> void:
 	var dash_time = (base_len) * size_log
 	move_dir = Vector2.from_angle(dir_ang)
-	var distance = base_len * move_dir * 260.0
+	var distance = base_len * move_dir * 200.0
+	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
 	
 	moveAnimate()	
 	movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 	movement_tween.tween_property(Inner, "position", distance, dash_time).as_relative()
+	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, dash_time*0.75).as_relative()
 	$AnimationPlayer.play("Dash", 0.2, size_log)
 
 func _huntStart() -> void:
-	pass
+	var targetPos = TargetRef.getPosition()
+	var currentPos = getPosition()
+	var dir_ang = currentPos.angle_to(targetPos)
+	var dir_dist = currentPos.distance_to(targetPos)
+	
+	state = HUNT
+	$AnimationPlayer.play("Charge", 0.2, size_log)
+	moveAnimate()
+	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
+	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, 1.0 * size_log)
+	movement_tween.tween_interval(0.5 * size)
+	movement_tween.finished.connect(_hunt.bind(dir_ang, dir_dist))
+
+func _hunt(dir_ang : float, dir_dist : float) -> void:
+	var distance_travel = (dir_dist + 50.0) / 200.0
+	_moveTowards(2, dir_ang, distance_travel)
+	#movement_tween.finished.connect(_scanTowards.bind(Inner.rotation))
+	movement_tween.finished.connect(_huntEnd)
+
+func _huntEnd() -> void:
+	if targetRef.isDead():
+		var targetPos = TargetRef.getPosition()
+		var currentPos = getPosition()
+		var dir_ang = currentPos.angle_to(targetPos)
+		var dir_dist = currentPos.distance_to(targetPos)
+		var distance_travel = (dir_dist) / 50.0
+		
+		_moveTowards(0, dir_ang, distance_travel)
+		movement_tween.finished.connect(_feast)
+	else:
+		_huntStart()
+	
+func _feast() -> void:
+	action_state = FEAST
+	moveAnimate()	
+	$AnimationPlayer.play("Feast", 0.2, size_log)
+	var basePos = Vector2.ZERO
+	for i in range(9):
+		var j : int = int(((i+5) % 9) / 3)
+		var newPos = basePos + size * Vector2(-25.0 + (25.0 * ((i+2) % 3)), -25.0 + 25.0 * j)
+		movement_tween.tween_callback(_feedBoxTranslate.bind(newPos)).set_delay(0.25*size_log)
+	movement_tween.finished.connect(_idleTrigger)
+
+func _feedBoxTranslate(new_pos : Vector2) -> void:
+	FeedingBox.set_deferred("position", new_pos)
 	
 func _aggressionTrigger(type : int = 0) -> void:
-	pass
+	action_state = FIGHT
 
 func _fleeStart(damage_direction : float) -> void:
-	state = FLEE
+	action_state = FLEE
 	moveAnimate()
 	_moveTowards(1, damage_direction + PI, 3.0)
 	movement_tween.finished.connect(_fleeUpdate.bind(damage_direction))
 
 func _fleeUpdate(dmg_dir : float) -> void:
 	anim_ref.play("Recovery", 0.2)
-	_scanTowards(dmg_dir)
+	_scanTowards(dmg_dir, 2)
 
-func _detected(target_ref : Node2D) -> void:
-	var dir_ang = getPosition().angle_to(target_ref.getPosition())
+func _detected() -> void:
 	match action_state:
+		IDLE:
+			_huntStart()
 		SEARCHING:
-			pass
+			_aggressionTrigger()
 		FLEE:
+			var targetPos = TargetRef.getPosition()
+			var dir_ang = getPosition().angle_to(targetPos)
+			TargetRef = null
 			_fleeStart(dir_ang)
+		HUNT:
+			_huntStart()
 		_:
 			pass
 
@@ -169,6 +227,7 @@ func _moveMachine(move_speed : int, dir_ang : float, base_len : float) -> void:
 func _weakpointHit(dir_pos : Vector2) -> void:
 	var dir_ang = getPosition().angle_to(dir_pos)
 	_weakpointToggle(false)
+	TargetRef = null
 	if weakpoint_count < 2:
 		action_state = SEARCHING
 		moveAnimate()
@@ -178,7 +237,8 @@ func _weakpointHit(dir_pos : Vector2) -> void:
 		#_scanTowards(dir_ang)
 		weakpoint_count += 1
 	else:
-		_aggressionTrigger() 
+		action_state = SEARCHING
+		_scanTowards(dir_ang, 2, 2.0)
 
 func _weakpointToggle(toggle : bool) -> void:
 	if weakpoint:
@@ -188,17 +248,24 @@ func _weakpointToggle(toggle : bool) -> void:
 			weakpoint.hide()
 		weakpoint.set_deferred("monitoring", toggle)
 
-func _scanTowards(dir_ang : float) -> void:
+func _scanTowards(dir_ang : float, checks : int = 1, scan_speed : float = 1.0) -> void:
 	moveAnimate()
-	var ang_diff = angle_difference(getRotation(), dir_ang)	
+	var ang_diff = angle_difference(getRotation()+PI/2, dir_ang)	
 	var sign_ang = sign(ang_diff)
-	var duration = size_log * max(ang_diff/PI, 0.1)
-	var mini_dura = 0.25 * size_log
+	var duration = size_log * max(ang_diff/PI, 0.1) / scan_speed
+	var mini_dura = 0.25 * size_log / scan_speed
 	
 	movement_tween.tween_property(Inner, "rotation", ang_diff, duration).as_relative()
 	movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	movement_tween.tween_property(Inner, "rotation", sign_ang*-PI/3, mini_dura).as_relative()
-	movement_tween.tween_property(Inner, "rotation", sign_ang* 2*PI/3, 2*mini_dura).as_relative()
+	for i in range(checks):
+		movement_tween.tween_property(Inner, "rotation", sign_ang*-PI/3, mini_dura).as_relative()
+		movement_tween.tween_property(Inner, "rotation", sign_ang* 2*PI/3, 2*mini_dura).as_relative().set_delay(mini_dura/2.0)
+		if i != checks:
+			movement_tween.tween_property(Inner, "rotation", sign_ang* PI/3, mini_dura).as_relative().set_delay(mini_dura)
+			movement_tween.tween_interval(mini_dura*2)
+		else:
+			movement_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_LINEAR)
+			movement_tween.tween_property(Inner, "rotation", sign_ang* PI/3, 2.5*mini_dura).as_relative().set_delay(mini_dura)
 	movement_tween.finished.connect(_idleTrigger)
 
 func movementCancel() -> void:
