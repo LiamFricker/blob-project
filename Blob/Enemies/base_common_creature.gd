@@ -4,7 +4,8 @@ extends base_creature
 #@export var spriteRotate : bool = true
 
 var size_log : float = 1.0
-var follow_range_max : float = 1000000#2500
+var follow_range_max_squard : float = 1000000#2500
+var follow_range_max : float = 1000#2500
 
 const base_range : int = 1000
 var move_dir : Vector2 = Vector2.ZERO
@@ -60,6 +61,7 @@ func setSize(new_size : float) -> void:
 
 func _idleTrigger() -> void:
 	action_state = IDLING
+	_toggleAttack(false)
 	_idling()
 	
 
@@ -113,6 +115,22 @@ func _run(dir_ang : float, base_len : float = 1.0) -> void:
 	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, run_time*0.5)
 	$AnimationPlayer.play("Run", 0.2, size_log)
 
+func _chase(dir_ang : float, total_len : float = 250.0, dura : float = 0.1) -> void:
+	if total_len < 250.0 * dura:
+		dura = max(total_len / 250.0, 0.05)
+	
+	
+	var angle_diff = -min(angle_difference(dir_ang, Inner.rotation + PI/2), PI * dura)
+	move_dir = Vector2.from_angle(Inner.rotation + PI/2 + angle_diff)
+	var distance = move_dir * 250.0 * dura
+	var run_time = (dura) * size_log
+	
+	moveAnimate()	
+	movement_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
+	movement_tween.tween_property(Inner, "position", distance, run_time).as_relative()
+	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, run_time)
+	$AnimationPlayer.play("Run", 0.2, size_log)
+
 func _dash(dir_ang : float, base_len : float = 0.5) -> void:
 	var dash_time = (base_len) * size_log
 	move_dir = Vector2.from_angle(dir_ang)
@@ -131,21 +149,27 @@ func _huntStart() -> void:
 	var dir_ang = currentPos.angle_to(targetPos)
 	var dir_dist = currentPos.distance_to(targetPos)
 	
-	state = HUNT
-	$AnimationPlayer.play("Charge", 0.2, size_log)
-	moveAnimate()
-	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
-	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, 1.0 * size_log)
-	movement_tween.tween_interval(0.5 * size)
-	movement_tween.finished.connect(_hunt.bind(dir_ang, dir_dist))
+	if dir_dist > follow_range_max:
+		_idleTrigger()
+	else:
+	
+		state = HUNT
+		$AnimationPlayer.play("Charge", 0.2, size_log)
+		moveAnimate()
+		var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
+		movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, 1.0 * size_log)
+		movement_tween.tween_interval(0.5 * size)
+		movement_tween.finished.connect(_hunt.bind(dir_ang, dir_dist))
 
 func _hunt(dir_ang : float, dir_dist : float) -> void:
+	_toggleAttack(true)
 	var distance_travel = (dir_dist + 50.0) / 200.0
 	_moveTowards(2, dir_ang, distance_travel)
 	#movement_tween.finished.connect(_scanTowards.bind(Inner.rotation))
 	movement_tween.finished.connect(_huntEnd)
 
 func _huntEnd() -> void:
+	_toggleAttack(false)
 	if targetRef.isDead():
 		var targetPos = TargetRef.getPosition()
 		var currentPos = getPosition()
@@ -157,8 +181,13 @@ func _huntEnd() -> void:
 		movement_tween.finished.connect(_feast)
 	else:
 		_huntStart()
+
+func _toggleAttack(_toggle : bool) -> void:
+	pass
 	
 func _feast() -> void:
+	FeedingBox.set_deferred("monitorable", true)
+	
 	action_state = FEAST
 	moveAnimate()	
 	$AnimationPlayer.play("Feast", 0.2, size_log)
@@ -174,6 +203,16 @@ func _feedBoxTranslate(new_pos : Vector2) -> void:
 	
 func _aggressionTrigger(type : int = 0) -> void:
 	action_state = FIGHT
+	var targetPos = TargetRef.getPosition()
+	var currentPos = getPosition()
+	var dir_ang = currentPos.angle_to(targetPos)
+	var dir_dist = currentPos.distance_to(targetPos)
+	
+	if dir_dist > follow_range_max:
+		_idleTrigger()
+	else:
+		_chase(dir_ang, dir_dist, 0.1)
+		movement_tween.finished.connect(_aggressionTrigger)
 
 func _fleeStart(damage_direction : float) -> void:
 	action_state = FLEE
@@ -190,6 +229,7 @@ func _detected() -> void:
 		IDLE:
 			_huntStart()
 		SEARCHING:
+			_toggleAttack(true)
 			_aggressionTrigger()
 		FLEE:
 			var targetPos = TargetRef.getPosition()
