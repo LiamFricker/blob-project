@@ -62,6 +62,7 @@ func setSize(new_size : float) -> void:
 func _idleTrigger() -> void:
 	action_state = IDLING
 	_toggleAttack(false)
+	anim_ref.play("RESET", 0.2)
 	_idling()
 	
 
@@ -129,7 +130,7 @@ func _chase(dir_ang : float, total_len : float = 250.0, dura : float = 0.1) -> v
 	movement_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
 	movement_tween.tween_property(Inner, "position", distance, run_time).as_relative()
 	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, run_time)
-	$AnimationPlayer.play("Run", 0.2, size_log)
+	
 
 func _dash(dir_ang : float, base_len : float = 0.5) -> void:
 	var dash_time = (base_len) * size_log
@@ -201,8 +202,13 @@ func _feast() -> void:
 func _feedBoxTranslate(new_pos : Vector2) -> void:
 	FeedingBox.set_deferred("position", new_pos)
 	
-func _aggressionTrigger(type : int = 0) -> void:
+func _aggressionTrigger(_type : int = 0) -> void:
 	action_state = FIGHT
+	_toggleAttack(true)
+	$AnimationPlayer.play("Run", 0.2, size_log)
+	_fight()
+
+func _fight() -> void:
 	var targetPos = TargetRef.getPosition()
 	var currentPos = getPosition()
 	var dir_ang = currentPos.angle_to(targetPos)
@@ -212,7 +218,7 @@ func _aggressionTrigger(type : int = 0) -> void:
 		_idleTrigger()
 	else:
 		_chase(dir_ang, dir_dist, 0.1)
-		movement_tween.finished.connect(_aggressionTrigger)
+		movement_tween.finished.connect(_fight)
 
 func _fleeStart(damage_direction : float) -> void:
 	action_state = FLEE
@@ -229,7 +235,7 @@ func _detected() -> void:
 		IDLE:
 			_huntStart()
 		SEARCHING:
-			_toggleAttack(true)
+			
 			_aggressionTrigger()
 		FLEE:
 			var targetPos = TargetRef.getPosition()
@@ -244,7 +250,7 @@ func _detected() -> void:
 func _moveTowards(move_speed : int = 0, dir_ang : float = -10.0, base_len : float = -1.0) -> void:
 	if dir_ang <= -10.0:
 		dir_ang = getRotation() if dir_ang == -10 else getRotation(true)
-		_moveMachine(move_speed, dir_ang, base_len)
+	_moveMachine(move_speed, dir_ang, base_len)
 
 func _moveMachine(move_speed : int, dir_ang : float, base_len : float) -> void:
 	if base_len == -1.0:
