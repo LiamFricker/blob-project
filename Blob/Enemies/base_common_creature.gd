@@ -30,6 +30,7 @@ var action_state = IDLING
 enum {
 	IDLING,
 	FLEE,
+	SEARCH_FLEE,
 	HUNT,
 	FEAST,
 	SEARCHING,
@@ -61,8 +62,10 @@ func setSize(new_size : float) -> void:
 
 func _idleTrigger() -> void:
 	action_state = IDLING
+	targetRef = null
 	_toggleAttack(false)
 	anim_ref.play("RESET", 0.2)
+	_detectionCheck()
 	_idling()
 	
 
@@ -228,6 +231,7 @@ func _fleeStart(damage_direction : float) -> void:
 
 func _fleeUpdate(dmg_dir : float) -> void:
 	anim_ref.play("Recovery", 0.2)
+	action_state = SEARCH_FLEE
 	_scanTowards(dmg_dir, 2)
 
 func _detected() -> void:
@@ -235,15 +239,12 @@ func _detected() -> void:
 		IDLE:
 			_huntStart()
 		SEARCHING:
-			
 			_aggressionTrigger()
-		FLEE:
+		SEARCH_FLEE:
 			var targetPos = TargetRef.getPosition()
 			var dir_ang = getPosition().angle_to(targetPos)
 			TargetRef = null
 			_fleeStart(dir_ang)
-		HUNT:
-			_huntStart()
 		_:
 			pass
 
@@ -327,27 +328,23 @@ func _on_detection_body_entered(body: Node2D) -> void:
 		return
 	
 	var bID = body.getID()
-	if not TargetRef:
-		if bID == 0:	
-			_onPlayerDetection(body)
-		elif bID != ID:
-			#DetectNode.set_deferred("monitoring", false)
-			TargetRef = body
-			$PlayerDistanceCheck.start()
-			_aggressionTrigger(1)
+	if bID != ID:
+		#DetectNode.set_deferred("monitoring", false)
+		TargetRef = body
+		_detected()
 
 func _on_detection_area_entered(area: Area2D) -> void:
+	var a_par = area.getParent()
+	if a_par.isDead():
+		return
 	
-	if not TargetRef and area.getID() != ID:
-		TargetRef = area.getParent()
-		if TargetRef.isDead():
-			TargetRef = null
-		else:
-			#Disable the detection radius
-			#DetectNode.set_deferred("monitoring", false)
-			_aggressionTrigger(1)
+	var aID = area.getID()
+	if area.getID() != ID:
+		TargetRef = a_par
+		_detected()
 
 func _detectionCheck() -> void:
+	"""
 	if targetRef:	
 		var targetPos = targetRef.getPosition()
 		
@@ -355,16 +352,13 @@ func _detectionCheck() -> void:
 			#_jump_start()
 			return
 		targetRef = null
-
-	var detectNode = $InnerNode/DetectionRange
-	if (detectNode.has_overlapping_areas() or detectNode.has_overlapping_bodies()):
-		var localAreas = detectNode.get_overlapping_areas()
+	"""
+	
+	if (DetectNode.has_overlapping_areas() or DetectNode.has_overlapping_bodies()):
+		var localAreas = DetectNode.get_overlapping_areas()
 		for a in localAreas:
 			_on_detection_area_entered(a)
 		
-		var localBodies = detectNode.get_overlapping_bodies()
+		var localBodies = DetectNode.get_overlapping_bodies()
 		for b in localBodies:
 			_on_detection_body_entered(b)
-			
-func _onPlayerDetection(player_ref : Node2D) -> void:
-	pass
