@@ -91,33 +91,48 @@ func _idling() -> void:
 			Sprite.scale.x = 1.0 * size
 	"""
 	
-	_moveTowards(0, newAngle)
+	_moveTowards(0, newAngle, 100.0)
 	
 	movement_tween.finished.connect(_idling)
 
-func _walk(dir_ang : float, base_len : float = 2.0) -> void:
-	var walk_time = (base_len) * size_log
+func _walk(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) -> void:
+	var walk_time = max((distance / (50.0*base_speed)), 0.1) * size_log
 	move_dir = Vector2.from_angle(dir_ang)
-	var distance = base_len * move_dir * 50.0
+	#var distance = base_len * move_dir * 50.0
 	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
 	
 	moveAnimate()	
 	movement_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
 	movement_tween.tween_property(Inner, "position", distance, walk_time).as_relative()
 	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, walk_time*0.25)#.as_relative()
-	$AnimationPlayer.play("Walk", 0.2, size_log)
+	var anim_speed_coeff = size_log * 0.5 * (base_speed + 1.0)
+	$AnimationPlayer.play("Walk", 0.2, anim_speed_coeff)
 
-func _run(dir_ang : float, base_len : float = 1.0) -> void:
-	var run_time = (base_len) * size_log
+func _run(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) -> void:
+	var run_time = max((distance / (100.0*base_speed)), 0.1) * size_log
 	move_dir = Vector2.from_angle(dir_ang)
-	var distance = base_len * move_dir * 100.0
+	#var distance = base_len * move_dir * 100.0
 	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
 	
 	moveAnimate()	
 	movement_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
 	movement_tween.tween_property(Inner, "position", distance, run_time).as_relative()
 	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, run_time*0.5)
-	$AnimationPlayer.play("Run", 0.2, size_log)
+	var anim_speed_coeff = size_log * 0.5 * (base_speed + 1.0)
+	$AnimationPlayer.play("Run", 0.2, anim_speed_coeff)
+
+func _dash(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) -> void:
+	var dash_time = max((distance / (200.0*base_speed)), 0.1) * size_log
+	move_dir = Vector2.from_angle(dir_ang)
+	#var distance = base_len * move_dir * 200.0
+	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
+	
+	moveAnimate()	
+	movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	movement_tween.tween_property(Inner, "position", distance, dash_time).as_relative()
+	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, dash_time*0.75).as_relative()
+	var anim_speed_coeff = size_log * 0.5 * (base_speed + 1.0)
+	$AnimationPlayer.play("Dash", 0.2, anim_speed_coeff)
 
 func _chase(dir_ang : float, total_len : float = 250.0, dura : float = 0.1) -> void:
 	if total_len < 250.0 * dura:
@@ -134,18 +149,6 @@ func _chase(dir_ang : float, total_len : float = 250.0, dura : float = 0.1) -> v
 	movement_tween.tween_property(Inner, "position", distance, run_time).as_relative()
 	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, run_time)
 	
-
-func _dash(dir_ang : float, base_len : float = 0.5) -> void:
-	var dash_time = (base_len) * size_log
-	move_dir = Vector2.from_angle(dir_ang)
-	var distance = base_len * move_dir * 200.0
-	var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
-	
-	moveAnimate()	
-	movement_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	movement_tween.tween_property(Inner, "position", distance, dash_time).as_relative()
-	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, dash_time*0.75).as_relative()
-	$AnimationPlayer.play("Dash", 0.2, size_log)
 
 func _huntStart() -> void:
 	var targetPos = TargetRef.getPosition()
@@ -167,7 +170,7 @@ func _huntStart() -> void:
 
 func _hunt(dir_ang : float, dir_dist : float) -> void:
 	_toggleAttack(true)
-	var distance_travel = (dir_dist + 50.0) / 200.0
+	var distance_travel = (dir_dist + 50.0)
 	_moveTowards(2, dir_ang, distance_travel)
 	#movement_tween.finished.connect(_scanTowards.bind(Inner.rotation))
 	movement_tween.finished.connect(_huntEnd)
@@ -179,9 +182,9 @@ func _huntEnd() -> void:
 		var currentPos = getPosition()
 		var dir_ang = currentPos.angle_to(targetPos)
 		var dir_dist = currentPos.distance_to(targetPos)
-		var distance_travel = (dir_dist) / 50.0
+		#var distance_travel = (dir_dist) / 50.0
 		
-		_moveTowards(0, dir_ang, distance_travel)
+		_moveTowards(0, dir_ang, dir_dist)
 		movement_tween.finished.connect(_feast)
 	else:
 		_huntStart()
@@ -226,7 +229,7 @@ func _fight() -> void:
 func _fleeStart(damage_direction : float) -> void:
 	action_state = FLEE
 	moveAnimate()
-	_moveTowards(1, damage_direction + PI, 3.0)
+	_moveTowards(1, damage_direction + PI, 300.0)
 	movement_tween.finished.connect(_fleeUpdate.bind(damage_direction))
 
 func _fleeUpdate(dmg_dir : float) -> void:
@@ -248,12 +251,13 @@ func _detected() -> void:
 		_:
 			pass
 
-func _moveTowards(move_speed : int = 0, dir_ang : float = -10.0, base_len : float = -1.0) -> void:
-	if dir_ang <= -10.0:
-		dir_ang = getRotation() if dir_ang == -10 else getRotation(true)
-	_moveMachine(move_speed, dir_ang, base_len)
+func _moveTowards(move_speed : int = 0, dir_ang : float = 0.0, base_len : float = 100.0, base_speed : float = 1.0) -> void:
+	#if dir_ang <= -10.0:
+	#	dir_ang = getRotation() if dir_ang == -10 else getRotation(true)
+	_moveMachine(move_speed, dir_ang, base_len, base_speed)
 
-func _moveMachine(move_speed : int, dir_ang : float, base_len : float) -> void:
+func _moveMachine(move_speed : int, dir_ang : float, base_len : float, base_speed : float) -> void:
+	"""
 	if base_len == -1.0:
 		match move_speed:
 			0:
@@ -263,13 +267,14 @@ func _moveMachine(move_speed : int, dir_ang : float, base_len : float) -> void:
 			2:
 				_dash(dir_ang)
 	else:
-		match move_speed:
-			0:
-				_walk(dir_ang, base_len)
-			1:
-				_run(dir_ang, base_len)
-			2:
-				_dash(dir_ang, base_len)
+	"""
+	match move_speed:
+		0:
+			_walk(dir_ang, base_len, base_speed)
+		1:
+			_run(dir_ang, base_len, base_speed)
+		2:
+			_dash(dir_ang, base_len, base_speed)
 
 func _weakpointHit(dir_pos : Vector2) -> void:
 	var dir_ang = getPosition().angle_to(dir_pos)
