@@ -1,0 +1,63 @@
+[gd_scene load_steps=10 format=3 uid="uid://iumejdtii8hj"]
+
+[ext_resource type="PackedScene" uid="uid://ch7cjawum63h7" path="res://Blob/Enemies/base_common_creature.tscn" id="1_r4fpn"]
+[ext_resource type="Texture2D" uid="uid://c2rvfx1617ke8" path="res://Art/Cell/VirusMed.png" id="2_6xbfw"]
+[ext_resource type="Texture2D" uid="uid://cchyscos2x2wr" path="res://Art/Cell/Enemies/Viruses/Eye.png" id="3_hkfrd"]
+[ext_resource type="Texture2D" uid="uid://b2irxf3635a3t" path="res://Art/Cell/Enemies/Viruses/Pupil.png" id="4_wal5y"]
+[ext_resource type="Shader" uid="uid://6rdmm0psmmgo" path="res://Blob/Enemies/weakpoint.gdshader" id="5_hkfrd"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6xbfw"]
+size = Vector2(66, 108)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6xbfw"]
+radius = 80.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wal5y"]
+shader = ExtResource("5_hkfrd")
+shader_parameter/end_color = Color(0, 1, 0, 1)
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_7lsyc"]
+
+[node name="VirusMed" instance=ExtResource("1_r4fpn")]
+
+[node name="Body" type="Sprite2D" parent="InnerNode/Sprite" index="2"]
+texture = ExtResource("2_6xbfw")
+
+[node name="Eyes" type="Node2D" parent="InnerNode/Sprite" index="3"]
+position = Vector2(0, 27)
+
+[node name="LeftEye" type="Sprite2D" parent="InnerNode/Sprite/Eyes" index="0"]
+position = Vector2(-12, 0)
+texture = ExtResource("3_hkfrd")
+
+[node name="Pupil" type="Sprite2D" parent="InnerNode/Sprite/Eyes/LeftEye" index="0"]
+position = Vector2(1, 2)
+texture = ExtResource("4_wal5y")
+
+[node name="RightEye" type="Sprite2D" parent="InnerNode/Sprite/Eyes" index="1"]
+position = Vector2(12, 0)
+texture = ExtResource("3_hkfrd")
+
+[node name="Pupil" type="Sprite2D" parent="InnerNode/Sprite/Eyes/RightEye" index="0"]
+position = Vector2(-1, 2)
+texture = ExtResource("4_wal5y")
+
+[node name="Hurtbox" parent="InnerNode" index="1"]
+visible = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
+position = Vector2(1, -1)
+shape = SubResource("RectangleShape2D_6xbfw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Detection" index="0"]
+position = Vector2(0, 123)
+shape = SubResource("CircleShape2D_6xbfw")
+
+[node name="Weakpoint" parent="InnerNode" index="3"]
+position = Vector2(0, -45)
+
+[node name="Polygon2D" type="Polygon2D" parent="InnerNode/Weakpoint" index="0"]
+material = SubResource("ShaderMaterial_wal5y")
+scale = Vector2(12, 12)
+texture = SubResource("PlaceholderTexture2D_7lsyc")
+polygon = PackedVector2Array(-1.333, -1.333, 1.333, -1.33, 1.333, 1.333, -1.333, 1.333)
