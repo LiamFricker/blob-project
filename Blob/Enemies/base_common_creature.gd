@@ -93,6 +93,13 @@ func _idling() -> void:
 	
 	_moveTowards(0, newAngle, 100.0)
 	
+	movement_tween.finished.connect(_idleBreak)
+
+func _idleBreak() -> void:
+	anim_ref.play("RESET", 0.5)
+	
+	moveAnimate()
+	movement_tween.tween_interval(1.5*action_speed)
 	movement_tween.finished.connect(_idling)
 
 func _walk(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) -> void:
@@ -106,7 +113,7 @@ func _walk(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) 
 	movement_tween.tween_property(Inner, "position", distance, walk_time).as_relative()
 	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, walk_time*0.25)#.as_relative()
 	var anim_speed_coeff = size_log * 0.5 * (base_speed + 1.0)
-	$AnimationPlayer.play("Walk", 0.2, anim_speed_coeff)
+	anim_ref.play("Walk", 0.2, anim_speed_coeff)
 
 func _run(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) -> void:
 	var run_time = max((distance / (100.0*base_speed)), 0.1) * size_log
@@ -119,7 +126,7 @@ func _run(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) -
 	movement_tween.tween_property(Inner, "position", distance, run_time).as_relative()
 	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, run_time*0.5)
 	var anim_speed_coeff = size_log * 0.5 * (base_speed + 1.0)
-	$AnimationPlayer.play("Run", 0.2, anim_speed_coeff)
+	anim_ref.play("Run", 0.2, anim_speed_coeff)
 
 func _dash(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) -> void:
 	var dash_time = max((distance / (200.0*base_speed)), 0.1) * size_log
@@ -132,7 +139,7 @@ func _dash(dir_ang : float, distance : float = 100.0, base_speed : float = 1.0) 
 	movement_tween.tween_property(Inner, "position", distance, dash_time).as_relative()
 	movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, dash_time*0.75).as_relative()
 	var anim_speed_coeff = size_log * 0.5 * (base_speed + 1.0)
-	$AnimationPlayer.play("Dash", 0.2, anim_speed_coeff)
+	anim_ref.play("Dash", 0.2, anim_speed_coeff)
 
 func _chase(dir_ang : float, total_len : float = 250.0, dura : float = 0.1) -> void:
 	if total_len < 250.0 * dura:
@@ -161,11 +168,11 @@ func _huntStart() -> void:
 	else:
 	
 		state = HUNT
-		$AnimationPlayer.play("Charge", 0.2, size_log)
+		anim_ref.play("Charge", 0.2, size_log)
 		moveAnimate()
 		var angle_diff = -angle_difference(dir_ang, Inner.rotation + PI/2)
 		movement_tween.parallel().tween_property(Inner, "rotation", angle_diff, 1.0 * size_log)
-		movement_tween.tween_interval(0.5 * size)
+		movement_tween.tween_interval(0.5 * size_log)
 		movement_tween.finished.connect(_hunt.bind(dir_ang, dir_dist))
 
 func _hunt(dir_ang : float, dir_dist : float) -> void:
@@ -197,7 +204,7 @@ func _feast() -> void:
 	
 	action_state = FEAST
 	moveAnimate()	
-	$AnimationPlayer.play("Feast", 0.2, size_log)
+	anim_ref.play("Feast", 0.2, size_log)
 	var basePos = Vector2.ZERO
 	for i in range(9):
 		var j : int = int(((i+5) % 9) / 3)
@@ -211,7 +218,7 @@ func _feedBoxTranslate(new_pos : Vector2) -> void:
 func _aggressionTrigger(_type : int = 0) -> void:
 	action_state = FIGHT
 	_toggleAttack(true)
-	$AnimationPlayer.play("Run", 0.2, size_log)
+	anim_ref.play("Run", 0.2, size_log)
 	_fight()
 
 func _fight() -> void:

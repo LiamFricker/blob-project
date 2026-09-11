@@ -1,5 +1,6 @@
 shader_type canvas_item;
 
+uniform vec3 start_color : source_color;
 uniform vec3 end_color : source_color;
 
 void fragment() {
@@ -15,7 +16,7 @@ void fragment() {
 	secondpart *= 1.0 * step(2.0-circ, 1.0);
 
 	pct = max(pct, 0.0) + secondpart;
-
-	COLOR = vec4(end_color, pct);
+	vec3 gradient = mix(start_color, end_color, 2.0 + 1.5*sin(UV.y + UV.x + 2.0*TIME));
+	COLOR = vec4(gradient, pct);
 
 }
