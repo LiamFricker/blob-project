@@ -120,7 +120,7 @@ func _shake(direction: Vector2, power : float) -> void:
 	oscillate_tween.tween_property(Sprite, "position", Vector2.ZERO, power / 4)
 	_handleRedFlash(oscillate_tween)
 	#Uh why would I do this?
-	#oscillate_tween.tween_callback(_collisionCheck)
+	oscillate_tween.tween_callback(_knockbackEnd.bind(false))
 	
 func directedKnockback(pos: Vector2, dmg : float, kb = 1.0, speed = 0) -> void:
 	var power = 4.0 * kb * dmg / (health_max * weight)
@@ -242,12 +242,13 @@ func knockback(pos: Vector2, dmg : float, kb : float = 1.0, speed = 0) -> void:
 			_handleRedFlash()
 			movement_tween.tween_callback(_knockbackEnd)
 
-func _knockbackEnd() -> void:
-	kb_moving = false
-	#modulate = Color(1.0, 1.0, 1.0, 1.0)
-	_collisionCheck()
-	#if state == IDLE and $IdleTimer.is_stopped():
-		#idle()
+func _knockbackEnd(normKB : bool = true) -> void:
+	if normKB:
+		kb_moving = false
+		#modulate = Color(1.0, 1.0, 1.0, 1.0)
+		_collisionCheck()
+		#if state == IDLE and $IdleTimer.is_stopped():
+			#idle()
 
 func _collisionCheck() -> void:
 	if hurtboxReference and state != DEAD:
@@ -497,6 +498,9 @@ func takeDamage(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) -> v
 		_damagedEffect(amt, pos, kb, _kwargs)
 
 func _damagedEffect(amt : float, pos : Vector2, kb : float = 1.0, _kwargs = []) -> void:
+	#Does this cause bugs?
+	if movement_tween:
+		movement_tween.kill()
 	knockback(pos, amt, kb)
 		
 func _on_roam_timer_timeout():

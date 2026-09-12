@@ -1368,6 +1368,7 @@ func energyGainFormula(value : int, enemy_drop : bool) -> float:
 	else:
 		return value * (1 + int(lasso_buffs[1]) * 0.5)
 
+#MAKE SURE TO HAVE NON ORB CURRENCIES CHECK THE TARGET SO THEY DONT GET EATEN BY ENEMIES
 func collect(value : int, orbpos : Vector2, enemy_drop : bool, currency_type = 0) -> void:
 	if currency_type == 0:
 		set_energy(energyGainFormula(value, enemy_drop))

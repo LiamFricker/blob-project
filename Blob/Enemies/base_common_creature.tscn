@@ -55,7 +55,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("InnerNode/Sprite/Eyes:scale")
+tracks/3/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes:scale")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -67,7 +67,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("InnerNode/Sprite/Eyes/LeftEye:rotation")
+tracks/4/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/LeftEye:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -79,7 +79,7 @@ tracks/4/keys = {
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("InnerNode/Sprite/Eyes/RightEye:rotation")
+tracks/5/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/RightEye:rotation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
@@ -91,7 +91,7 @@ tracks/5/keys = {
 tracks/6/type = "value"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("InnerNode/Sprite/Eyes/LeftEye/Pupil:position")
+tracks/6/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/LeftEye/Pupil:position")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
@@ -103,7 +103,7 @@ tracks/6/keys = {
 tracks/7/type = "value"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath("InnerNode/Sprite/Eyes/RightEye/Pupil:position")
+tracks/7/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/RightEye/Pupil:position")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
@@ -115,23 +115,23 @@ tracks/7/keys = {
 
 [sub_resource type="Animation" id="Animation_on61l"]
 resource_name = "test_blink"
-length = 0.8
+length = 0.6
 step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("InnerNode/Sprite/Eyes:scale")
-tracks/0/interp = 2
+tracks/0/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes:scale")
+tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.4, 0.8),
+"times": PackedFloat32Array(0, 0.3, 0.6),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
 "values": [Vector2(1, 1), Vector2(1, 0), Vector2(1, 1)]
 }
 
 [sub_resource type="Animation" id="Animation_tl05l"]
-resource_name = "test_charge"
+resource_name = "Charge"
 length = 1.5
 step = 0.025
 tracks/0/type = "value"
@@ -173,34 +173,22 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("InnerNode/Sprite/Eyes:scale")
+tracks/3/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/LeftEye:rotation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("InnerNode/Sprite/Eyes/LeftEye:rotation")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [0.0, 0.174533]
 }
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("InnerNode/Sprite/Eyes/RightEye:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/RightEye:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
@@ -208,7 +196,7 @@ tracks/5/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_vvkor"]
-resource_name = "test_dash"
+resource_name = "Dash"
 step = 0.025
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -249,34 +237,22 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("InnerNode/Sprite/Eyes:scale")
+tracks/3/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/LeftEye:rotation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/path = NodePath("InnerNode/Sprite/Eyes/LeftEye:rotation")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [0.174533, 0.0]
 }
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/path = NodePath("InnerNode/Sprite/Eyes/RightEye:rotation")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/keys = {
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/RightEye:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
@@ -284,7 +260,7 @@ tracks/5/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_jl1dh"]
-resource_name = "test_feast"
+resource_name = "Feast"
 length = 2.8
 loop_mode = 1
 step = 0.05
@@ -326,7 +302,7 @@ tracks/2/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_lhcjt"]
-resource_name = "test_flee"
+resource_name = "Flee"
 length = 0.8
 loop_mode = 1
 step = 0.25
@@ -369,7 +345,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("InnerNode/Sprite/Eyes/LeftEye:rotation")
+tracks/3/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/LeftEye:rotation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -381,7 +357,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("InnerNode/Sprite/Eyes/RightEye:rotation")
+tracks/4/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/RightEye:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -392,12 +368,12 @@ tracks/4/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_jb3ti"]
-resource_name = "test_hurt"
+resource_name = "Hurt"
 step = 0.25
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("InnerNode/Sprite/Eyes/LeftEye/Pupil:position")
+tracks/0/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/LeftEye/Pupil:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -409,7 +385,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("InnerNode/Sprite/Eyes/RightEye/Pupil:position")
+tracks/1/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/RightEye/Pupil:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -420,13 +396,13 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_4pv5f"]
-resource_name = "test_recover"
+resource_name = "Recover"
 length = 1.8
 step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("InnerNode/Sprite/Eyes:scale")
+tracks/0/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -473,7 +449,7 @@ tracks/3/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_hh6r1"]
-resource_name = "test_recovery"
+resource_name = "Recovery"
 length = 2.5
 loop_mode = 1
 step = 0.05
@@ -515,7 +491,7 @@ tracks/2/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_7lsyc"]
-resource_name = "test_run"
+resource_name = "Run"
 length = 0.8
 loop_mode = 1
 step = 0.025
@@ -558,7 +534,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("InnerNode/Sprite/Eyes/LeftEye:rotation")
+tracks/3/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/LeftEye:rotation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -570,7 +546,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("InnerNode/Sprite/Eyes/RightEye:rotation")
+tracks/4/path = NodePath("InnerNode/Sprite/InnerSprite/Eyes/RightEye:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -581,7 +557,7 @@ tracks/4/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_hkfrd"]
-resource_name = "test_walk"
+resource_name = "Walk"
 length = 1.4
 loop_mode = 1
 step = 0.025
@@ -624,49 +600,56 @@ tracks/2/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_7lsyc"]
 _data = {
+&"Charge": SubResource("Animation_tl05l"),
+&"Dash": SubResource("Animation_vvkor"),
+&"Feast": SubResource("Animation_jl1dh"),
+&"Flee": SubResource("Animation_lhcjt"),
+&"Hurt": SubResource("Animation_jb3ti"),
 &"RESET": SubResource("Animation_wal5y"),
-&"test_blink": SubResource("Animation_on61l"),
-&"test_charge": SubResource("Animation_tl05l"),
-&"test_dash": SubResource("Animation_vvkor"),
-&"test_feast": SubResource("Animation_jl1dh"),
-&"test_flee": SubResource("Animation_lhcjt"),
-&"test_hurt": SubResource("Animation_jb3ti"),
-&"test_recover": SubResource("Animation_4pv5f"),
-&"test_recovery": SubResource("Animation_hh6r1"),
-&"test_run": SubResource("Animation_7lsyc"),
-&"test_walk": SubResource("Animation_hkfrd")
+&"Recover": SubResource("Animation_4pv5f"),
+&"Recovery": SubResource("Animation_hh6r1"),
+&"Run": SubResource("Animation_7lsyc"),
+&"Walk": SubResource("Animation_hkfrd"),
+&"test_blink": SubResource("Animation_on61l")
 }
 
-[node name="base_common_creature" node_paths=PackedStringArray("DetectNode", "FeedingBox", "weakpoint") instance=ExtResource("1_4j6bt")]
+[node name="base_common_creature" node_paths=PackedStringArray("attack_nodes", "anim_ref", "DetectNode", "FeedingBox", "weakpoint", "hitboxReference") instance=ExtResource("1_4j6bt")]
 script = ExtResource("2_40tut")
+base_radius = 1.0
+base_detect_range = 1.0
+attack_nodes = []
+anim_ref = NodePath("AnimationPlayer")
 DetectNode = NodePath("InnerNode/Detection")
 FeedingBox = NodePath("InnerNode/FeedingBox")
 action_speed = 1.0
 idling_delay = 5.0
 weakpoint = NodePath("InnerNode/Weakpoint")
+hitboxReference = NodePath("InnerNode/Hitbox")
 
-[node name="Weakpoint" type="RemoteTransform2D" parent="InnerNode/Sprite" index="1"]
-remote_path = NodePath("../../Weakpoint")
+[node name="InnerSprite" type="Node2D" parent="InnerNode/Sprite" index="1"]
+
+[node name="Weakpoint" type="RemoteTransform2D" parent="InnerNode/Sprite/InnerSprite" index="0"]
+remote_path = NodePath("../../../Weakpoint")
 update_scale = false
 
-[node name="Body" type="Sprite2D" parent="InnerNode/Sprite" index="2"]
+[node name="Body" type="Sprite2D" parent="InnerNode/Sprite/InnerSprite" index="1"]
 
-[node name="Eyes" type="Node2D" parent="InnerNode/Sprite" index="3"]
+[node name="Eyes" type="Node2D" parent="InnerNode/Sprite/InnerSprite" index="2"]
 position = Vector2(0, 27)
 
-[node name="LeftEye" type="Sprite2D" parent="InnerNode/Sprite/Eyes" index="0"]
+[node name="LeftEye" type="Sprite2D" parent="InnerNode/Sprite/InnerSprite/Eyes" index="0"]
 position = Vector2(-12, 0)
 texture = ExtResource("3_wnh2v")
 
-[node name="Pupil" type="Sprite2D" parent="InnerNode/Sprite/Eyes/LeftEye" index="0"]
+[node name="Pupil" type="Sprite2D" parent="InnerNode/Sprite/InnerSprite/Eyes/LeftEye" index="0"]
 position = Vector2(1, 2)
 texture = ExtResource("4_dkpjx")
 
-[node name="RightEye" type="Sprite2D" parent="InnerNode/Sprite/Eyes" index="1"]
+[node name="RightEye" type="Sprite2D" parent="InnerNode/Sprite/InnerSprite/Eyes" index="1"]
 position = Vector2(12, 0)
 texture = ExtResource("3_wnh2v")
 
-[node name="Pupil" type="Sprite2D" parent="InnerNode/Sprite/Eyes/RightEye" index="0"]
+[node name="Pupil" type="Sprite2D" parent="InnerNode/Sprite/InnerSprite/Eyes/RightEye" index="0"]
 position = Vector2(-1, 2)
 texture = ExtResource("4_dkpjx")
 
@@ -691,6 +674,8 @@ monitoring = false
 [node name="Hitbox" type="Area2D" parent="InnerNode" index="5"]
 collision_layer = 4
 collision_mask = 0
+monitoring = false
+monitorable = false
 script = ExtResource("4_3amk1")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." index="2"]
@@ -698,5 +683,12 @@ libraries = {
 &"": SubResource("AnimationLibrary_7lsyc")
 }
 
+[node name="WeakpointRespawn" type="Timer" parent="." index="3"]
+wait_time = 2.0
+one_shot = true
+
 [connection signal="area_entered" from="InnerNode/Detection" to="." method="_on_detection_area_entered"]
 [connection signal="body_entered" from="InnerNode/Detection" to="." method="_on_detection_body_entered"]
+[connection signal="area_entered" from="InnerNode/Weakpoint" to="." method="_on_weakpoint_area_entered"]
+[connection signal="body_entered" from="InnerNode/Weakpoint" to="." method="_on_weakpoint_body_entered"]
+[connection signal="timeout" from="WeakpointRespawn" to="." method="_on_weakpoint_respawn_timeout"]

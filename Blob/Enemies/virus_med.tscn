@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://iumejdtii8hj"]
 
 [ext_resource type="PackedScene" uid="uid://ch7cjawum63h7" path="res://Blob/Enemies/base_common_creature.tscn" id="1_r4fpn"]
-[ext_resource type="Texture2D" uid="uid://c2rvfx1617ke8" path="res://Art/Cell/VirusMed.png" id="2_6xbfw"]
+[ext_resource type="Script" uid="uid://b3xdwsjh5mwro" path="res://Blob/Enemies/virus_med.gd" id="2_vww33"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6xbfw"]
 size = Vector2(66, 108)
@@ -19,15 +19,9 @@ radius = 14.0357
 radius = 28.0179
 
 [node name="VirusMed" instance=ExtResource("1_r4fpn")]
-
-[node name="Weakpoint" parent="InnerNode/Sprite" index="1"]
-position = Vector2(0, -52)
-
-[node name="Body" parent="InnerNode/Sprite" index="2"]
-texture = ExtResource("2_6xbfw")
-
-[node name="Hurtbox" parent="InnerNode" index="1"]
-visible = false
+script = ExtResource("2_vww33")
+base_radius = 57.0
+base_detect_range = 120.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InnerNode/Hurtbox" index="0"]
 position = Vector2(1, -1)
@@ -38,7 +32,6 @@ position = Vector2(0, 177)
 shape = SubResource("CircleShape2D_6xbfw")
 
 [node name="Weakpoint" parent="InnerNode" index="3"]
-position = Vector2(0, -52)
 scale = Vector2(0.999871, 0.999871)
 collision_mask = 1
 
